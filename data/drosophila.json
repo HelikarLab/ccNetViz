@@ -1,0 +1,270 @@
+{
+  "nodes": [
+    {
+      "label": "APC",
+      "style": "internal"
+    },
+    {
+      "label": "Arm",
+      "style": "internal"
+    },
+    {
+      "label": "Arr",
+      "style": "internal"
+    },
+    {
+      "label": "Axin",
+      "style": "internal"
+    },
+    {
+      "label": "Boca",
+      "style": "external"
+    },
+    {
+      "label": "CK1alpha",
+      "style": "external"
+    },
+    {
+      "label": "Dally",
+      "style": "internal"
+    },
+    {
+      "label": "Dlp",
+      "style": "internal"
+    },
+    {
+      "label": "Dsh",
+      "style": "internal"
+    },
+    {
+      "label": "Fz",
+      "style": "internal"
+    },
+    {
+      "label": "Gro",
+      "style": "external"
+    },
+    {
+      "label": "Hipk",
+      "style": "external"
+    },
+    {
+      "label": "Hyx",
+      "style": "external"
+    },
+    {
+      "label": "Lgs",
+      "style": "external"
+    },
+    {
+      "label": "Nej",
+      "style": "external"
+    },
+    {
+      "label": "Nemo",
+      "style": "internal"
+    },
+    {
+      "label": "Nkd",
+      "style": "external"
+    },
+    {
+      "label": "Pan",
+      "style": "internal"
+    },
+    {
+      "label": "Proteasome",
+      "style": "external"
+    },
+    {
+      "label": "Pygo",
+      "style": "external"
+    },
+    {
+      "label": "Sgg",
+      "style": "internal"
+    },
+    {
+      "label": "Slmb",
+      "style": "external"
+    },
+    {
+      "label": "Targets",
+      "style": "internal"
+    },
+    {
+      "label": "Ttv",
+      "style": "external"
+    },
+    {
+      "label": "Wf",
+      "style": "external"
+    },
+    {
+      "label": "Wg",
+      "style": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "style": "condition"
+    },
+    {
+      "source": 1,
+      "target": 17,
+      "style": "positive"
+    },
+    {
+      "source": 2,
+      "target": 2,
+      "style": "positive"
+    },
+    {
+      "source": 2,
+      "target": 8,
+      "style": "positive"
+    },
+    {
+      "source": 3,
+      "target": 1,
+      "style": "condition"
+    },
+    {
+      "source": 4,
+      "target": 9,
+      "style": "condition"
+    },
+    {
+      "source": 5,
+      "target": 1,
+      "style": "condition"
+    },
+    {
+      "source": 6,
+      "target": 2,
+      "style": "negative"
+    },
+    {
+      "source": 6,
+      "target": 6,
+      "style": "negative"
+    },
+    {
+      "source": 8,
+      "target": 0,
+      "style": "negative"
+    },
+    {
+      "source": 8,
+      "target": 3,
+      "style": "negative"
+    },
+    {
+      "source": 8,
+      "target": 20,
+      "style": "negative"
+    },
+    {
+      "source": 9,
+      "target": 8,
+      "style": "positive"
+    },
+    {
+      "source": 10,
+      "target": 22,
+      "style": "negative"
+    },
+    {
+      "source": 11,
+      "target": 1,
+      "style": "positive"
+    },
+    {
+      "source": 12,
+      "target": 22,
+      "style": "condition"
+    },
+    {
+      "source": 13,
+      "target": 22,
+      "style": "condition"
+    },
+    {
+      "source": 14,
+      "target": 22,
+      "style": "condition"
+    },
+    {
+      "source": 15,
+      "target": 17,
+      "style": "negative"
+    },
+    {
+      "source": 16,
+      "target": 8,
+      "style": "negative"
+    },
+    {
+      "source": 17,
+      "target": 15,
+      "style": "positive"
+    },
+    {
+      "source": 17,
+      "target": 22,
+      "style": "condition"
+    },
+    {
+      "source": 18,
+      "target": 1,
+      "style": "condition"
+    },
+    {
+      "source": 19,
+      "target": 22,
+      "style": "positive"
+    },
+    {
+      "source": 20,
+      "target": 1,
+      "style": "negative"
+    },
+    {
+      "source": 21,
+      "target": 1,
+      "style": "condition"
+    },
+    {
+      "source": 23,
+      "target": 6,
+      "style": "positive"
+    },
+    {
+      "source": 23,
+      "target": 7,
+      "style": "positive"
+    },
+    {
+      "source": 24,
+      "target": 6,
+      "style": "negative"
+    },
+    {
+      "source": 24,
+      "target": 7,
+      "style": "negative"
+    },
+    {
+      "source": 25,
+      "target": 2,
+      "style": "positive"
+    },
+    {
+      "source": 25,
+      "target": 9,
+      "style": "positive"
+    }
+  ]
+}
