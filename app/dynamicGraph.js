@@ -7,7 +7,7 @@ var DynamicGraph = React.createClass({displayName: "DynamicGraph",
         };
     },
     componentDidMount: function() {
-        utils.ajax("http://davidtichy.github.io/ccNetViz/data/" + this.props.data, null, function(data)  {
+        utils.ajax("http://helikarlab.github.io/ccNetViz/data/" + this.props.data, null, function(data)  {
             var c = new ccNetViz.color(1, 1, 1);
             var nodes = data.nodes.map(function(e)  {return { label: e.label, style: e.style, color: c };});
             var edges = data.edges.map(function(e)  {return { source: nodes[e.source], target: nodes[e.target], style: e.style };});

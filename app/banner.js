@@ -161,8 +161,8 @@ var Banner = React.createClass({displayName: "Banner",
         return (
             React.createElement("div", {className: "banner"}, 
                 React.createElement("div", {className: "links"}, 
-                    React.createElement("a", {href: "https://github.com/DavidTichy/ccNetViz"}, React.createElement("b", null, "View on GitHub")), 
-                    React.createElement("a", {href: "https://github.com/DavidTichy/ccNetViz/zipball/master"}, React.createElement("b", null, "Download"))
+                    React.createElement("a", {href: "https://github.com/helikarlab/ccNetViz"}, React.createElement("b", null, "View on GitHub")), 
+                    React.createElement("a", {href: "https://github.com/helikarlab/ccNetViz/zipball/master"}, React.createElement("b", null, "Download"))
                 ), 
                 React.createElement("div", {className: "author"}, "Created by David Tichy at ", React.createElement("a", {href: "http://helikarlab.org"}, React.createElement("b", null, "Helikar Lab"))), 
                 React.createElement("div", {className: "statistics"}, 

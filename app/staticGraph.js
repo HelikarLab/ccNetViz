@@ -10,7 +10,7 @@ var StaticGraph = React.createClass({displayName: "StaticGraph",
         };
     },
     componentDidMount: function() {
-        utils.ajax("http://davidtichy.github.io/ccNetViz/data/" + this.props.data, null, function(data)  {
+        utils.ajax("http://helikarlab.github.io/ccNetViz/data/" + this.props.data, null, function(data)  {
             var nodes = data.nodes;
             var edges = data.edges.map(function(e)  {return { source: nodes[e.source], target: nodes[e.target], style: e.style };});
             var graph = this.refs.graph.self;
