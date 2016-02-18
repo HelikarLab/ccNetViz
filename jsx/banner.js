@@ -161,8 +161,8 @@ var Banner = React.createClass({
         return (
             <div className="banner">
                 <div className="links">
-                    <a href="https://github.com/DavidTichy/ccNetViz"><b>View on GitHub</b></a>
-                    <a href="https://github.com/DavidTichy/ccNetViz/zipball/master"><b>Download</b></a>
+                    <a href="https://github.com/helikarlab/ccNetViz"><b>View on GitHub</b></a>
+                    <a href="https://github.com/helikarlab/ccNetViz/zipball/master"><b>Download</b></a>
                 </div>
                 <div className="author">Created by David Tichy at <a href="http://helikarlab.org"><b>Helikar Lab</b></a></div>
                 <div className="statistics">
