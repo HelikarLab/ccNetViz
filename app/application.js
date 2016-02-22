@@ -11,7 +11,7 @@ var Application = React.createClass({displayName: "Application",
                     React.createElement("div", null, 
                         React.createElement("div", null, 
                             "ccNetViz is a lightweight (22kB minified), high performance javascript library for large network graphs visualization using WebGL.", React.createElement("br", null), 
-                            "It enables custom styling of nodes and edges, dynamic changes of the network, force-directed layout and basic graph interactivity.", React.createElement("br", null), 
+                            "It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.", React.createElement("br", null), 
                             "Used for example by ", React.createElement("a", {href: "http://cellcollective.org"}, "Cell Collective"), " project.", React.createElement("br", null), 
                             "ccNetViz is open source library available under ", React.createElement("a", {href: "http://www.gnu.org/licenses/gpl-3.0.en.html"}, "GPLv3 License"), "."
                         ), 
