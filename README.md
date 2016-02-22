@@ -56,25 +56,25 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
 ```javascript
 {
   styles: {
-    background: { color: "rgb(0, 0, 0)" },  //background color of canvas
+    background: { color: "rgb(0, 0, 0)" },  //background color of canvas, default: "rgb(255, 255, 255)"
     node: { //predefined style
-      minSize: 8,   //minimum size of node representation in pixels
-      maxSize: 16,    //maximum size of node representation in pixels
-      color: "rgb(255, 0, 0)",  //node color (combined with node image)
+      minSize: 8,   //minimum size of node representation in pixels, default: 6
+      maxSize: 16,    //maximum size of node representation in pixels, default: 16
+      color: "rgb(255, 0, 0)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
       texture: "images/circle.png",   //node image
       label: {
         hideSize: 16,   //minimum size (height) for the label to be displayed
-        color: "rgb(120, 0, 0)",  //label color
-        font: "15px Arial, Helvetica, sans-serif" //label font
+        color: "rgb(120, 0, 0)",  //label color, default: "rgb(120, 120, 120)"
+        font: "15px Arial, Helvetica, sans-serif" //label font, default: "11px Arial, Helvetica, sans-serif"
       }
     },
     edge: {   //predefined style
-      width: 2,   //edge width in pixels
-      color: "rgb(86, 86, 86)",   //edge color
+      width: 2,   //edge width in pixels, default: 1
+      color: "rgb(86, 86, 86)",   //edge color, default: "rgb(204, 204, 204)"
       arrow: {
-        minSize: 6,   //minimum size of arrow in pixels
-        maxSize: 12,  //maximum size of arrow
-        aspect: 2,  //aspect of arrow image
+        minSize: 6,   //minimum size of arrow in pixels, default: 6
+        maxSize: 12,  //maximum size of arrow, default: 12
+        aspect: 2,  //aspect of arrow image, default: 1
         texture: "images/arrow.png",  //arrow image
         hideSize: 2   //minimum size of arrow to be displayed
       }
