@@ -11,7 +11,7 @@ var Application = React.createClass({
                     <div>
                         <div>
                             ccNetViz is a lightweight (22kB minified), high performance javascript library for large network graphs visualization using WebGL.<br/>
-                            It enables custom styling of nodes and edges, dynamic changes of the network, force-directed layout and basic graph interactivity.<br/>
+                            It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.<br/>
                             Used for example by <a href="http://cellcollective.org">Cell Collective</a> project.<br/>
                             ccNetViz is open source library available under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3 License</a>.
                         </div>
