@@ -22,13 +22,20 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 <body>
   <canvas id="container"/>
   <script>
-    var graph = new ccNetViz(document.getElementById('container'), { styles: {node: {label: {hideSize: 16}}}});
+    var graph = new ccNetViz(document.getElementById('container'), {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } }
+      }});
     var nodes = [
       { label: "Hello" },
-      { label: "World!" }
+      { label: "World" },
+      { label: "!" }
     ];
     var edges = [
-      { source: nodes[0], target: nodes[1] }
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[2] },
+      { source: nodes[2], target: nodes[1] }
     ];
     graph.set(nodes, edges, "force");
     graph.draw();
