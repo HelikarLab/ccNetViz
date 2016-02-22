@@ -22,7 +22,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 <body>
   <canvas id="container"/>
   <script>
-    var graph = new ccNetViz(document.getElementById('container'), { styles: { node: { label: { hideSize: 16 } } } });
+    var graph = new ccNetViz(document.getElementById('container'), { styles: {node: {label: {hideSize: 16}}}});
     var nodes = [
       { label: "Hello" },
       { label: "World!" }
