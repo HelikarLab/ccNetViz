@@ -57,45 +57,45 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
 {
   styles: {
     background: { color: "rgb(0, 0, 0)" },  //background color of canvas
-    node: {
-      minSize: 8, 
-      maxSize: 16,
-      color: "rgb(255, 0, 0)",
-      texture: "images/circle.png",
+    node: { //predefined style
+      minSize: 8,   //minimum size of node representation in pixels
+      maxSize: 16,    //maximum size of node representation in pixels
+      color: "rgb(255, 0, 0)",  //node color (combined with node image)
+      texture: "images/circle.png",   //node image
       label: {
-        hideSize: 16,
-        color: "rgb(120, 0, 0)",
-        font: "15px Arial, Helvetica, sans-serif"
+        hideSize: 16,   //minimum size (height) for the label to be displayed
+        color: "rgb(120, 0, 0)",  //label color
+        font: "15px Arial, Helvetica, sans-serif" //label font
       }
     },
-    edge: {
-      width: 2,
-      color: "rgb(86, 86, 86)",
+    edge: {   //predefined style
+      width: 2,   //edge width in pixels
+      color: "rgb(86, 86, 86)",   //edge color
       arrow: {
-        minSize: 6,
-        maxSize: 12,
-        aspect: 2,
-        texture: "images/arrow.png",
-        hideSize: 2
+        minSize: 6,   //minimum size of arrow in pixels
+        maxSize: 12,  //maximum size of arrow
+        aspect: 2,  //aspect of arrow image
+        texture: "images/arrow.png",  //arrow image
+        hideSize: 2   //minimum size of arrow to be displayed
       }
     },
-    nodeBlue: {
+    nodeBlue: {   //custom style
       color: "rgb(0, 0, 255)"
     },
-    nodeGiant: {
+    nodeGiant: {  //custom style
       minSize: 16
     },
-    nodeWithSmallBlueLabel: {
+    nodeWithSmallBlueLabel: {   //custom style
       label: {
         color: "rgb(0, 0, 255)",
         font: "11px Arial, Helvetica, sans-serif"
       }
     },
-    edgeWideYellow: {
+    edgeWideYellow: {   //custom style
       width: 4,
       color: "rgb(255, 255, 0)"
     },
-    edgeWithWhiteArrow: {
+    edgeWithWhiteArrow: {   //custom style
       arrow: {
         color: "rgb(255, 255, 255)"
       }
