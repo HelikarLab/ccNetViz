@@ -6,7 +6,7 @@ It enables custom styling of nodes and edges in css like way, dynamic changes of
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
-***Basic Example***
+**Basic Example**
 ```html
 <!DOCTYPE html>
 <html>
@@ -45,4 +45,61 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 </html>
 ```
 
-***Documentation***
+**Documentation**
+
+***ccNetViz(element, options)***
+
+Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles defined in styles property of options parameter.
+
+*Example style options*
+
+```javascript
+{
+  styles: {
+    background: { color: "rgb(0, 0, 0)" },  //background color of canvas
+    node: {
+      minSize: 8, 
+      maxSize: 16,
+      color: "rgb(255, 0, 0)",
+      texture: "images/circle.png",
+      label: {
+        hideSize: 16,
+        color: "rgb(120, 0, 0)",
+        font: "15px Arial, Helvetica, sans-serif"
+      }
+    },
+    edge: {
+      width: 2,
+      color: "rgb(86, 86, 86)",
+      arrow: {
+        minSize: 6,
+        maxSize: 12,
+        aspect: 2,
+        texture: "images/arrow.png",
+        hideSize: 2
+      }
+    },
+    nodeBlue: {
+      color: "rgb(0, 0, 255)"
+    },
+    nodeGiant: {
+      minSize: 16
+    },
+    nodeWithSmallBlueLabel: {
+      label: {
+        color: "rgb(0, 0, 255)",
+        font: "11px Arial, Helvetica, sans-serif"
+      }
+    },
+    edgeWideYellow: {
+      width: 4,
+      color: "rgb(255, 255, 0)"
+    },
+    edgeWithWhiteArrow: {
+      arrow: {
+        color: "rgb(255, 255, 255)"
+      }
+    }
+  }
+}
+```
