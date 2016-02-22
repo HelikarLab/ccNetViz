@@ -135,6 +135,7 @@ body {
         top: 0;
         bottom: 25%;
         padding: 2*$spacing 0;
+        font-size: $fontSize - 1px;
         line-height: $fontSize + 0.5*$spacing;
 
         @media (min-height: 600px) and (min-width: 1000px) {

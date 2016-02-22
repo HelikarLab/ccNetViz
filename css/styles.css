@@ -144,6 +144,7 @@ body {
   top: 0;
   bottom: 25%;
   padding: 12px 0;
+  font-size: 10px;
   line-height: 14px;
 }
 @media (min-height: 600px) and (min-width: 1000px) {
@@ -153,43 +154,43 @@ body {
     line-height: 19px;
   }
 }
-/* line 146, ../sass/styles.scss */
+/* line 147, ../sass/styles.scss */
 .page > div > div:last-child {
   top: 25%;
   bottom: 12px;
 }
-/* line 150, ../sass/styles.scss */
+/* line 151, ../sass/styles.scss */
 .page > div > div:last-child > div {
   position: absolute;
   width: 50%;
   top: 0;
   bottom: 0;
 }
-/* line 156, ../sass/styles.scss */
+/* line 157, ../sass/styles.scss */
 .page > div > div:last-child > div:first-child {
   left: 0;
 }
-/* line 159, ../sass/styles.scss */
+/* line 160, ../sass/styles.scss */
 .page > div > div:last-child > div:first-child > div {
   left: 0;
   right: 6px;
 }
-/* line 165, ../sass/styles.scss */
+/* line 166, ../sass/styles.scss */
 .page > div > div:last-child > div:last-child {
   right: 0;
 }
-/* line 168, ../sass/styles.scss */
+/* line 169, ../sass/styles.scss */
 .page > div > div:last-child > div:last-child > div {
   left: 6px;
   right: 0;
 }
-/* line 174, ../sass/styles.scss */
+/* line 175, ../sass/styles.scss */
 .page > div > div:last-child > div > div {
   position: absolute;
   top: 0;
   bottom: 0;
 }
-/* line 181, ../sass/styles.scss */
+/* line 182, ../sass/styles.scss */
 .page > div > div:last-child canvas {
   width: 100%;
   height: 100%;
