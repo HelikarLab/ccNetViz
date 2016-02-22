@@ -145,7 +145,7 @@ body {
   bottom: 25%;
   padding: 12px 0;
   font-size: 9px;
-  line-height: 14px;
+  line-height: 12px;
 }
 @media (min-height: 600px) and (min-width: 1000px) {
   /* line 134, ../sass/styles.scss */

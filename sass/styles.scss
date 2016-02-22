@@ -125,7 +125,7 @@ body {
     @media (max-width: 1200px) {
       width: 100%;
     }
-    
+
     &> div {
       position: absolute;
       left: 2*$spacing;
@@ -136,7 +136,7 @@ body {
         bottom: 25%;
         padding: 2*$spacing 0;
         font-size: $fontSize - 2px;
-        line-height: $fontSize + 0.5*$spacing;
+        line-height: $fontSize + 1px;
 
         @media (min-height: 600px) and (min-width: 1000px) {
           font-size: $fontSize + 2px;
