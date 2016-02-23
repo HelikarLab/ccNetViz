@@ -103,3 +103,13 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
   }
 }
 ```
+
+There are three predefined styles:
+
+node: default style used for all nodes
+edge: default style used for all edges
+background: default style used for canvas background
+
+All default property values of these styles can be overriden (as in example above).
+
+Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subset of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
