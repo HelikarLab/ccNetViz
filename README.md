@@ -112,3 +112,20 @@ There are three predefined styles:
 All default property values of these styles can be overriden (as in example above).
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subset of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
+
+***set(nodes, edges, layout)***
+
+Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
+* label (optional): text label for given node (displayed if node labels are enabled by node label style)
+* x, y (optional): predefined position for given node (if "layout" argument is not specified these positions will be used for graph layout)
+* color (optional): ccNetViz.color object defining color for this given node (use this in case of coloring each node separately, for coloring groups of nodes use color property of node style)
+* style (optional): name of custom style class used for this node (for example: "nodeBlue" see above section for how to define custom styles)
+ 
+"edges" argument is an array of objects describing directed graph edges. Each edge has following properties:
+* source: pointer to given source node object
+* target: pointer to given target node object
+* style (optional): name of custom style class used for this edge
+
+Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random". If not specified, positions are taken from each node x, y properties.
+
+
