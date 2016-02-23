@@ -113,6 +113,7 @@ All default property values of these styles can be overriden (as in example abov
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subset of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
+
 ***set(nodes, edges, layout)***
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
@@ -129,3 +130,26 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random". If not specified, positions are taken from each node x, y properties.
 
 
+***draw()***
+
+Renders current data.
+
+
+***resize()***
+
+Adjust graph for current canvas size.
+
+
+***resetView()***
+
+Reset zoom and panning.
+
+
+***nodes***
+
+Property to access nodes data of given graph. Use this just to read current values, for modification use "set" method instead.
+
+
+***edges***
+
+Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
