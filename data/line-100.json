@@ -99,7 +99,7 @@
     { "label": "97"},
     { "label": "98"},
     { "label": "99"},
-    { "label": "100"},
+    { "label": "100"}
   ],
   "edges": [
     { "source": 0, "target": 1 },
@@ -200,6 +200,6 @@
     { "source": 95, "target": 96 },
     { "source": 96, "target": 97 },
     { "source": 97, "target": 98 },
-    { "source": 98, "target": 99 },
+    { "source": 98, "target": 99 }
   ]
 }

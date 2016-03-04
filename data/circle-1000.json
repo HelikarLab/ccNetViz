@@ -999,7 +999,7 @@
     { "label": "997"},
     { "label": "998"},
     { "label": "999"},
-    { "label": "1000"},
+    { "label": "1000"}
   ],
   "edges": [
     { "source": 0, "target": 1 },
@@ -2001,6 +2001,6 @@
     { "source": 996, "target": 997 },
     { "source": 997, "target": 998 },
     { "source": 998, "target": 999 },
-    { "source": 999, "target": 0 },
+    { "source": 999, "target": 0 }
   ]
 }
