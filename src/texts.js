@@ -1,3 +1,5 @@
+define(function(){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,7 +8,7 @@
  *  Author: David Tichy
  */
 
-ccNetViz.texts = function(gl) {
+var texts = function(gl) {
     var size = 1024;
 
     var canvas = document.createElement("canvas");
@@ -69,4 +71,8 @@ ccNetViz.texts = function(gl) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
         gl.bindTexture(gl.TEXTURE_2D, null);
     };
-}
+};
+
+module.exports = texts;
+
+});

@@ -1,3 +1,4 @@
+define(function(){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,7 +7,7 @@
  *  Author: David Tichy
  */
 
-ccNetViz.layout.random = function(nodes) {
+module.exports = function(nodes) {
     this.apply = function() {
         for (var i = 0, n = nodes.length; i < n; i++) {
             var o = nodes[i];
@@ -14,4 +15,6 @@ ccNetViz.layout.random = function(nodes) {
             o.y = Math.random();
         }
     }
-}
+};
+
+});

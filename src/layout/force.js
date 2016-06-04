@@ -1,3 +1,5 @@
+define(['../quadTree'], function(ccNetViz_quadtree){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,7 +8,7 @@
  *  Author: David Tichy
  */
 
-ccNetViz.layout.force = function(nodes, edges) {
+module.exports = function(nodes, edges) {
     var size = [1, 1],
         alpha,
         friction = 0.9,
@@ -116,7 +118,7 @@ ccNetViz.layout.force = function(nodes, edges) {
         }
 
         if (charge) {
-            accumulate(q = ccNetViz.quadtree(nodes), alpha, charges);
+            accumulate(q = ccNetViz_quadtree(nodes), alpha, charges);
 
             for (var i = 0; i < n; i++) {
                 var o = nodes[i];
@@ -166,3 +168,5 @@ ccNetViz.layout.force = function(nodes, edges) {
         return true;
     };
 };
+
+});

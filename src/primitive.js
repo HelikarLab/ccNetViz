@@ -1,3 +1,5 @@
+define(['./shader', './color'], function(ccNetViz_shader,ccNetViz_color){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,8 +8,8 @@
  *  Author: David Tichy
  */
 
-ccNetViz.primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
-    var shader = new ccNetViz.shader(gl, vs.join('\n'), fs.join('\n'));
+var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
+    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'));
     var buffers = [];
     var sections = [];
 
@@ -24,7 +26,7 @@ ccNetViz.primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
 
         var init = (filler, n) => {
             iV = iI = 0;
-            var max = Math.floor(ccNetViz.primitive.maxBufferSize / filler.numVertices);
+            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
             var nV = Math.min(max, n - (iB - iS)*max);
             var nI = nV * filler.numIndices;
 
@@ -67,7 +69,7 @@ ccNetViz.primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
                 copy(baseStyle[styleProperty]);
                 style && copy(style[styleProperty]);
             }
-            result.color = result.color && new ccNetViz.color(result.color);
+            result.color = result.color && new ccNetViz_color(result.color);
             return result;
         };
 
@@ -86,7 +88,7 @@ ccNetViz.primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
 
             var part = parts[p];
             init(filler, part.length);
-            var max = ccNetViz.primitive.maxBufferSize - filler.numVertices;
+            var max = primitive.maxBufferSize - filler.numVertices;
             for (var i = 0; i < part.length; i++, iV += filler.numVertices, iI += filler.numIndices) {
                 if (iV > max) {
                     store(section);
@@ -154,11 +156,11 @@ ccNetViz.primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
     }
 }
 
-ccNetViz.primitive.vertices = function(buffer, iV) {
+primitive.vertices = function(buffer, iV) {
     for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
 }
 
-ccNetViz.primitive.colors = function(buffer, iV) {
+primitive.colors = function(buffer, iV) {
     for (var i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
         var c = arguments[i];
         buffer[j++] = c.r;
@@ -168,12 +170,15 @@ ccNetViz.primitive.colors = function(buffer, iV) {
     }
 }
 
-ccNetViz.primitive.indices = function(buffer, iV, iI) {
+primitive.indices = function(buffer, iV, iI) {
     for (var i = 3, j = iI, n = arguments.length; i < n; i++, j++) buffer[j] = iV + arguments[i];
 }
 
-ccNetViz.primitive.quad = function(buffer, iV, iI) {
-    ccNetViz.primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
+primitive.quad = function(buffer, iV, iI) {
+    primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
 }
 
-ccNetViz.primitive.maxBufferSize = 65536;
+primitive.maxBufferSize = 65536;
+
+module.exports = primitive;
+});

@@ -1,3 +1,5 @@
+define(function(){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,9 +8,9 @@
  *  Author: David Tichy
  */
 
-ccNetViz.utils = function() {};
+var utils = function() {};
 
-ccNetViz.utils.debounce = function(func, wait, immediate) {
+utils.debounce = function(func, wait, immediate) {
     var timeout, args, context, timestamp, result;
 
     var later = function() {
@@ -39,3 +41,7 @@ ccNetViz.utils.debounce = function(func, wait, immediate) {
         return result;
     };
 };
+
+module.exports = utils;
+
+});

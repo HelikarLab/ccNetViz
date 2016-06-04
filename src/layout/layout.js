@@ -1,3 +1,4 @@
+define(['./force', './random'], function(layoutForce, layoutRandom){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,9 +7,12 @@
  *  Author: David Tichy
  */
 
-ccNetViz.layout = function() {}
+var layout = function() {}
+layout.force = layoutForce;
+layout.random = layoutRandom;
 
-ccNetViz.layout.normalize = function(nodes) {
+
+layout.normalize = function(nodes) {
     var n = nodes.length;
     var maxX = -Infinity;
     var maxY = -Infinity;
@@ -32,3 +36,7 @@ ccNetViz.layout.normalize = function(nodes) {
         o.y = scY * (o.y - minY);
     }
 }
+
+module.exports = layout;
+
+});

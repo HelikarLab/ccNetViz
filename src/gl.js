@@ -1,3 +1,4 @@
+define(function(){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,9 +7,9 @@
  *  Author: David Tichy
  */
 
-ccNetViz.gl = function() {}
+var gl = function(){};
 
-ccNetViz.gl.initExtensions = function(gl) {
+gl.initExtensions = function(gl) {
     var extensions = gl.getSupportedExtensions();
     var result = {};
     for (var i = 1; i < arguments.length; i++) {
@@ -16,9 +17,9 @@ ccNetViz.gl.initExtensions = function(gl) {
         (result[e] = extensions.indexOf(e) >= 0) && gl.getExtension(e);
     }
     return result;
-}
+};
 
-ccNetViz.gl.createShader = function(gl, type, source) {
+gl.createShader = function(gl, type, source) {
     var result = gl.createShader(type);
     gl.shaderSource(result, source);
     gl.compileShader(result);
@@ -28,9 +29,9 @@ ccNetViz.gl.createShader = function(gl, type, source) {
         return null;
     }
     return result;
-}
+};
 
-ccNetViz.gl.createTexture = function(gl, img, onLoad) {
+gl.createTexture = function(gl, img, onLoad) {
     var result = gl.createTexture();
 
     function load() {
@@ -49,13 +50,13 @@ ccNetViz.gl.createTexture = function(gl, img, onLoad) {
     image.src = img;
     image.naturalWidth && image.naturalHeight && load();
     return result;
-}
+};
 
-ccNetViz.gl.uniformColor = function(gl, location, color) {
+gl.uniformColor = function(gl, location, color) {
     gl.uniform4f(location, color.r, color.g, color.b, color.a);
-}
+};
 
-ccNetViz.gl.ortho = function(left, right, bottom, top, near, far) {
+gl.ortho = function(left, right, bottom, top, near, far) {
     var lr = 1 / (left - right),
         bt = 1 / (bottom - top),
         nf = 1 / (near - far);
@@ -78,4 +79,9 @@ ccNetViz.gl.ortho = function(left, right, bottom, top, near, far) {
     result[14] = (far + near) * nf;
     result[15] = 1;
     return result;
-}
+};
+
+
+module.exports = gl;
+
+});

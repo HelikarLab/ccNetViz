@@ -1,3 +1,19 @@
+define([
+	'./color',
+	'./gl',
+	'./primitive', 
+	'./layout/layout',
+	'./textures', 
+	'./texts'
+    ], 
+    function(
+	ccNetViz_color,
+	ccNetViz_gl,
+	ccNetViz_primitive,
+	ccNetViz_layout,
+	ccNetViz_textures,
+	ccNetViz_texts
+    ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -5,6 +21,8 @@
  *  This source code is licensed under the GPLv3 License.
  *  Author: David Tichy
  */
+
+ccNetViz = {};
 
 ccNetViz = function(canvas, options) {
     options = options || {};
@@ -572,3 +590,15 @@ ccNetViz = function(canvas, options) {
         };
     }
 }
+
+ccNetViz.color = ccNetViz_color;
+ccNetViz.gl = ccNetViz_gl;
+ccNetViz.primitive = ccNetViz_primitive;
+ccNetViz.textures = ccNetViz_textures;
+ccNetViz.texts = ccNetViz_texts;
+ccNetViz.layout = ccNetViz_layout;
+
+
+module.exports = ccNetViz;
+
+});

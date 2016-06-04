@@ -1,3 +1,5 @@
+define(function(){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,7 +8,7 @@
  *  Author: David Tichy
  */
 
-ccNetViz.quadtree = function(points) {
+var quadtree = function(points) {
     var d, xs, ys, i, n, x1_, y1_, x2_, y2_;
 
     x2_ = y2_ = -(x1_ = y1_ = Infinity);
@@ -139,3 +141,7 @@ ccNetViz.quadtree = function(points) {
 
     return root;
 };
+
+module.exports = quadtree;
+
+});

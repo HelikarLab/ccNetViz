@@ -1,3 +1,4 @@
+define(function(){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -5,8 +6,7 @@
  *  This source code is licensed under the GPLv3 License.
  *  Author: David Tichy
  */
-
-ccNetViz.color = function (color) {
+module.exports = function (color) {
     this.a = 1;
 
     if (arguments.length >= 3) {
@@ -41,3 +41,4 @@ ccNetViz.color = function (color) {
         this.r = this.g = this.b = 0;
     }
 };
+});

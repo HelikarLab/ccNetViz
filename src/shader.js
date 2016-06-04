@@ -1,3 +1,5 @@
+define(['./gl'], function(ccNetViz_gl){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,10 +8,11 @@
  *  Author: David Tichy
  */
 
-ccNetViz.shader = function(gl, vs, fs) {
+var shader = function(gl, vs, fs) {
     var program = gl.createProgram();
-    gl.attachShader(program, ccNetViz.gl.createShader(gl, gl.VERTEX_SHADER, vs));
-    gl.attachShader(program, ccNetViz.gl.createShader(gl, gl.FRAGMENT_SHADER, fs));
+
+    gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.VERTEX_SHADER, vs));
+    gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.FRAGMENT_SHADER, fs));
     gl.linkProgram(program);
 
     this.uniforms = {};
@@ -23,7 +26,7 @@ ccNetViz.shader = function(gl, vs, fs) {
     n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
     for (var i = 0; i < n; i++) {
         var name = gl.getActiveAttrib(program, i).name;
-        this.attributes[name] = { index: i, size: ccNetViz.shader.attribute[name] || 2 };
+        this.attributes[name] = { index: i, size: shader.attribute[name] || 2 };
     }
 
     this.bind = () => {
@@ -36,6 +39,10 @@ ccNetViz.shader = function(gl, vs, fs) {
     };
 }
 
-ccNetViz.shader.attribute = {
+shader.attribute = {
     color: 4
 }
+
+module.exports = shader;
+
+});

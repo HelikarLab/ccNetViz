@@ -1,3 +1,5 @@
+define(['./utils', './gl'], function(ccNetViz_utils, ccNetViz_gl){
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6,8 +8,8 @@
  *  Author: David Tichy
  */
 
-ccNetViz.textures = function(onLoad) {
-    var load = ccNetViz.utils.debounce(onLoad, 5);
+var textures = function(onLoad) {
+    var load = ccNetViz_utils.debounce(onLoad, 5);
     var textures = {};
     var pending = {};
     var n = 0;
@@ -25,7 +27,7 @@ ccNetViz.textures = function(onLoad) {
         else {
             p = pending[img] = [action];
             n++;
-            textures[img] = t = ccNetViz.gl.createTexture(gl, img, () => {
+            textures[img] = t = ccNetViz_gl.createTexture(gl, img, () => {
                 p.forEach(a => a && a());
                 delete pending[img];
                 --n || load();
@@ -34,3 +36,7 @@ ccNetViz.textures = function(onLoad) {
         return t;
     }
 }
+
+module.exports = textures;
+
+});
