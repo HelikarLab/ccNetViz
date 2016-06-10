@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <canvas id="container"/>
+  <script>
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } }
+      }});
+    var nodes = [
+      { label: "Hello" },
+      { label: "World" },
+//      { label: "!" }
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+//      { source: nodes[1], target: nodes[2] },
+//      { source: nodes[2], target: nodes[1] }
+    ];
+    graph.set(nodes, edges, "force");
+    graph.draw();
+    
+    el.addEventListener('mouseup', function(e){
+      var bb = el.getBoundingClientRect();
+      
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      
+      console.log([x,y,50]);
+      
+      
+      var nodes = graph.find(x, y, 50, true, true);
+      
+      console.log(nodes);
+    });
+  </script>
+</body>
+</html>
