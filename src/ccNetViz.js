@@ -4,7 +4,8 @@ define([
 	'./primitive', 
 	'./layout/layout',
 	'./textures', 
-	'./texts'
+	'./texts',
+	'./spatialIndex/spatialIndex'
     ], 
     function(
 	ccNetViz_color,
@@ -12,7 +13,8 @@ define([
 	ccNetViz_primitive,
 	ccNetViz_layout,
 	ccNetViz_textures,
-	ccNetViz_texts
+	ccNetViz_texts,
+	ccNetViz_spatialIndex
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -52,12 +54,17 @@ ccNetViz = function(canvas, options) {
         s.maxSize = s.maxSize || 12;
         s.aspect = 1;
     }
+    
+    var spatialIndexValid = false;
+    var spatialIndex;
 
     var offset = 0.5 * nodeStyle.maxSize;
 
     this.set = function(nodes, edges, layout) {
         this.nodes = nodes = nodes || [];
         this.edges = edges = edges || [];
+
+        spatialIndexValid = false;
 
         var lines = [], curves = [], circles = [];
 
@@ -108,7 +115,7 @@ ccNetViz = function(canvas, options) {
                 var x = e.x;
                 var y = e.y;
                 ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+                ccNetViz.primitive.vertices(v.textureCoord, iV, 10, 0, 1, 0, 1, 1, 0, 1);
                 ccNetViz.primitive.quad(v.indices, iV, iI);
             }})
         );
@@ -218,6 +225,27 @@ ccNetViz = function(canvas, options) {
             }
         }
     }
+    
+    
+    function getCurrentSpatialIndex(){
+      if(!spatialIndexValid){
+	spatialIndex = new ccNetViz_spatialIndex(nodes, edges);
+      }
+      return spatialIndex;
+    }
+    
+    this.find = (x,y,dist,nodes,edges) => {
+      var disth = dist / canvas.height;
+      var distw = dist / canvas.width;
+      dist = Math.max(disth, distw) * view.size;
+      
+      x = (x/canvas.width)*view.size+view.x;
+      y = (y/canvas.height)*view.size+view.y;
+      
+      return getCurrentSpatialIndex().find(x,y,dist,nodes,edges);
+    }
+
+
 
     this.update = function(element, attribute, data) {
         scene[element].update(gl, attribute, data, style => ({
