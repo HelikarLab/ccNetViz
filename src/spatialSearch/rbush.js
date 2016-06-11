@@ -27,14 +27,13 @@ rbush.prototype = {
         return this._all(this.data, []);
     },
 
-    search: function (bbox, use_collision) {
-        var cmpfunc = use_collision ? hasCollision : intersects;
+    search: function (bbox) {
 
         var node = this.data,
             result = [],
             toBBox = this.toBBox;
 
-        if (!cmpfunc(bbox, node.bbox)) return result;
+        if (!intersects(bbox, node.bbox)) return result;
 
         var nodesToSearch = [],
             i, len, child, childBBox;
@@ -45,7 +44,7 @@ rbush.prototype = {
                 child = node.children[i];
                 childBBox = node.leaf ? toBBox(child) : child.bbox;
 
-                if (cmpfunc(bbox, childBBox)) {
+                if (intersects(bbox, childBBox)) {
                     if (node.leaf) result.push(child);
                     else if (contains(bbox, childBBox)) this._all(child, result);
                     else nodesToSearch.push(child);
@@ -57,14 +56,12 @@ rbush.prototype = {
         return result;
     },
 
-    collides: function (bbox, use_collision) {
-        var cmpfunc = use_collision ? hasCollision : intersects;
-
+    collides: function (bbox) {
 
         var node = this.data,
             toBBox = this.toBBox;
 
-        if (!cmpfunc(bbox, node.bbox)) return false;
+        if (!intersects(bbox, node.bbox)) return false;
 
         var nodesToSearch = [],
             i, len, child, childBBox;
@@ -75,7 +72,7 @@ rbush.prototype = {
                 child = node.children[i];
                 childBBox = node.leaf ? toBBox(child) : child.bbox;
 
-                if (cmpfunc(bbox, childBBox)) {
+                if (intersects(bbox, childBBox)) {
                     if (node.leaf || contains(bbox, childBBox)) return true;
                     nodesToSearch.push(child);
                 }
@@ -539,33 +536,6 @@ function intersects(a, b) {
            b[1] <= a[3] &&
            b[2] >= a[0] &&
            b[3] >= a[1];
-}
-
-function pointInArea(x,y,bb){
-  return x >= bb[0] &&
-	 x <= bb[2] &&
-	 y >= bb[1] &&
-	 y <= bb[3];
-}
-
-function hasCollision(a,b){
-  return pointInArea(a[0],a[1],b)
-	  ||
-	  pointInArea(a[2],a[3],b)
-	  ||
-	  pointInArea(a[0],a[3],b)
-	  ||
-	  pointInArea(a[2],a[1],b)
-	  ||
-	  pointInArea(b[0],b[1],a)
-	  ||
-	  pointInArea(b[2],b[3],a)
-	  ||
-	  pointInArea(b[0],b[3],a)
-	  ||
-	  pointInArea(b[2],b[1],a)
-	  ;
-      
 }
 
 // sort an array so that items come in groups of n unsorted items, with groups sorted between each other;

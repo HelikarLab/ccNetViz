@@ -5,7 +5,7 @@ define([
 	'./layout/layout',
 	'./textures', 
 	'./texts',
-	'./spatialIndex/spatialIndex'
+	'./spatialSearch/spatialSearch'
     ], 
     function(
 	ccNetViz_color,
@@ -14,7 +14,7 @@ define([
 	ccNetViz_layout,
 	ccNetViz_textures,
 	ccNetViz_texts,
-	ccNetViz_spatialIndex
+	ccNetViz_spatialSearch
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -54,9 +54,9 @@ ccNetViz = function(canvas, options) {
         s.maxSize = s.maxSize || 12;
         s.aspect = 1;
     }
-    
-    var spatialIndexValid = false;
-    var spatialIndex;
+
+    var spatialSearchValid = false;
+    var spatialSearch;
 
     var offset = 0.5 * nodeStyle.maxSize;
 
@@ -64,7 +64,7 @@ ccNetViz = function(canvas, options) {
         this.nodes = nodes = nodes || [];
         this.edges = edges = edges || [];
 
-        spatialIndexValid = false;
+        spatialSearchValid = false;
 
         var lines = [], curves = [], circles = [];
 
@@ -227,11 +227,11 @@ ccNetViz = function(canvas, options) {
     }
     
     
-    function getCurrentSpatialIndex(){
-      if(!spatialIndexValid){
-	spatialIndex = new ccNetViz_spatialIndex(nodes, edges);
+    function getCurrentSpatialSearch(){
+      if(!spatialSearchValid){
+	spatialSearch = new ccNetViz_spatialSearch(nodes, edges);
       }
-      return spatialIndex;
+      return spatialSearch;
     }
     
     this.find = (x,y,dist,nodes,edges) => {
@@ -242,7 +242,7 @@ ccNetViz = function(canvas, options) {
       x = (x/canvas.width)*view.size+view.x;
       y = (y/canvas.height)*view.size+view.y;
       
-      return getCurrentSpatialIndex().find(x,y,dist,nodes,edges);
+      return getCurrentSpatialSearch().find(x,y,dist,nodes,edges);
     }
 
 
