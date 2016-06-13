@@ -54,6 +54,8 @@ ccNetViz = function(canvas, options) {
         s.maxSize = s.maxSize || 12;
         s.aspect = 1;
     }
+    
+    var context;
 
     var spatialSearchValid = false;
     var spatialSearch;
@@ -67,6 +69,13 @@ ccNetViz = function(canvas, options) {
         spatialSearchValid = false;
 
         var lines = [], curves = [], circles = [];
+	
+	this.getCurrentSpatialSearch = (context) => {
+	  if(!spatialSearchValid){
+	    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
+	  }
+	  return spatialSearch;
+	}
 
         var init = () => {
             for (var i = 0; i < nodes.length; i++) {
@@ -174,7 +183,7 @@ ccNetViz = function(canvas, options) {
                         var d = normalize(s, t);
                         ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
                         ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
-                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0);
+                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
                         ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
                     }
                 })
@@ -227,13 +236,6 @@ ccNetViz = function(canvas, options) {
     }
     
     
-    function getCurrentSpatialSearch(){
-      if(!spatialSearchValid){
-	spatialSearch = new ccNetViz_spatialSearch(nodes, edges);
-      }
-      return spatialSearch;
-    }
-    
     this.find = (x,y,dist,nodes,edges) => {
       var disth = dist / canvas.height;
       var distw = dist / canvas.width;
@@ -242,7 +244,7 @@ ccNetViz = function(canvas, options) {
       x = (x/canvas.width)*view.size+view.x;
       y = (y/canvas.height)*view.size+view.y;
       
-      return getCurrentSpatialSearch().find(x,y,dist,nodes,edges);
+      return this.getCurrentSpatialSearch(context).find(context, x,y,dist,nodes,edges);
     }
 
 
@@ -261,7 +263,7 @@ ccNetViz = function(canvas, options) {
         var ox = o / width;
         var oy = o / height;
 
-        var context = {
+        context = {
             transform: ccNetViz.gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
             width: 0.5 * width,
             height: 0.5 * height,
