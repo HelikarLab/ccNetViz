@@ -230,12 +230,18 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, initCurveExc
 
       return vecPlusVec(pos, [x1,y1,x1,y1,x1,y1,x1,y1]);
     };
-    Circle.prototype.getBBox = function(){
-      var v = this.getBezierPoints(1);
+    Circle.prototype.getBBox = function(size){
+      var v = this.getBezierPoints(size);
       return getBBFromPoints(v);
     };
-    Circle.prototype.dist = function(){
-      throw new Exception("Circle dist is not yet implemented");
+    Circle.prototype.dist2 = function(x,y,size){
+      var v = this.getBezierPoints(size);
+
+      //circle is just 2 bezier curves :)
+      var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+      var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
+      
+      return Math.min(d1,d2);
     };
     
     function Curve(c){
@@ -266,17 +272,16 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, initCurveExc
     };
     Curve.prototype.getBBox = function(size){
       var v = this.getBezierPoints(size);
-      console.log(v);
+//      console.log(v);
       return getBBFromPoints(v);
     };
     Curve.prototype.dist2 = function(x,y, size){
       var v = this.getBezierPoints(size);
-      console.log(v, size);
+//      console.log(v, size);
       return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
     };
     
     function initTree(size){
-      alert("INIT");
       rbushtree = rbush();
 
       d = [];
