@@ -57,8 +57,8 @@ ccNetViz = function(canvas, options) {
     
     var context;
 
-    var spatialSearchValid = false;
-    var spatialSearch;
+    var spatialSearch = undefined;
+    var initCurveExc;
 
     var offset = 0.5 * nodeStyle.maxSize;
 
@@ -66,13 +66,13 @@ ccNetViz = function(canvas, options) {
         this.nodes = nodes = nodes || [];
         this.edges = edges = edges || [];
 
-        spatialSearchValid = false;
+        spatialSearch = undefined;
 
         var lines = [], curves = [], circles = [];
 	
 	this.getCurrentSpatialSearch = (context) => {
-	  if(!spatialSearchValid){
-	    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
+	  if(spatialSearch === undefined){
+	    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, initCurveExc, normalize);
 	  }
 	  return spatialSearch;
 	}
@@ -271,6 +271,8 @@ ccNetViz = function(canvas, options) {
             count: this.nodes.length
         };
         context.curveExc = getSize(context, this.edges.length, 0.5);
+	if(initCurveExc === undefined)
+	  initCurveExc = context.curveExc;
         context.style = nodeStyle;
         context.nodeSize = getNodeSize(context);
 

@@ -181,7 +181,7 @@ function pDistance2(x, y, x1, y1, x2, y2) {
 var EPS = Number.EPSILON || 1e-14;
 
 
-var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
+var spatialIndex = function(c, nodes, lines, curves, circles, size, initCurveExc, normalize) {
     var i, j, d, rbushtree;
 
 
@@ -259,48 +259,52 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
       var y = c.height* n[3];
       var l = Math.sqrt(x*x+y*y)*2;
       
-      n = vecXvec(n, [0, 0, (c.curveExc*size)/l, (c.curveExc*size)/l, 0, 0]);
+      n = vecXvec(n, [0, 0, (initCurveExc)/l, (initCurveExc)/l, 0, 0]);
+//      console.log(vecPlusVec(n, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]));
 
       return vecPlusVec(n, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
     };
-    Curve.prototype.getBBox = function(){
-      var v = this.getBezierPoints(1);
+    Curve.prototype.getBBox = function(size){
+      var v = this.getBezierPoints(size);
+      console.log(v);
       return getBBFromPoints(v);
     };
     Curve.prototype.dist2 = function(x,y, size){
       var v = this.getBezierPoints(size);
+      console.log(v, size);
       return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
     };
     
-    function initTree(){
+    function initTree(size){
+      alert("INIT");
       rbushtree = rbush();
 
       d = [];
       d.length = nodes.length;
       for(i = 0;i < nodes.length; i++){
 	var e = new Node(nodes[i]);
-	d[i] = e.getBBox();
+	d[i] = e.getBBox(size);
 	d[i].push(e);
       }
       
       d.length += lines.length;
       for(j = 0;j < lines.length;i++, j++){
 	var e = new Line(lines[j]);
-	d[i] = e.getBBox();
+	d[i] = e.getBBox(size);
 	d[i].push(e);
       }
 
       d.length += circles.length;
       for(j = 0;j < circles.length;i++, j++){
 	var e = new Circle(circles[j]);
-	d[i] = e.getBBox();
+	d[i] = e.getBBox(size);
 	d[i].push(e);
       }
       
       d.length += curves.length;
       for(j = 0;j < curves.length;i++, j++){
 	var e = new Curve(curves[j]);
-	d[i] = e.getBBox();
+	d[i] = e.getBBox(size);
 	d[i].push(e);
       }
 
@@ -351,7 +355,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
       return ret;
     }
 
-    initTree();
+    initTree(size);
 };
 
 module.exports = spatialIndex;
