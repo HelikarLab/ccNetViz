@@ -242,9 +242,9 @@ ccNetViz = function(canvas, options) {
       dist = Math.max(disth, distw) * view.size;
       
       x = (x/canvas.width)*view.size+view.x;
-      y = (y/canvas.height)*view.size+view.y;
+      y = (1-y/canvas.height)*view.size+view.y;
       
-      return this.getCurrentSpatialSearch(context).find(context, x,y,dist,nodes,edges);
+      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
 
 

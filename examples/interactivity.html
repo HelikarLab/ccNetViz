@@ -11,7 +11,8 @@
   <script src="../dist/ccNetViz.js"></script>
 </head>
 <body>
-  <canvas id="container"/>
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
   <script>
     var el = document.getElementById('container');
     var graph = new ccNetViz(el, {
@@ -22,13 +23,13 @@
     var nodes = [
       { label: "Hello" },
       { label: "World" },
-//      { label: "!" }
+      { label: "!" }
     ];
     var edges = [
       { source: nodes[0], target: nodes[1] },
       { source: nodes[1], target: nodes[0] },
 //      { source: nodes[0], target: nodes[0] },
-//      { source: nodes[1], target: nodes[2] },
+      { source: nodes[1], target: nodes[2] },
 //      { source: nodes[2], target: nodes[1] }
     ];
     graph.set(nodes, edges, "force");
@@ -39,13 +40,16 @@
 
       var x = e.clientX - bb.left;
       var y = e.clientY - bb.top;
+      var radius = 50;
       
-      console.log([x,y,50]);
+      var result = graph.find(x, y, radius, true, true);
       
-      
-      var nodes = graph.find(x, y, 50, true, true);
-      
-      console.log(nodes);
+      var reportel = document.getElementById("searchReport");
+      reportel.style.display = 'block';
+      var html = "<div>Search for ["+x+","+y+"] px:</div>";
+      html+="<div>Nodes: "+result.nodes.length+"</div>";
+      html+="<div>Edges: "+result.edges.length+"</div>";
+      reportel.innerHTML = html;
     });
   </script>
 </body>

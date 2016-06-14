@@ -66,7 +66,7 @@ function solveCubic(a, b, c, d) {
 }
 
 //function distanceToBezier(x,y,ax,ay,bx,by,cx,cy){
-function distanceToBezier(x,y,a,d,b,e,c,f){
+function distance2ToBezier(x,y,a,d,b,e,c,f){
   //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
   
   var A =   4*a*a  - 16*a*b + 8*a*c  + 16*b*b - 16*b*c + 4*c*c  + 4*d*d  - 16*d*e + 8*d*f  + 16*e*e - 16*e*f + 4*f*f;
@@ -77,6 +77,7 @@ function distanceToBezier(x,y,a,d,b,e,c,f){
   var eqresult = solveCubic(A,B,C,D);
   
   
+  //loop through all possible solitions to find out which point is the nearest
   var mindist = Infinity;
   for(var i = 0; i < eqresult.length; i++){
     var t = eqresult[i];
@@ -88,7 +89,7 @@ function distanceToBezier(x,y,a,d,b,e,c,f){
     var px = a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t;
     var py = d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t;
     
-    var dist = distance(x,y,px,py);
+    var dist = distance2(x,y,px,py);
     if(dist < mindist)
       mindist = dist;
     
@@ -96,15 +97,6 @@ function distanceToBezier(x,y,a,d,b,e,c,f){
   
   return mindist;
 }
-
-function vecXf(v1,f){
-  var r = [];
-  r.length = v1.length;
-  for(var i = 0; i < v1.length; i++){
-    r[i] = v1[i]*f;
-  }
-  return r;
-};
 
 function vecXvec(v1,v2){
   var r = [];
@@ -148,14 +140,14 @@ function getBBFromPoints(v){
 }
 
 //distance from point to point
-function distance(x1,y1,x2,y2){
+function distance2(x1,y1,x2,y2){
   var dx = x1 - x2;
   var dy = y1 - y2;
-  return Math.sqrt(dx * dx + dy * dy);
+  return dx * dx + dy * dy;
 }
 
 //distance from point to line
-function pDistance(x, y, x1, y1, x2, y2) {
+function pDistance2(x, y, x1, y1, x2, y2) {
   var A = x - x1;
   var B = y - y1;
   var C = x2 - x1;
@@ -182,19 +174,15 @@ function pDistance(x, y, x1, y1, x2, y2) {
     yy = y1 + param * D;
   }
 
-  var dx = x - xx;
-  var dy = y - yy;
-  return Math.sqrt(dx * dx + dy * dy);
+  return distance2(x,y,xx,yy);
 }
 
     
-    
+var EPS = Number.EPSILON || 1e-14;
 
 
 var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
-    var i, j, d, rbushtree, EPS;
-
-    EPS = Number.EPSILON || 1e-14;
+    var i, j, d, rbushtree;
 
 
     function Node(n){
@@ -204,7 +192,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
     Node.prototype.getBBox = function(){
       return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
     };
-    Node.prototype.dist = function(x,y){ return distance(x,y,this.e.x,this.e.y);};
+    Node.prototype.dist2 = function(x,y, size){ return distance2(x,y,this.e.x,this.e.y);};
     
     function Line(l){
       this.e = l;
@@ -218,7 +206,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
       y2 = this.e.target.y; 
       return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
     };
-    Line.prototype.dist = function(x,y){ return pDistance(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
+    Line.prototype.dist2 = function(x,y, size){ return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
     
     function Circle(c){
       this.e = c;
@@ -254,7 +242,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
       this.e = c;
     }
     Curve.prototype.isEdge = true;
-    Curve.prototype.getBezierPoints = function(scale){
+    Curve.prototype.getBezierPoints = function(size){
       var x1,x2,y1,y2;
       x1 = this.e.source.x;
       y1 = this.e.source.y;
@@ -265,25 +253,23 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
 
       var n = [0, 0, d.y, c.aspect2*-d.x, 0, 0];
 
-//	"   vec2 n = vec2(normal.x, aspect2 * normal.y);",
-//        "   float length = length(screen * n);",
+
 
       var x = c.width * n[2];
       var y = c.height* n[3];
       var l = Math.sqrt(x*x+y*y)*2;
       
-      n = vecXvec(n, [0, 0, (1/l), (1/l), 0, 0]);
-      var pos = vecXf(n, c.curveExc);
+      n = vecXvec(n, [0, 0, (c.curveExc*size)/l, (c.curveExc*size)/l, 0, 0]);
 
-      return vecPlusVec(pos, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
+      return vecPlusVec(n, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
     };
     Curve.prototype.getBBox = function(){
       var v = this.getBezierPoints(1);
       return getBBFromPoints(v);
     };
-    Curve.prototype.dist = function(x,y){
-      var v = this.getBezierPoints(1);
-      return distanceToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+    Curve.prototype.dist2 = function(x,y, size){
+      var v = this.getBezierPoints(size);
+      return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
     };
     
     function initTree(){
@@ -324,29 +310,34 @@ var spatialIndex = function(c, nodes, lines, curves, circles, normalize) {
     
     
     function sortByDistances(e1, e2){
-      return e1.dist - e2.dist;
+      return e1.dist2 - e2.dist2;
     }
     
-    this.find = (c, x,y, radius, nodes, edges) => {
+    this.find = (c, x,y, radius, size, nodes, edges) => {
       var ret = {};
       if(edges)
 	ret.edges = [];
       if(nodes)
 	ret.nodes = [];
+      
+      var xradius = radius;
+      var yradius = radius;
+      
+      var radius2 = radius*radius;
 
-      var data = rbushtree.search([x - radius, y - radius, x + radius,  y+ radius]);
+      var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
 
       for(var i = 0; i < data.length; i++){
 	var e = data[i][4];
-	var dist = e.dist(x,y);
-	if(dist > radius)
+	var dist2 = e.dist2(x,y, size);
+	if(dist2 > radius2)
 	  continue;
 
 	if(e.isNode && nodes){
-	  ret.nodes.push({node:e.e, dist: dist});
+	  ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
 	}
 	if(e.isEdge && edges){
-	  ret.edges.push({edge:e.e, dist: dist});
+	  ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
 	}
       }
 
