@@ -98,23 +98,6 @@ function distance2ToBezier(x,y,a,d,b,e,c,f){
   return mindist;
 }
 
-function vecXvec(v1,v2){
-  var r = [];
-  r.length = v1.length;
-  for(var i = 0; i < v1.length; i++){
-    r[i] = v1[i]*v2[i];
-  }
-  return r;
-};
-
-function vecPlusVec(v1,v2){
-  var r = [];
-  r.length = v1.length;
-  for(var i = 0; i < v1.length; i++){
-    r[i] = v1[i]+v2[i];
-  }
-  return r;
-};
 
 function getXfromVec2(v){
   var r = [];
@@ -225,11 +208,16 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
 
       var d = s.y < 0.5 ? 1 : -1;
       
-      var n = [0,0,1,d,0,1.25*d,-1,d];
-      var sizes = [xsize,ysize,xsize,ysize,xsize,ysize,xsize,ysize];
-      var pos = vecXvec(n,sizes);
-
-      return vecPlusVec(pos, [x1,y1,x1,y1,x1,y1,x1,y1]);
+      return [
+	x1,
+        y1,
+	x1 + xsize*1,
+        y1 + ysize*d,
+	x1,
+        y1 + ysize*1.25*d,
+	x1 - xsize*1,
+        y1 + ysize*d
+      ];
     };
     Circle.prototype.getBBox = function(context, size){
       var v = this.getBezierPoints(context, size);
