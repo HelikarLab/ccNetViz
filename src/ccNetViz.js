@@ -264,8 +264,8 @@ ccNetViz = function(canvas, options) {
 
         context = {
             transform: ccNetViz.gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
-	    offsetX: ox,
-	    offsetY: oy,
+            offsetX: ox,
+            offsetY: oy,
             width: 0.5 * width,
             height: 0.5 * height,
             aspect2: aspect * aspect,
@@ -274,9 +274,9 @@ ccNetViz = function(canvas, options) {
         context.curveExc = getSize(context, this.edges.length, 0.5);
         context.style = nodeStyle;
         context.nodeSize = getNodeSize(context);
-	
-	if(spatialSearch !== undefined)
-	  spatialSearch.setContext(context);
+
+        if(spatialSearch !== undefined)
+          spatialSearch.setContext(context);
 
         gl.viewport(0, 0, width, height);
         gl.clear(gl.COLOR_BUFFER_BIT);
