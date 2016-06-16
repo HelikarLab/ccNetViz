@@ -58,7 +58,6 @@ ccNetViz = function(canvas, options) {
     var context;
 
     var spatialSearch = undefined;
-    var initCurveExc;
 
     var offset = 0.5 * nodeStyle.maxSize;
 
@@ -72,7 +71,7 @@ ccNetViz = function(canvas, options) {
 	
 	this.getCurrentSpatialSearch = (context) => {
 	  if(spatialSearch === undefined){
-	    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, initCurveExc, normalize);
+	    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
 	  }
 	  return spatialSearch;
 	}
@@ -240,9 +239,9 @@ ccNetViz = function(canvas, options) {
       var disth = dist / canvas.height;
       var distw = dist / canvas.width;
       dist = Math.max(disth, distw) * view.size;
-      
-      x = (x/canvas.width)*view.size+view.x;
-      y = (1-y/canvas.height)*view.size+view.y;
+
+      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
       
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
@@ -265,16 +264,19 @@ ccNetViz = function(canvas, options) {
 
         context = {
             transform: ccNetViz.gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
+	    offsetX: ox,
+	    offsetY: oy,
             width: 0.5 * width,
             height: 0.5 * height,
             aspect2: aspect * aspect,
             count: this.nodes.length
         };
         context.curveExc = getSize(context, this.edges.length, 0.5);
-	if(initCurveExc === undefined)
-	  initCurveExc = context.curveExc;
         context.style = nodeStyle;
         context.nodeSize = getNodeSize(context);
+	
+	if(spatialSearch !== undefined)
+	  spatialSearch.setContext(context);
 
         gl.viewport(0, 0, width, height);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -319,6 +321,7 @@ ccNetViz = function(canvas, options) {
         }
         return result;
     };
+
     var getNodeSize = c => getSize(c, this.nodes.length, 0.4);
 
     var fsColorTexture = [
