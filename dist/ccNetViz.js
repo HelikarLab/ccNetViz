@@ -103,7 +103,6 @@
 	    var context;
 
 	    var spatialSearch = undefined;
-	    var initCurveExc;
 
 	    var offset = 0.5 * nodeStyle.maxSize;
 
@@ -117,7 +116,7 @@
 		
 		this.getCurrentSpatialSearch = (context) => {
 		  if(spatialSearch === undefined){
-		    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, initCurveExc, normalize);
+		    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
 		  }
 		  return spatialSearch;
 		}
@@ -285,9 +284,9 @@
 	      var disth = dist / canvas.height;
 	      var distw = dist / canvas.width;
 	      dist = Math.max(disth, distw) * view.size;
-	      
-	      x = (x/canvas.width)*view.size+view.x;
-	      y = (1-y/canvas.height)*view.size+view.y;
+
+	      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+	      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
 	      
 	      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
 	    }
@@ -310,16 +309,19 @@
 
 	        context = {
 	            transform: ccNetViz.gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
+	            offsetX: ox,
+	            offsetY: oy,
 	            width: 0.5 * width,
 	            height: 0.5 * height,
 	            aspect2: aspect * aspect,
 	            count: this.nodes.length
 	        };
 	        context.curveExc = getSize(context, this.edges.length, 0.5);
-		if(initCurveExc === undefined)
-		  initCurveExc = context.curveExc;
 	        context.style = nodeStyle;
 	        context.nodeSize = getNodeSize(context);
+
+	        if(spatialSearch !== undefined)
+	          spatialSearch.setContext(context);
 
 	        gl.viewport(0, 0, width, height);
 	        gl.clear(gl.COLOR_BUFFER_BIT);
@@ -364,6 +366,7 @@
 	        }
 	        return result;
 	    };
+
 	    var getNodeSize = c => getSize(c, this.nodes.length, 0.4);
 
 	    var fsColorTexture = [
@@ -1750,45 +1753,27 @@
 	  return mindist;
 	}
 
-	function vecXvec(v1,v2){
-	  var r = [];
-	  r.length = v1.length;
-	  for(var i = 0; i < v1.length; i++){
-	    r[i] = v1[i]*v2[i];
-	  }
-	  return r;
-	};
-
-	function vecPlusVec(v1,v2){
-	  var r = [];
-	  r.length = v1.length;
-	  for(var i = 0; i < v1.length; i++){
-	    r[i] = v1[i]+v2[i];
-	  }
-	  return r;
-	};
-
-	function getXfromVec2(v){
-	  var r = [];
-	  for(var i = 0; i < v.length; i+=2){
-	    r.push(v[i]);
-	  }
-	  return r;
-	}
-
-	function getYfromVec2(v){
-	  var r = [];
-	  for(var i = 1; i < v.length; i+=2){
-	    r.push(v[i]);
-	  }
-	  return r;
-	}
-
 	function getBBFromPoints(v){
-	  var xs = getXfromVec2(v);
-	  var ys = getYfromVec2(v);
+	  var xmin = Infinity;
+	  var xmax = -xmin;
+	  var ymin = Infinity;
+	  var ymax = -ymin;
+	  
+	  //x
+	  for(var i = 0; i < v.length; i+=2){
+	    var val = v[i];
+	    if(val < xmin) xmin = val;
+	    if(val > xmax) xmax = val;
+	  }
+	  
+	  //y
+	  for(var i = 1; i < v.length; i+=2){
+	    var val = v[i];
+	    if(val < ymin) ymin = val;
+	    if(val > ymax) ymax = val;
+	  }
 
-	  return [Math.min.apply(Math, xs), Math.min.apply(Math, ys), Math.max.apply(Math, xs), Math.max.apply(Math, ys)];
+	  return [xmin, ymin, xmax, ymax];
 	}
 
 	//distance from point to point
@@ -1833,8 +1818,9 @@
 	var EPS = Number.EPSILON || 1e-14;
 
 
-	var spatialIndex = function(c, nodes, lines, curves, circles, size, initCurveExc, normalize) {
-	    var i, j, d, rbushtree;
+	var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
+	    var i, j, d, rbushtree, context;
+	    context = c;
 
 
 	    function Node(n){
@@ -1844,7 +1830,7 @@
 	    Node.prototype.getBBox = function(){
 	      return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
 	    };
-	    Node.prototype.dist2 = function(x,y, size){ return distance2(x,y,this.e.x,this.e.y);};
+	    Node.prototype.dist2 = function(x,y, context){ return distance2(x,y,this.e.x,this.e.y);};
 	    
 	    function Line(l){
 	      this.e = l;
@@ -1858,41 +1844,47 @@
 	      y2 = this.e.target.y; 
 	      return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
 	    };
-	    Line.prototype.dist2 = function(x,y, size){ return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
+	    Line.prototype.dist2 = function(x,y, context){ return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
 	    
 	    function Circle(c){
 	      this.e = c;
 	    }
 	    Circle.prototype.isEdge = true;
-	    Circle.prototype.getBezierPoints = function(scale){
+	    Circle.prototype.getBezierPoints = function(context, screensize){
 	      var x1,y1,s;
 	      s = this.e.source;
 	      x1 = s.x;
 	      y1 = s.y;
 
-	      var size = 2.5 * c.nodeSize;
-	      var xsize = size / c.width;
-	      var ysize = size / c.height;
+	      var size = 2.5 * context.nodeSize * screensize;
+	      var xsize = size / context.width / 2;
+	      var ysize = size / context.height / 2;
 
 	      var d = s.y < 0.5 ? 1 : -1;
 	      
-	      var n = [0,0,1,d,0,1.25*d,-1,d];
-	      var sizes = [xsize,ysize,xsize,ysize,xsize,ysize,xsize,ysize];
-	      var pos = vecXvec(n,sizes);
-
-	      return vecPlusVec(pos, [x1,y1,x1,y1,x1,y1,x1,y1]);
+	      return [
+	        x1,
+	        y1,
+	        x1 + xsize*1,
+	        y1 + ysize*d,
+	        x1,
+	        y1 + ysize*1.25*d,
+	        x1 - xsize*1,
+	        y1 + ysize*d
+	      ];
 	    };
-	    Circle.prototype.getBBox = function(size){
-	      var v = this.getBezierPoints(size);
+	    Circle.prototype.getBBox = function(context, size){
+	      var v = this.getBezierPoints(context, size);
+	      
 	      return getBBFromPoints(v);
 	    };
-	    Circle.prototype.dist2 = function(x,y,size){
-	      var v = this.getBezierPoints(size);
+	    Circle.prototype.dist2 = function(x,y,context,size){
+	      var v = this.getBezierPoints(context,size);
 
 	      //circle is just 2 bezier curves :)
 	      var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
 	      var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
-	      
+
 	      return Math.min(d1,d2);
 	    };
 	    
@@ -1900,36 +1892,41 @@
 	      this.e = c;
 	    }
 	    Curve.prototype.isEdge = true;
-	    Curve.prototype.getBezierPoints = function(size){
+	    Curve.prototype.getBezierPoints = function(context, size){
 	      var x1,x2,y1,y2;
 	      x1 = this.e.source.x;
 	      y1 = this.e.source.y;
 	      x2 = this.e.target.x;
 	      y2 = this.e.target.y; 
-
-	      var d = normalize(this.e.source, this.e.target);
-
-	      var n = [0, 0, d.y, c.aspect2*-d.x, 0, 0];
-
-
-
-	      var x = c.width * n[2];
-	      var y = c.height* n[3];
-	      var l = Math.sqrt(x*x+y*y)*2;
 	      
-	      n = vecXvec(n, [0, 0, (initCurveExc)/l, (initCurveExc)/l, 0, 0]);
-	//      console.log(vecPlusVec(n, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]));
+	      var d = normalize(this.e.source, this.e.target);
+	      
+	      var n2 = d.y;
+	      var n3 = context.aspect2*-d.x;
 
-	      return vecPlusVec(n, [x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
+	      var x = context.width * n2;
+	      var y = context.height* n3;
+	      var l = Math.sqrt(x*x+y*y)*2;
+
+	      n2 *= context.curveExc*size/l;
+	      n3 *= context.curveExc*size/l;
+
+	      var ret = [
+		x1,
+	        y1,
+	        (x1+x2)/2 + n2,
+	        (y1+y2)/2 + n3,
+	        x2,
+	        y2
+	      ];
+	      return ret;
 	    };
-	    Curve.prototype.getBBox = function(size){
-	      var v = this.getBezierPoints(size);
-	//      console.log(v);
+	    Curve.prototype.getBBox = function(context, size){
+	      var v = this.getBezierPoints(context, size);
 	      return getBBFromPoints(v);
 	    };
-	    Curve.prototype.dist2 = function(x,y, size){
-	      var v = this.getBezierPoints(size);
-	//      console.log(v, size);
+	    Curve.prototype.dist2 = function(x,y, context, size){
+	      var v = this.getBezierPoints(context, size);
 	      return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
 	    };
 	    
@@ -1940,28 +1937,28 @@
 	      d.length = nodes.length;
 	      for(i = 0;i < nodes.length; i++){
 		var e = new Node(nodes[i]);
-		d[i] = e.getBBox(size);
+		d[i] = e.getBBox(context, size);
 		d[i].push(e);
 	      }
 	      
 	      d.length += lines.length;
 	      for(j = 0;j < lines.length;i++, j++){
 		var e = new Line(lines[j]);
-		d[i] = e.getBBox(size);
+		d[i] = e.getBBox(context, size);
 		d[i].push(e);
 	      }
 
 	      d.length += circles.length;
 	      for(j = 0;j < circles.length;i++, j++){
 		var e = new Circle(circles[j]);
-		d[i] = e.getBBox(size);
+		d[i] = e.getBBox(context, size);
 		d[i].push(e);
 	      }
 	      
 	      d.length += curves.length;
 	      for(j = 0;j < curves.length;i++, j++){
 		var e = new Curve(curves[j]);
-		d[i] = e.getBBox(size);
+		d[i] = e.getBBox(context, size);
 		d[i].push(e);
 	      }
 
@@ -1974,7 +1971,11 @@
 	      return e1.dist2 - e2.dist2;
 	    }
 	    
-	    this.find = (c, x,y, radius, size, nodes, edges) => {
+	    this.setContext = (c) => {
+	      context = c;
+	    };
+	    
+	    this.find = (context, x,y, radius, size, nodes, edges) => {
 	      var ret = {};
 	      if(edges)
 		ret.edges = [];
@@ -1990,7 +1991,7 @@
 
 	      for(var i = 0; i < data.length; i++){
 		var e = data[i][4];
-		var dist2 = e.dist2(x,y, size);
+		var dist2 = e.dist2(x,y, context, size);
 		if(dist2 > radius2)
 		  continue;
 
