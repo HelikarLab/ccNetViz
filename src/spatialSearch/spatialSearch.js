@@ -213,15 +213,15 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       this.e = c;
     }
     Circle.prototype.isEdge = true;
-    Circle.prototype.getBezierPoints = function(context, size){
+    Circle.prototype.getBezierPoints = function(context, screensize){
       var x1,y1,s;
       s = this.e.source;
       x1 = s.x;
       y1 = s.y;
 
-      var size = 2.5 * context.nodeSize * size;
-      var xsize = size / context.width;
-      var ysize = size / context.height;
+      var size = 2.5 * context.nodeSize * screensize;
+      var xsize = size / context.width / 2;
+      var ysize = size / context.height / 2;
 
       var d = s.y < 0.5 ? 1 : -1;
       
@@ -238,12 +238,11 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
     };
     Circle.prototype.dist2 = function(x,y,context,size){
       var v = this.getBezierPoints(context,size);
-      
 
       //circle is just 2 bezier curves :)
       var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
       var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
-      
+
       return Math.min(d1,d2);
     };
     
