@@ -98,28 +98,27 @@ function distance2ToBezier(x,y,a,d,b,e,c,f){
   return mindist;
 }
 
-
-function getXfromVec2(v){
-  var r = [];
-  for(var i = 0; i < v.length; i+=2){
-    r.push(v[i]);
-  }
-  return r;
-}
-
-function getYfromVec2(v){
-  var r = [];
-  for(var i = 1; i < v.length; i+=2){
-    r.push(v[i]);
-  }
-  return r;
-}
-
 function getBBFromPoints(v){
-  var xs = getXfromVec2(v);
-  var ys = getYfromVec2(v);
+  var xmin = Infinity;
+  var xmax = -xmin;
+  var ymin = Infinity;
+  var ymax = -ymin;
+  
+  //x
+  for(var i = 0; i < v.length; i+=2){
+    var val = v[i];
+    if(val < xmin) xmin = val;
+    if(val > xmax) xmax = val;
+  }
+  
+  //y
+  for(var i = 1; i < v.length; i+=2){
+    var val = v[i];
+    if(val < ymin) ymin = val;
+    if(val > ymax) ymax = val;
+  }
 
-  return [Math.min.apply(Math, xs), Math.min.apply(Math, ys), Math.max.apply(Math, xs), Math.max.apply(Math, ys)];
+  return [xmin, ymin, xmax, ymax];
 }
 
 //distance from point to point
@@ -209,13 +208,13 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       var d = s.y < 0.5 ? 1 : -1;
       
       return [
-	x1,
+        x1,
         y1,
-	x1 + xsize*1,
+        x1 + xsize*1,
         y1 + ysize*d,
-	x1,
+        x1,
         y1 + ysize*1.25*d,
-	x1 - xsize*1,
+        x1 - xsize*1,
         y1 + ysize*d
       ];
     };
