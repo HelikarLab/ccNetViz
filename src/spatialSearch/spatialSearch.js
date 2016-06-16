@@ -98,20 +98,24 @@ function distance2ToBezier(x,y,a,d,b,e,c,f){
   return mindist;
 }
 
+/*
+ * @param v - array of with points [x1,y1,x2,y2 .... ]
+ * @return array representing bounding box [x1,y1,x2,y2]
+ */
 function getBBFromPoints(v){
   var xmin = Infinity;
   var xmax = -xmin;
   var ymin = Infinity;
   var ymax = -ymin;
   
-  //x
+  //x of points - even indexes in array 
   for(var i = 0; i < v.length; i+=2){
     var val = v[i];
     if(val < xmin) xmin = val;
     if(val > xmax) xmax = val;
   }
   
-  //y
+  //y of points - odd indexes in array 
   for(var i = 1; i < v.length; i+=2){
     var val = v[i];
     if(val < ymin) ymin = val;
