@@ -160,6 +160,10 @@ primitive.vertices = function(buffer, iV) {
     for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
 }
 
+primitive.singles = function(buffer, iV) {
+    for (var i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
+}
+
 primitive.colors = function(buffer, iV) {
     for (var i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
         var c = arguments[i];

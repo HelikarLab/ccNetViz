@@ -55,6 +55,15 @@ ccNetViz = function(canvas, options) {
         s.aspect = 1;
     }
     
+    function getLineType(e){
+      var type;
+      if(e.lineType !== undefined)
+	type = getLineType(e.lineType);
+      else
+	type = 0;
+      return type;
+    }
+    
     var context;
 
     var spatialSearch = undefined;
@@ -63,11 +72,22 @@ ccNetViz = function(canvas, options) {
 
     this.set = function(nodes, edges, layout) {
         this.nodes = nodes = nodes || [];
-        this.edges = edges = edges || [];
+        this.edges = edges = edges ? [].concat(edges) : [];
 
         spatialSearch = undefined;
 
         var lines = [], curves = [], circles = [];
+	
+	//tanslate indexes into node objects
+	for (var i = 0; i < edges.length; i++) {
+	  var e = edges[i];
+	  if(typeof e.source == 'number')
+	    e.source = nodes[e.source];
+	  var e = edges[i];
+	  if(typeof e.target == 'number')
+	    e.target = nodes[e.target];
+	}
+
 	
 	this.getCurrentSpatialSearch = (context) => {
 	  if(spatialSearch === undefined){
@@ -165,8 +185,15 @@ ccNetViz = function(canvas, options) {
             set: (v, e, iV, iI) => {
                 var s = e.source;
                 var t = e.target;
+		var dx = s.x-t.x;
+		var dy = s.y-t.y;
                 var d = normalize(s, t);
-                ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+
+		var type = getLineType(e);
+		
+		ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+                ccNetViz.primitive.vertices(v.type, iV, type, type, type, type,type, type, type, type);
+		ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
                 ccNetViz.primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
                 ccNetViz.primitive.quad(v.indices, iV, iI);
             }})
@@ -179,8 +206,15 @@ ccNetViz = function(canvas, options) {
                     set: (v, e, iV, iI) => {
                         var s = e.source;
                         var t = e.target;
+			var dx = s.x-t.x;
+			var dy = s.y-t.y;
                         var d = normalize(s, t);
+			
+			var type = getLineType(e);
+			
                         ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
+			ccNetViz.primitive.vertices(v.type, iV, type, type, type, type, type, type);
+			ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
                         ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
                         ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
                         ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
@@ -192,7 +226,12 @@ ccNetViz = function(canvas, options) {
                     set: (v, e, iV, iI) => {
                         var s = e.source;
                         var d = s.y < 0.5 ? 1 : -1;
-                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+
+			var type = getLineType(e);
+			
+			ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+			ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0, 0, 0, 0, 0);
+			ccNetViz.primitive.vertices(v.type, iV, type, type, type, type, type, type, type, type);
                         ccNetViz.primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
                         ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
                         ccNetViz.primitive.quad(v.indices, iV, iI);
@@ -346,13 +385,22 @@ ccNetViz = function(canvas, options) {
 
     var fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
-        "#ifdef GL_ES",
+//        "#ifdef GL_ES",
         "precision highp float;",
-        "#endif",
+//        "#endif",
         "uniform float width;",
         "uniform vec4 color;",
         "varying vec2 c;",
+	"varying vec2 v_lengthSoFar;",
+	"varying vec2 v_type;",
         "void main(void) {",
+	"   float part = abs(fract(length(v_lengthSoFar)*15.0));",
+	"   if(v_type.x > 1.50){",	//2.0
+	"      if(part < 0.15) discard;",
+	"      if(part > 0.25 && part < 0.40) discard;",
+	"   }else if(v_type.x > 0.50){",	//1.0
+	"      if(part < 0.2) discard;",
+	"   }",
         "   vec2 px = dFdx(c);",
         "   vec2 py = dFdy(c);",
         "   float fx = 2.0 * c.x * px.x - px.y;",
@@ -365,20 +413,44 @@ ccNetViz = function(canvas, options) {
     ];
 
     scene.add("lines", new ccNetViz.primitive(gl, edgeStyle, null, [
+//	    "#version 130",
+	    "precision mediump float;",
             "attribute vec2 position;",
+            "attribute vec2 type;",
+//            "attribute int type;",
             "attribute vec2 normal;",
+//	    "attribute float lengthSoFar;",
+	    "attribute vec2 lengthSoFar;",
             "uniform vec2 width;",
             "uniform mat4 transform;",
+            "varying vec2 v_type;",
             "varying vec2 n;",
+	    "varying vec2 v_lengthSoFar;",
             "void main(void) {",
             "   gl_Position = vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+
+	    "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+	    "   v_lengthSoFar.x = p.x;",
+	    "   v_lengthSoFar.y = p.y;",
+	    "   v_type = type;",
+
             "   n = normal;",
             "}"
         ], [
-            "precision mediump float;",
+//	    "#version 130",
+	    "precision mediump float;",
+            "varying vec2 v_type;",
             "uniform vec4 color;",
             "varying vec2 n;",
+	    "varying vec2 v_lengthSoFar;",
             "void main(void) {",
+	    "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
+            "   if(v_type.x > 1.50){",	//2.0
+	    "      if(part < 0.15) discard;",
+	    "      if(part > 0.25 && part < 0.40) discard;",
+            "   }else if(v_type.x > 0.50){",	//1.0
+	    "      if(part < 0.2) discard;",
+            "   }",
             "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
         ], c => {
@@ -389,20 +461,33 @@ ccNetViz = function(canvas, options) {
 
     if (extensions.OES_standard_derivatives) {
         scene.add("curves", new ccNetViz.primitive(gl, edgeStyle, null, [
+		"precision highp float;",
                 "attribute vec2 position;",
                 "attribute vec2 normal;",
                 "attribute vec2 curve;",
+		"attribute vec2 lengthSoFar;",
+		"attribute vec2 type;",
                 "uniform float exc;",
                 "uniform vec2 screen;",
                 "uniform float aspect2;",
                 "uniform mat4 transform;",
+		"varying vec2 v_type;",
+		"varying vec2 v_lengthSoFar;",
                 "varying vec2 c;",
                 "void main(void) {",
                 "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
                 "   float length = length(screen * n);",
                 "   n = length == 0.0 ? vec2(0, 0) : n / length;",
+		"   v_type = type;",
                 "   gl_Position = vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
                 "   c = curve;",
+
+		"   vec4 p = transform*vec4(lengthSoFar,0,0);",
+//		"   v_lengthSoFar.x = p.x + vec4(exc * n, 0, 0).x;",
+//		"   v_lengthSoFar.y = p.y + vec4(exc * n, 0, 0).y;",
+		"   v_lengthSoFar.x = p.x;",
+		"   v_lengthSoFar.y = p.y;",
+
                 "}"
             ], fsCurve, c => {
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
@@ -413,15 +498,27 @@ ccNetViz = function(canvas, options) {
             })
         );
         scene.add("circles", new ccNetViz.primitive(gl, edgeStyle, null, [
+		"precision highp float;",
                 "attribute vec2 position;",
                 "attribute vec2 normal;",
                 "attribute vec2 curve;",
+		"attribute vec2 type;",
+		"attribute vec2 lengthSoFar;",
                 "uniform vec2 size;",
                 "uniform mat4 transform;",
                 "varying vec2 c;",
+		"varying vec2 v_type;",
+		"varying vec2 v_lengthSoFar;",
                 "void main(void) {",
                 "   gl_Position = vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
                 "   c = curve;",
+		
+		"   v_type = type;",
+		"   vec4 p = transform*vec4(lengthSoFar,0,0);",
+//		"   v_lengthSoFar.x = p.x + (size * normal).x;",
+//		"   v_lengthSoFar.y = p.y + (size * normal).y;",
+		"   v_lengthSoFar.x = p.x;",
+		"   v_lengthSoFar.y = p.y;",
                 "}"
             ], fsCurve, c => {
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
