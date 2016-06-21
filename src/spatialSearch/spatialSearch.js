@@ -285,30 +285,30 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       d = [];
       d.length = nodes.length;
       for(i = 0;i < nodes.length; i++){
-	var e = new Node(nodes[i]);
-	d[i] = e.getBBox(context, size);
-	d[i].push(e);
+        var e = new Node(nodes[i]);
+        d[i] = e.getBBox(context, size);
+        d[i].push(e);
       }
       
       d.length += lines.length;
       for(j = 0;j < lines.length;i++, j++){
-	var e = new Line(lines[j]);
-	d[i] = e.getBBox(context, size);
-	d[i].push(e);
+        var e = new Line(lines[j]);
+        d[i] = e.getBBox(context, size);
+        d[i].push(e);
       }
 
       d.length += circles.length;
       for(j = 0;j < circles.length;i++, j++){
-	var e = new Circle(circles[j]);
-	d[i] = e.getBBox(context, size);
-	d[i].push(e);
+        var e = new Circle(circles[j]);
+        d[i] = e.getBBox(context, size);
+        d[i].push(e);
       }
       
       d.length += curves.length;
       for(j = 0;j < curves.length;i++, j++){
-	var e = new Curve(curves[j]);
-	d[i] = e.getBBox(context, size);
-	d[i].push(e);
+        var e = new Curve(curves[j]);
+        d[i] = e.getBBox(context, size);
+        d[i].push(e);
       }
 
 
@@ -339,24 +339,24 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
 
       for(var i = 0; i < data.length; i++){
-	var e = data[i][4];
-	var dist2 = e.dist2(x,y, context, size);
-	if(dist2 > radius2)
-	  continue;
+        var e = data[i][4];
+        var dist2 = e.dist2(x,y, context, size);
+        if(dist2 > radius2)
+          continue;
 
-	if(e.isNode && nodes){
-	  ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-	}
-	if(e.isEdge && edges){
-	  ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-	}
+        if(e.isNode && nodes){
+          ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        }
+        if(e.isEdge && edges){
+          ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        }
       }
 
       if(ret.nodes){
-	ret.nodes.sort(sortByDistances);
+        ret.nodes.sort(sortByDistances);
       }
       if(ret.edges){
-	ret.edges.sort(sortByDistances);
+        ret.edges.sort(sortByDistances);
       }
 
       return ret;
