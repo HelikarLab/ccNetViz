@@ -77,7 +77,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
         aspect: 2,  //aspect of arrow image, default: 1
         texture: "images/arrow.png",  //arrow image
         hideSize: 2   //minimum size of arrow to be displayed
-      }
+      },
+      type: "line"    //type of edge (supported types - "line", "dashed", "chain-dotted")
     },
     nodeBlue: {   //custom style
       color: "rgb(0, 0, 255)"
