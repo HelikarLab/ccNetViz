@@ -54,7 +54,7 @@ ccNetViz = function(canvas, options) {
       'chain-dotted': 2
     }
     if(stylesTransl[edgeStyle.type] !== undefined){
-      edgeStyle.type = stylesTransl;
+      edgeStyle.type = stylesTransl[edgeStyle.type];
     }
     
     if(edgeStyle.type === undefined || typeof edgeStyle.type !== 'number'){
@@ -397,10 +397,11 @@ ccNetViz = function(canvas, options) {
         "uniform float width;",
         "uniform vec4 color;",
         "uniform float type;",
+        "uniform float lineStepSize;",
         "varying vec2 c;",
         "varying vec2 v_lengthSoFar;",
         "void main(void) {",
-        "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
+        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));",
         "   if(type >= 1.5){",	//2.0 - chain dotted
         "      if(part < 0.15) discard;",
         "      if(part > 0.25 && part < 0.40) discard;",
@@ -492,6 +493,7 @@ ccNetViz = function(canvas, options) {
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
+		gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
                 ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
@@ -518,6 +520,7 @@ ccNetViz = function(canvas, options) {
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
                 var size = 2.5 * c.nodeSize;
                 gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+		gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
                 ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
