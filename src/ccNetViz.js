@@ -235,6 +235,8 @@ ccNetViz = function(canvas, options) {
                         var ydiff3 = 1.25*d;
                         var xdiff4 = 3;
                         var ydiff4 = 1.5*d;
+			
+			
 
                         ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
                         ccNetViz.primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
@@ -391,9 +393,9 @@ ccNetViz = function(canvas, options) {
 
     var fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
-//        "#ifdef GL_ES",
+        "#ifdef GL_ES",
         "precision highp float;",
-//        "#endif",
+        "#endif",
         "uniform float width;",
         "uniform vec4 color;",
         "uniform float type;",
@@ -420,7 +422,6 @@ ccNetViz = function(canvas, options) {
     ];
 
     scene.add("lines", new ccNetViz.primitive(gl, edgeStyle, null, [
-//	    "#version 130",
             "precision mediump float;",
             "attribute vec2 position;",
             "attribute vec2 normal;",
@@ -439,7 +440,6 @@ ccNetViz = function(canvas, options) {
             "   n = normal;",
             "}"
         ], [
-//	    "#version 130",
             "precision mediump float;",
             "uniform float type;",
             "uniform vec4 color;",
@@ -511,7 +511,7 @@ ccNetViz = function(canvas, options) {
                 "   gl_Position = vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
                 "   c = curve;",
 
-                "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+                "   vec4 p = transform*vec4(size * lengthSoFar,0,0);",
                 "   v_lengthSoFar.x = p.x;",
                 "   v_lengthSoFar.y = p.y;",
                 "}"
