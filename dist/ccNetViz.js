@@ -92,6 +92,21 @@
 	    var edgeStyle = options.styles.edge = options.styles.edge || {};
 	    edgeStyle.width = edgeStyle.width || 1;
 	    edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+	    
+	    var stylesTransl = {
+	      'line': 0,
+	      'dashed'  : 1,
+	      'chain-dotted': 2,
+	      'dotted': 3
+	    }
+	    if(stylesTransl[edgeStyle.type] !== undefined){
+	      edgeStyle.type = stylesTransl[edgeStyle.type];
+	    }
+	    
+	    if(edgeStyle.type === undefined || typeof edgeStyle.type !== 'number'){
+	      edgeStyle.type = 0;
+	    }
+
 
 	    if (edgeStyle.arrow) {
 	        var s = edgeStyle.arrow;
@@ -100,6 +115,7 @@
 	        s.aspect = 1;
 	    }
 	    
+
 	    var context;
 
 	    var spatialSearch = undefined;
@@ -108,18 +124,29 @@
 
 	    this.set = function(nodes, edges, layout) {
 	        this.nodes = nodes = nodes || [];
-	        this.edges = edges = edges || [];
+	        this.edges = edges = edges ? [].concat(edges) : [];
 
 	        spatialSearch = undefined;
 
 	        var lines = [], curves = [], circles = [];
-		
-		this.getCurrentSpatialSearch = (context) => {
-		  if(spatialSearch === undefined){
-		    spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
-		  }
-		  return spatialSearch;
-		}
+
+	        //tanslate indexes into node objects
+	        for (var i = 0; i < edges.length; i++) {
+	          var e = edges[i];
+	          if(typeof e.source == 'number')
+	            e.source = nodes[e.source];
+	          var e = edges[i];
+	          if(typeof e.target == 'number')
+	            e.target = nodes[e.target];
+	        }
+
+
+	        this.getCurrentSpatialSearch = (context) => {
+	          if(spatialSearch === undefined){
+	            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
+	          }
+	          return spatialSearch;
+	        }
 
 	        var init = () => {
 	            for (var i = 0; i < nodes.length; i++) {
@@ -168,7 +195,7 @@
 	                var x = e.x;
 	                var y = e.y;
 	                ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                ccNetViz.primitive.vertices(v.textureCoord, iV, 10, 0, 1, 0, 1, 1, 0, 1);
+	                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
 	                ccNetViz.primitive.quad(v.indices, iV, iI);
 	            }})
 	        );
@@ -210,8 +237,12 @@
 	            set: (v, e, iV, iI) => {
 	                var s = e.source;
 	                var t = e.target;
+	                var dx = s.x-t.x;
+	                var dy = s.y-t.y;
 	                var d = normalize(s, t);
+
 	                ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+	                ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
 	                ccNetViz.primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
 	                ccNetViz.primitive.quad(v.indices, iV, iI);
 	            }})
@@ -224,8 +255,12 @@
 	                    set: (v, e, iV, iI) => {
 	                        var s = e.source;
 	                        var t = e.target;
+	                        var dx = s.x-t.x;
+	                        var dy = s.y-t.y;
 	                        var d = normalize(s, t);
+
 	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
+	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
 	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
 	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
 	                        ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
@@ -237,7 +272,20 @@
 	                    set: (v, e, iV, iI) => {
 	                        var s = e.source;
 	                        var d = s.y < 0.5 ? 1 : -1;
+
+	                        var xdiff1 = 0;
+	                        var ydiff1 = 0;
+	                        var xdiff2 = 1;
+	                        var ydiff2 = d;
+	                        var xdiff3 = 2;
+	                        var ydiff3 = 1.25*d;
+	                        var xdiff4 = 3;
+	                        var ydiff4 = 1.5*d;
+				
+				
+
 	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
 	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
 	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
 	                        ccNetViz.primitive.quad(v.indices, iV, iI);
@@ -396,8 +444,21 @@
 	        "#endif",
 	        "uniform float width;",
 	        "uniform vec4 color;",
+	        "uniform float type;",
+	        "uniform float lineStepSize;",
 	        "varying vec2 c;",
+	        "varying vec2 v_lengthSoFar;",
 	        "void main(void) {",
+	        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));",
+	        "   if(type >= 2.5){",	//3.0 dotted
+		"      part = fract(part*5.0);",
+	        "      if(part < 0.5) discard;",
+	        "   }else if(type >= 1.5){",	//2.0 - chain dotted
+	        "      if(part < 0.15) discard;",
+	        "      if(part > 0.25 && part < 0.40) discard;",
+	        "   }else if(type >= 0.5){",	//1.0 - dashed
+	        "      if(part < 0.2) discard;",
+	        "   }",
 	        "   vec2 px = dFdx(c);",
 	        "   vec2 py = dFdy(c);",
 	        "   float fx = 2.0 * c.x * px.x - px.y;",
@@ -410,37 +471,61 @@
 	    ];
 
 	    scene.add("lines", new ccNetViz.primitive(gl, edgeStyle, null, [
+	            "precision mediump float;",
 	            "attribute vec2 position;",
 	            "attribute vec2 normal;",
+	            "attribute vec2 lengthSoFar;",
 	            "uniform vec2 width;",
 	            "uniform mat4 transform;",
 	            "varying vec2 n;",
+	            "varying vec2 v_lengthSoFar;",
 	            "void main(void) {",
 	            "   gl_Position = vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+
+	            "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+	            "   v_lengthSoFar.x = p.x;",
+	            "   v_lengthSoFar.y = p.y;",
+
 	            "   n = normal;",
 	            "}"
 	        ], [
 	            "precision mediump float;",
+	            "uniform float type;",
 	            "uniform vec4 color;",
 	            "varying vec2 n;",
+	            "varying vec2 v_lengthSoFar;",
 	            "void main(void) {",
+	            "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
+	            "   if(type >= 2.5){",	//3.0 dotted
+	            "      part = fract(part*5.0);",
+	            "      if(part < 0.5) discard;",
+	            "   }else if(type >= 1.5){",	//2.0 - chain dotted
+	            "      if(part < 0.15) discard;",
+	            "      if(part > 0.25 && part < 0.40) discard;",
+	            "   }else if(type >= 0.5){",	//1.0 - dashed
+	            "      if(part < 0.2) discard;",
+	            "   }",
 	            "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
 	            "}"
 	        ], c => {
 	            gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
+	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        })
 	    );
 
 	    if (extensions.OES_standard_derivatives) {
 	        scene.add("curves", new ccNetViz.primitive(gl, edgeStyle, null, [
+	                "precision highp float;",
 	                "attribute vec2 position;",
 	                "attribute vec2 normal;",
 	                "attribute vec2 curve;",
+	                "attribute vec2 lengthSoFar;",
 	                "uniform float exc;",
 	                "uniform vec2 screen;",
 	                "uniform float aspect2;",
 	                "uniform mat4 transform;",
+	                "varying vec2 v_lengthSoFar;",
 	                "varying vec2 c;",
 	                "void main(void) {",
 	                "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
@@ -448,30 +533,46 @@
 	                "   n = length == 0.0 ? vec2(0, 0) : n / length;",
 	                "   gl_Position = vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   c = curve;",
+
+	                "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+	                "   v_lengthSoFar.x = p.x;",
+	                "   v_lengthSoFar.y = p.y;",
+
 	                "}"
 	            ], fsCurve, c => {
 	                gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	                gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
+			gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
 	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
 	        scene.add("circles", new ccNetViz.primitive(gl, edgeStyle, null, [
+			"precision highp float;",
 	                "attribute vec2 position;",
 	                "attribute vec2 normal;",
 	                "attribute vec2 curve;",
+	                "attribute vec2 lengthSoFar;",
 	                "uniform vec2 size;",
 	                "uniform mat4 transform;",
 	                "varying vec2 c;",
+	                "varying vec2 v_lengthSoFar;",
 	                "void main(void) {",
 	                "   gl_Position = vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   c = curve;",
+
+	                "   vec4 p = transform*vec4(size * lengthSoFar,0,0);",
+	                "   v_lengthSoFar.x = p.x;",
+	                "   v_lengthSoFar.y = p.y;",
 	                "}"
 	            ], fsCurve, c => {
 	                gl.uniform1f(c.shader.uniforms.width, c.style.width);
+	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	                var size = 2.5 * c.nodeSize;
 	                gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+			gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
@@ -988,6 +1089,10 @@
 
 	primitive.vertices = function(buffer, iV) {
 	    for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
+	}
+
+	primitive.singles = function(buffer, iV) {
+	    for (var i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
 	}
 
 	primitive.colors = function(buffer, iV) {
@@ -1753,20 +1858,24 @@
 	  return mindist;
 	}
 
+	/*
+	 * @param v - array of with points [x1,y1,x2,y2 .... ]
+	 * @return array representing bounding box [x1,y1,x2,y2]
+	 */
 	function getBBFromPoints(v){
 	  var xmin = Infinity;
 	  var xmax = -xmin;
 	  var ymin = Infinity;
 	  var ymax = -ymin;
 	  
-	  //x
+	  //x of points - even indexes in array 
 	  for(var i = 0; i < v.length; i+=2){
 	    var val = v[i];
 	    if(val < xmin) xmin = val;
 	    if(val > xmax) xmax = val;
 	  }
 	  
-	  //y
+	  //y of points - odd indexes in array 
 	  for(var i = 1; i < v.length; i+=2){
 	    var val = v[i];
 	    if(val < ymin) ymin = val;
@@ -1936,30 +2045,30 @@
 	      d = [];
 	      d.length = nodes.length;
 	      for(i = 0;i < nodes.length; i++){
-		var e = new Node(nodes[i]);
-		d[i] = e.getBBox(context, size);
-		d[i].push(e);
+	        var e = new Node(nodes[i]);
+	        d[i] = e.getBBox(context, size);
+	        d[i].push(e);
 	      }
 	      
 	      d.length += lines.length;
 	      for(j = 0;j < lines.length;i++, j++){
-		var e = new Line(lines[j]);
-		d[i] = e.getBBox(context, size);
-		d[i].push(e);
+	        var e = new Line(lines[j]);
+	        d[i] = e.getBBox(context, size);
+	        d[i].push(e);
 	      }
 
 	      d.length += circles.length;
 	      for(j = 0;j < circles.length;i++, j++){
-		var e = new Circle(circles[j]);
-		d[i] = e.getBBox(context, size);
-		d[i].push(e);
+	        var e = new Circle(circles[j]);
+	        d[i] = e.getBBox(context, size);
+	        d[i].push(e);
 	      }
 	      
 	      d.length += curves.length;
 	      for(j = 0;j < curves.length;i++, j++){
-		var e = new Curve(curves[j]);
-		d[i] = e.getBBox(context, size);
-		d[i].push(e);
+	        var e = new Curve(curves[j]);
+	        d[i] = e.getBBox(context, size);
+	        d[i].push(e);
 	      }
 
 
@@ -1990,24 +2099,24 @@
 	      var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
 
 	      for(var i = 0; i < data.length; i++){
-		var e = data[i][4];
-		var dist2 = e.dist2(x,y, context, size);
-		if(dist2 > radius2)
-		  continue;
+	        var e = data[i][4];
+	        var dist2 = e.dist2(x,y, context, size);
+	        if(dist2 > radius2)
+	          continue;
 
-		if(e.isNode && nodes){
-		  ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-		}
-		if(e.isEdge && edges){
-		  ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-		}
+	        if(e.isNode && nodes){
+	          ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	        }
+	        if(e.isEdge && edges){
+	          ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	        }
 	      }
 
 	      if(ret.nodes){
-		ret.nodes.sort(sortByDistances);
+	        ret.nodes.sort(sortByDistances);
 	      }
 	      if(ret.edges){
-		ret.edges.sort(sortByDistances);
+	        ret.edges.sort(sortByDistances);
 	      }
 
 	      return ret;
