@@ -51,7 +51,8 @@ ccNetViz = function(canvas, options) {
     var stylesTransl = {
       'line': 0,
       'dashed'  : 1,
-      'chain-dotted': 2
+      'chain-dotted': 2,
+      'dotted': 3
     }
     if(stylesTransl[edgeStyle.type] !== undefined){
       edgeStyle.type = stylesTransl[edgeStyle.type];
@@ -404,7 +405,10 @@ ccNetViz = function(canvas, options) {
         "varying vec2 v_lengthSoFar;",
         "void main(void) {",
         "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));",
-        "   if(type >= 1.5){",	//2.0 - chain dotted
+        "   if(type >= 2.5){",	//3.0 dotted
+	"      part = fract(part*5.0);",
+        "      if(part < 0.5) discard;",
+        "   }else if(type >= 1.5){",	//2.0 - chain dotted
         "      if(part < 0.15) discard;",
         "      if(part > 0.25 && part < 0.40) discard;",
         "   }else if(type >= 0.5){",	//1.0 - dashed
@@ -447,7 +451,10 @@ ccNetViz = function(canvas, options) {
             "varying vec2 v_lengthSoFar;",
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
-            "   if(type >= 1.5){",	//2.0 - chain dotted
+            "   if(type >= 2.5){",	//3.0 dotted
+            "      part = fract(part*5.0);",
+            "      if(part < 0.5) discard;",
+            "   }else if(type >= 1.5){",	//2.0 - chain dotted
             "      if(part < 0.15) discard;",
             "      if(part > 0.25 && part < 0.40) discard;",
             "   }else if(type >= 0.5){",	//1.0 - dashed
