@@ -150,7 +150,7 @@ ccNetViz = function(canvas, options) {
                 var x = e.x;
                 var y = e.y;
                 ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                ccNetViz.primitive.vertices(v.textureCoord, iV, 10, 0, 1, 0, 1, 1, 0, 1);
+                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
                 ccNetViz.primitive.quad(v.indices, iV, iI);
             }})
         );
