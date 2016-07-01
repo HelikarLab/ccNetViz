@@ -48,8 +48,8 @@
   <div id='info' />
     <table>
     <tr>
-      <td>background</td>
-      <td><input id='background' value='rgb(255, 255, 255)'></input></td> <!--background color of canvas, default: "rgb(255, 255, 255)"-->
+      <td>background - color</td>
+      <td><input id='background_color' value='rgb(255, 255, 255)'></input></td> <!--background color of canvas, default: "rgb(255, 255, 255)"-->
     </tr>
     <tr>
       <th colspan='2'><h3>Node</h3></th>
@@ -151,7 +151,7 @@
     function init(){
     
 	//initialize colorpickers
-	$("#node_color, #background, #node_label_color").spectrum({
+	$("#node_color, #background_color, #node_label_color").spectrum({
 	  preferredFormat: "rgb",
 	  flat: false,
 	  showInput: true,
@@ -194,7 +194,7 @@
       var startTime = new Date();
     
       var styles = {
-	  background: 'rgb(0,0,0)',
+	  background: {color: 'rgb(0,0,0)'},
 	  node: { 
 	    minSize: 8,   //minimum size of node representation in pixels, default: 6
 	    maxSize: 16,    //maximum size of node representation in pixels, default: 16
