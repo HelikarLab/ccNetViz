@@ -711,7 +711,7 @@ ccNetViz = function(canvas, options) {
         window.addEventListener('mousemove', drag);
     }
 
-    function getContext() {
+    function getContext(){
         var attributes = { depth: false, antialias: false };
         return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
     }
@@ -733,6 +733,7 @@ ccNetViz.primitive = ccNetViz_primitive;
 ccNetViz.textures = ccNetViz_textures;
 ccNetViz.texts = ccNetViz_texts;
 ccNetViz.layout = ccNetViz_layout;
+ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 
 
 module.exports = ccNetViz;
