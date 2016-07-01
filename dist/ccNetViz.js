@@ -49,9 +49,9 @@
 		__webpack_require__(2),
 		__webpack_require__(3), 
 		__webpack_require__(5),
-		__webpack_require__(9), 
-		__webpack_require__(11),
-		__webpack_require__(12)
+		__webpack_require__(10), 
+		__webpack_require__(12),
+		__webpack_require__(13)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 		ccNetViz_color,
 		ccNetViz_gl,
@@ -756,7 +756,7 @@
 	        window.addEventListener('mousemove', drag);
 	    }
 
-	    function getContext() {
+	    function getContext(){
 	        var attributes = { depth: false, antialias: false };
 	        return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
 	    }
@@ -778,6 +778,7 @@
 	ccNetViz.textures = ccNetViz_textures;
 	ccNetViz.texts = ccNetViz_texts;
 	ccNetViz.layout = ccNetViz_layout;
+	ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 
 
 	module.exports = ccNetViz;
@@ -1175,7 +1176,7 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(6), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(6), __webpack_require__(8), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom, layoutUserDef){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -1187,6 +1188,7 @@
 	var layout = function() {}
 	layout.force = layoutForce;
 	layout.random = layoutRandom;
+	layout.userdef = layoutUserDef;
 
 
 	layout.normalize = function(nodes) {
@@ -1576,7 +1578,28 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(10), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Aleš Saska
+	 */
+
+	module.exports = function(nodes) {
+	    this.apply = function() {
+		//In this layout user definies the position of nodes so we do nothing :)
+	    }
+	};
+
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(11), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1620,7 +1643,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1672,7 +1695,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1755,10 +1778,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2130,7 +2153,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
