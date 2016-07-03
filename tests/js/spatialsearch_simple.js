@@ -19,7 +19,7 @@ $(function(){
 	var sc = 1 / Math.sqrt(x*x + y*y);
 	return { x: sc * x, y: sc * y };
     };
-		
+
     var fakenodes1 = [{"label":"Hello","index":0,"weight":4,"x":0,"y":0,"px":-5.35063864596904,"py":-5.166442424206773},{"label":"World","index":1,"weight":3,"x":1,"y":0.27607603976422057,"px":8.741467776497304,"py":-1.418606372028333},{"label":"!","index":2,"weight":1,"x":0.2400995841964108,"y":1,"px":-1.9528618110929463,"py":8.454018884273431}];
     var fakelines1 = [{"source":{"label":"World","index":1,"weight":3,"x":1,"y":0.27607603976422057,"px":8.741467776497304,"py":-1.418606372028333},"target":{"label":"!","index":2,"weight":1,"x":0.2400995841964108,"y":1,"px":-1.9528618110929463,"py":8.454018884273431}}];
     var fakecurves1 = [{"source":{"label":"Hello","index":0,"weight":4,"x":0,"y":0,"px":-5.35063864596904,"py":-5.166442424206773},"target":{"label":"World","index":1,"weight":3,"x":1,"y":0.27607603976422057,"px":8.741467776497304,"py":-1.418606372028333}},{"source":{"label":"World","index":1,"weight":3,"x":1,"y":0.27607603976422057,"px":8.741467776497304,"py":-1.418606372028333},"target":{"label":"Hello","index":0,"weight":4,"x":0,"y":0,"px":-5.35063864596904,"py":-5.166442424206773}}];
@@ -49,7 +49,7 @@ $(function(){
     var y = 1.0015461361846925;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Test of dist parameter 1" );
+    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Test of dist parameter 1" );
 
     var x = 0.2258138638153076;
     var y = 1.0015461361846925;
@@ -73,7 +73,7 @@ $(function(){
     var y = 1.0315461361846925;
     var dist = 0.05;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Test of dist parameter 4" );
+    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Test of dist parameter 4" );
     /******** END OF TESTING DISTANCE PARAMETER *********/
     
     
@@ -88,19 +88,19 @@ $(function(){
     var y = 0.4504581361846923;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Search for line" );
+    assert.ok(ret.edges.length == 2 && ret.nodes.length == 0, "Search for line" );
     
     var x = 0.34520586381530766;
     var y = 0.8921541361846924;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Search for the same line" );
+    assert.ok(ret.edges.length == 2 && ret.nodes.length == 0, "Search for the same line" );
     
     var x = 0.2358138638153076;
     var y = 1.0015461361846925;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Search for node and line" );
+    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Search for node and line" );
     
     var x = 0.48968586381530754;
     var y = 0.2089701361846924;
@@ -130,8 +130,18 @@ $(function(){
     var y = 0.27089013618469243;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 3 && ret.nodes.length == 1, "Test for 3 edges and 1 node" );
+    assert.ok(ret.edges.length == 4 && ret.nodes.length == 1, "Test for 3 edges and 1 node" );
     
+    var x = 0.9933018638153075;
+    var y = 0.27089013618469243;
+    var dist = 0.01;
+    var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,false);
+    assert.ok(ret.edges === undefined && ret.nodes !== undefined, "Test for edges parameter" );
     
+    var x = 0.9933018638153075;
+    var y = 0.27089013618469243;
+    var dist = 0.01;
+    var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, false,true);
+    assert.ok(ret.edges !== undefined && ret.nodes === undefined, "Test for nodes parameter" );
   });
 });
