@@ -46,9 +46,110 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(1),
+	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
+		ccNetViz
+	    ){
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Aleš Saska
+	 */
+
+
+	var ccNetVizMultiLevel = function(canvas, options){
+	  var vizScreen = new ccNetViz(canvas, options);
+	  var vizLayout;
+
+	  var history = [];
+	  var curlevel = {};
+
+
+	  //right click >> go back
+	  canvas.addEventListener('contextmenu', function(e){
+	    if(history.length > 0){
+		var histel = history.pop();
+
+		//currently shown level
+		curlevel = histel;
+
+		vizScreen.set(curlevel.nodes, curlevel.edges);
+		vizScreen.draw();
+	    }
+
+	    e.preventDefault();
+	  });
+
+	  canvas.addEventListener('click', function(e){
+	    var bb = el.getBoundingClientRect();
+
+	    var x = e.clientX - bb.left;
+	    var y = e.clientY - bb.top;
+	    var radius = 5;
+
+	    var result = vizScreen.find(x,y,radius,true,false);
+	    if(result.nodes.length > 0){
+	      var node = result.nodes[0].node;
+
+	      var layout = node.layout || vizLayout;
+	      if(node.__computedLayout){
+		//it is not nessesary to recompute layout if it was yet computed on this subgraph
+		layout = undefined;
+	      }else{
+		//we store that layout was once computed for this subgraph
+	        node.__computedLayout = true;
+	      }
+
+	      if(node.nodes && node.edges){
+		var insidenodes = node.nodes;
+		var insideedges = node.edges;
+
+		history.push(curlevel);
+
+		curlevel = {nodes: insidenodes, edges: insideedges};
+
+		vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+		vizScreen.draw();
+	      }
+	    }
+
+	  });
+
+	  this.find = function(){
+	    return vizScreen.find.apply(vizScreen, arguments);
+	  };
+
+	  this.draw = function(){
+	    return vizScreen.draw.apply(vizScreen, arguments);
+	  };
+
+	  this.set = function(nodes, edges, layout){
+	    toplevels = [];
+
+	    curlevel = {nodes: nodes, edges: edges};
+	    history = [];
+
+	    vizLayout = layout;
+	    vizScreen.set.apply(vizScreen, arguments);
+	  }
+	};
+
+
+	window.ccNetVizMultiLevel = module.exports = ccNetVizMultiLevel;
+
+
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2),
-		__webpack_require__(3), 
-		__webpack_require__(5),
+		__webpack_require__(3),
+		__webpack_require__(4), 
+		__webpack_require__(6),
 		__webpack_require__(10), 
 		__webpack_require__(12),
 		__webpack_require__(13)
@@ -786,7 +887,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -835,7 +936,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -927,10 +1028,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(5), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1120,10 +1221,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1173,10 +1274,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(6), __webpack_require__(8), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom, layoutUserDef){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(7), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -1188,7 +1289,6 @@
 	var layout = function() {}
 	layout.force = layoutForce;
 	layout.random = layoutRandom;
-	layout.userdef = layoutUserDef;
 
 
 	layout.normalize = function(nodes) {
@@ -1221,10 +1321,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1398,7 +1498,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1550,7 +1650,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1575,31 +1675,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Aleš Saska
-	 */
-
-	module.exports = function(nodes) {
-	    this.apply = function() {
-		//In this layout user definies the position of nodes so we do nothing :)
-	    }
-	};
-
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(11), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(11), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
