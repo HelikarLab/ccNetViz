@@ -1,4 +1,4 @@
-define(['./force', './random', './userdef'], function(layoutForce, layoutRandom, layoutUserDef){
+define(['./force', './random'], function(layoutForce, layoutRandom){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -10,7 +10,6 @@ define(['./force', './random', './userdef'], function(layoutForce, layoutRandom,
 var layout = function() {}
 layout.force = layoutForce;
 layout.random = layoutRandom;
-layout.userdef = layoutUserDef;
 
 
 layout.normalize = function(nodes) {
