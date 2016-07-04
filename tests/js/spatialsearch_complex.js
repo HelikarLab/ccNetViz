@@ -45,21 +45,19 @@ $(function(){
       
       assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Somewhere in middle 3" );
       
-
-      var event = new Event('wheel');
-      event.clientX = 201;
-      event.clientY = 307;
-      event.deltaMode = 0;
-      event.deltaY = -26;
-      el.dispatchEvent(event);
-
-      var event = new Event('wheel');
-      event.clientX = 201;
-      event.clientY = 307;
-      event.deltaMode = 0;
-      event.deltaY = -160;
-      el.dispatchEvent(event);
       
+      // Simulate zoom      
+      var deltas = [-6,-48,-52,-38,-22,-10,-6,-2,-2,-2];
+      for(var i = 0; i < deltas.length; i++){
+	var delta = deltas[i];
+	
+	var event = new Event('wheel');
+	event.clientX = 112;
+	event.clientY = 310;
+	event.deltaMode = 0;
+	event.deltaY = delta;
+	el.dispatchEvent(event);
+      }
 
       var x = 0.0028409957885742188;
       var y = 498.0028409957886;
@@ -67,10 +65,10 @@ $(function(){
       assert.ok(ret.edges.length == 0 && ret.nodes.length == 0, "Left bottom after zoom" );
       
 
-      var x = 302.0028409957886;
-      var y = 122.00284099578857;
+      var x = 390;
+      var y = 191;
       var ret = graph.find(x, y, radius, true, true);
-      assert.ok(ret.edges.length == 2 && ret.nodes.length == 0, "Line after zoom" );
+      assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Line after zoom" );
       
       
       document.body.removeChild(el);
