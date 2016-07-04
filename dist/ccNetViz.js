@@ -113,7 +113,6 @@
 		vizScreen.draw();
 	      }
 	    }
-
 	  });
 
 	  this.find = function(){
