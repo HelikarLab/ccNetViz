@@ -77,6 +77,14 @@ var ccNetVizMultiLevel = function(canvas, options){
   this.draw = function(){
     return vizScreen.draw.apply(vizScreen, arguments);
   };
+  
+  this.resetView = function(){
+    return vizScreen.resetView.apply(vizScreen, arguments);
+  };
+
+  this.resize = function(){
+    return vizScreen.resize.apply(vizScreen, arguments);
+  };
 
   this.set = function(nodes, edges, layout){
     toplevels = [];
