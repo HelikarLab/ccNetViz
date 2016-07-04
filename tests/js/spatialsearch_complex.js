@@ -24,7 +24,7 @@ $(function(){
       ];
       
       //we use userdef layout so we have always same position and can run tests
-      graph.set(nodes, edges, "userdef");
+      graph.set(nodes, edges);
       graph.draw();
       
       var radius = 5;
@@ -45,12 +45,6 @@ $(function(){
       
       assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Somewhere in middle 3" );
       
-      
-      //do zoom
-//      var e = jQuery.Event( "mousewheel",{clientX: 170, clientY: 302, deltaMode: 0, deltaY: -34} );
-//      $( el ).trigger( e );
-//      var e = jQuery.Event( "mousewheel",{clientX: 170, clientY: 302, deltaMode: 0, deltaY: -86} );
-//      $( el ).trigger( e );
 
       var event = new Event('wheel');
       event.clientX = 201;

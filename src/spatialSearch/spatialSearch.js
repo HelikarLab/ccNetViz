@@ -291,15 +291,10 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       }
       
       d.length += lines.length;
-      for(j = 0;j < lines.length;i+=2, j++){
+      for(j = 0;j < lines.length;i++, j++){
         var e = new Line(lines[j]);
         d[i] = e.getBBox(context, size);
         d[i].push(e);
-
-	var reversedLine = {source: lines[j].target, target: lines[j].source};
-        var e = new Line(reversedLine);
-        d[i+1] = e.getBBox(context, size);
-        d[i+1].push(e);
       }
 
       d.length += circles.length;

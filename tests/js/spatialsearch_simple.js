@@ -49,7 +49,7 @@ $(function(){
     var y = 1.0015461361846925;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Test of dist parameter 1" );
+    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Test of dist parameter 1" );
 
     var x = 0.2258138638153076;
     var y = 1.0015461361846925;
@@ -73,7 +73,7 @@ $(function(){
     var y = 1.0315461361846925;
     var dist = 0.05;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Test of dist parameter 4" );
+    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Test of dist parameter 4" );
     /******** END OF TESTING DISTANCE PARAMETER *********/
     
     
@@ -88,19 +88,19 @@ $(function(){
     var y = 0.4504581361846923;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 2 && ret.nodes.length == 0, "Search for line" );
+    assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Search for line" );
     
     var x = 0.34520586381530766;
     var y = 0.8921541361846924;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 2 && ret.nodes.length == 0, "Search for the same line" );
+    assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Search for the same line" );
     
     var x = 0.2358138638153076;
     var y = 1.0015461361846925;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Search for node and line" );
+    assert.ok(ret.edges.length == 1 && ret.nodes.length == 1, "Search for node and line" );
     
     var x = 0.48968586381530754;
     var y = 0.2089701361846924;
@@ -130,7 +130,7 @@ $(function(){
     var y = 0.27089013618469243;
     var dist = 0.01;
     var ret = spatialSearch1.find(fakecontext1, x,y,dist, fakeview1.size, true,true);
-    assert.ok(ret.edges.length == 4 && ret.nodes.length == 1, "Test for 3 edges and 1 node" );
+    assert.ok(ret.edges.length == 3 && ret.nodes.length == 1, "Test for 3 edges and 1 node" );
     
     var x = 0.9933018638153075;
     var y = 0.27089013618469243;
