@@ -15,7 +15,7 @@ var compilerProcess = closureCompiler.run(function(exitCode, stdOut, stdErr) {
   if(exitCode == 0){
     console.log('complilation successfully completed');
     fs.writeFileSync('dist/ccNetViz.min.js', stdOut);
-    console.log('created compiler file in dist/ccNetViz.min.js');
+    console.log('created compiled file in dist/ccNetViz.min.js');
   }else{
     console.log('complilation exited with code '+exitCode);
     console.log(stdOut);
