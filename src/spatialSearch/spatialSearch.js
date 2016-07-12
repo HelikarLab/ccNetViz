@@ -262,7 +262,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       n3 *= context.curveExc*size/l;
 
       var ret = [
-	x1,
+        x1,
         y1,
         (x1+x2)/2 + n2,
         (y1+y2)/2 + n3,
@@ -342,9 +342,9 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
     this.find = (context, x,y, radius, size, nodes, edges) => {
       var ret = {};
       if(edges)
-	ret.edges = [];
+        ret.edges = [];
       if(nodes)
-	ret.nodes = [];
+        ret.nodes = [];
 
       var xradius = radius;
       var yradius = radius;

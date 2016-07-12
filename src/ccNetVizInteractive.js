@@ -1,12 +1,12 @@
 define([
-	'./ccNetVizMultiLevel',
-	'./ccNetViz',
+        './ccNetVizMultiLevel',
+        './ccNetViz',
         './utils'
     ], 
     function(
-	ccNetVizMultiLevel,
-	ccNetViz,
-	utils
+        ccNetVizMultiLevel,
+        ccNetViz,
+        utils
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -71,21 +71,21 @@ var ccNetVizInteractive = function(canvas, options){
   function removeNodes(){
     toRemoveNodes.forEach((n) => {
       if(n.uniqid === undefined)
-	return;
+        return;
       
       if(nodesPositions[n.uniqid] !== undefined){
-	//in the normal graph
-	var pos = nodesPositions[n.uniqid];
-	vizScreen.removeNodeAtPos(pos);
+        //in the normal graph
+        var pos = nodesPositions[n.uniqid];
+        vizScreen.removeNodeAtPos(pos);
       }else{
-	//try to remove from temp graph
-	
-	for(var i = 0; i < actualTempNodes.length; i++){
-	  if(actualTempNodes[i].uniqid === n.uniqid){
-	    actualTempNodes.splice(i,1);
-	    break;
-	  }
-	}
+        //try to remove from temp graph
+        
+        for(var i = 0; i < actualTempNodes.length; i++){
+          if(actualTempNodes[i].uniqid === n.uniqid){
+            actualTempNodes.splice(i,1);
+            break;
+          }
+        }
       }
       
       delete n.uniqid;
@@ -95,23 +95,23 @@ var ccNetVizInteractive = function(canvas, options){
   function removeEdges(){
     toRemoveEdges.forEach((e) => {
       if(e.uniqid === undefined)
-	return;
+        return;
 
       delete edgesDirections[e.source.uniqid][e.target.uniqid];
       
       if(edgesPositions[e.uniqid] !== undefined){
-	//in the normal graph
-	var pos = edgesPositions[e.uniqid];
-	vizScreen.removeEdgeAtPos(pos);
+        //in the normal graph
+        var pos = edgesPositions[e.uniqid];
+        vizScreen.removeEdgeAtPos(pos);
       }else{
-	//try to remove from temp graph
-	
-	for(var i = 0; i < actualTempEdges.length; i++){
-	  if(actualTempEdges[i].uniqid === e.uniqid){
-	    actualTempEdges.splice(i,1);
-	    break;
-	  }
-	}
+        //try to remove from temp graph
+        
+        for(var i = 0; i < actualTempEdges.length; i++){
+          if(actualTempEdges[i].uniqid === e.uniqid){
+            actualTempEdges.splice(i,1);
+            break;
+          }
+        }
 
       }
       
@@ -123,9 +123,9 @@ var ccNetVizInteractive = function(canvas, options){
     toAddEdges.forEach((e) => {
       //already added
       if(e.uniqid !== undefined){
-	console.error(e);
-	console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
-	return;
+        console.error(e);
+        console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
+        return;
       }
       //already added
       e.uniqid = ++lastEdgeIndex;
@@ -140,9 +140,9 @@ var ccNetVizInteractive = function(canvas, options){
       
       //already added
       if(n.uniqid !== undefined){
-	console.error(n);
-	console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
-	return;
+        console.error(n);
+        console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
+        return;
       }
 
       n.uniqid = ++lastNodeIndex;
@@ -296,18 +296,18 @@ var ccNetVizInteractive = function(canvas, options){
       
       while (i < a.length && j < b.length)
       {
-	if (cmp(a[i],b[j]) < 0)       
-	  r[k++] = a[i++];
-	else        
-	  r[k++] = b[j++];               
+        if (cmp(a[i],b[j]) < 0)       
+          r[k++] = a[i++];
+        else        
+          r[k++] = b[j++];               
       }
 
       while (i < a.length)
-	r[k++] = a[i++];
+        r[k++] = a[i++];
 
 
       while (j < b.length)
-	r[k++] = b[j++];
+        r[k++] = b[j++];
       
       return r;
     }
@@ -329,8 +329,8 @@ var ccNetVizInteractive = function(canvas, options){
   exposeMethods.forEach(function(method){
     (function(method, self){
       self[method] = function(){
-	vizScreenTemp[method].apply(vizScreenTemp, arguments);
-	return vizScreen[method].apply(vizScreen, arguments);
+        vizScreenTemp[method].apply(vizScreenTemp, arguments);
+        return vizScreen[method].apply(vizScreen, arguments);
       };
     })(method, self);
   });
