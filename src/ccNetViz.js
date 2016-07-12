@@ -151,6 +151,29 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
                 }))
     };
 
+    var set = (v, e, iV, iI, dx, dy) => {
+	var tx = e.target.x;
+	var ty = e.target.y;
+	ccNetViz.primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
+	ccNetViz.primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
+	ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	ccNetViz.primitive.quad(v.indices, iV, iI);
+    };
+	    
+    var arrowFiller = {
+      lineArrows: (style => ({
+                set: (v, e, iV, iI) => {
+                    var d = normalize(e.source, e.target);
+                    set(v, e, iV, iI, d.x, d.y);
+                }})),
+       curveArrows: (style => ({
+                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
+                    })),
+       circleArrows: (style => ({
+                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
+                    }))
+    };
+
     var context;
     var edgeTypes;
     var edgePoses;
@@ -192,10 +215,10 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
 	    edgeTypes = [];
 	    edgePoses = [];
-	    var dummysd  = {k:  '_',      d: []};
-	    var circlesd = {k: 'circles', d: circles};
-	    var linesd   = {k: 'lines',   d: lines};
-	    var curvesd  = {k: 'curves',  d: curves};
+	    var dummysd  = {k:  '_',      kArrow: '_', d: []};
+	    var circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
+	    var linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
+	    var curvesd  = {k: 'curves',  kArrow: 'curveArrows',d: curves};
             
             if (extensions.OES_standard_derivatives) {
                 var map = {};
@@ -288,34 +311,14 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
         }
 
         if (edgeStyle.arrow) {
-            var set = (v, e, iV, iI, dx, dy) => {
-                var tx = e.target.x;
-                var ty = e.target.y;
-                ccNetViz.primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
-                ccNetViz.primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
-                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-                ccNetViz.primitive.quad(v.indices, iV, iI);
-            };
-
-            scene.lineArrows.set(gl, options.styles, textures, lines, style => ({
-                set: (v, e, iV, iI) => {
-                    var d = normalize(e.source, e.target);
-                    set(v, e, iV, iI, d.x, d.y);
-                }})
-            );
+            scene.lineArrows.set(gl, options.styles, textures, lines, arrowFiller.lineArrows);
 
             if (extensions.OES_standard_derivatives) {
-                scene.curveArrows.set(gl, options.styles, textures, curves, style => ({
-                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
-                    })
-                );
+                scene.curveArrows.set(gl, options.styles, textures, curves, arrowFiller.curveArrows);
 
                 var dx = Math.cos(0.9);
                 var dy = Math.sin(0.9);
-                scene.circleArrows.set(gl, options.styles, textures, circles, style => ({
-                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
-                    })
-                );
+                scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
             }
         }
     }
@@ -349,6 +352,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
       t.d[pos] = this.edges[i] = e;
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
+      scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
       
       if(spatialSearch)
 	spatialSearch.update(t.k, pos, e);
@@ -630,7 +634,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
     }
 
     if (edgeStyle.arrow) {
-        var bind = c => {
+	var bind = c => {
             var size = getSize(c, getEdgesCnt(), 0.2);
             if (!size) return true;
             gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
@@ -640,6 +644,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
             c.shader.uniforms.aspect2 && gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         };
+      
         scene.add("lineArrows", new ccNetViz.primitive(gl, edgeStyle, "arrow", [
                 "attribute vec2 position;",
                 "attribute vec2 direction;",
