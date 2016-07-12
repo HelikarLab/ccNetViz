@@ -18,7 +18,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
       height: 500px;
     }
   </style>
-  <script src="ccNetViz-1.0.0.min.js"></script>
+  <script src="dist/builds/ccNetViz-1.0.0.min.js"></script>
 </head>
 <body>
   <canvas id="container"/>
