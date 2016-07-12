@@ -69,22 +69,17 @@ var ccNetVizMultiLevel = function(canvas, options){
       }
     }
   });
-
-  this.find = function(){
-    return vizScreen.find.apply(vizScreen, arguments);
-  };
-
-  this.draw = function(){
-    return vizScreen.draw.apply(vizScreen, arguments);
-  };
   
-  this.resetView = function(){
-    return vizScreen.resetView.apply(vizScreen, arguments);
-  };
+  var exposeMethods = ['find', 'draw', 'resetView', 'resize'];
+  var self = this;
+  exposeMethods.forEach(function(method){
+    (function(method, self){
+      self[method] = function(){
+	return vizScreen[method].apply(vizScreen, arguments);
+      };
+    })(method, self);
+  });
 
-  this.resize = function(){
-    return vizScreen.resize.apply(vizScreen, arguments);
-  };
 
   this.set = function(nodes, edges, layout){
     toplevels = [];

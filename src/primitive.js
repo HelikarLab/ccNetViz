@@ -11,31 +11,42 @@ define(['./shader', './color'], function(ccNetViz_shader,ccNetViz_color){
 var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
     var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'));
     var buffers = [];
-    var sections = [];
+    var sections = [];   
+    
+    var sectionsByStyle = {};
 
+    var e = {};
+    var iV, iI, iS = 0, iB = 0;
+
+    var init = (filler, n) => {
+	iV = iI = 0;
+	var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
+	var nV = Math.min(max, n - (iB - iS)*max);
+	var nI = nV * filler.numIndices;
+
+	if (!e.indices || e.indices.length !== nI) {
+	    e.indices = new Uint16Array(nI);
+	    nV *= filler.numVertices;
+	    for (var a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
+	}
+    };
+    
     this.set = (gl, styles, textures, data, get) => {
         var parts = {};
+	
+	var pN = {};
         for (var i = 0; i < data.length; i++) {
-            var e = data[i];
-            var part = parts[e.style] = parts[e.style] || [];
-            part.push(e);
+            var el = data[i];
+            var part = parts[el.style] = parts[el.style] || [];
+
+	    el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
+	    
+            part.push(el);
         }
 
-        var iV, iI, iS = 0, iB = 0;
-        var e = {};
+        iS = 0;
+	iB = 0;
 
-        var init = (filler, n) => {
-            iV = iI = 0;
-            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
-            var nV = Math.min(max, n - (iB - iS)*max);
-            var nI = nV * filler.numIndices;
-
-            if (!e.indices || e.indices.length !== nI) {
-                e.indices = new Uint16Array(nI);
-                nV *= filler.numVertices;
-                for (var a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
-            }
-        };
 
         var store = (section) => {
             var b = buffers[iB];
@@ -46,9 +57,11 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
             for (var a in shader.attributes) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
                 gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
+//                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.DYNAMIC_DRAW);
             }
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
+//            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.DYNAMIC_DRAW);
             b.numIndices = iI;
             b.numVertices = iV;
             section.buffers.push(b);
@@ -79,7 +92,8 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
 
             var section = {
                 style: createStyle(styles[p]),
-                buffers: []
+                buffers: [],
+		styleName: p
             };
 
             var filler = get(section.style);
@@ -100,6 +114,7 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
 
             function add() {
                 sections.push(this);
+		sectionsByStyle[this.styleName] = this;
             }
             var addSection = add.bind(section);
 
@@ -108,20 +123,36 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
     }
 
     var fb;
-    this.update = (gl, attribute, data, get) => {
-        var i = 0, size = shader.attributes[attribute].size;
-        sections.forEach(section => {
-            var filler = get(section.style);
-            filler.numVertices = filler.numVertices || 4;
+    this.updateEl = (gl, el, pos, get) => {
+        var storeToPos = (b, i) => {
+            for (var a in shader.attributes) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*filler.numVertices*e[a].BYTES_PER_ELEMENT*i, e[a]);
+		console.log("sub "+a+" "+(shader.attributes[a].size*filler.numVertices*i));
+            }
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices*e.indices.BYTES_PER_ELEMENT, e.indices);
+        };
 
-            section.buffers.forEach(e => {
-                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-                for (var iV = 0; iV < e.numVertices; iV += filler.numVertices) filler.set(fb, data[i++], iV);
-                gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
-                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
-            });
-        });
-    }
+	var section = sectionsByStyle[el.style];
+	
+	var filler = get(section.style);
+	filler.numVertices = filler.numVertices || 4;
+	filler.numIndices = filler.numIndices || 6;
+	
+	var index = el.sI;
+	
+	var elsPerBuff = Math.floor(primitive.maxBufferSize/filler.numVertices);
+	
+	var buffer = section.buffers[Math.floor(pos / elsPerBuff)];
+
+	iB=iS=0;
+	init(filler, 1);
+
+	filler.set(e, el, 0, 0);
+
+	storeToPos(buffer, pos);
+    };
 
     this.draw = (context) => {
         context.shader = shader;

@@ -6,21 +6,43 @@
     #container {
       width: 500px;
       height: 500px;
+      cursor: crosshair;
     }
   </style>
   <script src="dist/ccNetViz.js"></script>
 </head>
 <body>
-  <canvas id="container"/>
+  <canvas id="container" ></canvas>
+  <br />
+  <input type='button' id='addEdgeWorldHello' value='add edge world->hello'></button>
+  <br />
+  <input type='button' id='addNodeCenter' value='add node at center'></button>
+  <br />
+  <input type='button' id='addEdgeCenter' value='add edge at center'></button>
+  <br />
+  <input type='button' id='removeNodeCenter' value='remove node at center'></button>
+  <br />
+  <input type='button' id='addHelloCenter' value='add Hello node'></button>
+  <br />
+  <input type='button' id='removeHelloCenter' value='remove Hello node'></button>
+  <br />
+  <input type='button' id='addWorldCenter' value='add World node'></button>
+  <br />
+  <input type='button' id='removeWorldCenter' value='remove World node'></button>
+  <br />
+  <div id='searchReport' />
   <script>
-    var graph = new ccNetViz(document.getElementById('container'), {
+    var el;
+    var graph = new ccNetVizInteractive(el = document.getElementById('container'), {
       styles: {
         node: { texture: "images/node.png", label: { hideSize: 16 } },
         edge: { arrow: { texture: "images/arrow.png" } }
       }});
+    var worldnode = { label: "World" };
+    var hellonode = { label: "Hello" };
     var nodes = [
-      { label: "Hello" },
-      { label: "World" },
+      hellonode,
+      worldnode,
       { label: "!" }
     ];
     var edges = [
@@ -30,6 +52,68 @@
     ];
     graph.set(nodes, edges, "force");
     graph.draw();
+    
+    var addnode1 = {label: "manually added", x: 1, y: 0.5};
+    
+    document.getElementById('addNodeCenter').addEventListener("click", function(){
+      graph.addNodes([addnode1]).applyChanges();
+      return false;
+    });
+    document.getElementById('removeNodeCenter').addEventListener("click", function(){
+      graph.removeNodes([addnode1]).applyChanges();
+      return false;
+    });
+
+    document.getElementById('addWorldCenter').addEventListener("click", function(){
+      graph.addNodes([worldnode]).applyChanges();
+      return false;
+    });
+    
+    document.getElementById('removeWorldCenter').addEventListener("click", function(){
+      graph.removeNodes([worldnode]).applyChanges();
+      return false;
+    });
+
+    document.getElementById('addHelloCenter').addEventListener("click", function(){
+      graph.addNodes([hellonode]).applyChanges();
+      return false;
+    });
+
+    document.getElementById('removeHelloCenter').addEventListener("click", function(){
+      graph.removeNodes([hellonode]).applyChanges();
+      return false;
+    });
+    
+    var addedge1 = {source: worldnode, target: addnode1};
+    document.getElementById('addEdgeCenter').addEventListener("click", function(){
+      graph.addEdges([addedge1]).applyChanges();
+      return false;
+    });
+    
+    var addedge2 = {source: worldnode, target: hellonode};
+    document.getElementById('addEdgeWorldHello').addEventListener("click", function(){
+      graph.addEdges([addedge2]).applyChanges();
+      return false;
+    });
+
+    
+    el.addEventListener('mouseup', function(e){
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var result = graph.find(x, y, radius, true, true);
+      
+      var reportel = document.getElementById("searchReport");
+      reportel.style.display = 'block';
+      var html = "<div>Search for ["+x+","+y+"] px:</div>";
+      html+="<div>Nodes: "+result.nodes.length+"</div>";
+      html+="<div>Edges: "+result.edges.length+"</div>";
+      reportel.innerHTML = html;
+    });
+    
   </script>
 </body>
 </html>

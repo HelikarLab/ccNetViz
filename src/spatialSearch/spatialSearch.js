@@ -170,6 +170,7 @@ var EPS = Number.EPSILON || 1e-14;
 var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
     var i, j, d, rbushtree, context;
     context = c;
+    var types = {};
 
 
     function Node(n){
@@ -278,22 +279,26 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       var v = this.getBezierPoints(context, size);
       return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
     };
-    
+
     function initTree(size){
       rbushtree = rbush();
+
+      types = {nodes: [], lines: [], circles: [], curves: []};
 
       d = [];
       d.length = nodes.length;
       for(i = 0;i < nodes.length; i++){
         var e = new Node(nodes[i]);
         d[i] = e.getBBox(context, size);
+        types.nodes.push(e);
         d[i].push(e);
       }
-      
+
       d.length += lines.length;
       for(j = 0;j < lines.length;i++, j++){
         var e = new Line(lines[j]);
         d[i] = e.getBBox(context, size);
+        types.lines.push(e);
         d[i].push(e);
       }
 
@@ -301,6 +306,7 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       for(j = 0;j < circles.length;i++, j++){
         var e = new Circle(circles[j]);
         d[i] = e.getBBox(context, size);
+        types.circles.push(e);
         d[i].push(e);
       }
       
@@ -308,32 +314,41 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
       for(j = 0;j < curves.length;i++, j++){
         var e = new Curve(curves[j]);
         d[i] = e.getBBox(context, size);
+        types.curves.push(e);
         d[i].push(e);
       }
 
 
       rbushtree.load(d);
     }
-    
-    
+
+    var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+
+    this.update = (t, i, v) => {
+      rbushtree.remove(types[t][i]);
+
+      rbushtree.insert(types[t][i] = new tConst[t](v));
+    };
+
+
     function sortByDistances(e1, e2){
       return e1.dist2 - e2.dist2;
     }
-    
+
     this.setContext = (c) => {
       context = c;
     };
-    
+
     this.find = (context, x,y, radius, size, nodes, edges) => {
       var ret = {};
       if(edges)
 	ret.edges = [];
       if(nodes)
 	ret.nodes = [];
-      
+
       var xradius = radius;
       var yradius = radius;
-      
+
       var radius2 = radius*radius;
 
       var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
