@@ -334,7 +334,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
 
 
-    this.updateNode = function(n, i) {
+    this.updateNode = (n, i) => {
       this.nodes[i] = n;
       var n = this.nodes[0].color ? scene.nodesColored : scene.nodes;
       n.updateEl(gl, n, i, nodesFiller);
@@ -343,7 +343,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
         spatialSearch.update('nodes', i, n);
     };
     
-    this.updateEdge = function(e, i) {
+    this.updateEdge = ((e, i) => {
       var t = edgeTypes[i];
       var pos = edgePoses[i];
 
@@ -353,7 +353,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
       
       if(spatialSearch)
         spatialSearch.update(t.k, pos, e);
-    };
+    });
     
     this.redraw = (keepbg) => {
       if(this.onRedraw){

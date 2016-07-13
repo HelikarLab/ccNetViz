@@ -171,114 +171,125 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
     var i, j, d, rbushtree, context;
     context = c;
     var types = {};
-
-
-    function Node(n){
-      this.e = n;
-    };
-    Node.prototype.isNode = true;
-    Node.prototype.getBBox = function(){
-      return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
-    };
-    Node.prototype.dist2 = function(x,y, context){ return distance2(x,y,this.e.x,this.e.y);};
     
-    function Line(l){
-      this.e = l;
+    class Node{
+      constructor(n){
+	this.isNode = true;
+	this.e = n;
+      };
+      getBBox(){
+	return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
+      };
+      dist2(x,y, context){
+	return distance2(x,y,this.e.x,this.e.y);
+      };
     }
-    Line.prototype.isEdge = true;
-    Line.prototype.getBBox = function(){
-      var x1,x2,y1,y2;
-      x1 = this.e.source.x;
-      y1 = this.e.source.y;
-      x2 = this.e.target.x;
-      y2 = this.e.target.y; 
-      return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
-    };
-    Line.prototype.dist2 = function(x,y, context){ return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
     
-    function Circle(c){
-      this.e = c;
+    class Line{
+      constructor(l){
+	this.isEdge = true;
+	this.e = l;
+      };
+      getBBox(){
+	var x1,x2,y1,y2;
+	x1 = this.e.source.x;
+	y1 = this.e.source.y;
+	x2 = this.e.target.x;
+	y2 = this.e.target.y; 
+	return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
+      };
+      dist2(x,y, context){
+	return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
+      };
     }
-    Circle.prototype.isEdge = true;
-    Circle.prototype.getBezierPoints = function(context, screensize){
-      var x1,y1,s;
-      s = this.e.source;
-      x1 = s.x;
-      y1 = s.y;
-
-      var size = 2.5 * context.nodeSize * screensize;
-      var xsize = size / context.width / 2;
-      var ysize = size / context.height / 2;
-
-      var d = s.y < 0.5 ? 1 : -1;
-      
-      return [
-        x1,
-        y1,
-        x1 + xsize*1,
-        y1 + ysize*d,
-        x1,
-        y1 + ysize*1.25*d,
-        x1 - xsize*1,
-        y1 + ysize*d
-      ];
-    };
-    Circle.prototype.getBBox = function(context, size){
-      var v = this.getBezierPoints(context, size);
-      
-      return getBBFromPoints(v);
-    };
-    Circle.prototype.dist2 = function(x,y,context,size){
-      var v = this.getBezierPoints(context,size);
-
-      //circle is just 2 bezier curves :)
-      var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-      var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
-
-      return Math.min(d1,d2);
-    };
     
-    function Curve(c){
-      this.e = c;
+    class Circle{
+      constructor(c){
+	this.isEdge = true;
+	this.e = c;
+      };
+      getBezierPoints(context, screensize){
+	var x1,y1,s;
+	s = this.e.source;
+	x1 = s.x;
+	y1 = s.y;
+
+	var size = 2.5 * context.nodeSize * screensize;
+	var xsize = size / context.width / 2;
+	var ysize = size / context.height / 2;
+
+	var d = s.y < 0.5 ? 1 : -1;
+	
+	return [
+	  x1,
+	  y1,
+	  x1 + xsize*1,
+	  y1 + ysize*d,
+	  x1,
+	  y1 + ysize*1.25*d,
+	  x1 - xsize*1,
+	  y1 + ysize*d
+	];
+      };
+      getBBox(context, size){
+	var v = this.getBezierPoints(context, size);
+	
+	return getBBFromPoints(v);
+      };
+      dist2(x,y,context,size){
+	var v = this.getBezierPoints(context,size);
+
+	//circle is just 2 bezier curves :)
+	var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+	var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
+
+	return Math.min(d1,d2);
+      };
     }
-    Curve.prototype.isEdge = true;
-    Curve.prototype.getBezierPoints = function(context, size){
-      var x1,x2,y1,y2;
-      x1 = this.e.source.x;
-      y1 = this.e.source.y;
-      x2 = this.e.target.x;
-      y2 = this.e.target.y; 
-      
-      var d = normalize(this.e.source, this.e.target);
-      
-      var n2 = d.y;
-      var n3 = context.aspect2*-d.x;
+    
+    class Curve{
+      constructor(c){
+	this.isEdge = true;
+	this.e = c;
+      };
+      getBezierPoints(context, size){
+	var x1,x2,y1,y2;
+	x1 = this.e.source.x;
+	y1 = this.e.source.y;
+	x2 = this.e.target.x;
+	y2 = this.e.target.y; 
+	
+	var d = normalize(this.e.source, this.e.target);
+	
+	var n2 = d.y;
+	var n3 = context.aspect2*-d.x;
 
-      var x = context.width * n2;
-      var y = context.height* n3;
-      var l = Math.sqrt(x*x+y*y)*2;
+	var x = context.width * n2;
+	var y = context.height* n3;
+	var l = Math.sqrt(x*x+y*y)*2;
 
-      n2 *= context.curveExc*size/l;
-      n3 *= context.curveExc*size/l;
+	n2 *= context.curveExc*size/l;
+	n3 *= context.curveExc*size/l;
 
-      var ret = [
-        x1,
-        y1,
-        (x1+x2)/2 + n2,
-        (y1+y2)/2 + n3,
-        x2,
-        y2
-      ];
-      return ret;
-    };
-    Curve.prototype.getBBox = function(context, size){
-      var v = this.getBezierPoints(context, size);
-      return getBBFromPoints(v);
-    };
-    Curve.prototype.dist2 = function(x,y, context, size){
-      var v = this.getBezierPoints(context, size);
-      return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-    };
+	var ret = [
+	  x1,
+	  y1,
+	  (x1+x2)/2 + n2,
+	  (y1+y2)/2 + n3,
+	  x2,
+	  y2
+	];
+	return ret;
+      };
+      getBBox(context, size){
+	var v = this.getBezierPoints(context, size);
+	return getBBFromPoints(v);
+      };
+      dist2(x,y, context, size){
+	var v = this.getBezierPoints(context, size);
+	return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+      };
+    }
 
     function initTree(size){
       rbushtree = rbush();

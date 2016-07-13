@@ -40,9 +40,9 @@ var ccNetVizInteractive = function(canvas, options){
   
   //with edges id with keys of node ids
   // {1:[4,5], 2:[4]} - node id 1 has associated edge with id 4 and 5, node with id 2 has associated edge 4
-  var nodesPositions = {};
-  var edgesPositions = {};
-  var edgesDirections = {};
+  var nPos = {};
+  var ePos = {};
+  var eDirs = {};
   
   
   var toAddNodes = [];
@@ -57,25 +57,25 @@ var ccNetVizInteractive = function(canvas, options){
   var edges;
 
 
-  var onRedraw = utils.debounce(function(){
+  var onRedraw = utils.debounce(() => {
     self.draw.call(self);
     return false;
   }, 5);  
   
   var self = this;
-  vizScreen.onRedraw = vizScreenTemp.onRedraw = function(){
+  vizScreen.onRedraw = vizScreenTemp.onRedraw = (() => {
     onRedraw();
     return false;
-  }
+  });
   
   function removeNodes(){
     toRemoveNodes.forEach((n) => {
       if(n.uniqid === undefined)
         return;
       
-      if(nodesPositions[n.uniqid] !== undefined){
+      if(nPos[n.uniqid] !== undefined){
         //in the normal graph
-        var pos = nodesPositions[n.uniqid];
+        var pos = nPos[n.uniqid];
         vizScreen.removeNodeAtPos(pos);
       }else{
         //try to remove from temp graph
@@ -97,11 +97,11 @@ var ccNetVizInteractive = function(canvas, options){
       if(e.uniqid === undefined)
         return;
 
-      delete edgesDirections[e.source.uniqid][e.target.uniqid];
+      delete eDirs[e.source.uniqid][e.target.uniqid];
       
-      if(edgesPositions[e.uniqid] !== undefined){
+      if(ePos[e.uniqid] !== undefined){
         //in the normal graph
-        var pos = edgesPositions[e.uniqid];
+        var pos = ePos[e.uniqid];
         vizScreen.removeEdgeAtPos(pos);
       }else{
         //try to remove from temp graph
@@ -147,7 +147,7 @@ var ccNetVizInteractive = function(canvas, options){
 
       n.uniqid = ++lastNodeIndex;
       
-      edgesDirections[n.uniqid] = {};
+      eDirs[n.uniqid] = {};
       actualTempNodes.push(n);
     });
   }
@@ -161,29 +161,29 @@ var ccNetVizInteractive = function(canvas, options){
     if(supStructsCreated)
       return;
     
-    nodesPositions = {};
-    edgesPositions = {};
-    edgesDirections = {};
+    nPos = {};
+    ePos = {};
+    eDirs = {};
 
     nodes.forEach(function(n, i){
       n.uniqid = i;
-      nodesPositions[n.uniqid] = i;
-      edgesDirections[n.uniqid] = {};
+      nPos[n.uniqid] = i;
+      eDirs[n.uniqid] = {};
     });
     
     edges.forEach(function(e, i){
       e.uniqid = i;
-      edgesDirections[e.source.uniqid][e.target.uniqid] = e;
-      edgesPositions[e.uniqid] = i;
+      eDirs[e.source.uniqid][e.target.uniqid] = e;
+      ePos[e.uniqid] = i;
     });
     
     lastNodeIndex = nodes[nodes.length-1].uniqid;
     lastEdgeIndex = nodes[nodes.length-1].uniqid;
     
     supStructsCreated = true;
-  }
+  };
 
-  this.set = function(n, e, layout){
+  this.set = ((n, e, layout) => {
     nodes = n;
     edges = e;
     
@@ -191,72 +191,74 @@ var ccNetVizInteractive = function(canvas, options){
     vizScreen.set(nodes, edges, layout);
     
     supStructsCreated = false;
-  }
+  });
   
-  this.removeNode = function(n){
+  this.removeNode = ((n) => {
     createSupportStructs(nodes, edges);
 
     toRemoveNodes.push(n);
     return this;
-  }
+  });
   
-  this.removeNodes = function(nodes){
+  this.removeNodes = ((nodes) => {
     nodes.forEach((n) => {
       this.removeNode(n);
     });
     return this;
-  }
+  });
 
-  this.addEdge = function(e){
+  this.addEdge = ((e) => {
     createSupportStructs(nodes, edges);
 
     var tid = e.target.uniqid;
     var sid = e.source.uniqid;
     
-    if(edgesDirections[sid][tid]){
+    if(eDirs[sid][tid]){
       //this edge was already added
       return this;
     }
-    if(edgesDirections[tid][sid]){
+    if(eDirs[tid][sid]){
       //must remove line and add two curves
       
-      toRemoveEdges.push(edgesDirections[tid][sid]);
+      toRemoveEdges.push(eDirs[tid][sid]);
       
-      toAddEdges.push(edgesDirections[tid][sid]);
-      toAddEdges.push(edgesDirections[sid][tid] = e);
+      toAddEdges.push(eDirs[tid][sid]);
+      toAddEdges.push(eDirs[sid][tid] = e);
       
       return this;
     }
 
     toAddEdges.push(e);
     return this;
-  }
+  });
   
-  this.addNode = function(n){
+  this.addNode = ((n) => {
     createSupportStructs(nodes, edges);
 
     toAddNodes.push(n);    
     return this;
-  }
+  });
 
   
-  this.addEdges = function(edges){
+  this.addEdges = ((edges) => {
     edges.forEach((e) => {
       this.addEdge(e);
     });
     
     return this;
-  }
+  });
 
-  this.addNodes = function(nodes){
+  this.addNodes = ((nodes) => {
     nodes.forEach((n) => {
       this.addNode(n);
     });
 
     return this;
-  }
+  });
   
-  this.applyChanges = function(){
+  this.reflow = [];
+  
+  this.applyChanges = (() => {
     
     actualTempNodes = vizScreenTemp.nodes;
     actualTempEdges = vizScreenTemp.edges;
@@ -276,14 +278,14 @@ var ccNetVizInteractive = function(canvas, options){
     this.draw();
     
     return this;
-  }
+  });
   
-  this.draw = function(){
+  this.draw = (() => {
     vizScreen.draw();
     vizScreenTemp.draw(true);
-  }
+  });
   
-  this.find = function(){
+  this.find = (() => {
     function sortByDistances(e1, e2){
       return e1.dist2 - e2.dist2;
     }
@@ -321,19 +323,19 @@ var ccNetVizInteractive = function(canvas, options){
     }
     
     return r;
-  }
+  });
 
 
   var exposeMethods = ['resetView', 'resize'];
   var self = this;
-  exposeMethods.forEach(function(method){
+  exposeMethods.forEach(((method) => {
     (function(method, self){
       self[method] = function(){
         vizScreenTemp[method].apply(vizScreenTemp, arguments);
         return vizScreen[method].apply(vizScreen, arguments);
       };
     })(method, self);
-  });
+  }));
   
 };
 
