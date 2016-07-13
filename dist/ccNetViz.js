@@ -45,7 +45,363 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(1),
+	        __webpack_require__(1),
+	        __webpack_require__(2),
+	        __webpack_require__(12)
+	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
+	        ccNetVizMultiLevel,
+	        ccNetViz,
+	        utils
+	    ){
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Aleš Saska
+	 */
+
+
+	var ccNetVizInteractive = function(canvas, options){
+	  var vizScreen,vizScreenTemp,vizLayout;
+
+	  var getNodesCnt = (() => {
+	    return vizScreenTemp.cntShownNodes() + vizScreen.cntShownNodes();
+	  });
+	  var getEdgesCnt = (() => {
+	    return vizScreenTemp.cntShownEdges() + vizScreen.cntShownEdges();
+	  });
+	  
+	  vizScreen = new ccNetViz(canvas, options, getNodesCnt);
+	  vizScreenTemp = new ccNetViz(canvas, options, getEdgesCnt);
+	  
+	    
+	  var supStructsCreated = false;
+
+	  var lastNodeIndex;
+	  var lastEdgeIndex;
+	  
+	  var uniqid = 0;
+	  
+	  //with edges id with keys of node ids
+	  // {1:[4,5], 2:[4]} - node id 1 has associated edge with id 4 and 5, node with id 2 has associated edge 4
+	  var nPos = {};
+	  var ePos = {};
+	  var eDirs = {};
+	  
+	  
+	  var toAddNodes = [];
+	  var toAddEdges = [];
+	  var toRemoveNodes = [];
+	  var toRemoveEdges = [];
+	  
+	  var actualTempNodes = [];
+	  var actualTempEdges = [];
+	  
+	  var nodes;
+	  var edges;
+
+
+	  var onRedraw = utils.debounce(() => {
+	    self.draw.call(self);
+	    return false;
+	  }, 5);  
+	  
+	  var self = this;
+	  vizScreen.onRedraw = vizScreenTemp.onRedraw = (() => {
+	    onRedraw();
+	    return false;
+	  });
+	  
+	  function removeNodes(){
+	    toRemoveNodes.forEach((n) => {
+	      if(n.uniqid === undefined)
+	        return;
+	      
+	      if(nPos[n.uniqid] !== undefined){
+	        //in the normal graph
+	        var pos = nPos[n.uniqid];
+	        vizScreen.removeNodeAtPos(pos);
+	      }else{
+	        //try to remove from temp graph
+	        
+	        for(var i = 0; i < actualTempNodes.length; i++){
+	          if(actualTempNodes[i].uniqid === n.uniqid){
+	            actualTempNodes.splice(i,1);
+	            break;
+	          }
+	        }
+	      }
+	      
+	      delete n.uniqid;
+	    });
+	  }
+
+	  function removeEdges(){
+	    toRemoveEdges.forEach((e) => {
+	      if(e.uniqid === undefined)
+	        return;
+
+	      delete eDirs[e.source.uniqid][e.target.uniqid];
+	      
+	      if(ePos[e.uniqid] !== undefined){
+	        //in the normal graph
+	        var pos = ePos[e.uniqid];
+	        vizScreen.removeEdgeAtPos(pos);
+	      }else{
+	        //try to remove from temp graph
+	        
+	        for(var i = 0; i < actualTempEdges.length; i++){
+	          if(actualTempEdges[i].uniqid === e.uniqid){
+	            actualTempEdges.splice(i,1);
+	            break;
+	          }
+	        }
+
+	      }
+	      
+	      delete e.uniqid;
+	    });
+	  }
+	  
+	  function addEdges(){
+	    toAddEdges.forEach((e) => {
+	      //already added
+	      if(e.uniqid !== undefined){
+	        console.error(e);
+	        console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
+	        return;
+	      }
+	      //already added
+	      e.uniqid = ++lastEdgeIndex;
+
+	      //add this node into temporary chart
+	      actualTempEdges.push(e);
+	    });
+	  }
+	  
+	  function addNodes(nodes){
+	    toAddNodes.forEach((n) => {
+	      
+	      //already added
+	      if(n.uniqid !== undefined){
+	        console.error(n);
+	        console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
+	        return;
+	      }
+
+	      n.uniqid = ++lastNodeIndex;
+	      
+	      eDirs[n.uniqid] = {};
+	      actualTempNodes.push(n);
+	    });
+	  }
+	  
+	  
+	  function isAnyChange(){
+	    return toAddEdges.length > 0 || toAddNodes.length > 0 || toRemoveEdges.length > 0 || toRemoveNodes.length > 0;
+	  }
+	  
+	  function createSupportStructs(nodes, edges){
+	    if(supStructsCreated)
+	      return;
+	    
+	    nPos = {};
+	    ePos = {};
+	    eDirs = {};
+
+	    nodes.forEach((n, i) => {
+	      n.uniqid = i;
+	      nPos[n.uniqid] = i;
+	      eDirs[n.uniqid] = {};
+	    });
+	    
+	    edges.forEach((e, i) => {
+	      e.uniqid = i;
+	      eDirs[e.source.uniqid][e.target.uniqid] = e;
+	      ePos[e.uniqid] = i;
+	    });
+	    
+	    lastNodeIndex = nodes[nodes.length-1].uniqid;
+	    lastEdgeIndex = nodes[nodes.length-1].uniqid;
+	    
+	    supStructsCreated = true;
+	  };
+
+	  this.set = (n, e, layout) => {
+	    nodes = n;
+	    edges = e;
+	    
+	    vizScreenTemp.set([], [], layout);
+	    vizScreen.set(nodes, edges, layout);
+	    
+	    supStructsCreated = false;
+	  };
+	  
+	  this.removeNode = (n) => {
+	    createSupportStructs(nodes, edges);
+
+	    toRemoveNodes.push(n);
+	    return this;
+	  };
+	  
+	  this.removeNodes = (nodes) => {
+	    nodes.forEach((n) => {
+	      this.removeNode(n);
+	    });
+	    return this;
+	  };
+	  
+	  //make all dynamic changes static
+	  this.reflow = () => {
+	    //nodes and edges in dynamic chart are actual
+	    var n = vizScreen.getVisibleNodes().concat(vizScreenTemp.getVisibleNodes());
+	    var e = vizScreen.getVisibleEdges().concat(vizScreenTemp.getVisibleEdges());
+	    
+	    this.set(n,e);
+	    this.draw();
+	  };
+
+	  this.addEdge = (e) => {
+	    createSupportStructs(nodes, edges);
+
+	    var tid = e.target.uniqid;
+	    var sid = e.source.uniqid;
+	    
+	    if(eDirs[sid][tid]){
+	      //this edge was already added
+	      return this;
+	    }
+	    if(eDirs[tid][sid]){
+	      //must remove line and add two curves
+	      
+	      toRemoveEdges.push(eDirs[tid][sid]);
+	      
+	      toAddEdges.push(eDirs[tid][sid]);
+	      toAddEdges.push(eDirs[sid][tid] = e);
+	      
+	      return this;
+	    }
+
+	    toAddEdges.push(e);
+	    return this;
+	  };
+	  
+	  this.addNode = (n) => {
+	    createSupportStructs(nodes, edges);
+
+	    toAddNodes.push(n);    
+	    return this;
+	  };
+
+	  
+	  this.addEdges = (edges) => {
+	    edges.forEach((e) => {
+	      this.addEdge(e);
+	    });
+	    
+	    return this;
+	  };
+
+	  this.addNodes = (nodes) => {
+	    nodes.forEach((n) => {
+	      this.addNode(n);
+	    });
+
+	    return this;
+	  };
+	  
+	  this.applyChanges = () => {
+	    
+	    actualTempNodes = vizScreenTemp.nodes;
+	    actualTempEdges = vizScreenTemp.edges;
+	    
+	    removeEdges();
+	    removeNodes();
+	    addNodes();
+	    addEdges();
+	    
+	    toAddEdges = [];
+	    toAddNodes = [];
+	    toRemoveEdges = [];
+	    toRemoveNodes = [];
+	    
+	    
+	    vizScreenTemp.set(actualTempNodes, actualTempEdges);
+	    this.draw();
+	    
+	    return this;
+	  };
+	  
+	  this.draw = () => {
+	    vizScreen.draw();
+	    vizScreenTemp.draw(true);
+	  };
+	  
+	  this.find = function(){
+	    function mergeArrays(a, b, cmp){
+	      var r = [];
+	      r.length = a.length + b.length;
+
+	      var i = 0,j=0,k=0;
+	      
+	      while (i < a.length && j < b.length)
+	      {
+	        if (cmp(a[i],b[j]) < 0)       
+	          r[k++] = a[i++];
+	        else        
+	          r[k++] = b[j++];               
+	      }
+
+	      while (i < a.length)
+	        r[k++] = a[i++];
+
+
+	      while (j < b.length)
+	        r[k++] = b[j++];
+	      
+	      return r;
+	    }
+	    
+	    var f1 = vizScreen.find.apply(vizScreen, arguments);
+	    var f2 = vizScreenTemp.find.apply(vizScreenTemp, arguments);
+	    
+	    var r = {};
+	    for(var key in f1){
+	      r[key] = mergeArrays(f1[key], f2[key], (e1, e2) => {
+				      return e1.dist2 - e2.dist2;
+				    });
+	    }
+	    
+	    return r;
+	  };
+
+
+	  var exposeMethods = ['resetView', 'resize'];
+	  var self = this;
+	  exposeMethods.forEach(((method) => {
+	    (function(method, self){
+	      self[method] = function(){
+	        vizScreenTemp[method].apply(vizScreenTemp, arguments);
+	        return vizScreen[method].apply(vizScreen, arguments);
+	      };
+	    })(method, self);
+	  }));
+	  
+	};
+
+
+	window.ccNetVizInteractive = module.exports = ccNetVizInteractive;
+
+
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+		__webpack_require__(2),
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 		ccNetViz
 	    ){
@@ -114,14 +470,17 @@
 	      }
 	    }
 	  });
+	  
+	  var exposeMethods = ['find', 'draw', 'resetView', 'resize'];
+	  var self = this;
+	  exposeMethods.forEach(function(method){
+	    (function(method, self){
+	      self[method] = function(){
+		return vizScreen[method].apply(vizScreen, arguments);
+	      };
+	    })(method, self);
+	  });
 
-	  this.find = function(){
-	    return vizScreen.find.apply(vizScreen, arguments);
-	  };
-
-	  this.draw = function(){
-	    return vizScreen.draw.apply(vizScreen, arguments);
-	  };
 
 	  this.set = function(nodes, edges, layout){
 	    toplevels = [];
@@ -141,25 +500,25 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
-		__webpack_require__(3),
-		__webpack_require__(4), 
-		__webpack_require__(6),
-		__webpack_require__(10), 
-		__webpack_require__(12),
-		__webpack_require__(13)
+	        __webpack_require__(3),
+	        __webpack_require__(4),
+	        __webpack_require__(5), 
+	        __webpack_require__(7),
+	        __webpack_require__(11), 
+	        __webpack_require__(13),
+	        __webpack_require__(14)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
-		ccNetViz_color,
-		ccNetViz_gl,
-		ccNetViz_primitive,
-		ccNetViz_layout,
-		ccNetViz_textures,
-		ccNetViz_texts,
-		ccNetViz_spatialSearch
+	        ccNetViz_color,
+	        ccNetViz_gl,
+	        ccNetViz_primitive,
+	        ccNetViz_layout,
+	        ccNetViz_textures,
+	        ccNetViz_texts,
+	        ccNetViz_spatialSearch
 	    ){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -171,7 +530,10 @@
 
 	ccNetViz = {};
 
-	ccNetViz = function(canvas, options) {
+	ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
+	    getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
+	    getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
+	  
 	    options = options || {};
 	    options.styles = options.styles || {};
 
@@ -215,8 +577,127 @@
 	        s.aspect = 1;
 	    }
 	    
+	    var nodesFiller = (
+	      style => ({
+	        set: (v, e, iV, iI) => {
+	            var x = e.x;
+	            var y = e.y;
+	            ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+	            ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	            if(v.color){
+	              var c = e.color;
+	              ccNetViz.primitive.colors(v.color, iV, c, c, c, c);
+	            }
+	            ccNetViz.primitive.quad(v.indices, iV, iI);
+	        }})
+	    );
+	    var labelsFiller = (style => {
+		texts.setFont(style.font);
+		style.texture = texts.texture;
+		return {
+		    set: (v, e, iV, iI) => {
+			var x = e.x;
+			var y = e.y;
+			ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+			var t = texts.get(e.label);
+			var dx = x <= 0.5 ? 0 : -t.width;
+			var dy = y <= 0.5 ? 0 : -t.height;
+			ccNetViz.primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
+			ccNetViz.primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
+			ccNetViz.primitive.quad(v.indices, iV, iI);
+		    }}
+		}	
+	    );
+
+	    var normalize = (a, b) => {
+	        var x = b.x - a.x;
+	        var y = b.y - a.y;
+	        var sc = 1 / Math.sqrt(x*x + y*y);
+	        return { x: sc * x, y: sc * y };
+	    };
+	    
+	    var edgesFiller = {
+	      'lines': (style => ({
+	            set: (v, e, iV, iI) => {
+	                var s = e.source;
+	                var t = e.target;
+	                var dx = s.x-t.x;
+	                var dy = s.y-t.y;
+	                var d = normalize(s, t);
+
+	                ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+	                ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
+	                ccNetViz.primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
+	                ccNetViz.primitive.quad(v.indices, iV, iI);
+	            }})),
+	       'curves': (style => ({
+	                    numVertices: 3,
+	                    numIndices: 3,
+	                    set: (v, e, iV, iI) => {
+	                        var s = e.source;
+	                        var t = e.target;
+	                        var dx = s.x-t.x;
+	                        var dy = s.y-t.y;
+	                        var d = normalize(s, t);
+
+	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
+	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
+	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
+	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
+	                        ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
+	                    }
+	                })),
+	       'circles': (style => ({
+	                    set: (v, e, iV, iI) => {
+	                        var s = e.source;
+	                        var d = s.y < 0.5 ? 1 : -1;
+
+	                        var xdiff1 = 0;
+	                        var ydiff1 = 0;
+	                        var xdiff2 = 1;
+	                        var ydiff2 = d;
+	                        var xdiff3 = 2;
+	                        var ydiff3 = 1.25*d;
+	                        var xdiff4 = 3;
+	                        var ydiff4 = 1.5*d;
+
+	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
+	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
+	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
+	                        ccNetViz.primitive.quad(v.indices, iV, iI);
+	                    }
+	                }))
+	    };
+
+	    var set = (v, e, iV, iI, dx, dy) => {
+	        var tx = e.target.x;
+	        var ty = e.target.y;
+	        ccNetViz.primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
+	        ccNetViz.primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
+	        ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	        ccNetViz.primitive.quad(v.indices, iV, iI);
+	    };
+	            
+	    var dx = Math.cos(0.9);
+	    var dy = Math.sin(0.9);
+	    var arrowFiller = {
+	      lineArrows: (style => ({
+	                set: (v, e, iV, iI) => {
+	                    var d = normalize(e.source, e.target);
+	                    set(v, e, iV, iI, d.x, d.y);
+	                }})),
+	       curveArrows: (style => ({
+	                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
+	                    })),
+	       circleArrows: (style => ({
+	                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
+	                    }))
+	    };
 
 	    var context;
+	    var edgeTypes;
+	    var edgePoses;
 
 	    var spatialSearch = undefined;
 
@@ -252,177 +733,94 @@
 	            for (var i = 0; i < nodes.length; i++) {
 	                nodes[i].index = i;
 	            }
+
+	            edgeTypes = [];
+	            edgePoses = [];
+	            var dummysd  = {k:  '_',      kArrow: '_', d: []};
+	            var circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
+	            var linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
+	            var curvesd  = {k: 'curves',  kArrow: 'curveArrows',d: curves};
+	            
 	            if (extensions.OES_standard_derivatives) {
 	                var map = {};
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
-	                    (map[e.source.index] || (map[e.source.index] = {}))[e.target.index] = true;
+	    
+	                    var si = e.source.uniqid || e.source.index;
+	                    var ti = e.target.uniqid || e.target.index;
+	    
+	                    (map[si] || (map[si] = {}))[ti] = true;
 	                }
+
 	                for (var i = 0; i < edges.length; i++) {
 	                    var target, e = edges[i];
 
-	                    if (e.source.index === e.target.index) {
+	                    var si = e.source.uniqid || e.source.index;
+	                    var ti = e.target.uniqid || e.target.index;
+	    
+	                    var t = dummysd;
+	                    if (si === ti) {
 	                        target = circles;
+	                        t = circlesd;
+	                    }else {
+	                        var m = map[ti];
+	                        if(m && m[si]){
+	                          target = curves;
+	                          t = curvesd;
+	                        }else{
+	                          target = lines;
+	                          t = linesd;
+	                        }
 	                    }
-	                    else {
-	                        var m = map[e.target.index];
-	                        target = m && m[e.source.index] ? curves : lines;
-	                    }
+	                    edgeTypes.push(t);
+	                    edgePoses.push(t.d.length);
 	                    target.push(e);
 	                }
-	            }
-	            else {
+	            } else {
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
-	                    e.source.index !== e.target.index && lines.push(e);
+
+	                    var si = e.source.uniqid || e.source.index;
+	                    var ti = e.target.uniqid || e.target.index;
+
+	                    var t = dummysd;
+	                    if(si !== ti){
+	                      t = linesd;
+	                      lines.push(e);
+	                    }
+	                    edgeTypes.push(t);
+	                    edgePoses.push(t.d.length);
 	                }
 	            }
-	        };
-
-	        var normalize = (a, b) => {
-	            var x = b.x - a.x;
-	            var y = b.y - a.y;
-	            var sc = 1 / Math.sqrt(x*x + y*y);
-	            return { x: sc * x, y: sc * y };
 	        };
 
 	        init();
 
 	        layout && new ccNetViz.layout[layout](nodes, edges).apply() && ccNetViz.layout.normalize(nodes);
 
-	        scene.nodes.set(gl, options.styles, textures, nodes.length && !nodes[0].color ? nodes : [], style => ({
-	            set: (v, e, iV, iI) => {
-	                var x = e.x;
-	                var y = e.y;
-	                ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-	                ccNetViz.primitive.quad(v.indices, iV, iI);
-	            }})
-	        );
-
-	        scene.nodesColored.set(gl, options.styles, textures, nodes.length && nodes[0].color ? nodes : [], style => ({
-	            set: (v, e, iV, iI) => {
-	                var x = e.x;
-	                var y = e.y;
-	                var c = e.color;
-	                ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-	                ccNetViz.primitive.colors(v.color, iV, c, c, c, c);
-	                ccNetViz.primitive.quad(v.indices, iV, iI);
-	            }})
-	        );
+	        scene.nodes.set(gl, options.styles, textures, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
+	        scene.nodesColored.set(gl, options.styles, textures, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
 
 	        if (nodeStyle.label) {
 	            texts.clear();
-	            scene.labels.set(gl, options.styles, textures, nodes, style => {
-	                texts.setFont(style.font);
-	                style.texture = texts.texture;
-	                return {
-	                    set: (v, e, iV, iI) => {
-	                        var x = e.x;
-	                        var y = e.y;
-	                        ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                        var t = texts.get(e.label);
-	                        var dx = x <= 0.5 ? 0 : -t.width;
-	                        var dy = y <= 0.5 ? 0 : -t.height;
-	                        ccNetViz.primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-	                        ccNetViz.primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-	                        ccNetViz.primitive.quad(v.indices, iV, iI);
-	                    }}
-	            });
+	            scene.labels.set(gl, options.styles, textures, nodes, labelsFiller);
 	            texts.bind();
 	        }
 
-	        scene.lines.set(gl, options.styles, textures, lines, style => ({
-	            set: (v, e, iV, iI) => {
-	                var s = e.source;
-	                var t = e.target;
-	                var dx = s.x-t.x;
-	                var dy = s.y-t.y;
-	                var d = normalize(s, t);
-
-	                ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
-	                ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
-	                ccNetViz.primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
-	                ccNetViz.primitive.quad(v.indices, iV, iI);
-	            }})
-	        );
+	        scene.lines.set(gl, options.styles, textures, lines, edgesFiller.lines);
 
 	        if (extensions.OES_standard_derivatives) {
-	            scene.curves.set(gl, options.styles, textures, curves, style => ({
-	                    numVertices: 3,
-	                    numIndices: 3,
-	                    set: (v, e, iV, iI) => {
-	                        var s = e.source;
-	                        var t = e.target;
-	                        var dx = s.x-t.x;
-	                        var dy = s.y-t.y;
-	                        var d = normalize(s, t);
-
-	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
-	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
-	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
-	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
-	                        ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
-	                    }
-	                })
-	            );
-
-	            scene.circles.set(gl, options.styles, textures, circles, style => ({
-	                    set: (v, e, iV, iI) => {
-	                        var s = e.source;
-	                        var d = s.y < 0.5 ? 1 : -1;
-
-	                        var xdiff1 = 0;
-	                        var ydiff1 = 0;
-	                        var xdiff2 = 1;
-	                        var ydiff2 = d;
-	                        var xdiff3 = 2;
-	                        var ydiff3 = 1.25*d;
-	                        var xdiff4 = 3;
-	                        var ydiff4 = 1.5*d;
-				
-				
-
-	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
-	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
-	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
-	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
-	                        ccNetViz.primitive.quad(v.indices, iV, iI);
-	                    }
-	                })
-	            );
+	            scene.curves.set(gl, options.styles, textures, curves, edgesFiller.curves);
+	            scene.circles.set(gl, options.styles, textures, circles, edgesFiller.circles);
 	        }
 
 	        if (edgeStyle.arrow) {
-	            var set = (v, e, iV, iI, dx, dy) => {
-	                var tx = e.target.x;
-	                var ty = e.target.y;
-	                ccNetViz.primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
-	                ccNetViz.primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
-	                ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-	                ccNetViz.primitive.quad(v.indices, iV, iI);
-	            };
-
-	            scene.lineArrows.set(gl, options.styles, textures, lines, style => ({
-	                set: (v, e, iV, iI) => {
-	                    var d = normalize(e.source, e.target);
-	                    set(v, e, iV, iI, d.x, d.y);
-	                }})
-	            );
+	            scene.lineArrows.set(gl, options.styles, textures, lines, arrowFiller.lineArrows);
 
 	            if (extensions.OES_standard_derivatives) {
-	                scene.curveArrows.set(gl, options.styles, textures, curves, style => ({
-	                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
-	                    })
-	                );
+	                scene.curveArrows.set(gl, options.styles, textures, curves, arrowFiller.curveArrows);
 
-	                var dx = Math.cos(0.9);
-	                var dy = Math.sin(0.9);
-	                scene.circleArrows.set(gl, options.styles, textures, circles, style => ({
-	                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
-	                    })
-	                );
+	                scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
 	            }
 	        }
 	    }
@@ -439,15 +837,38 @@
 	      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
 	    }
 
+	    this.updateNode = (n, i) => {
+	      this.nodes[i] = n;
 
+	      (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
+	      scene.labels.updateEl(gl, n, i, labelsFiller);
+	      
+	      if(spatialSearch)
+	        spatialSearch.update('nodes', i, n);
+	    };
+	    
+	    this.updateEdge = ((e, i) => {
+	      var t = edgeTypes[i];
+	      var pos = edgePoses[i];
 
-	    this.update = function(element, attribute, data) {
-	        scene[element].update(gl, attribute, data, style => ({
-	            set: (v, e, iV) => ccNetViz.primitive.colors(v, iV, e, e, e, e)
-	        }));
+	      t.d[pos] = this.edges[i] = e;
+	      scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
+	      if (edgeStyle.arrow)
+		scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
+	      
+	      if(spatialSearch)
+	        spatialSearch.update(t.k, pos, e);
+	    });
+	    
+	    this.redraw = (keepbg) => {
+	      if(this.onRedraw){
+	        if(this.onRedraw(keepbg) === false)
+	          return false;
+	      }
+	      this.draw();
 	    }
 
-	    this.draw = () => {
+	    this.draw = (keepBg) => {
 	        var width = canvas.width;
 	        var height = canvas.height;
 	        var aspect = width / height;
@@ -464,15 +885,17 @@
 	            aspect2: aspect * aspect,
 	            count: this.nodes.length
 	        };
-	        context.curveExc = getSize(context, this.edges.length, 0.5);
+	        context.curveExc = getSize(context, getEdgesCnt(), 0.5);
 	        context.style = nodeStyle;
 	        context.nodeSize = getNodeSize(context);
 
-	        if(spatialSearch !== undefined)
+	        if(spatialSearch)
 	          spatialSearch.setContext(context);
 
 	        gl.viewport(0, 0, width, height);
-	        gl.clear(gl.COLOR_BUFFER_BIT);
+
+	        if(!keepBg)
+	          gl.clear(gl.COLOR_BUFFER_BIT);
 
 	        scene.elements.forEach(e => e.draw(context));
 	    }
@@ -491,6 +914,63 @@
 	        return canvas.toDataURL();
 	    }
 
+	    var removedNodes = 0;
+	    var removedEdges = 0;
+	    
+	    var freenode = {x:-1,y:-1,title:""};
+	    this.removeNodeAtPos = ((pos) => {
+	      if(this.nodes[pos] === freenode){
+	        return;
+	      }
+
+	      removedNodes++;
+	      this.updateNode(freenode, pos);
+	    });
+
+	    var freeedge = {source:{x:-1,y:-1},target:{x:-1,y:-1}};
+	    this.removeEdgeAtPos = ((pos) => {
+	      if(this.edges[pos] === freeedge){
+	        return;
+	      }
+
+	      removedEdges++;
+
+	      this.updateEdge(freeedge, pos);
+	    });
+	    
+	    this.getVisibleNodes = () => {
+	      if(removedNodes <= 0)
+		return this.nodes;
+
+	      var r = [];
+	      this.nodes.forEach((n) => {
+		if(n !== freenode)
+		  r.push(n);
+	      });
+	      return r;
+	    }
+
+	    this.getVisibleEdges = () => {
+	      if(removedEdges <= 0)
+		return this.edges;
+	      
+	      var r = [];
+	      this.edges.forEach((n) => {
+		if(n !== freeedge)
+		  r.push(n);
+	      });
+	      return r;
+	    }
+	    
+	    this.cntShownNodes = (() => {
+	      return this.nodes.length - removedNodes;
+	    });
+
+	    this.cntShownEdges = (() => {
+	      return this.edges.length - removedEdges;
+	    });
+
+	    
 	    this.resize();
 
 	    this.nodes = [];
@@ -501,7 +981,7 @@
 
 	    var gl = getContext();
 	    var extensions = ccNetViz.gl.initExtensions(gl, "OES_standard_derivatives");
-	    var textures = new ccNetViz.textures(options.onLoad || this.draw);
+	    var textures = new ccNetViz.textures(options.onLoad || this.redraw);
 	    var texts = new ccNetViz.texts(gl);
 	    var scene = createScene.call(this);
 
@@ -515,7 +995,7 @@
 	        return result;
 	    };
 
-	    var getNodeSize = c => getSize(c, this.nodes.length, 0.4);
+	    var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
 
 	    var fsColorTexture = [
 	        "precision mediump float;",
@@ -550,13 +1030,13 @@
 	        "varying vec2 v_lengthSoFar;",
 	        "void main(void) {",
 	        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));",
-	        "   if(type >= 2.5){",	//3.0 dotted
-		"      part = fract(part*5.0);",
+	        "   if(type >= 2.5){",        //3.0 dotted
+	        "      part = fract(part*5.0);",
 	        "      if(part < 0.5) discard;",
-	        "   }else if(type >= 1.5){",	//2.0 - chain dotted
+	        "   }else if(type >= 1.5){",        //2.0 - chain dotted
 	        "      if(part < 0.15) discard;",
 	        "      if(part > 0.25 && part < 0.40) discard;",
-	        "   }else if(type >= 0.5){",	//1.0 - dashed
+	        "   }else if(type >= 0.5){",        //1.0 - dashed
 	        "      if(part < 0.2) discard;",
 	        "   }",
 	        "   vec2 px = dFdx(c);",
@@ -596,13 +1076,13 @@
 	            "varying vec2 v_lengthSoFar;",
 	            "void main(void) {",
 	            "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
-	            "   if(type >= 2.5){",	//3.0 dotted
+	            "   if(type >= 2.5){",        //3.0 dotted
 	            "      part = fract(part*5.0);",
 	            "      if(part < 0.5) discard;",
-	            "   }else if(type >= 1.5){",	//2.0 - chain dotted
+	            "   }else if(type >= 1.5){",        //2.0 - chain dotted
 	            "      if(part < 0.15) discard;",
 	            "      if(part > 0.25 && part < 0.40) discard;",
-	            "   }else if(type >= 0.5){",	//1.0 - dashed
+	            "   }else if(type >= 0.5){",        //1.0 - dashed
 	            "      if(part < 0.2) discard;",
 	            "   }",
 	            "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
@@ -645,12 +1125,12 @@
 	                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
-			gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
+	                gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
 	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
 	        scene.add("circles", new ccNetViz.primitive(gl, edgeStyle, null, [
-			"precision highp float;",
+	                "precision highp float;",
 	                "attribute vec2 position;",
 	                "attribute vec2 normal;",
 	                "attribute vec2 curve;",
@@ -672,7 +1152,7 @@
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	                var size = 2.5 * c.nodeSize;
 	                gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-			gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
+	                gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
@@ -680,7 +1160,7 @@
 
 	    if (edgeStyle.arrow) {
 	        var bind = c => {
-	            var size = getSize(c, this.edges.length, 0.2);
+	            var size = getSize(c, getEdgesCnt(), 0.2);
 	            if (!size) return true;
 	            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
 	            gl.uniform2f(c.shader.uniforms.size, size, c.style.aspect * size);
@@ -689,6 +1169,7 @@
 	            c.shader.uniforms.aspect2 && gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        };
+	      
 	        scene.add("lineArrows", new ccNetViz.primitive(gl, edgeStyle, "arrow", [
 	                "attribute vec2 position;",
 	                "attribute vec2 direction;",
@@ -751,6 +1232,7 @@
 	            );
 	        }
 	    }
+	        
 	    scene.add("nodes", new ccNetViz.primitive(gl, nodeStyle, null, [
 	            "attribute vec2 position;",
 	            "attribute vec2 textureCoord;",
@@ -831,7 +1313,7 @@
 	        view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
 	        view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
 
-	        this.draw();
+	        this.redraw();
 	        e.preventDefault();
 	    }
 
@@ -844,7 +1326,7 @@
 	        var drag = e => {
 	            view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
 	            view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-	            this.draw();
+	            this.redraw();
 	            e.preventDefault();
 	        };
 
@@ -886,7 +1368,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -935,7 +1417,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1027,10 +1509,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(5), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(6), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1043,31 +1525,42 @@
 	var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
 	    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'));
 	    var buffers = [];
-	    var sections = [];
+	    var sections = [];   
+	    
+	    var sectionsByStyle = {};
 
+	    var e = {};
+	    var iV, iI, iS = 0, iB = 0;
+
+	    var init = (filler, n) => {
+	        iV = iI = 0;
+	        var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
+	        var nV = Math.min(max, n - (iB - iS)*max);
+	        var nI = nV * filler.numIndices;
+
+	        if (!e.indices || e.indices.length !== nI) {
+	            e.indices = new Uint16Array(nI);
+	            nV *= filler.numVertices;
+	            for (var a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
+	        }
+	    };
+	    
 	    this.set = (gl, styles, textures, data, get) => {
 	        var parts = {};
+	        
+	        var pN = {};
 	        for (var i = 0; i < data.length; i++) {
-	            var e = data[i];
-	            var part = parts[e.style] = parts[e.style] || [];
-	            part.push(e);
+	            var el = data[i];
+	            var part = parts[el.style] = parts[el.style] || [];
+
+	            el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
+	            
+	            part.push(el);
 	        }
 
-	        var iV, iI, iS = 0, iB = 0;
-	        var e = {};
+	        iS = 0;
+	        iB = 0;
 
-	        var init = (filler, n) => {
-	            iV = iI = 0;
-	            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
-	            var nV = Math.min(max, n - (iB - iS)*max);
-	            var nI = nV * filler.numIndices;
-
-	            if (!e.indices || e.indices.length !== nI) {
-	                e.indices = new Uint16Array(nI);
-	                nV *= filler.numVertices;
-	                for (var a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
-	            }
-	        };
 
 	        var store = (section) => {
 	            var b = buffers[iB];
@@ -1078,9 +1571,11 @@
 	            for (var a in shader.attributes) {
 	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
 	                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
+	//                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.DYNAMIC_DRAW);
 	            }
 	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
 	            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
+	//            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.DYNAMIC_DRAW);
 	            b.numIndices = iI;
 	            b.numVertices = iV;
 	            section.buffers.push(b);
@@ -1111,7 +1606,8 @@
 
 	            var section = {
 	                style: createStyle(styles[p]),
-	                buffers: []
+	                buffers: [],
+	                styleName: p
 	            };
 
 	            var filler = get(section.style);
@@ -1132,6 +1628,7 @@
 
 	            function add() {
 	                sections.push(this);
+	                sectionsByStyle[this.styleName] = this;
 	            }
 	            var addSection = add.bind(section);
 
@@ -1140,20 +1637,36 @@
 	    }
 
 	    var fb;
-	    this.update = (gl, attribute, data, get) => {
-	        var i = 0, size = shader.attributes[attribute].size;
-	        sections.forEach(section => {
-	            var filler = get(section.style);
-	            filler.numVertices = filler.numVertices || 4;
+	    this.updateEl = (gl, el, pos, get) => {
+	        var storeToPos = (b, i) => {
+	            for (var a in shader.attributes) {
+	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
+	                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*filler.numVertices*e[a].BYTES_PER_ELEMENT*i, e[a]);
+	                console.log("sub "+a+" "+(shader.attributes[a].size*filler.numVertices*i));
+	            }
+	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+	            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices*e.indices.BYTES_PER_ELEMENT, e.indices);
+	        };
 
-	            section.buffers.forEach(e => {
-	                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-	                for (var iV = 0; iV < e.numVertices; iV += filler.numVertices) filler.set(fb, data[i++], iV);
-	                gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
-	                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
-	            });
-	        });
-	    }
+	        var section = sectionsByStyle[el.style];
+	        
+	        var filler = get(section.style);
+	        filler.numVertices = filler.numVertices || 4;
+	        filler.numIndices = filler.numIndices || 6;
+	        
+	        var index = el.sI;
+	        
+	        var elsPerBuff = Math.floor(primitive.maxBufferSize/filler.numVertices);
+	        
+	        var buffer = section.buffers[Math.floor(pos / elsPerBuff)];
+
+	        iB=iS=0;
+	        init(filler, 1);
+
+	        filler.set(e, el, 0, 0);
+
+	        storeToPos(buffer, pos);
+	    };
 
 	    this.draw = (context) => {
 	        context.shader = shader;
@@ -1220,10 +1733,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1273,10 +1786,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(7), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(8), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -1320,10 +1833,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1497,7 +2010,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1649,7 +2162,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1674,10 +2187,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(11), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(12), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1721,7 +2234,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1773,7 +2286,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1856,10 +2369,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2031,130 +2544,146 @@
 	var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
 	    var i, j, d, rbushtree, context;
 	    context = c;
-
-
-	    function Node(n){
-	      this.e = n;
-	    };
-	    Node.prototype.isNode = true;
-	    Node.prototype.getBBox = function(){
-	      return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
-	    };
-	    Node.prototype.dist2 = function(x,y, context){ return distance2(x,y,this.e.x,this.e.y);};
+	    var types = {};
 	    
-	    function Line(l){
-	      this.e = l;
+	    class Node{
+	      constructor(n){
+		this.isNode = true;
+		this.e = n;
+	      };
+	      getBBox(){
+		return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
+	      };
+	      dist2(x,y, context){
+		return distance2(x,y,this.e.x,this.e.y);
+	      };
 	    }
-	    Line.prototype.isEdge = true;
-	    Line.prototype.getBBox = function(){
-	      var x1,x2,y1,y2;
-	      x1 = this.e.source.x;
-	      y1 = this.e.source.y;
-	      x2 = this.e.target.x;
-	      y2 = this.e.target.y; 
-	      return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
-	    };
-	    Line.prototype.dist2 = function(x,y, context){ return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y); };
 	    
-	    function Circle(c){
-	      this.e = c;
+	    class Line{
+	      constructor(l){
+		this.isEdge = true;
+		this.e = l;
+	      };
+	      getBBox(){
+		var x1,x2,y1,y2;
+		x1 = this.e.source.x;
+		y1 = this.e.source.y;
+		x2 = this.e.target.x;
+		y2 = this.e.target.y; 
+		return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
+	      };
+	      dist2(x,y, context){
+		return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
+	      };
 	    }
-	    Circle.prototype.isEdge = true;
-	    Circle.prototype.getBezierPoints = function(context, screensize){
-	      var x1,y1,s;
-	      s = this.e.source;
-	      x1 = s.x;
-	      y1 = s.y;
-
-	      var size = 2.5 * context.nodeSize * screensize;
-	      var xsize = size / context.width / 2;
-	      var ysize = size / context.height / 2;
-
-	      var d = s.y < 0.5 ? 1 : -1;
-	      
-	      return [
-	        x1,
-	        y1,
-	        x1 + xsize*1,
-	        y1 + ysize*d,
-	        x1,
-	        y1 + ysize*1.25*d,
-	        x1 - xsize*1,
-	        y1 + ysize*d
-	      ];
-	    };
-	    Circle.prototype.getBBox = function(context, size){
-	      var v = this.getBezierPoints(context, size);
-	      
-	      return getBBFromPoints(v);
-	    };
-	    Circle.prototype.dist2 = function(x,y,context,size){
-	      var v = this.getBezierPoints(context,size);
-
-	      //circle is just 2 bezier curves :)
-	      var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-	      var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
-
-	      return Math.min(d1,d2);
-	    };
 	    
-	    function Curve(c){
-	      this.e = c;
+	    class Circle{
+	      constructor(c){
+		this.isEdge = true;
+		this.e = c;
+	      };
+	      getBezierPoints(context, screensize){
+		var x1,y1,s;
+		s = this.e.source;
+		x1 = s.x;
+		y1 = s.y;
+
+		var size = 2.5 * context.nodeSize * screensize;
+		var xsize = size / context.width / 2;
+		var ysize = size / context.height / 2;
+
+		var d = s.y < 0.5 ? 1 : -1;
+		
+		return [
+		  x1,
+		  y1,
+		  x1 + xsize*1,
+		  y1 + ysize*d,
+		  x1,
+		  y1 + ysize*1.25*d,
+		  x1 - xsize*1,
+		  y1 + ysize*d
+		];
+	      };
+	      getBBox(context, size){
+		var v = this.getBezierPoints(context, size);
+		
+		return getBBFromPoints(v);
+	      };
+	      dist2(x,y,context,size){
+		var v = this.getBezierPoints(context,size);
+
+		//circle is just 2 bezier curves :)
+		var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+		var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
+
+		return Math.min(d1,d2);
+	      };
 	    }
-	    Curve.prototype.isEdge = true;
-	    Curve.prototype.getBezierPoints = function(context, size){
-	      var x1,x2,y1,y2;
-	      x1 = this.e.source.x;
-	      y1 = this.e.source.y;
-	      x2 = this.e.target.x;
-	      y2 = this.e.target.y; 
-	      
-	      var d = normalize(this.e.source, this.e.target);
-	      
-	      var n2 = d.y;
-	      var n3 = context.aspect2*-d.x;
-
-	      var x = context.width * n2;
-	      var y = context.height* n3;
-	      var l = Math.sqrt(x*x+y*y)*2;
-
-	      n2 *= context.curveExc*size/l;
-	      n3 *= context.curveExc*size/l;
-
-	      var ret = [
-		x1,
-	        y1,
-	        (x1+x2)/2 + n2,
-	        (y1+y2)/2 + n3,
-	        x2,
-	        y2
-	      ];
-	      return ret;
-	    };
-	    Curve.prototype.getBBox = function(context, size){
-	      var v = this.getBezierPoints(context, size);
-	      return getBBFromPoints(v);
-	    };
-	    Curve.prototype.dist2 = function(x,y, context, size){
-	      var v = this.getBezierPoints(context, size);
-	      return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-	    };
 	    
+	    class Curve{
+	      constructor(c){
+		this.isEdge = true;
+		this.e = c;
+	      };
+	      getBezierPoints(context, size){
+		var x1,x2,y1,y2;
+		x1 = this.e.source.x;
+		y1 = this.e.source.y;
+		x2 = this.e.target.x;
+		y2 = this.e.target.y; 
+		
+		var d = normalize(this.e.source, this.e.target);
+		
+		var n2 = d.y;
+		var n3 = context.aspect2*-d.x;
+
+		var x = context.width * n2;
+		var y = context.height* n3;
+		var l = Math.sqrt(x*x+y*y)*2;
+
+		n2 *= context.curveExc*size/l;
+		n3 *= context.curveExc*size/l;
+
+		var ret = [
+		  x1,
+		  y1,
+		  (x1+x2)/2 + n2,
+		  (y1+y2)/2 + n3,
+		  x2,
+		  y2
+		];
+		return ret;
+	      };
+	      getBBox(context, size){
+		var v = this.getBezierPoints(context, size);
+		return getBBFromPoints(v);
+	      };
+	      dist2(x,y, context, size){
+		var v = this.getBezierPoints(context, size);
+		return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+	      };
+	    }
+
 	    function initTree(size){
 	      rbushtree = rbush();
+
+	      types = {nodes: [], lines: [], circles: [], curves: []};
 
 	      d = [];
 	      d.length = nodes.length;
 	      for(i = 0;i < nodes.length; i++){
 	        var e = new Node(nodes[i]);
 	        d[i] = e.getBBox(context, size);
+	        types.nodes.push(e);
 	        d[i].push(e);
 	      }
-	      
+
 	      d.length += lines.length;
 	      for(j = 0;j < lines.length;i++, j++){
 	        var e = new Line(lines[j]);
 	        d[i] = e.getBBox(context, size);
+	        types.lines.push(e);
 	        d[i].push(e);
 	      }
 
@@ -2162,6 +2691,7 @@
 	      for(j = 0;j < circles.length;i++, j++){
 	        var e = new Circle(circles[j]);
 	        d[i] = e.getBBox(context, size);
+	        types.circles.push(e);
 	        d[i].push(e);
 	      }
 	      
@@ -2169,32 +2699,41 @@
 	      for(j = 0;j < curves.length;i++, j++){
 	        var e = new Curve(curves[j]);
 	        d[i] = e.getBBox(context, size);
+	        types.curves.push(e);
 	        d[i].push(e);
 	      }
 
 
 	      rbushtree.load(d);
 	    }
-	    
-	    
+
+	    var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+
+	    this.update = (t, i, v) => {
+	      rbushtree.remove(types[t][i]);
+
+	      rbushtree.insert(types[t][i] = new tConst[t](v));
+	    };
+
+
 	    function sortByDistances(e1, e2){
 	      return e1.dist2 - e2.dist2;
 	    }
-	    
+
 	    this.setContext = (c) => {
 	      context = c;
 	    };
-	    
+
 	    this.find = (context, x,y, radius, size, nodes, edges) => {
 	      var ret = {};
 	      if(edges)
-		ret.edges = [];
+	        ret.edges = [];
 	      if(nodes)
-		ret.nodes = [];
-	      
+	        ret.nodes = [];
+
 	      var xradius = radius;
 	      var yradius = radius;
-	      
+
 	      var radius2 = radius*radius;
 
 	      var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
@@ -2231,7 +2770,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
