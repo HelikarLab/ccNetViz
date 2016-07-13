@@ -175,6 +175,8 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
         ccNetViz.primitive.quad(v.indices, iV, iI);
     };
             
+    var dx = Math.cos(0.9);
+    var dy = Math.sin(0.9);
     var arrowFiller = {
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
@@ -314,8 +316,6 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
             if (extensions.OES_standard_derivatives) {
                 scene.curveArrows.set(gl, options.styles, textures, curves, arrowFiller.curveArrows);
 
-                var dx = Math.cos(0.9);
-                var dy = Math.sin(0.9);
                 scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
             }
         }
@@ -335,7 +335,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
     this.updateNode = (n, i) => {
       this.nodes[i] = n;
-      
+
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
       scene.labels.updateEl(gl, n, i, labelsFiller);
       
