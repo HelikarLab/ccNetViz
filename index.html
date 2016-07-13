@@ -30,6 +30,8 @@
   <br />
   <input type='button' id='removeWorldCenter' value='remove World node'></button>
   <br />
+  <input type='button' id='reflow' value='reflow'></button>
+  <br />
   <div id='searchReport' />
   <script>
     var el;
@@ -96,6 +98,10 @@
       return false;
     });
 
+    document.getElementById('reflow').addEventListener("click", function(){
+      graph.reflow();
+      return false;
+    });
     
     el.addEventListener('mouseup', function(e){
       var bb = el.getBoundingClientRect();
