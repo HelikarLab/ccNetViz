@@ -206,6 +206,16 @@ var ccNetVizInteractive = function(canvas, options){
     });
     return this;
   };
+  
+  //make all dynamic changes static
+  this.reflow = () => {
+    //nodes and edges in dynamic chart are actual
+    var n = vizScreen.getVisibleNodes().concat(vizScreenTemp.getVisibleNodes());
+    var e = vizScreen.getVisibleEdges().concat(vizScreenTemp.getVisibleEdges());
+    
+    this.set(n,e);
+    this.draw();
+  };
 
   this.addEdge = (e) => {
     createSupportStructs(nodes, edges);
@@ -256,8 +266,6 @@ var ccNetVizInteractive = function(canvas, options){
     return this;
   };
   
-  this.reflow = [];
-  
   this.applyChanges = () => {
     
     actualTempNodes = vizScreenTemp.nodes;
@@ -286,10 +294,6 @@ var ccNetVizInteractive = function(canvas, options){
   };
   
   this.find = function(){
-    function sortByDistances(e1, e2){
-      return e1.dist2 - e2.dist2;
-    }
-    
     function mergeArrays(a, b, cmp){
       var r = [];
       r.length = a.length + b.length;
@@ -319,7 +323,9 @@ var ccNetVizInteractive = function(canvas, options){
     
     var r = {};
     for(var key in f1){
-      r[key] = mergeArrays(f1[key], f2[key], sortByDistances);
+      r[key] = mergeArrays(f1[key], f2[key], (e1, e2) => {
+			      return e1.dist2 - e2.dist2;
+			    });
     }
     
     return r;
