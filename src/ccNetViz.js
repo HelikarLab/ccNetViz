@@ -87,6 +87,23 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
             ccNetViz.primitive.quad(v.indices, iV, iI);
         }})
     );
+    var labelsFiller = (style => {
+	texts.setFont(style.font);
+	style.texture = texts.texture;
+	return {
+	    set: (v, e, iV, iI) => {
+		var x = e.x;
+		var y = e.y;
+		ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+		var t = texts.get(e.label);
+		var dx = x <= 0.5 ? 0 : -t.width;
+		var dy = y <= 0.5 ? 0 : -t.height;
+		ccNetViz.primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
+		ccNetViz.primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
+		ccNetViz.primitive.quad(v.indices, iV, iI);
+	    }}
+	}	
+    );
 
     var normalize = (a, b) => {
         var x = b.x - a.x;
@@ -280,22 +297,7 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
         if (nodeStyle.label) {
             texts.clear();
-            scene.labels.set(gl, options.styles, textures, nodes, style => {
-                texts.setFont(style.font);
-                style.texture = texts.texture;
-                return {
-                    set: (v, e, iV, iI) => {
-                        var x = e.x;
-                        var y = e.y;
-                        ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                        var t = texts.get(e.label);
-                        var dx = x <= 0.5 ? 0 : -t.width;
-                        var dy = y <= 0.5 ? 0 : -t.height;
-                        ccNetViz.primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-                        ccNetViz.primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-                        ccNetViz.primitive.quad(v.indices, iV, iI);
-                    }}
-            });
+            scene.labels.set(gl, options.styles, textures, nodes, labelsFiller);
             texts.bind();
         }
 
@@ -303,7 +305,6 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
         if (extensions.OES_standard_derivatives) {
             scene.curves.set(gl, options.styles, textures, curves, edgesFiller.curves);
-
             scene.circles.set(gl, options.styles, textures, circles, edgesFiller.circles);
         }
 
@@ -332,12 +333,11 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
 
-
-
     this.updateNode = (n, i) => {
       this.nodes[i] = n;
-      var n = this.nodes[0].color ? scene.nodesColored : scene.nodes;
-      n.updateEl(gl, n, i, nodesFiller);
+      
+      (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
+      scene.labels.updateEl(gl, n, i, labelsFiller);
       
       if(spatialSearch)
         spatialSearch.update('nodes', i, n);
@@ -349,7 +349,8 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
       t.d[pos] = this.edges[i] = e;
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
-      scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
+      if (edgeStyle.arrow)
+	scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
       
       if(spatialSearch)
         spatialSearch.update(t.k, pos, e);
@@ -432,6 +433,30 @@ ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
 
       this.updateEdge(freeedge, pos);
     });
+    
+    this.getVisibleNodes = () => {
+      if(removedNodes <= 0)
+	return this.nodes;
+
+      var r = [];
+      this.nodes.forEach((n) => {
+	if(n !== freenode)
+	  r.push(n);
+      });
+      return r;
+    }
+
+    this.getVisibleEdges = () => {
+      if(removedEdges <= 0)
+	return this.edges;
+      
+      var r = [];
+      this.edges.forEach((n) => {
+	if(n !== freeedge)
+	  r.push(n);
+      });
+      return r;
+    }
     
     this.cntShownNodes = (() => {
       return this.nodes.length - removedNodes;
