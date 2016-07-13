@@ -165,13 +165,13 @@ var ccNetVizInteractive = function(canvas, options){
     ePos = {};
     eDirs = {};
 
-    nodes.forEach(function(n, i){
+    nodes.forEach((n, i) => {
       n.uniqid = i;
       nPos[n.uniqid] = i;
       eDirs[n.uniqid] = {};
     });
     
-    edges.forEach(function(e, i){
+    edges.forEach((e, i) => {
       e.uniqid = i;
       eDirs[e.source.uniqid][e.target.uniqid] = e;
       ePos[e.uniqid] = i;
@@ -183,7 +183,7 @@ var ccNetVizInteractive = function(canvas, options){
     supStructsCreated = true;
   };
 
-  this.set = ((n, e, layout) => {
+  this.set = (n, e, layout) => {
     nodes = n;
     edges = e;
     
@@ -191,23 +191,23 @@ var ccNetVizInteractive = function(canvas, options){
     vizScreen.set(nodes, edges, layout);
     
     supStructsCreated = false;
-  });
+  };
   
-  this.removeNode = ((n) => {
+  this.removeNode = (n) => {
     createSupportStructs(nodes, edges);
 
     toRemoveNodes.push(n);
     return this;
-  });
+  };
   
-  this.removeNodes = ((nodes) => {
+  this.removeNodes = (nodes) => {
     nodes.forEach((n) => {
       this.removeNode(n);
     });
     return this;
-  });
+  };
 
-  this.addEdge = ((e) => {
+  this.addEdge = (e) => {
     createSupportStructs(nodes, edges);
 
     var tid = e.target.uniqid;
@@ -230,35 +230,35 @@ var ccNetVizInteractive = function(canvas, options){
 
     toAddEdges.push(e);
     return this;
-  });
+  };
   
-  this.addNode = ((n) => {
+  this.addNode = (n) => {
     createSupportStructs(nodes, edges);
 
     toAddNodes.push(n);    
     return this;
-  });
+  };
 
   
-  this.addEdges = ((edges) => {
+  this.addEdges = (edges) => {
     edges.forEach((e) => {
       this.addEdge(e);
     });
     
     return this;
-  });
+  };
 
-  this.addNodes = ((nodes) => {
+  this.addNodes = (nodes) => {
     nodes.forEach((n) => {
       this.addNode(n);
     });
 
     return this;
-  });
+  };
   
   this.reflow = [];
   
-  this.applyChanges = (() => {
+  this.applyChanges = () => {
     
     actualTempNodes = vizScreenTemp.nodes;
     actualTempEdges = vizScreenTemp.edges;
@@ -278,14 +278,14 @@ var ccNetVizInteractive = function(canvas, options){
     this.draw();
     
     return this;
-  });
+  };
   
-  this.draw = (() => {
+  this.draw = () => {
     vizScreen.draw();
     vizScreenTemp.draw(true);
-  });
+  };
   
-  this.find = (() => {
+  this.find = function(){
     function sortByDistances(e1, e2){
       return e1.dist2 - e2.dist2;
     }
@@ -315,7 +315,7 @@ var ccNetVizInteractive = function(canvas, options){
     }
     
     var f1 = vizScreen.find.apply(vizScreen, arguments);
-    var f2 = vizScreenTemp.find.apply(vizScreen, arguments);
+    var f2 = vizScreenTemp.find.apply(vizScreenTemp, arguments);
     
     var r = {};
     for(var key in f1){
@@ -323,7 +323,7 @@ var ccNetVizInteractive = function(canvas, options){
     }
     
     return r;
-  });
+  };
 
 
   var exposeMethods = ['resetView', 'resize'];
