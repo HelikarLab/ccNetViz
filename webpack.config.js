@@ -1,6 +1,6 @@
 var path = require('path');
 module.exports = {
-  entry: './src/ccNetVizInteractive.js',
+  entry: './src/ccNetViz.js',
   output: {
     filename: './dist/ccNetViz.js',
   },

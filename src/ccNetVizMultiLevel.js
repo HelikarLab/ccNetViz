@@ -1,8 +1,8 @@
 define([
-	'./ccNetViz',
+	'./layer',
     ], 
     function(
-	ccNetViz
+	layer
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -14,7 +14,7 @@ define([
 
 
 var ccNetVizMultiLevel = function(canvas, options){
-  var vizScreen = new ccNetViz(canvas, options);
+  var vizScreen = new layer(canvas, options);
   var vizLayout;
 
   var history = [];

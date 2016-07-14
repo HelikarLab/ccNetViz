@@ -50,7 +50,7 @@
 	        __webpack_require__(12)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	        ccNetVizMultiLevel,
-	        ccNetViz,
+	        layer,
 	        utils
 	    ){
 	/**
@@ -62,7 +62,7 @@
 	 */
 
 
-	var ccNetVizInteractive = function(canvas, options){
+	var ccNetViz = function(canvas, options){
 	  var vizScreen,vizScreenTemp,vizLayout;
 
 	  var getNodesCnt = (() => {
@@ -72,8 +72,8 @@
 	    return vizScreenTemp.cntShownEdges() + vizScreen.cntShownEdges();
 	  });
 	  
-	  vizScreen = new ccNetViz(canvas, options, getNodesCnt);
-	  vizScreenTemp = new ccNetViz(canvas, options, getEdgesCnt);
+	  vizScreen = new layer(canvas, options, getNodesCnt);
+	  vizScreenTemp = new layer(canvas, options, getEdgesCnt);
 	  
 	    
 	  var supStructsCreated = false;
@@ -391,7 +391,7 @@
 	};
 
 
-	window.ccNetVizInteractive = module.exports = ccNetVizInteractive;
+	window.ccNetViz = module.exports = ccNetViz;
 
 
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -403,7 +403,7 @@
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2),
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
-		ccNetViz
+		layer
 	    ){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -415,7 +415,7 @@
 
 
 	var ccNetVizMultiLevel = function(canvas, options){
-	  var vizScreen = new ccNetViz(canvas, options);
+	  var vizScreen = new layer(canvas, options);
 	  var vizLayout;
 
 	  var history = [];
@@ -528,9 +528,7 @@
 	 *  Author: David Tichy
 	 */
 
-	ccNetViz = {};
-
-	ccNetViz = function(canvas, options, getNodesCnt, getEdgesCnt) {
+	var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
 	    getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
 	    getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
 	  
@@ -538,7 +536,7 @@
 	    options.styles = options.styles || {};
 
 	    var backgroundStyle = options.styles.background = options.styles.background || {};
-	    var backgroundColor = new ccNetViz.color(backgroundStyle.color || "rgb(255, 255, 255)");
+	    var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
 
 	    var nodeStyle = options.styles.node = options.styles.node || {};
 	    nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
@@ -582,13 +580,13 @@
 	        set: (v, e, iV, iI) => {
 	            var x = e.x;
 	            var y = e.y;
-	            ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	            ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	            ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+	            ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
 	            if(v.color){
 	              var c = e.color;
-	              ccNetViz.primitive.colors(v.color, iV, c, c, c, c);
+	              ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
 	            }
-	            ccNetViz.primitive.quad(v.indices, iV, iI);
+	            ccNetViz_primitive.quad(v.indices, iV, iI);
 	        }})
 	    );
 	    var labelsFiller = (style => {
@@ -598,13 +596,13 @@
 		    set: (v, e, iV, iI) => {
 			var x = e.x;
 			var y = e.y;
-			ccNetViz.primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+			ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
 			var t = texts.get(e.label);
 			var dx = x <= 0.5 ? 0 : -t.width;
 			var dy = y <= 0.5 ? 0 : -t.height;
-			ccNetViz.primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-			ccNetViz.primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-			ccNetViz.primitive.quad(v.indices, iV, iI);
+			ccNetViz_primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
+			ccNetViz_primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
+			ccNetViz_primitive.quad(v.indices, iV, iI);
 		    }}
 		}	
 	    );
@@ -625,10 +623,10 @@
 	                var dy = s.y-t.y;
 	                var d = normalize(s, t);
 
-	                ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
-	                ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
-	                ccNetViz.primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
-	                ccNetViz.primitive.quad(v.indices, iV, iI);
+	                ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+	                ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
+	                ccNetViz_primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
+	                ccNetViz_primitive.quad(v.indices, iV, iI);
 	            }})),
 	       'curves': (style => ({
 	                    numVertices: 3,
@@ -640,11 +638,11 @@
 	                        var dy = s.y-t.y;
 	                        var d = normalize(s, t);
 
-	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
-	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
-	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
-	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
-	                        ccNetViz.primitive.indices(v.indices, iV, iI, 0, 1, 2);
+	                        ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
+	                        ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
+	                        ccNetViz_primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
+	                        ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
+	                        ccNetViz_primitive.indices(v.indices, iV, iI, 0, 1, 2);
 	                    }
 	                })),
 	       'circles': (style => ({
@@ -661,11 +659,11 @@
 	                        var xdiff4 = 3;
 	                        var ydiff4 = 1.5*d;
 
-	                        ccNetViz.primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
-	                        ccNetViz.primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
-	                        ccNetViz.primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
-	                        ccNetViz.primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
-	                        ccNetViz.primitive.quad(v.indices, iV, iI);
+	                        ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+	                        ccNetViz_primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
+	                        ccNetViz_primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
+	                        ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
+	                        ccNetViz_primitive.quad(v.indices, iV, iI);
 	                    }
 	                }))
 	    };
@@ -673,10 +671,10 @@
 	    var set = (v, e, iV, iI, dx, dy) => {
 	        var tx = e.target.x;
 	        var ty = e.target.y;
-	        ccNetViz.primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
-	        ccNetViz.primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
-	        ccNetViz.primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-	        ccNetViz.primitive.quad(v.indices, iV, iI);
+	        ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
+	        ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
+	        ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	        ccNetViz_primitive.quad(v.indices, iV, iI);
 	    };
 	            
 	    var dx = Math.cos(0.9);
@@ -796,7 +794,7 @@
 
 	        init();
 
-	        layout && new ccNetViz.layout[layout](nodes, edges).apply() && ccNetViz.layout.normalize(nodes);
+	        layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
 
 	        scene.nodes.set(gl, options.styles, textures, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
 	        scene.nodesColored.set(gl, options.styles, textures, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
@@ -877,7 +875,7 @@
 	        var oy = o / height;
 
 	        context = {
-	            transform: ccNetViz.gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
+	            transform: ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
 	            offsetX: ox,
 	            offsetY: oy,
 	            width: 0.5 * width,
@@ -980,9 +978,9 @@
 	    this.resetView();
 
 	    var gl = getContext();
-	    var extensions = ccNetViz.gl.initExtensions(gl, "OES_standard_derivatives");
-	    var textures = new ccNetViz.textures(options.onLoad || this.redraw);
-	    var texts = new ccNetViz.texts(gl);
+	    var extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
+	    var textures = new ccNetViz_textures(options.onLoad || this.redraw);
+	    var texts = new ccNetViz_texts(gl);
 	    var scene = createScene.call(this);
 
 	    var getSize = (c, n, sc) => {
@@ -1050,7 +1048,7 @@
 	        "}"
 	    ];
 
-	    scene.add("lines", new ccNetViz.primitive(gl, edgeStyle, null, [
+	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
 	            "precision mediump float;",
 	            "attribute vec2 position;",
 	            "attribute vec2 normal;",
@@ -1090,12 +1088,12 @@
 	        ], c => {
 	            gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
 	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
-	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        })
 	    );
 
 	    if (extensions.OES_standard_derivatives) {
-	        scene.add("curves", new ccNetViz.primitive(gl, edgeStyle, null, [
+	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, [
 	                "precision highp float;",
 	                "attribute vec2 position;",
 	                "attribute vec2 normal;",
@@ -1126,10 +1124,10 @@
 	                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	                gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
-	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
-	        scene.add("circles", new ccNetViz.primitive(gl, edgeStyle, null, [
+	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, [
 	                "precision highp float;",
 	                "attribute vec2 position;",
 	                "attribute vec2 normal;",
@@ -1153,7 +1151,7 @@
 	                var size = 2.5 * c.nodeSize;
 	                gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	                gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
-	                ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
 	    }
@@ -1167,10 +1165,10 @@
 	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, 0.5 * view.size * c.curveExc);
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	            c.shader.uniforms.aspect2 && gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        };
 	      
-	        scene.add("lineArrows", new ccNetViz.primitive(gl, edgeStyle, "arrow", [
+	        scene.add("lineArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
 	                "attribute vec2 position;",
 	                "attribute vec2 direction;",
 	                "attribute vec2 textureCoord;",
@@ -1191,7 +1189,7 @@
 	        );
 
 	        if (extensions.OES_standard_derivatives) {
-	            scene.add("curveArrows", new ccNetViz.primitive(gl, edgeStyle, "arrow", [
+	            scene.add("curveArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
 	                    "attribute vec2 position;",
 	                    "attribute vec2 direction;",
 	                    "attribute vec2 textureCoord;",
@@ -1213,7 +1211,7 @@
 	                    "}"
 	                ], fsColorTexture, bind)
 	            );
-	            scene.add("circleArrows", new ccNetViz.primitive(gl, edgeStyle, "arrow", [
+	            scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
 	                    "attribute vec2 position;",
 	                    "attribute vec2 direction;",
 	                    "attribute vec2 textureCoord;",
@@ -1233,7 +1231,7 @@
 	        }
 	    }
 	        
-	    scene.add("nodes", new ccNetViz.primitive(gl, nodeStyle, null, [
+	    scene.add("nodes", new ccNetViz_primitive(gl, nodeStyle, null, [
 	            "attribute vec2 position;",
 	            "attribute vec2 textureCoord;",
 	            "uniform vec2 size;",
@@ -1246,10 +1244,10 @@
 	        ], fsColorTexture, c => {
 	            var size = getNodeSize(c);
 	            gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        })
 	    );
-	    scene.add("nodesColored", new ccNetViz.primitive(gl, nodeStyle, null, [
+	    scene.add("nodesColored", new ccNetViz_primitive(gl, nodeStyle, null, [
 	            "attribute vec2 position;",
 	            "attribute vec2 textureCoord;",
 	            "attribute vec4 color;",
@@ -1267,7 +1265,7 @@
 	            gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	        })
 	    );
-	    nodeStyle.label && scene.add("labels", new ccNetViz.primitive(gl, nodeStyle, "label", [
+	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", [
 	            "attribute vec2 position;",
 	            "attribute vec2 relative;",
 	            "attribute vec2 textureCoord;",
@@ -1283,7 +1281,7 @@
 	            if (!getNodeSize(c)) return true;
 	            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
 	            gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
-	            ccNetViz.gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        })
 	    );
 
@@ -1354,16 +1352,16 @@
 	    }
 	}
 
-	ccNetViz.color = ccNetViz_color;
+	/*ccNetViz.color = ccNetViz_color;
 	ccNetViz.gl = ccNetViz_gl;
 	ccNetViz.primitive = ccNetViz_primitive;
 	ccNetViz.textures = ccNetViz_textures;
 	ccNetViz.texts = ccNetViz_texts;
 	ccNetViz.layout = ccNetViz_layout;
 	ccNetViz.spatialSearch = ccNetViz_spatialSearch;
+	*/
 
-
-	module.exports = ccNetViz;
+	module.exports = layer;
 
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
