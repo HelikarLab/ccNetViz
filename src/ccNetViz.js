@@ -1,12 +1,14 @@
 define([
         './ccNetVizMultiLevel',
         './layer',
-        './utils'
+        './utils',
+        './spatialSearch/spatialSearch'
     ], 
     function(
         ccNetVizMultiLevel,
         layer,
-        utils
+        utils,
+	ccNetViz_spatialSearch
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -38,8 +40,6 @@ var ccNetViz = function(canvas, options){
   
   var uniqid = 0;
   
-  //with edges id with keys of node ids
-  // {1:[4,5], 2:[4]} - node id 1 has associated edge with id 4 and 5, node with id 2 has associated edge 4
   var nPos = {};
   var ePos = {};
   var eDirs = {};
@@ -344,6 +344,9 @@ var ccNetViz = function(canvas, options){
   }));
   
 };
+
+
+ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 
 
 window.ccNetViz = module.exports = ccNetViz;
