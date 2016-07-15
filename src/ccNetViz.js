@@ -1,13 +1,19 @@
 define([
-        './ccNetVizMultiLevel',
+//        './ccNetVizMultiLevel',
         './layer',
+        './gl',
+        './color',
         './utils',
+        './interactivityBatch',
         './spatialSearch/spatialSearch'
     ], 
     function(
-        ccNetVizMultiLevel,
-        layer,
-        utils,
+//        ccNetVizMultiLevel,
+        ccNetViz_layer,
+	ccNetViz_gl,
+	ccNetViz_color,
+        ccNetViz_utils,
+        ccNetViz_interactivityBatch,
 	ccNetViz_spatialSearch
     ){
 /**
@@ -20,236 +26,109 @@ define([
 
 
 var ccNetViz = function(canvas, options){
-  var vizScreen,vizScreenTemp,vizLayout;
+
+  var backgroundStyle = options.styles.background = options.styles.background || {};
+  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
+  
+  var nodeStyle = options.styles.node = options.styles.node || {};
+  nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
+  nodeStyle.maxSize = nodeStyle.maxSize || 16;
+  nodeStyle.color = nodeStyle.color || "rgb(255, 255, 255)";
+
+  if (nodeStyle.label) {
+      var s = nodeStyle.label;
+      s.color = s.color || "rgb(120, 120, 120)";
+      s.font = s.font || "11px Arial, Helvetica, sans-serif";
+  }
+
+  var edgeStyle = options.styles.edge = options.styles.edge || {};
+  edgeStyle.width = edgeStyle.width || 1;
+  edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+  
+  var stylesTransl = {
+    'line': 0,
+    'dashed'  : 1,
+    'chain-dotted': 2,
+    'dotted': 3
+  }
+  if(stylesTransl[edgeStyle.type] !== undefined){
+    edgeStyle.type = stylesTransl[edgeStyle.type];
+  }
+  
+  if(edgeStyle.type === undefined || typeof edgeStyle.type !== 'number'){
+    edgeStyle.type = 0;
+  }
+
+
+  if (edgeStyle.arrow) {
+      var s = edgeStyle.arrow;
+      s.minSize = s.minSize != null ? s.minSize : 6;
+      s.maxSize = s.maxSize || 12;
+      s.aspect = 1;
+  }
+  
+
+
+  
+  function getContext(){
+      var attributes = { depth: false, antialias: false };
+      return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+  }
+  
+  var layerScreen,layerScreenTemp,vizLayout,view,gl,drawFunc;
 
   var getNodesCnt = (() => {
-    return vizScreenTemp.cntShownNodes() + vizScreen.cntShownNodes();
+    return layerScreenTemp.cntShownNodes() + layerScreen.cntShownNodes();
   });
   var getEdgesCnt = (() => {
-    return vizScreenTemp.cntShownEdges() + vizScreen.cntShownEdges();
+    return layerScreenTemp.cntShownEdges() + layerScreen.cntShownEdges();
   });
+
+  var self = this;
+  var onRedraw = ccNetViz_utils.debounce(() => {
+    self.draw.call(self);
+    return false;
+  }, 5);
   
-  vizScreen = new layer(canvas, options, getNodesCnt);
-  vizScreenTemp = new layer(canvas, options, getEdgesCnt);
   
     
-  var supStructsCreated = false;
-
-  var lastNodeIndex;
-  var lastEdgeIndex;
-  
-  var uniqid = 0;
-  
-  var nPos = {};
-  var ePos = {};
-  var eDirs = {};
-  
-  
-  var toAddNodes = [];
-  var toAddEdges = [];
-  var toRemoveNodes = [];
-  var toRemoveEdges = [];
-  
-  var actualTempNodes = [];
-  var actualTempEdges = [];
-  
   var nodes;
   var edges;
 
-
-  var onRedraw = utils.debounce(() => {
-    self.draw.call(self);
-    return false;
-  }, 5);  
+  var batch = undefined;
+  function getBatch(){
+    if(!batch)
+      batch = new ccNetViz_interactivityBatch(layerScreen, layerScreenTemp, drawFunc, nodes, edges);
+    return batch;
+  };  
   
-  var self = this;
-  vizScreen.onRedraw = vizScreenTemp.onRedraw = (() => {
-    onRedraw();
-    return false;
-  });
-  
-  function removeNodes(){
-    toRemoveNodes.forEach((n) => {
-      if(n.uniqid === undefined)
-        return;
-      
-      if(nPos[n.uniqid] !== undefined){
-        //in the normal graph
-        var pos = nPos[n.uniqid];
-        vizScreen.removeNodeAtPos(pos);
-      }else{
-        //try to remove from temp graph
-        
-        for(var i = 0; i < actualTempNodes.length; i++){
-          if(actualTempNodes[i].uniqid === n.uniqid){
-            actualTempNodes.splice(i,1);
-            break;
-          }
-        }
-      }
-      
-      delete n.uniqid;
-    });
-  }
-
-  function removeEdges(){
-    toRemoveEdges.forEach((e) => {
-      if(e.uniqid === undefined)
-        return;
-
-      delete eDirs[e.source.uniqid][e.target.uniqid];
-      
-      if(ePos[e.uniqid] !== undefined){
-        //in the normal graph
-        var pos = ePos[e.uniqid];
-        vizScreen.removeEdgeAtPos(pos);
-      }else{
-        //try to remove from temp graph
-        
-        for(var i = 0; i < actualTempEdges.length; i++){
-          if(actualTempEdges[i].uniqid === e.uniqid){
-            actualTempEdges.splice(i,1);
-            break;
-          }
-        }
-
-      }
-      
-      delete e.uniqid;
-    });
-  }
-  
-  function addEdges(){
-    toAddEdges.forEach((e) => {
-      //already added
-      if(e.uniqid !== undefined){
-        console.error(e);
-        console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
-        return;
-      }
-      //already added
-      e.uniqid = ++lastEdgeIndex;
-
-      //add this node into temporary chart
-      actualTempEdges.push(e);
-    });
-  }
-  
-  function addNodes(nodes){
-    toAddNodes.forEach((n) => {
-      
-      //already added
-      if(n.uniqid !== undefined){
-        console.error(n);
-        console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
-        return;
-      }
-
-      n.uniqid = ++lastNodeIndex;
-      
-      eDirs[n.uniqid] = {};
-      actualTempNodes.push(n);
-    });
-  }
-  
-  
-  function isAnyChange(){
-    return toAddEdges.length > 0 || toAddNodes.length > 0 || toRemoveEdges.length > 0 || toRemoveNodes.length > 0;
-  }
-  
-  function createSupportStructs(nodes, edges){
-    if(supStructsCreated)
-      return;
-    
-    nPos = {};
-    ePos = {};
-    eDirs = {};
-
-    nodes.forEach((n, i) => {
-      n.uniqid = i;
-      nPos[n.uniqid] = i;
-      eDirs[n.uniqid] = {};
-    });
-    
-    edges.forEach((e, i) => {
-      e.uniqid = i;
-      eDirs[e.source.uniqid][e.target.uniqid] = e;
-      ePos[e.uniqid] = i;
-    });
-    
-    lastNodeIndex = nodes[nodes.length-1].uniqid;
-    lastEdgeIndex = nodes[nodes.length-1].uniqid;
-    
-    supStructsCreated = true;
-  };
-
   this.set = (n, e, layout) => {
     nodes = n;
     edges = e;
     
-    vizScreenTemp.set([], [], layout);
-    vizScreen.set(nodes, edges, layout);
+    layerScreenTemp.set([], [], layout);
+    layerScreen.set(nodes, edges, layout);
     
-    supStructsCreated = false;
-  };
-  
-  this.removeNode = (n) => {
-    createSupportStructs(nodes, edges);
-
-    toRemoveNodes.push(n);
-    return this;
-  };
-  
-  this.removeNodes = (nodes) => {
-    nodes.forEach((n) => {
-      this.removeNode(n);
-    });
-    return this;
+    //reset batch
+    batch = undefined;
   };
   
   //make all dynamic changes static
   this.reflow = () => {
     //nodes and edges in dynamic chart are actual
-    var n = vizScreen.getVisibleNodes().concat(vizScreenTemp.getVisibleNodes());
-    var e = vizScreen.getVisibleEdges().concat(vizScreenTemp.getVisibleEdges());
+    var n = layerScreen.getVisibleNodes().concat(layerScreenTemp.getVisibleNodes());
+    var e = layerScreen.getVisibleEdges().concat(layerScreenTemp.getVisibleEdges());
     
     this.set(n,e);
     this.draw();
   };
-
-  this.addEdge = (e) => {
-    createSupportStructs(nodes, edges);
-
-    var tid = e.target.uniqid;
-    var sid = e.source.uniqid;
-    
-    if(eDirs[sid][tid]){
-      //this edge was already added
-      return this;
-    }
-    if(eDirs[tid][sid]){
-      //must remove line and add two curves
-      
-      toRemoveEdges.push(eDirs[tid][sid]);
-      
-      toAddEdges.push(eDirs[tid][sid]);
-      toAddEdges.push(eDirs[sid][tid] = e);
-      
-      return this;
-    }
-
-    toAddEdges.push(e);
-    return this;
-  };
   
-  this.addNode = (n) => {
-    createSupportStructs(nodes, edges);
+  this.removeNode = (n) => { getBatch().removeNode(n); return this; };  
+  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };  
+  this.addEdge = (e) => { getBatch().addEdge(e); return this;}
+  this.addNode = (n) => { getBatch().addNode(n); return this;}
+  this.applyChanges = () => { getBatch().applyChanges(); return this; };
 
-    toAddNodes.push(n);    
-    return this;
-  };
-
-  
   this.addEdges = (edges) => {
     edges.forEach((e) => {
       this.addEdge(e);
@@ -265,33 +144,66 @@ var ccNetViz = function(canvas, options){
 
     return this;
   };
-  
-  this.applyChanges = () => {
-    
-    actualTempNodes = vizScreenTemp.nodes;
-    actualTempEdges = vizScreenTemp.edges;
-    
-    removeEdges();
-    removeNodes();
-    addNodes();
-    addEdges();
-    
-    toAddEdges = [];
-    toAddNodes = [];
-    toRemoveEdges = [];
-    toRemoveNodes = [];
-    
-    
-    vizScreenTemp.set(actualTempNodes, actualTempEdges);
-    this.draw();
-    
+
+  this.removeEdges = (nodes) => {
+    nodes.forEach((n) => {
+      this.removeNode(n);
+    });
     return this;
   };
   
-  this.draw = () => {
-    vizScreen.draw();
-    vizScreenTemp.draw(true);
+  this.removeNodes = (nodes) => {
+    nodes.forEach((n) => {
+      this.removeNode(n);
+    });
+    return this;
   };
+  
+  var getSize = (c, n, sc) => {
+      var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
+      var s = c.style;
+      if (s) {
+	  result = s.maxSize ? Math.min(s.maxSize, result) : result;
+	  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+      }
+      return result;
+  };
+
+  var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
+  
+  
+  var offset = 0.5 * nodeStyle.maxSize;
+
+  this.draw = () => {
+        var width = canvas.width;
+        var height = canvas.height;
+        var aspect = width / height;
+        var o = view.size === 1 ? offset : 0;
+        var ox = o / width;
+        var oy = o / height;
+
+        context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
+        context.offsetX   = ox;
+        context.offsetY   = oy;
+        context.width     = 0.5 * width;
+        context.height    = 0.5 * height;
+        context.aspect2   = aspect * aspect;
+        context.count     = getNodesCnt();
+
+        context.curveExc = getSize(context, getEdgesCnt(), 0.5);
+        context.style = nodeStyle;
+        context.nodeSize = getNodeSize(context);
+
+        gl.viewport(0, 0, width, height);
+
+	gl.clear(gl.COLOR_BUFFER_BIT);
+
+	for(var key in layerScreen.scene.elements){
+	  layerScreen.scene.elements[key].draw(context);
+	  layerScreenTemp.scene.elements[key].draw(context);
+	}
+  };
+  drawFunc = this.draw.bind(this);
   
   this.find = function(){
     function mergeArrays(a, b, cmp){
@@ -318,8 +230,8 @@ var ccNetViz = function(canvas, options){
       return r;
     }
     
-    var f1 = vizScreen.find.apply(vizScreen, arguments);
-    var f2 = vizScreenTemp.find.apply(vizScreenTemp, arguments);
+    var f1 = layerScreen.find.apply(layerScreen, arguments);
+    var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
     
     var r = {};
     for(var key in f1){
@@ -330,19 +242,74 @@ var ccNetViz = function(canvas, options){
     
     return r;
   };
-
-
-  var exposeMethods = ['resetView', 'resize'];
-  var self = this;
-  exposeMethods.forEach(((method) => {
-    (function(method, self){
-      self[method] = function(){
-        vizScreenTemp[method].apply(vizScreenTemp, arguments);
-        return vizScreen[method].apply(vizScreen, arguments);
-      };
-    })(method, self);
-  }));
   
+  canvas.addEventListener("mousedown", onMouseDown.bind(this));
+  canvas.addEventListener("wheel", onWheel.bind(this));
+
+  function onMouseDown(e) {
+      var width = canvas.width / view.size;
+      var height = canvas.height / view.size;
+      var dx = view.x + e.clientX / width;
+      var dy = e.clientY / height - view.y;
+
+      var drag = e => {
+	  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+	  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+	  this.draw();
+	  e.preventDefault();
+      };
+
+      var up = () => {
+	  window.removeEventListener('mouseup', up);
+	  window.removeEventListener('mousemove', drag);
+      };
+      window.addEventListener('mouseup', up);
+      window.addEventListener('mousemove', drag);
+  }
+  
+  function onWheel(e) {
+      var rect = canvas.getBoundingClientRect();
+      var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
+      var delta = size - view.size;
+
+      view.size = size;
+      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
+      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
+
+      this.draw();
+      e.preventDefault();
+  }
+
+  this.image = function() {
+      return canvas.toDataURL();
+  }
+
+  
+  this.resize = function() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  this.resetView = function() {
+      view.size = 1;
+      view.x = view.y = 0;
+  }
+
+  gl = getContext();
+
+  gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+  gl.blendEquation(gl.FUNC_ADD);
+  gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+  gl.enable(gl.BLEND);
+
+  view = {};
+  var context = {};
+
+  this.resetView();
+  this.resize();
+  
+  layerScreen = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 };
 
 

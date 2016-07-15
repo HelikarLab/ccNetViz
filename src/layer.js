@@ -24,53 +24,14 @@ define([
  *  Author: David Tichy
  */
 
-var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
+var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
+    this.redraw = onRedraw || (() => {});
   
     options = options || {};
     options.styles = options.styles || {};
 
-    var backgroundStyle = options.styles.background = options.styles.background || {};
-    var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
-
-    var nodeStyle = options.styles.node = options.styles.node || {};
-    nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
-    nodeStyle.maxSize = nodeStyle.maxSize || 16;
-    nodeStyle.color = nodeStyle.color || "rgb(255, 255, 255)";
-
-    if (nodeStyle.label) {
-        var s = nodeStyle.label;
-        s.color = s.color || "rgb(120, 120, 120)";
-        s.font = s.font || "11px Arial, Helvetica, sans-serif";
-    }
-
-    var edgeStyle = options.styles.edge = options.styles.edge || {};
-    edgeStyle.width = edgeStyle.width || 1;
-    edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
-    
-    var stylesTransl = {
-      'line': 0,
-      'dashed'  : 1,
-      'chain-dotted': 2,
-      'dotted': 3
-    }
-    if(stylesTransl[edgeStyle.type] !== undefined){
-      edgeStyle.type = stylesTransl[edgeStyle.type];
-    }
-    
-    if(edgeStyle.type === undefined || typeof edgeStyle.type !== 'number'){
-      edgeStyle.type = 0;
-    }
-
-
-    if (edgeStyle.arrow) {
-        var s = edgeStyle.arrow;
-        s.minSize = s.minSize != null ? s.minSize : 6;
-        s.maxSize = s.maxSize || 12;
-        s.aspect = 1;
-    }
-    
     var nodesFiller = (
       style => ({
         set: (v, e, iV, iI) => {
@@ -189,13 +150,10 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
                     }))
     };
 
-    var context;
     var edgeTypes;
     var edgePoses;
 
     var spatialSearch = undefined;
-
-    var offset = 0.5 * nodeStyle.maxSize;
 
     this.set = function(nodes, edges, layout) {
         this.nodes = nodes = nodes || [];
@@ -354,60 +312,6 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
         spatialSearch.update(t.k, pos, e);
     });
     
-    this.redraw = (keepbg) => {
-      if(this.onRedraw){
-        if(this.onRedraw(keepbg) === false)
-          return false;
-      }
-      this.draw();
-    }
-
-    this.draw = (keepBg) => {
-        var width = canvas.width;
-        var height = canvas.height;
-        var aspect = width / height;
-        var o = view.size === 1 ? offset : 0;
-        var ox = o / width;
-        var oy = o / height;
-
-        context = {
-            transform: ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1),
-            offsetX: ox,
-            offsetY: oy,
-            width: 0.5 * width,
-            height: 0.5 * height,
-            aspect2: aspect * aspect,
-            count: this.nodes.length
-        };
-        context.curveExc = getSize(context, getEdgesCnt(), 0.5);
-        context.style = nodeStyle;
-        context.nodeSize = getNodeSize(context);
-
-        if(spatialSearch)
-          spatialSearch.setContext(context);
-
-        gl.viewport(0, 0, width, height);
-
-        if(!keepBg)
-          gl.clear(gl.COLOR_BUFFER_BIT);
-
-        scene.elements.forEach(e => e.draw(context));
-    }
-
-    this.resize = function() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-    }
-
-    this.resetView = function() {
-        view.size = 1;
-        view.x = view.y = 0;
-    }
-
-    this.image = function() {
-        return canvas.toDataURL();
-    }
-
     var removedNodes = 0;
     var removedEdges = 0;
     
@@ -465,31 +369,13 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
     });
 
     
-    this.resize();
-
     this.nodes = [];
     this.edges = [];
 
-    var view = {};
-    this.resetView();
-
-    var gl = getContext();
     var extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
     var textures = new ccNetViz_textures(options.onLoad || this.redraw);
     var texts = new ccNetViz_texts(gl);
-    var scene = createScene.call(this);
-
-    var getSize = (c, n, sc) => {
-        var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
-        var s = c.style;
-        if (s) {
-            result = s.maxSize ? Math.min(s.maxSize, result) : result;
-            result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
-        }
-        return result;
-    };
-
-    var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
+    var scene = this.scene = createScene.call(this);
 
     var fsColorTexture = [
         "precision mediump float;",
@@ -781,11 +667,6 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
         })
     );
 
-    gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
-    gl.blendEquation(gl.FUNC_ADD);
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
-    gl.enable(gl.BLEND);
-
     if (options.onLoad) {
         var styles = options.styles;
         for (var p in styles) {
@@ -793,48 +674,6 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
             s.texture && textures.get(gl, s.texture);
             s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
         }
-    }
-
-    canvas.addEventListener("mousedown", onMouseDown.bind(this));
-    canvas.addEventListener("wheel", onWheel.bind(this));
-
-    function onWheel(e) {
-        var rect = canvas.getBoundingClientRect();
-        var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
-        var delta = size - view.size;
-
-        view.size = size;
-        view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
-        view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
-
-        this.redraw();
-        e.preventDefault();
-    }
-
-    function onMouseDown(e) {
-        var width = canvas.width / view.size;
-        var height = canvas.height / view.size;
-        var dx = view.x + e.clientX / width;
-        var dy = e.clientY / height - view.y;
-
-        var drag = e => {
-            view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-            view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-            this.redraw();
-            e.preventDefault();
-        };
-
-        var up = () => {
-            window.removeEventListener('mouseup', up);
-            window.removeEventListener('mousemove', drag);
-        };
-        window.addEventListener('mouseup', up);
-        window.addEventListener('mousemove', drag);
-    }
-
-    function getContext(){
-        var attributes = { depth: false, antialias: false };
-        return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
     }
 
     function createScene() {
@@ -847,15 +686,6 @@ var layer = function(canvas, options, getNodesCnt, getEdgesCnt) {
         };
     }
 }
-
-/*ccNetViz.color = ccNetViz_color;
-ccNetViz.gl = ccNetViz_gl;
-ccNetViz.primitive = ccNetViz_primitive;
-ccNetViz.textures = ccNetViz_textures;
-ccNetViz.texts = ccNetViz_texts;
-ccNetViz.layout = ccNetViz_layout;
-ccNetViz.spatialSearch = ccNetViz_spatialSearch;
-*/
 
 module.exports = layer;
 
