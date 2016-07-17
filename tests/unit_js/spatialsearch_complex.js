@@ -31,17 +31,20 @@ $(function(){
       var x = 92.00284099578857;
       var y = 289.0028409957886;
 
-      var ret = graph.find(x, y, radius, true, true);
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var ret = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
       assert.ok(ret.edges.length == 0 && ret.nodes.length == 0, "Somewhere in middle" );
 
       var x = 79.00284099578857;
       var y = 161.00284099578857;
-      var ret = graph.find(x, y, radius, true, true);
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var ret = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
       assert.ok(ret.edges.length == 0 && ret.nodes.length == 0, "Somewhere in middle 2" );
       
       var x = 123.00284099578857;
       var y = 12.002840995788574;
-      var ret = graph.find(x, y, radius, true, true);
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var ret = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
       
       assert.ok(ret.edges.length == 2 && ret.nodes.length == 1, "Somewhere in middle 3" );
       
@@ -61,13 +64,15 @@ $(function(){
 
       var x = 0.0028409957885742188;
       var y = 498.0028409957886;
-      var ret = graph.find(x, y, radius, true, true);
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var ret = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
       assert.ok(ret.edges.length == 0 && ret.nodes.length == 0, "Left bottom after zoom" );
       
 
       var x = 390;
       var y = 191;
-      var ret = graph.find(x, y, radius, true, true);
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var ret = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
       assert.ok(ret.edges.length == 1 && ret.nodes.length == 0, "Line after zoom" );
       
       
