@@ -334,11 +334,14 @@ var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
     }
 
     var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
-
     this.update = (t, i, v) => {
       rbushtree.remove(types[t][i]);
 
-      rbushtree.insert(types[t][i] = new tConst[t](v));
+      var e = new tConst[t](v);
+      var arr = e.getBBox(context, size);
+      arr.push(e);
+
+      rbushtree.insert(types[t][i] = arr);
     };
 
 

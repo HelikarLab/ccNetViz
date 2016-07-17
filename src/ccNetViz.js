@@ -25,6 +25,9 @@ define([
  */
 
 
+var lastUniqId = 0;
+
+
 var ccNetViz = function(canvas, options){
 
   var backgroundStyle = options.styles.background = options.styles.background || {};
@@ -68,7 +71,10 @@ var ccNetViz = function(canvas, options){
   }
   
 
-
+  var checkUniqId = (el) => {
+    if(el.uniqid === undefined)
+      el.uniqid = ++lastUniqId;
+  }
   
   function getContext(){
       var attributes = { depth: false, antialias: false };
@@ -100,11 +106,14 @@ var ccNetViz = function(canvas, options){
     if(!batch)
       batch = new ccNetViz_interactivityBatch(layerScreen, layerScreenTemp, drawFunc, nodes, edges);
     return batch;
-  };  
+  };
   
   this.set = (n, e, layout) => {
     nodes = n;
     edges = e;
+    
+    nodes.forEach(checkUniqId);
+    edges.forEach(checkUniqId);
     
     layerScreenTemp.set([], [], layout);
     layerScreen.set(nodes, edges, layout);
@@ -123,10 +132,12 @@ var ccNetViz = function(canvas, options){
     this.draw();
   };
   
-  this.removeNode = (n) => { getBatch().removeNode(n); return this; };  
-  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };  
-  this.addEdge = (e) => { getBatch().addEdge(e); return this;}
-  this.addNode = (n) => { getBatch().addNode(n); return this;}
+  this.removeNode = (n) => { getBatch().removeNode(n); return this; };
+  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };
+  this.addEdge = (e) => { checkUniqId(e); getBatch().addEdge(e); return this;};
+  this.addNode = (n) => { checkUniqId(n); getBatch().addNode(n); return this;};
+  this.updateNode = (n) => { this.removeNode(n); this.addNode(n); return this; };
+  this.updateEdge = (e) => { this.removeEdge(e); this.addEdge(e); return this; };
   this.applyChanges = () => { getBatch().applyChanges(); return this; };
 
   this.addEdges = (edges) => {
@@ -136,7 +147,7 @@ var ccNetViz = function(canvas, options){
     
     return this;
   };
-
+  
   this.addNodes = (nodes) => {
     nodes.forEach((n) => {
       this.addNode(n);
@@ -158,6 +169,24 @@ var ccNetViz = function(canvas, options){
     });
     return this;
   };
+
+  this.updateNodes = (nodes) => {
+    nodes.forEach((n) => {
+      this.updateNode(n);
+    });
+    
+    return this;
+  };
+
+  this.updateEdges = (edges) => {
+    edges.forEach((e) => {
+      this.updateNode(e);
+    });
+    
+    return this;
+  };
+
+
   
   var getSize = (c, n, sc) => {
       var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
@@ -170,7 +199,6 @@ var ccNetViz = function(canvas, options){
   };
 
   var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
-  
   
   var offset = 0.5 * nodeStyle.maxSize;
 
@@ -229,17 +257,17 @@ var ccNetViz = function(canvas, options){
       
       return r;
     }
-    
+
     var f1 = layerScreen.find.apply(layerScreen, arguments);
     var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
-    
+
     var r = {};
     for(var key in f1){
       r[key] = mergeArrays(f1[key], f2[key], (e1, e2) => {
 			      return e1.dist2 - e2.dist2;
 			    });
     }
-    
+
     return r;
   };
   
