@@ -279,13 +279,6 @@ var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, g
     
     
     this.find = (x,y,dist,nodes,edges) => {
-      var disth = dist / canvas.height;
-      var distw = dist / canvas.width;
-      dist = Math.max(disth, distw) * view.size;
-
-      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
-      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
-      
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
 

@@ -233,6 +233,20 @@ var ccNetViz = function(canvas, options){
   };
   drawFunc = this.draw.bind(this);
   
+  this.getLayerCoords = function(conf){
+      var x = conf.x;
+      var y = conf.y;
+      var dist = conf.radius;
+      
+      var disth = dist / canvas.height;
+      var distw = dist / canvas.width;
+      dist = Math.max(disth, distw) * view.size;
+
+      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+      return {x: x, y:y, radius: dist};
+  }
+  
   this.find = function(){
     function mergeArrays(a, b, cmp){
       var r = [];
