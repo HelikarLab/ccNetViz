@@ -278,6 +278,20 @@
 	  };
 	  drawFunc = this.draw.bind(this);
 	  
+	  this.getLayerCoords = function(conf){
+	      var x = conf.x;
+	      var y = conf.y;
+	      var dist = conf.radius;
+	      
+	      var disth = dist / canvas.height;
+	      var distw = dist / canvas.width;
+	      dist = Math.max(disth, distw) * view.size;
+
+	      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+	      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+	      return {x: x, y:y, radius: dist};
+	  }
+	  
 	  this.find = function(){
 	    function mergeArrays(a, b, cmp){
 	      var r = [];
@@ -597,8 +611,8 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
 	    
-	                    var si = e.source.uniqid || e.source.index;
-	                    var ti = e.target.uniqid || e.target.index;
+	                    var si = e.source.uniqid || -e.source.index;
+	                    var ti = e.target.uniqid || -e.target.index;
 	    
 	                    (map[si] || (map[si] = {}))[ti] = true;
 	                }
@@ -606,8 +620,8 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var target, e = edges[i];
 
-	                    var si = e.source.uniqid || e.source.index;
-	                    var ti = e.target.uniqid || e.target.index;
+	                    var si = e.source.uniqid || -e.source.index;
+	                    var ti = e.target.uniqid || -e.target.index;
 	    
 	                    var t = dummysd;
 	                    if (si === ti) {
@@ -631,8 +645,8 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
 
-	                    var si = e.source.uniqid || e.source.index;
-	                    var ti = e.target.uniqid || e.target.index;
+	                    var si = e.source.uniqid || -e.source.index;
+	                    var ti = e.target.uniqid || -e.target.index;
 
 	                    var t = dummysd;
 	                    if(si !== ti){
@@ -678,13 +692,6 @@
 	    
 	    
 	    this.find = (x,y,dist,nodes,edges) => {
-	      var disth = dist / canvas.height;
-	      var distw = dist / canvas.width;
-	      dist = Math.max(disth, distw) * view.size;
-
-	      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
-	      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
-	      
 	      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
 	    }
 
