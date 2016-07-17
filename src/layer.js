@@ -198,8 +198,8 @@ var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, g
                 for (var i = 0; i < edges.length; i++) {
                     var e = edges[i];
     
-                    var si = e.source.uniqid || e.source.index;
-                    var ti = e.target.uniqid || e.target.index;
+                    var si = e.source.uniqid || -e.source.index;
+                    var ti = e.target.uniqid || -e.target.index;
     
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
@@ -207,8 +207,8 @@ var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, g
                 for (var i = 0; i < edges.length; i++) {
                     var target, e = edges[i];
 
-                    var si = e.source.uniqid || e.source.index;
-                    var ti = e.target.uniqid || e.target.index;
+                    var si = e.source.uniqid || -e.source.index;
+                    var ti = e.target.uniqid || -e.target.index;
     
                     var t = dummysd;
                     if (si === ti) {
@@ -232,8 +232,8 @@ var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, g
                 for (var i = 0; i < edges.length; i++) {
                     var e = edges[i];
 
-                    var si = e.source.uniqid || e.source.index;
-                    var ti = e.target.uniqid || e.target.index;
+                    var si = e.source.uniqid || -e.source.index;
+                    var ti = e.target.uniqid || -e.target.index;
 
                     var t = dummysd;
                     if(si !== ti){
