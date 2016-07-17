@@ -70,6 +70,9 @@
 	 */
 
 
+	var lastUniqId = 0;
+
+
 	var ccNetViz = function(canvas, options){
 
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
@@ -113,7 +116,10 @@
 	  }
 	  
 
-
+	  var checkUniqId = (el) => {
+	    if(el.uniqid === undefined)
+	      el.uniqid = ++lastUniqId;
+	  }
 	  
 	  function getContext(){
 	      var attributes = { depth: false, antialias: false };
@@ -145,11 +151,14 @@
 	    if(!batch)
 	      batch = new ccNetViz_interactivityBatch(layerScreen, layerScreenTemp, drawFunc, nodes, edges);
 	    return batch;
-	  };  
+	  };
 	  
 	  this.set = (n, e, layout) => {
 	    nodes = n;
 	    edges = e;
+	    
+	    nodes.forEach(checkUniqId);
+	    edges.forEach(checkUniqId);
 	    
 	    layerScreenTemp.set([], [], layout);
 	    layerScreen.set(nodes, edges, layout);
@@ -168,10 +177,12 @@
 	    this.draw();
 	  };
 	  
-	  this.removeNode = (n) => { getBatch().removeNode(n); return this; };  
-	  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };  
-	  this.addEdge = (e) => { getBatch().addEdge(e); return this;}
-	  this.addNode = (n) => { getBatch().addNode(n); return this;}
+	  this.removeNode = (n) => { getBatch().removeNode(n); return this; };
+	  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };
+	  this.addEdge = (e) => { checkUniqId(e); getBatch().addEdge(e); return this;};
+	  this.addNode = (n) => { checkUniqId(n); getBatch().addNode(n); return this;};
+	  this.updateNode = (n) => { this.removeNode(n); this.addNode(n); return this; };
+	  this.updateEdge = (e) => { this.removeEdge(e); this.addEdge(e); return this; };
 	  this.applyChanges = () => { getBatch().applyChanges(); return this; };
 
 	  this.addEdges = (edges) => {
@@ -181,7 +192,7 @@
 	    
 	    return this;
 	  };
-
+	  
 	  this.addNodes = (nodes) => {
 	    nodes.forEach((n) => {
 	      this.addNode(n);
@@ -203,6 +214,24 @@
 	    });
 	    return this;
 	  };
+
+	  this.updateNodes = (nodes) => {
+	    nodes.forEach((n) => {
+	      this.updateNode(n);
+	    });
+	    
+	    return this;
+	  };
+
+	  this.updateEdges = (edges) => {
+	    edges.forEach((e) => {
+	      this.updateNode(e);
+	    });
+	    
+	    return this;
+	  };
+
+
 	  
 	  var getSize = (c, n, sc) => {
 	      var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
@@ -215,7 +244,6 @@
 	  };
 
 	  var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
-	  
 	  
 	  var offset = 0.5 * nodeStyle.maxSize;
 
@@ -274,17 +302,17 @@
 	      
 	      return r;
 	    }
-	    
+
 	    var f1 = layerScreen.find.apply(layerScreen, arguments);
 	    var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
-	    
+
 	    var r = {};
 	    for(var key in f1){
 	      r[key] = mergeArrays(f1[key], f2[key], (e1, e2) => {
 				      return e1.dist2 - e2.dist2;
 				    });
 	    }
-	    
+
 	    return r;
 	  };
 	  
@@ -1337,7 +1365,6 @@
 	            for (var a in shader.attributes) {
 	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
 	                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*filler.numVertices*e[a].BYTES_PER_ELEMENT*i, e[a]);
-	                console.log("sub "+a+" "+(shader.attributes[a].size*filler.numVertices*i));
 	            }
 	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
 	            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices*e.indices.BYTES_PER_ELEMENT, e.indices);
@@ -2403,11 +2430,14 @@
 	    }
 
 	    var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
-
 	    this.update = (t, i, v) => {
 	      rbushtree.remove(types[t][i]);
 
-	      rbushtree.insert(types[t][i] = new tConst[t](v));
+	      var e = new tConst[t](v);
+	      var arr = e.getBBox(context, size);
+	      arr.push(e);
+
+	      rbushtree.insert(types[t][i] = arr);
 	    };
 
 
@@ -3102,6 +3132,8 @@
 	 */
 
 
+	var uniqid = [];
+
 	var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edges){
 	    var toAddEdges = [];
 	    var toAddNodes = [];
@@ -3118,25 +3150,22 @@
 	      eDirs = {};
 
 	      nodes.forEach((n, i) => {
-		n.uniqid = i;
+	//	n.uniqid = i;
 		nPos[n.uniqid] = i;
 		eDirs[n.uniqid] = {};
 	      });
 	      
 	      edges.forEach((e, i) => {
-		e.uniqid = i;
+	//	e.uniqid = i;
 		eDirs[e.source.uniqid][e.target.uniqid] = e;
 		ePos[e.uniqid] = i;
 	      });
 	      
-	      lastNodeIndex = nodes[nodes.length-1].uniqid;
-	      lastEdgeIndex = nodes[nodes.length-1].uniqid;
-	      
 	      supStructsCreated = true;
 	    };
 
-	  function doRemoveNodes(){
-	    toRemoveNodes.forEach((n) => {
+	  function doRemoveNodes(nodes){
+	    nodes.forEach((n) => {
 	      if(n.uniqid === undefined)
 	        return;
 	      
@@ -3148,7 +3177,8 @@
 	        //try to remove from temp graph
 	        
 	        for(var i = 0; i < actualTempNodes.length; i++){
-	          if(actualTempNodes[i].uniqid === n.uniqid){
+	//          if(actualTempNodes[i].uniqid === n.uniqid){
+	          if(actualTempNodes[i] === n){
 	            actualTempNodes.splice(i,1);
 	            break;
 	          }
@@ -3159,12 +3189,12 @@
 	    });
 	  }
 
-	  function doRemoveEdges(){
-	    toRemoveEdges.forEach((e) => {
+	  function doRemoveEdges(edges){
+	    edges.forEach((e) => {
 	      if(e.uniqid === undefined)
 	        return;
 
-	      delete eDirs[e.source.uniqid][e.target.uniqid];
+	      delete (eDirs[e.source.uniqid] || {})[e.target.uniqid];
 	      
 	      if(ePos[e.uniqid] !== undefined){
 	        //in the normal graph
@@ -3174,7 +3204,8 @@
 	        //try to remove from temp graph
 	        
 	        for(var i = 0; i < actualTempEdges.length; i++){
-	          if(actualTempEdges[i].uniqid === e.uniqid){
+	//          if(actualTempEdges[i].uniqid === e.uniqid){
+	          if(actualTempEdges[i] === e){
 	            actualTempEdges.splice(i,1);
 	            break;
 	          }
@@ -3188,15 +3219,18 @@
 	  
 	  function doAddEdges(){
 	    toAddEdges.forEach((e) => {
-	      //already added
+	      //already added in main graph
+	      if(ePos[e.uniqid] !== undefined){
+		doRemoveEdges([e]);
+	      }
+
+
 	      if(e.uniqid !== undefined){
 	        console.error(e);
 	        console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
 	        return;
 	      }
-	      //already added
-	      e.uniqid = ++lastEdgeIndex;
-
+	      
 	      //add this node into temporary chart
 	      actualTempEdges.push(e);
 	    });
@@ -3204,6 +3238,9 @@
 	  
 	  function doAddNodes(nodes){
 	    toAddNodes.forEach((n) => {
+	      if(nPos[n.uniqid] !== undefined){
+		doRemoveNodes([n]);
+	      }
 	      
 	      //already added
 	      if(n.uniqid !== undefined){
@@ -3211,8 +3248,6 @@
 	        console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
 	        return;
 	      }
-
-	      n.uniqid = ++lastNodeIndex;
 	      
 	      eDirs[n.uniqid] = {};
 	      actualTempNodes.push(n);
@@ -3224,8 +3259,10 @@
 	    var sid = e.source.uniqid;
 	    
 	    if((eDirs[sid] || {})[tid]){
-	      //this edge was already added
-	      return this;
+	      //this edge was already added >> remove it
+	      doRemoveEdges([e]);
+	//      this.removeEdge(e);
+	//      return this;
 	    }
 	    if((eDirs[tid] || {})[sid]){
 	      //must remove line and add two curves
@@ -3247,12 +3284,22 @@
 	    return this;
 	  };
 
+	  this.removeNode = (n) => {
+	    toRemoveNodes.push(n);    
+	    return this;
+	  };
+
+	  this.removeEdge = (e) => {
+	    toRemoveEdges.push(e);
+	    return this;
+	  };
+	  
 	  this.applyChanges = () => {
 	    actualTempNodes = layerScreenTemp.nodes;
 	    actualTempEdges = layerScreenTemp.edges;
 	    
-	    doRemoveEdges();
-	    doRemoveNodes();
+	    doRemoveEdges(toRemoveEdges);
+	    doRemoveNodes(toRemoveNodes);
 	    doAddNodes();
 	    doAddEdges();
 	    
