@@ -128,7 +128,6 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
             for (var a in shader.attributes) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
                 gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*filler.numVertices*e[a].BYTES_PER_ELEMENT*i, e[a]);
-                console.log("sub "+a+" "+(shader.attributes[a].size*filler.numVertices*i));
             }
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
             gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices*e.indices.BYTES_PER_ELEMENT, e.indices);
