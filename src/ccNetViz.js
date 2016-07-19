@@ -230,9 +230,9 @@ var ccNetViz = function(canvas, options){
 
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	for(var key in layerScreen.scene.elements){
-	  layerScreen.scene.elements[key].draw(context);
-	  layerScreenTemp.scene.elements[key].draw(context);
+	for(var i = 0; i < layerScreen.scene.elements.length; i++){
+	  layerScreen.scene.elements[i].draw(context);
+	  layerScreenTemp.scene.elements[i].draw(context);
 	}
   };
   drawFunc = this.draw.bind(this);
