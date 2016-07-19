@@ -4,6 +4,7 @@ define([
         './gl',
         './color',
         './utils',
+        './textures',
         './interactivityBatch',
         './spatialSearch/spatialSearch'
     ], 
@@ -13,6 +14,7 @@ define([
 	ccNetViz_gl,
 	ccNetViz_color,
         ccNetViz_utils,
+	ccNetViz_textures,
         ccNetViz_interactivityBatch,
 	ccNetViz_spatialSearch
     ){
@@ -350,8 +352,9 @@ var ccNetViz = function(canvas, options){
   this.resetView();
   this.resize();
   
-  layerScreen = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
+  var textures = new ccNetViz_textures(options.onLoad || this.draw);
+  layerScreen = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 };
 
 

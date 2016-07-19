@@ -3,7 +3,6 @@ define([
         './gl',
         './primitive', 
         './layout/layout',
-        './textures', 
         './texts',
         './spatialSearch/spatialSearch'
     ], 
@@ -12,7 +11,6 @@ define([
         ccNetViz_gl,
         ccNetViz_primitive,
         ccNetViz_layout,
-        ccNetViz_textures,
         ccNetViz_texts,
         ccNetViz_spatialSearch
     ){
@@ -24,7 +22,7 @@ define([
  *  Author: David Tichy
  */
 
-var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
+var layer = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     this.redraw = onRedraw || (() => {});
@@ -366,7 +364,6 @@ var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, g
     this.edges = [];
 
     var extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
-    var textures = new ccNetViz_textures(options.onLoad || this.redraw);
     var texts = new ccNetViz_texts(gl);
     var scene = this.scene = createScene.call(this);
 
