@@ -174,6 +174,11 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
   };
   
   this.applyChanges = () => {
+    
+    //nothing to do
+    if(toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0)
+      return this;
+    
     actualTempNodes = layerScreenTemp.nodes;
     actualTempEdges = layerScreenTemp.edges;
     

@@ -126,6 +126,8 @@ var ccNetViz = function(canvas, options){
   
   //make all dynamic changes static
   this.reflow = () => {
+    getBatch().applyChanges();
+    
     //nodes and edges in dynamic chart are actual
     var n = layerScreen.getVisibleNodes().concat(layerScreenTemp.getVisibleNodes());
     var e = layerScreen.getVisibleEdges().concat(layerScreenTemp.getVisibleEdges());
