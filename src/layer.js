@@ -154,6 +154,9 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     var spatialSearch = undefined;
 
     this.set = function(nodes, edges, layout) {
+        removedNodes = 0;
+        removedEdges = 0;
+      
         this.nodes = nodes = nodes || [];
         this.edges = edges = edges ? [].concat(edges) : [];
 
