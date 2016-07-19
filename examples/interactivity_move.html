@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      cursor: auto;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="./libs/jquery.throttle-debounce.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
+  <script>
+    function init(){
+	$.ajax({url: 'data/graph-10-3.json', dataType: 'json'}).done(dataLoaded);
+    }
+
+    var el = document.getElementById('container');
+    var graph;
+    
+    function dataLoaded(d){
+      graph = new ccNetViz(el, {
+	styles: {
+	  node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+	  edge: { arrow: { texture: "images/arrow.png" } },
+	  edgeHover: {
+	    color: "rgb(0, 0, 255)"
+	  },
+	  nodeHover: {
+	    texture: "images/node.png", label: { hideSize: 16 }
+	  }
+	}
+      });
+      
+      graph.set(d.nodes, d.edges, "force");
+      graph.draw();
+      
+    }
+
+    
+    var current_moving_node = undefined;
+    
+    el.addEventListener('mousedown', function(e){
+      if(!graph) return;
+    
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+      
+      if(result.nodes.length > 0){
+	current_moving_node = result.nodes[0].node;
+      }
+    });
+    
+    function onMove(e){
+      if(!graph) return;
+
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+
+      //update cursor
+      $("#container").css("cursor", current_moving_node || result.nodes.length > 0 ? "pointer" : 'auto')
+      
+      
+      //update currently moving element
+      if(current_moving_node === undefined)
+	return;
+      current_moving_node.x = lCoords.x;
+      current_moving_node.y = lCoords.y;
+      graph.updateNode(current_moving_node).applyChanges();
+    }
+    
+    function onUp(e){
+      if(!graph) return;
+
+      if(current_moving_node === undefined)
+	return;
+	
+      onMove(e);
+      graph.reflow();
+      current_moving_node = undefined;
+    }
+
+    el.addEventListener('mousemove', $.throttle(10, onMove));
+    el.addEventListener('mouseup', $.throttle(10, onUp));
+    
+    $(init);
+    
+  </script>
+</body>
+</html>
