@@ -57,11 +57,9 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
             for (var a in shader.attributes) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
                 gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
-//                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.DYNAMIC_DRAW);
             }
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
-//            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.DYNAMIC_DRAW);
             b.numIndices = iI;
             b.numVertices = iV;
             section.buffers.push(b);
