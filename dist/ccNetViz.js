@@ -171,6 +171,8 @@
 	  
 	  //make all dynamic changes static
 	  this.reflow = () => {
+	    getBatch().applyChanges();
+	    
 	    //nodes and edges in dynamic chart are actual
 	    var n = layerScreen.getVisibleNodes().concat(layerScreenTemp.getVisibleNodes());
 	    var e = layerScreen.getVisibleEdges().concat(layerScreenTemp.getVisibleEdges());
@@ -273,9 +275,9 @@
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
-		for(var key in layerScreen.scene.elements){
-		  layerScreen.scene.elements[key].draw(context);
-		  layerScreenTemp.scene.elements[key].draw(context);
+		for(var i = 0; i < layerScreen.scene.elements.length; i++){
+		  layerScreen.scene.elements[i].draw(context);
+		  layerScreenTemp.scene.elements[i].draw(context);
 		}
 	  };
 	  drawFunc = this.draw.bind(this);
@@ -570,6 +572,9 @@
 	    var spatialSearch = undefined;
 
 	    this.set = function(nodes, edges, layout) {
+	        removedNodes = 0;
+	        removedEdges = 0;
+	      
 	        this.nodes = nodes = nodes || [];
 	        this.edges = edges = edges ? [].concat(edges) : [];
 
@@ -1301,11 +1306,9 @@
 	            for (var a in shader.attributes) {
 	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
 	                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
-	//                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.DYNAMIC_DRAW);
 	            }
 	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
 	            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
-	//            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.DYNAMIC_DRAW);
 	            b.numIndices = iI;
 	            b.numVertices = iV;
 	            section.buffers.push(b);
@@ -3302,6 +3305,11 @@
 	  };
 	  
 	  this.applyChanges = () => {
+	    
+	    //nothing to do
+	    if(toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0)
+	      return this;
+	    
 	    actualTempNodes = layerScreenTemp.nodes;
 	    actualTempEdges = layerScreenTemp.edges;
 	    
