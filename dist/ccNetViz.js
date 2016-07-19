@@ -49,15 +49,17 @@
 	        __webpack_require__(1),
 	        __webpack_require__(3),
 	        __webpack_require__(2),
-	        __webpack_require__(11),
+	        __webpack_require__(13),
+	        __webpack_require__(14),
 	        __webpack_require__(15),
-	        __webpack_require__(13)
+	        __webpack_require__(11)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	//        ccNetVizMultiLevel,
 	        ccNetViz_layer,
 		ccNetViz_gl,
 		ccNetViz_color,
 	        ccNetViz_utils,
+		ccNetViz_textures,
 	        ccNetViz_interactivityBatch,
 		ccNetViz_spatialSearch
 	    ){
@@ -395,8 +397,9 @@
 	  this.resetView();
 	  this.resize();
 	  
-	  layerScreen = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-	  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
+	  var textures = new ccNetViz_textures(options.onLoad || this.draw);
+	  layerScreen = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+	  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 	};
 
 
@@ -417,15 +420,13 @@
 	        __webpack_require__(3),
 	        __webpack_require__(4), 
 	        __webpack_require__(6),
-	        __webpack_require__(10), 
-	        __webpack_require__(12),
-	        __webpack_require__(13)
+	        __webpack_require__(10),
+	        __webpack_require__(11)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	        ccNetViz_color,
 	        ccNetViz_gl,
 	        ccNetViz_primitive,
 	        ccNetViz_layout,
-	        ccNetViz_textures,
 	        ccNetViz_texts,
 	        ccNetViz_spatialSearch
 	    ){
@@ -437,7 +438,7 @@
 	 *  Author: David Tichy
 	 */
 
-	var layer = function(canvas, context, view, gl, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
+	var layer = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
 	    getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
 	    getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
 	    this.redraw = onRedraw || (() => {});
@@ -779,7 +780,6 @@
 	    this.edges = [];
 
 	    var extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
-	    var textures = new ccNetViz_textures(options.onLoad || this.redraw);
 	    var texts = new ccNetViz_texts(gl);
 	    var scene = this.scene = createScene.call(this);
 
@@ -1919,105 +1919,6 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(11), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
-
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
-	 */
-
-	var textures = function(onLoad) {
-	    var load = ccNetViz_utils.debounce(onLoad, 5);
-	    var textures = {};
-	    var pending = {};
-	    var n = 0;
-
-	    this.get = function(gl, img, action) {
-	        var p = pending[img];
-	        var t = textures[img];
-
-	        if (p) {
-	            p.push(action);
-	        }
-	        else if (t) {
-	            action && action();
-	        }
-	        else {
-	            p = pending[img] = [action];
-	            n++;
-	            textures[img] = t = ccNetViz_gl.createTexture(gl, img, () => {
-	                p.forEach(a => a && a());
-	                delete pending[img];
-	                --n || load();
-	            });
-	        }
-	        return t;
-	    }
-	}
-
-	module.exports = textures;
-
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
-
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
-	 */
-
-	var utils = function() {};
-
-	utils.debounce = function(func, wait, immediate) {
-	    var timeout, args, context, timestamp, result;
-
-	    var later = function() {
-	        var last = Date.now - timestamp;
-
-	        if (last < wait && last > 0) {
-	            timeout = setTimeout(later, wait - last);
-	        } else {
-	            timeout = null;
-	            if (!immediate) {
-	                result = func.apply(context, args);
-	                if (!timeout) context = args = null;
-	            }
-	        }
-	    };
-
-	    return function() {
-	        context = this;
-	        args = arguments;
-	        timestamp = Date.now;
-	        var callNow = immediate && !timeout;
-	        if (!timeout) timeout = setTimeout(later, wait);
-	        if (callNow) {
-	            result = func.apply(context, args);
-	            context = args = null;
-	        }
-
-	        return result;
-	    };
-	};
-
-	module.exports = utils;
-
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
 
 	/**
@@ -2098,10 +1999,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2502,7 +2403,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 14 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -3122,6 +3023,105 @@
 	else window.rbush = rbush;
 
 	})();
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: David Tichy
+	 */
+
+	var utils = function() {};
+
+	utils.debounce = function(func, wait, immediate) {
+	    var timeout, args, context, timestamp, result;
+
+	    var later = function() {
+	        var last = Date.now - timestamp;
+
+	        if (last < wait && last > 0) {
+	            timeout = setTimeout(later, wait - last);
+	        } else {
+	            timeout = null;
+	            if (!immediate) {
+	                result = func.apply(context, args);
+	                if (!timeout) context = args = null;
+	            }
+	        }
+	    };
+
+	    return function() {
+	        context = this;
+	        args = arguments;
+	        timestamp = Date.now;
+	        var callNow = immediate && !timeout;
+	        if (!timeout) timeout = setTimeout(later, wait);
+	        if (callNow) {
+	            result = func.apply(context, args);
+	            context = args = null;
+	        }
+
+	        return result;
+	    };
+	};
+
+	module.exports = utils;
+
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(13), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: David Tichy
+	 */
+
+	var textures = function(onLoad) {
+	    var load = ccNetViz_utils.debounce(onLoad, 5);
+	    var textures = {};
+	    var pending = {};
+	    var n = 0;
+
+	    this.get = function(gl, img, action) {
+	        var p = pending[img];
+	        var t = textures[img];
+
+	        if (p) {
+	            p.push(action);
+	        }
+	        else if (t) {
+	            action && action();
+	        }
+	        else {
+	            p = pending[img] = [action];
+	            n++;
+	            textures[img] = t = ccNetViz_gl.createTexture(gl, img, () => {
+	                p.forEach(a => a && a());
+	                delete pending[img];
+	                --n || load();
+	            });
+	        }
+	        return t;
+	    }
+	}
+
+	module.exports = textures;
+
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
 /* 15 */
