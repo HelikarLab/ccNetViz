@@ -18,7 +18,7 @@
   <div id='searchReport' />
   <script>
     function init(){
-	$.ajax({url: 'data/graph-10-3.json', dataType: 'json'}).done(dataLoaded);
+	$.ajax({url: 'data/graph-1000-3.json', dataType: 'json'}).done(dataLoaded);
     }
 
     var el = document.getElementById('container');
@@ -94,12 +94,12 @@
 	return;
 	
       onMove(e);
-      graph.reflow();
+      graph.reflow();	//we make all dynamic changes static (performance optimalization)
       current_moving_node = undefined;
     }
 
-    el.addEventListener('mousemove', $.throttle(10, onMove));
-    el.addEventListener('mouseup', $.throttle(10, onUp));
+    el.addEventListener('mousemove', $.throttle(5, onMove));
+    el.addEventListener('mouseup', $.throttle(5, onUp));
     
     $(init);
     
