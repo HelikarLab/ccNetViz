@@ -188,7 +188,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
             }
 
             edgeTypes = [];
-            edgePoses = [];
+            edgePoses = new Uint32Array(edges.length);
             var dummysd  = {k:  '_',      kArrow: '_', d: []};
             var circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
             var linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
@@ -226,7 +226,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                         }
                     }
                     edgeTypes.push(t);
-                    edgePoses.push(t.d.length);
+                    edgePoses[i] = t.d.length;
                     target.push(e);
                 }
             } else {
@@ -242,7 +242,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                       lines.push(e);
                     }
                     edgeTypes.push(t);
-                    edgePoses.push(t.d.length);
+                    edgePoses[i] = t.d.length;
                 }
             }
         };
