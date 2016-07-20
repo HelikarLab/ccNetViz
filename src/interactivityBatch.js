@@ -29,15 +29,13 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       eDirs = {};
 
       nodes.forEach((n, i) => {
-//	n.uniqid = i;
-	nPos[n.uniqid] = i;
-	eDirs[n.uniqid] = {};
+        nPos[n.uniqid] = i;
+        eDirs[n.uniqid] = {};
       });
       
       edges.forEach((e, i) => {
-//	e.uniqid = i;
-	eDirs[e.source.uniqid][e.target.uniqid] = e;
-	ePos[e.uniqid] = i;
+        eDirs[e.source.uniqid][e.target.uniqid] = e;
+        ePos[e.uniqid] = i;
       });
       
       supStructsCreated = true;
@@ -56,7 +54,6 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
         //try to remove from temp graph
         
         for(var i = 0; i < actualTempNodes.length; i++){
-//          if(actualTempNodes[i].uniqid === n.uniqid){
           if(actualTempNodes[i] === n){
             actualTempNodes.splice(i,1);
             break;
@@ -83,7 +80,6 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
         //try to remove from temp graph
         
         for(var i = 0; i < actualTempEdges.length; i++){
-//          if(actualTempEdges[i].uniqid === e.uniqid){
           if(actualTempEdges[i] === e){
             actualTempEdges.splice(i,1);
             break;
@@ -140,8 +136,6 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
     if((eDirs[sid] || {})[tid]){
       //this edge was already added >> remove it
       doRemoveEdges([e]);
-//      this.removeEdge(e);
-//      return this;
     }
     if((eDirs[tid] || {})[sid]){
       //must remove line and add two curves
