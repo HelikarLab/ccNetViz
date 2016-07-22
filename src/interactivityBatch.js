@@ -11,6 +11,13 @@ define([
  */
 
 
+function pushUnique(arr, e){
+  if(arr.indexOf(e) >= 0)
+    return;
+  arr.push(e);
+}
+
+
 var uniqid = [];
 
 var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edges){
@@ -95,11 +102,14 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
   function doAddEdges(){
     toAddEdges.forEach((e) => {
       //already added in main graph
-      if(ePos[e.uniqid] !== undefined){
+//      var tid = e.target.uniqid;
+//      var sid = e.source.uniqid;
+      if(
+	ePos[e.uniqid] !== undefined
+      ){
 	doRemoveEdges([e]);
       }
-
-
+      
       if(e.uniqid !== undefined){
         console.error(e);
         console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
@@ -107,7 +117,9 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       }
       
       //add this node into temporary chart
-      actualTempEdges.push(e);
+      
+      //TODO: Not so efficient >> causes quadratic complexity of adding edges into temporary graph
+      pushUnique(actualTempEdges, e);
     });
   }
   
@@ -125,7 +137,9 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       }
       
       eDirs[n.uniqid] = {};
-      actualTempNodes.push(n);
+
+      //TODO: Not so efficient >> causes quadratic complexity of adding nodes into temporary graph
+      pushUnique(actualTempNodes, n);
     });
   }
 
@@ -137,12 +151,13 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       //this edge was already added >> remove it
       doRemoveEdges([e]);
     }
+    
     if((eDirs[tid] || {})[sid]){
       //must remove line and add two curves
       
       toRemoveEdges.push(eDirs[tid][sid]);
-      
       toAddEdges.push(eDirs[tid][sid]);
+
       toAddEdges.push(eDirs[sid][tid] = e);
       
       return this;

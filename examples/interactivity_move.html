@@ -97,7 +97,6 @@
       current_moving_node.x = lCoords.x;
       current_moving_node.y = lCoords.y;
       graph.updateNode(current_moving_node).updateEdges(current_moving_edges).applyChanges();
-//      graph.updateNode(current_moving_node).applyChanges();
     }
     
     function onUp(e){
@@ -112,8 +111,8 @@
       current_moving_edges = undefined;
     }
 
-    el.addEventListener('mousemove', $.throttle(5, onMove));
-    el.addEventListener('mouseup', $.throttle(5, onUp));
+    el.addEventListener('mousemove', $.throttle(20, onMove));
+    el.addEventListener('mouseup', $.throttle(20, onUp));
     
     $(init);
     
