@@ -160,9 +160,9 @@ var ccNetViz = function(canvas, options){
     return this;
   };
 
-  this.removeEdges = (nodes) => {
-    nodes.forEach((n) => {
-      this.removeNode(n);
+  this.removeEdges = (edges) => {
+    edges.forEach((e) => {
+      this.removeEdge(e);
     });
     return this;
   };
@@ -184,7 +184,7 @@ var ccNetViz = function(canvas, options){
 
   this.updateEdges = (edges) => {
     edges.forEach((e) => {
-      this.updateNode(e);
+      this.updateEdge(e);
     });
     
     return this;
@@ -203,7 +203,17 @@ var ccNetViz = function(canvas, options){
   };
 
   var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
-  
+/*  var getNodeSize = (c) => {
+      var result = getSize(c, getNodesCnt(), 0.4);
+      var s = c.style;
+      if (s) {
+	  result = s.maxSize ? Math.min(s.maxSize, result) : result;
+	  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+      }
+      return result;
+  };
+*/
+
   var offset = 0.5 * nodeStyle.maxSize;
 
   this.draw = () => {
@@ -221,9 +231,9 @@ var ccNetViz = function(canvas, options){
         context.height    = 0.5 * height;
         context.aspect2   = aspect * aspect;
         context.count     = getNodesCnt();
+        context.style     = nodeStyle;
 
         context.curveExc = getSize(context, getEdgesCnt(), 0.5);
-        context.style = nodeStyle;
         context.nodeSize = getNodeSize(context);
 
         gl.viewport(0, 0, width, height);
