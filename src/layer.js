@@ -290,7 +290,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
       scene.labels.updateEl(gl, n, i, labelsFiller);
       
       if(spatialSearch)
-        spatialSearch.update('nodes', i, n);
+        spatialSearch.update(context, view.size, 'nodes', i, n);
     };
     
     this.updateEdge = ((e, i) => {
@@ -303,7 +303,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
 	scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
       
       if(spatialSearch)
-        spatialSearch.update(t.k, pos, e);
+        spatialSearch.update(context, view.size, t.k, pos, e);
     });
     
     var removedNodes = 0;

@@ -167,232 +167,227 @@ function pDistance2(x, y, x1, y1, x2, y2) {
 var EPS = Number.EPSILON || 1e-14;
 
 
-var spatialIndex = function(c, nodes, lines, curves, circles, size, normalize) {
-    var i, j, d, rbushtree, context;
-    context = c;
-    var types = {};
+
+class Node{
+  constructor(n){
+    this.isNode = true;
+    this.e = n;
+  };
+  getBBox(){
+    return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
+  };
+  dist2(x,y, context){
+    return distance2(x,y,this.e.x,this.e.y);
+  };
+}
+
+class Line{
+  constructor(l){
+    this.isEdge = true;
+    this.e = l;
+  };
+  getBBox(){
+    var x1,x2,y1,y2;
+    x1 = this.e.source.x;
+    y1 = this.e.source.y;
+    x2 = this.e.target.x;
+    y2 = this.e.target.y; 
+    return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
+  };
+  dist2(x,y, context){
+    return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
+  };
+}
+
+class Circle{
+  constructor(c){
+    this.isEdge = true;
+    this.e = c;
+  };
+  getBezierPoints(context, screensize){
+    var x1,y1,s;
+    s = this.e.source;
+    x1 = s.x;
+    y1 = s.y;
+
+    var size = 2.5 * context.nodeSize * screensize;
+    var xsize = size / context.width / 2;
+    var ysize = size / context.height / 2;
+
+    var d = s.y < 0.5 ? 1 : -1;
     
-    class Node{
-      constructor(n){
-	this.isNode = true;
-	this.e = n;
-      };
-      getBBox(){
-	return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
-      };
-      dist2(x,y, context){
-	return distance2(x,y,this.e.x,this.e.y);
-      };
+    return [
+      x1,
+      y1,
+      x1 + xsize*1,
+      y1 + ysize*d,
+      x1,
+      y1 + ysize*1.25*d,
+      x1 - xsize*1,
+      y1 + ysize*d
+    ];
+  };
+  getBBox(context, size){
+    var v = this.getBezierPoints(context, size);
+    
+    return getBBFromPoints(v);
+  };
+  dist2(x,y,context,size){
+    var v = this.getBezierPoints(context,size);
+
+    //circle is just 2 bezier curves :)
+    var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+    var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
+
+    return Math.min(d1,d2);
+  };
+}
+
+class Curve{
+  constructor(c){
+    this.isEdge = true;
+    this.e = c;
+  };
+  getBezierPoints(context, size, normalize){
+    var x1,x2,y1,y2;
+    x1 = this.e.source.x;
+    y1 = this.e.source.y;
+    x2 = this.e.target.x;
+    y2 = this.e.target.y; 
+    
+    var d = normalize(this.e.source, this.e.target);
+    
+    var n2 = d.y;
+    var n3 = context.aspect2*-d.x;
+
+    var x = context.width * n2;
+    var y = context.height* n3;
+    var l = Math.sqrt(x*x+y*y)*2;
+
+    n2 *= context.curveExc*size/l;
+    n3 *= context.curveExc*size/l;
+
+    var ret = [
+      x1,
+      y1,
+      (x1+x2)/2 + n2,
+      (y1+y2)/2 + n3,
+      x2,
+      y2
+    ];
+    return ret;
+  };
+  getBBox(context, size, normalize){
+    var v = this.getBezierPoints(context, size, normalize);
+    return getBBFromPoints(v);
+  };
+  dist2(x,y, context, size, normalize){
+    var v = this.getBezierPoints(context, size, normalize);
+    return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
+  };
+}
+
+
+function sortByDistances(e1, e2){
+  return e1.dist2 - e2.dist2;
+}
+
+
+class spatialIndex{
+  constructor(c, nodes, lines, curves, circles, size, normalize){
+    this.normalize = normalize;
+    
+    //tree initialization
+    this.rbushtree = rbush();
+
+    this.types = {nodes: [], lines: [], circles: [], curves: []};
+
+    var i,j;
+    var d = [];
+    
+    d.length = nodes.length;
+    for(i = 0;i < nodes.length; i++){
+      var e = new Node(nodes[i]);
+      d[i] = e.getBBox(c, size);
+      this.types.nodes.push(e);
+      d[i].push(e);
+    }
+
+    d.length += lines.length;
+    for(j = 0;j < lines.length;i++, j++){
+      var e = new Line(lines[j]);
+      d[i] = e.getBBox(c, size);
+      this.types.lines.push(e);
+      d[i].push(e);
+    }
+
+    d.length += circles.length;
+    for(j = 0;j < circles.length;i++, j++){
+      var e = new Circle(circles[j]);
+      d[i] = e.getBBox(c, size);
+      this.types.circles.push(e);
+      d[i].push(e);
     }
     
-    class Line{
-      constructor(l){
-	this.isEdge = true;
-	this.e = l;
-      };
-      getBBox(){
-	var x1,x2,y1,y2;
-	x1 = this.e.source.x;
-	y1 = this.e.source.y;
-	x2 = this.e.target.x;
-	y2 = this.e.target.y; 
-	return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
-      };
-      dist2(x,y, context){
-	return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
-      };
+    d.length += curves.length;
+    for(j = 0;j < curves.length;i++, j++){
+      var e = new Curve(curves[j]);
+      d[i] = e.getBBox(c, size, normalize);
+      this.types.curves.push(e);
+      d[i].push(e);
     }
+
+    this.rbushtree.load(d);
     
-    class Circle{
-      constructor(c){
-	this.isEdge = true;
-	this.e = c;
-      };
-      getBezierPoints(context, screensize){
-	var x1,y1,s;
-	s = this.e.source;
-	x1 = s.x;
-	y1 = s.y;
+  }
+  find(context, x,y, radius, size, nodes, edges){
+    var ret = {};
+    if(edges)
+      ret.edges = [];
+    if(nodes)
+      ret.nodes = [];
 
-	var size = 2.5 * context.nodeSize * screensize;
-	var xsize = size / context.width / 2;
-	var ysize = size / context.height / 2;
+    var xradius = radius;
+    var yradius = radius;
 
-	var d = s.y < 0.5 ? 1 : -1;
-	
-	return [
-	  x1,
-	  y1,
-	  x1 + xsize*1,
-	  y1 + ysize*d,
-	  x1,
-	  y1 + ysize*1.25*d,
-	  x1 - xsize*1,
-	  y1 + ysize*d
-	];
-      };
-      getBBox(context, size){
-	var v = this.getBezierPoints(context, size);
-	
-	return getBBFromPoints(v);
-      };
-      dist2(x,y,context,size){
-	var v = this.getBezierPoints(context,size);
+    var radius2 = radius*radius;
 
-	//circle is just 2 bezier curves :)
-	var d1 = distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-	var d2 = distance2ToBezier(x,y,v[2],v[3],v[4],v[5],v[6],v[7]);
+    var data = this.rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
 
-	return Math.min(d1,d2);
-      };
-    }
-    
-    class Curve{
-      constructor(c){
-	this.isEdge = true;
-	this.e = c;
-      };
-      getBezierPoints(context, size){
-	var x1,x2,y1,y2;
-	x1 = this.e.source.x;
-	y1 = this.e.source.y;
-	x2 = this.e.target.x;
-	y2 = this.e.target.y; 
-	
-	var d = normalize(this.e.source, this.e.target);
-	
-	var n2 = d.y;
-	var n3 = context.aspect2*-d.x;
+    for(var i = 0; i < data.length; i++){
+      var e = data[i][4];
+      var dist2 = e.dist2(x,y, context, size, this.normalize);
+      if(dist2 > radius2)
+	continue;
 
-	var x = context.width * n2;
-	var y = context.height* n3;
-	var l = Math.sqrt(x*x+y*y)*2;
-
-	n2 *= context.curveExc*size/l;
-	n3 *= context.curveExc*size/l;
-
-	var ret = [
-	  x1,
-	  y1,
-	  (x1+x2)/2 + n2,
-	  (y1+y2)/2 + n3,
-	  x2,
-	  y2
-	];
-	return ret;
-      };
-      getBBox(context, size){
-	var v = this.getBezierPoints(context, size);
-	return getBBFromPoints(v);
-      };
-      dist2(x,y, context, size){
-	var v = this.getBezierPoints(context, size);
-	return distance2ToBezier(x,y,v[0],v[1],v[2],v[3],v[4],v[5]);
-      };
+      if(e.isNode && nodes){
+	ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+      }
+      if(e.isEdge && edges){
+	ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+      }
     }
 
-    function initTree(size){
-      rbushtree = rbush();
-
-      types = {nodes: [], lines: [], circles: [], curves: []};
-
-      d = [];
-      d.length = nodes.length;
-      for(i = 0;i < nodes.length; i++){
-        var e = new Node(nodes[i]);
-        d[i] = e.getBBox(context, size);
-        types.nodes.push(e);
-        d[i].push(e);
-      }
-
-      d.length += lines.length;
-      for(j = 0;j < lines.length;i++, j++){
-        var e = new Line(lines[j]);
-        d[i] = e.getBBox(context, size);
-        types.lines.push(e);
-        d[i].push(e);
-      }
-
-      d.length += circles.length;
-      for(j = 0;j < circles.length;i++, j++){
-        var e = new Circle(circles[j]);
-        d[i] = e.getBBox(context, size);
-        types.circles.push(e);
-        d[i].push(e);
-      }
-      
-      d.length += curves.length;
-      for(j = 0;j < curves.length;i++, j++){
-        var e = new Curve(curves[j]);
-        d[i] = e.getBBox(context, size);
-        types.curves.push(e);
-        d[i].push(e);
-      }
-
-
-      rbushtree.load(d);
+    if(ret.nodes){
+      ret.nodes.sort(sortByDistances);
+    }
+    if(ret.edges){
+      ret.edges.sort(sortByDistances);
     }
 
+    return ret;
+  }
+  update(context, size, t, i, v){
     var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
-    this.update = (t, i, v) => {
-      rbushtree.remove(types[t][i]);
+    this.rbushtree.remove(this.types[t][i]);
 
-      var e = new tConst[t](v);
-      var arr = e.getBBox(context, size);
-      arr.push(e);
+    var e = new tConst[t](v);
+    var arr = e.getBBox(context, size, this.normalize);
+    arr.push(e);
 
-      rbushtree.insert(types[t][i] = arr);
-    };
-
-
-    function sortByDistances(e1, e2){
-      return e1.dist2 - e2.dist2;
-    }
-
-    this.setContext = (c) => {
-      context = c;
-    };
-
-    this.find = (context, x,y, radius, size, nodes, edges) => {
-      var ret = {};
-      if(edges)
-        ret.edges = [];
-      if(nodes)
-        ret.nodes = [];
-
-      var xradius = radius;
-      var yradius = radius;
-
-      var radius2 = radius*radius;
-
-      var data = rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
-
-      for(var i = 0; i < data.length; i++){
-        var e = data[i][4];
-        var dist2 = e.dist2(x,y, context, size);
-        if(dist2 > radius2)
-          continue;
-
-        if(e.isNode && nodes){
-          ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-        }
-        if(e.isEdge && edges){
-          ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
-        }
-      }
-
-      if(ret.nodes){
-        ret.nodes.sort(sortByDistances);
-      }
-      if(ret.edges){
-        ret.edges.sort(sortByDistances);
-      }
-
-      return ret;
-    }
-
-    initTree(size);
-};
+    this.rbushtree.insert(this.types[t][i] = arr);
+  }
+}
 
 module.exports = spatialIndex;
 
