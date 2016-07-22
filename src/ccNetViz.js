@@ -30,6 +30,30 @@ define([
 var lastUniqId = 0;
 
 
+function mergeArrays(a, b, cmp){
+  var r = [];
+  r.length = a.length + b.length;
+
+  var i = 0,j=0,k=0;
+  
+  while (i < a.length && j < b.length)
+  {
+    if (cmp(a[i],b[j]) < 0)       
+      r[k++] = a[i++];
+    else        
+      r[k++] = b[j++];               
+  }
+
+  while (i < a.length)
+    r[k++] = a[i++];
+
+
+  while (j < b.length)
+    r[k++] = b[j++];
+  
+  return r;
+}
+
 var ccNetViz = function(canvas, options){
 
   var backgroundStyle = options.styles.background = options.styles.background || {};
@@ -262,30 +286,6 @@ var ccNetViz = function(canvas, options){
   }
   
   this.find = function(){
-    function mergeArrays(a, b, cmp){
-      var r = [];
-      r.length = a.length + b.length;
-
-      var i = 0,j=0,k=0;
-      
-      while (i < a.length && j < b.length)
-      {
-        if (cmp(a[i],b[j]) < 0)       
-          r[k++] = a[i++];
-        else        
-          r[k++] = b[j++];               
-      }
-
-      while (i < a.length)
-        r[k++] = a[i++];
-
-
-      while (j < b.length)
-        r[k++] = b[j++];
-      
-      return r;
-    }
-
     var f1 = layerScreen.find.apply(layerScreen, arguments);
     var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
 
