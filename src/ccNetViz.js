@@ -1,6 +1,7 @@
 define([
 //        './ccNetVizMultiLevel',
         './layer',
+        './layout/layout',
         './gl',
         './color',
         './utils',
@@ -11,6 +12,7 @@ define([
     function(
 //        ccNetVizMultiLevel,
         ccNetViz_layer,
+	ccNetViz_layout,
 	ccNetViz_gl,
 	ccNetViz_color,
         ccNetViz_utils,
@@ -124,8 +126,7 @@ var ccNetViz = function(canvas, options){
   
   
     
-  var nodes;
-  var edges;
+  var nodes, nodes;
 
   var batch = undefined;
   function getBatch(){
@@ -227,16 +228,6 @@ var ccNetViz = function(canvas, options){
   };
 
   var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
-/*  var getNodeSize = (c) => {
-      var result = getSize(c, getNodesCnt(), 0.4);
-      var s = c.style;
-      if (s) {
-	  result = s.maxSize ? Math.min(s.maxSize, result) : result;
-	  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
-      }
-      return result;
-  };
-*/
 
   var offset = 0.5 * nodeStyle.maxSize;
 
@@ -299,8 +290,14 @@ var ccNetViz = function(canvas, options){
     return r;
   };
   
-  canvas.addEventListener("mousedown", onMouseDown.bind(this));
-  canvas.addEventListener("wheel", onWheel.bind(this));
+  var onDownThis, onWheelThis;
+  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
+  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
+  
+  this.remove = () => {
+    canvas.removeEventListener('mousedown', onDownThis);
+    canvas.removeEventListener('wheel', onWheelThis);
+  }
 
   function onMouseDown(e) {
       var width = canvas.width / view.size;
@@ -371,6 +368,7 @@ var ccNetViz = function(canvas, options){
 
 
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
+ccNetViz.layout = ccNetViz_layout;
 
 
 window.ccNetViz = module.exports = ccNetViz;
