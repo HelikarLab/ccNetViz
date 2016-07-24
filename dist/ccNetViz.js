@@ -47,6 +47,7 @@
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	//        './ccNetVizMultiLevel',
 	        __webpack_require__(1),
+	        __webpack_require__(6),
 	        __webpack_require__(3),
 	        __webpack_require__(2),
 	        __webpack_require__(13),
@@ -56,6 +57,7 @@
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	//        ccNetVizMultiLevel,
 	        ccNetViz_layer,
+		ccNetViz_layout,
 		ccNetViz_gl,
 		ccNetViz_color,
 	        ccNetViz_utils,
@@ -74,6 +76,30 @@
 
 	var lastUniqId = 0;
 
+
+	function mergeArrays(a, b, cmp){
+	  var r = [];
+	  r.length = a.length + b.length;
+
+	  var i = 0,j=0,k=0;
+	  
+	  while (i < a.length && j < b.length)
+	  {
+	    if (cmp(a[i],b[j]) < 0)       
+	      r[k++] = a[i++];
+	    else        
+	      r[k++] = b[j++];               
+	  }
+
+	  while (i < a.length)
+	    r[k++] = a[i++];
+
+
+	  while (j < b.length)
+	    r[k++] = b[j++];
+	  
+	  return r;
+	}
 
 	var ccNetViz = function(canvas, options){
 
@@ -307,30 +333,6 @@
 	  }
 	  
 	  this.find = function(){
-	    function mergeArrays(a, b, cmp){
-	      var r = [];
-	      r.length = a.length + b.length;
-
-	      var i = 0,j=0,k=0;
-	      
-	      while (i < a.length && j < b.length)
-	      {
-	        if (cmp(a[i],b[j]) < 0)       
-	          r[k++] = a[i++];
-	        else        
-	          r[k++] = b[j++];               
-	      }
-
-	      while (i < a.length)
-	        r[k++] = a[i++];
-
-
-	      while (j < b.length)
-	        r[k++] = b[j++];
-	      
-	      return r;
-	    }
-
 	    var f1 = layerScreen.find.apply(layerScreen, arguments);
 	    var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
 
@@ -416,6 +418,7 @@
 
 
 	ccNetViz.spatialSearch = ccNetViz_spatialSearch;
+	ccNetViz.layout = ccNetViz_layout;
 
 
 	window.ccNetViz = module.exports = ccNetViz;
