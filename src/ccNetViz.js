@@ -111,13 +111,20 @@ var ccNetViz = function(canvas, options){
       return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
   }
   
-  var layerScreen,layerScreenTemp,vizLayout,view,gl,drawFunc;
+  var layers = {};
+  var vizLayout,view,gl,drawFunc;
 
   var getNodesCnt = (() => {
-    return layerScreenTemp.cntShownNodes() + layerScreen.cntShownNodes();
+    var n = layers.main.cntShownNodes();
+    if(layers.temp)
+      n+=layers.temp.cntShownNodes();
+    return n;
   });
   var getEdgesCnt = (() => {
-    return layerScreenTemp.cntShownEdges() + layerScreen.cntShownEdges();
+    var e = layers.main.cntShownEdges();
+    if(layers.temp)
+      e+=layers.temp.cntShownEdges();
+    return e;
   });
 
   var self = this;
@@ -135,11 +142,17 @@ var ccNetViz = function(canvas, options){
   }
     
   var nodes, nodes;
+  
+  function insertTempLayer(){
+    if(layers.temp)
+      return;
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);      
+  }
 
   var batch = undefined;
   function getBatch(){
     if(!batch)
-      batch = new ccNetViz_interactivityBatch(layerScreen, layerScreenTemp, drawFunc, nodes, edges);
+      batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges);
     return batch;
   };
   
@@ -152,8 +165,9 @@ var ccNetViz = function(canvas, options){
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
     
-    layerScreenTemp.set([], [], layout);
-    layerScreen.set(nodes, edges, layout);
+    if(layers.temp)
+      layers.temp.set([], [], layout);
+    layers.main.set(nodes, edges, layout);
     
     //reset batch
     batch = undefined;
@@ -166,8 +180,13 @@ var ccNetViz = function(canvas, options){
     getBatch().applyChanges();
     
     //nodes and edges in dynamic chart are actual
-    var n = layerScreen.getVisibleNodes().concat(layerScreenTemp.getVisibleNodes());
-    var e = layerScreen.getVisibleEdges().concat(layerScreenTemp.getVisibleEdges());
+    var n = layers.main.getVisibleNodes();
+    if(layers.temp)
+      n+= layers.temp.getVisibleNodes();
+    
+    var e = layers.main.getVisibleEdges();
+    if(layers.temp)
+      e+= layers.temp.getVisibleEdges();
     
     this.set(n,e);
     this.draw();
@@ -281,9 +300,10 @@ var ccNetViz = function(canvas, options){
 
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    for(var i = 0; i < layerScreen.scene.elements.length; i++){
-      layerScreen.scene.elements[i].draw(context);
-      layerScreenTemp.scene.elements[i].draw(context);
+    for(var i = 0; i < layers.main.scene.elements.length; i++){
+      layers.main.scene.elements[i].draw(context);
+      if(layers.temp)
+	layers.temp.scene.elements[i].draw(context);
     }
   };
   drawFunc = this.draw.bind(this);
@@ -292,23 +312,29 @@ var ccNetViz = function(canvas, options){
     if(checkRemoved()) return;
 
     var x = conf.x;
+    var y = conf.y;
+    var dist = conf.radius;
 
     x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
     y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
-    return {x: x, y:y, radius: dist};
-    var y = conf.y;
-    var dist = conf.radius;
+
 
     var disth = dist / canvas.height;
     var distw = dist / canvas.width;
     dist = Math.max(disth, distw) * view.size;
+
+    return {x: x, y:y, radius: dist};
   }
   
   this.find = function(){
     if(checkRemoved()) return;
 
-    var f1 = layerScreen.find.apply(layerScreen, arguments);
-    var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
+    var f1 = layers.main.find.apply(layers.main, arguments);
+    
+    if(!layers.temp)
+      return f1;
+      
+    var f2 = layers.temp.find.apply(layers.temp, arguments);
 
     var r = {};
     for(var key in f1){
@@ -405,8 +431,8 @@ var ccNetViz = function(canvas, options){
   this.resize();
   
   var textures = new ccNetViz_textures(options.onLoad || this.draw);
-  layerScreen = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+//  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 };
 
 

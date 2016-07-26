@@ -20,7 +20,7 @@ function pushUnique(arr, e){
 
 var uniqid = [];
 
-var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edges){
+var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
     var toAddEdges = [];
     var toAddNodes = [];
     var toRemoveEdges = [];
@@ -56,7 +56,7 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       if(nPos[n.uniqid] !== undefined){
         //in the normal graph
         var pos = nPos[n.uniqid];
-        layerScreen.removeNodeAtPos(pos);
+        layers.main.removeNodeAtPos(pos);
       }else{
         //try to remove from temp graph
         
@@ -82,7 +82,7 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
       if(ePos[e.uniqid] !== undefined){
         //in the normal graph
         var pos = ePos[e.uniqid];
-        layerScreen.removeEdgeAtPos(pos);
+        layers.main.removeEdgeAtPos(pos);
       }else{
         //try to remove from temp graph
         
@@ -155,7 +155,8 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
     if((eDirs[tid] || {})[sid]){
       //must remove line and add two curves
       
-      toRemoveEdges.push(eDirs[tid][sid]);
+      doRemoveEdges([eDirs[tid][sid]]);
+//      toRemoveEdges.push(eDirs[tid][sid]);
       toAddEdges.push(eDirs[tid][sid]);
 
       toAddEdges.push(eDirs[sid][tid] = e);
@@ -188,8 +189,8 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
     if(toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0)
       return this;
     
-    actualTempNodes = layerScreenTemp.nodes;
-    actualTempEdges = layerScreenTemp.edges;
+    actualTempNodes = layers.temp ? layers.temp.nodes : [];
+    actualTempEdges = layers.temp ? layers.temp.edges : [];
     
     doRemoveEdges(toRemoveEdges);
     doRemoveNodes(toRemoveNodes);
@@ -201,8 +202,9 @@ var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edg
     toRemoveEdges = [];
     toRemoveNodes = [];
     
-    
-    layerScreenTemp.set(actualTempNodes, actualTempEdges);
+    insertTempLayer();
+    layers.temp.set(actualTempNodes, actualTempEdges);
+
     draw();
     
     return this;
