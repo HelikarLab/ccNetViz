@@ -61,6 +61,8 @@ var ccNetViz = function(canvas, options){
   var backgroundStyle = options.styles.background = options.styles.background || {};
   var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
   
+  var removed = false;
+  
   var nodeStyle = options.styles.node = options.styles.node || {};
   nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
   nodeStyle.maxSize = nodeStyle.maxSize || 16;
@@ -124,7 +126,13 @@ var ccNetViz = function(canvas, options){
     return false;
   }, 5);
   
-  
+  function checkRemoved(){
+    if(removed){
+      console.error("Cannot call any function on graph after remove()")
+      return true;
+    }
+    return false;
+  }
     
   var nodes, nodes;
 
@@ -136,6 +144,8 @@ var ccNetViz = function(canvas, options){
   };
   
   this.set = (n, e, layout) => {
+    if(checkRemoved()) return;
+    
     nodes = n;
     edges = e;
     
@@ -151,6 +161,8 @@ var ccNetViz = function(canvas, options){
   
   //make all dynamic changes static
   this.reflow = () => {
+    if(checkRemoved()) return;
+
     getBatch().applyChanges();
     
     //nodes and edges in dynamic chart are actual
@@ -161,15 +173,17 @@ var ccNetViz = function(canvas, options){
     this.draw();
   };
   
-  this.removeNode = (n) => { getBatch().removeNode(n); return this; };
-  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };
-  this.addEdge = (e) => { checkUniqId(e); getBatch().addEdge(e); return this;};
-  this.addNode = (n) => { checkUniqId(n); getBatch().addNode(n); return this;};
-  this.updateNode = (n) => { this.removeNode(n); this.addNode(n); return this; };
-  this.updateEdge = (e) => { this.removeEdge(e); this.addEdge(e); return this; };
-  this.applyChanges = () => { getBatch().applyChanges(); return this; };
+  this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
+  this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
+  this.addEdge = (e) => { if(checkRemoved()){return this;} checkUniqId(e); getBatch().addEdge(e); return this;};
+  this.addNode = (n) => { if(checkRemoved()){return this;} checkUniqId(n); getBatch().addNode(n); return this;};
+  this.updateNode = (n) => { if(checkRemoved()){return this;} this.removeNode(n); this.addNode(n); return this; };
+  this.updateEdge = (e) => { if(checkRemoved()){return this;} this.removeEdge(e); this.addEdge(e); return this; };
+  this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
 
   this.addEdges = (edges) => {
+    if(checkRemoved()) return this;
+    
     edges.forEach((e) => {
       this.addEdge(e);
     });
@@ -178,6 +192,8 @@ var ccNetViz = function(canvas, options){
   };
   
   this.addNodes = (nodes) => {
+    if(checkRemoved()) return this;
+
     nodes.forEach((n) => {
       this.addNode(n);
     });
@@ -186,6 +202,8 @@ var ccNetViz = function(canvas, options){
   };
 
   this.removeEdges = (edges) => {
+    if(checkRemoved()) return this;
+
     edges.forEach((e) => {
       this.removeEdge(e);
     });
@@ -193,6 +211,8 @@ var ccNetViz = function(canvas, options){
   };
   
   this.removeNodes = (nodes) => {
+    if(checkRemoved()) return this;
+
     nodes.forEach((n) => {
       this.removeNode(n);
     });
@@ -200,6 +220,8 @@ var ccNetViz = function(canvas, options){
   };
 
   this.updateNodes = (nodes) => {
+    if(checkRemoved()) return this;
+
     nodes.forEach((n) => {
       this.updateNode(n);
     });
@@ -208,6 +230,8 @@ var ccNetViz = function(canvas, options){
   };
 
   this.updateEdges = (edges) => {
+    if(checkRemoved()) return this;
+
     edges.forEach((e) => {
       this.updateEdge(e);
     });
@@ -218,13 +242,13 @@ var ccNetViz = function(canvas, options){
 
   
   var getSize = (c, n, sc) => {
-      var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
-      var s = c.style;
-      if (s) {
-	  result = s.maxSize ? Math.min(s.maxSize, result) : result;
-	  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
-      }
-      return result;
+    var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
+    var s = c.style;
+    if (s) {
+	result = s.maxSize ? Math.min(s.maxSize, result) : result;
+	result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+    }
+    return result;
   };
 
   var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
@@ -232,51 +256,57 @@ var ccNetViz = function(canvas, options){
   var offset = 0.5 * nodeStyle.maxSize;
 
   this.draw = () => {
-        var width = canvas.width;
-        var height = canvas.height;
-        var aspect = width / height;
-        var o = view.size === 1 ? offset : 0;
-        var ox = o / width;
-        var oy = o / height;
+    if(checkRemoved()) return;
 
-        context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
-        context.offsetX   = ox;
-        context.offsetY   = oy;
-        context.width     = 0.5 * width;
-        context.height    = 0.5 * height;
-        context.aspect2   = aspect * aspect;
-        context.count     = getNodesCnt();
-        context.style     = nodeStyle;
+    var width = canvas.width;
+    var height = canvas.height;
+    var aspect = width / height;
+    var o = view.size === 1 ? offset : 0;
+    var ox = o / width;
+    var oy = o / height;
 
-        context.curveExc = getSize(context, getEdgesCnt(), 0.5);
-        context.nodeSize = getNodeSize(context);
+    context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
+    context.offsetX   = ox;
+    context.offsetY   = oy;
+    context.width     = 0.5 * width;
+    context.height    = 0.5 * height;
+    context.aspect2   = aspect * aspect;
+    context.count     = getNodesCnt();
+    context.style     = nodeStyle;
 
-        gl.viewport(0, 0, width, height);
+    context.curveExc = getSize(context, getEdgesCnt(), 0.5);
+    context.nodeSize = getNodeSize(context);
 
-	gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.viewport(0, 0, width, height);
 
-	for(var i = 0; i < layerScreen.scene.elements.length; i++){
-	  layerScreen.scene.elements[i].draw(context);
-	  layerScreenTemp.scene.elements[i].draw(context);
-	}
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    for(var i = 0; i < layerScreen.scene.elements.length; i++){
+      layerScreen.scene.elements[i].draw(context);
+      layerScreenTemp.scene.elements[i].draw(context);
+    }
   };
   drawFunc = this.draw.bind(this);
   
   this.getLayerCoords = function(conf){
-      var x = conf.x;
-      var y = conf.y;
-      var dist = conf.radius;
+    if(checkRemoved()) return;
 
-      var disth = dist / canvas.height;
-      var distw = dist / canvas.width;
-      dist = Math.max(disth, distw) * view.size;
+    var x = conf.x;
 
-      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
-      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
-      return {x: x, y:y, radius: dist};
+    x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+    y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+    return {x: x, y:y, radius: dist};
+    var y = conf.y;
+    var dist = conf.radius;
+
+    var disth = dist / canvas.height;
+    var distw = dist / canvas.width;
+    dist = Math.max(disth, distw) * view.size;
   }
   
   this.find = function(){
+    if(checkRemoved()) return;
+
     var f1 = layerScreen.find.apply(layerScreen, arguments);
     var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
 
@@ -295,11 +325,15 @@ var ccNetViz = function(canvas, options){
   canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
   
   this.remove = () => {
+    if(checkRemoved()) return;
+
     gl.viewport(0, 0, context.width*2, context.height*2);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     canvas.removeEventListener('mousedown', onDownThis);
     canvas.removeEventListener('wheel', onWheelThis);
+    
+    removed = true;
   }
 
   function onMouseDown(e) {
@@ -337,18 +371,24 @@ var ccNetViz = function(canvas, options){
   }
 
   this.image = function() {
-      return canvas.toDataURL();
+    if(checkRemoved()) return;
+
+    return canvas.toDataURL();
   }
 
   
   this.resize = function() {
+    if(checkRemoved()) return;
+
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
   }
 
   this.resetView = function() {
-      view.size = 1;
-      view.x = view.y = 0;
+    if(checkRemoved()) return;
+
+    view.size = 1;
+    view.x = view.y = 0;
   }
 
   gl = getContext();
