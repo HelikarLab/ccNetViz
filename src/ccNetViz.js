@@ -182,11 +182,11 @@ var ccNetViz = function(canvas, options){
     //nodes and edges in dynamic chart are actual
     var n = layers.main.getVisibleNodes();
     if(layers.temp)
-      n+= layers.temp.getVisibleNodes();
+      n= n.concat(layers.temp.getVisibleNodes());
     
     var e = layers.main.getVisibleEdges();
     if(layers.temp)
-      e+= layers.temp.getVisibleEdges();
+      e = e.concat(layers.temp.getVisibleEdges());
     
     this.set(n,e);
     this.draw();
@@ -311,30 +311,47 @@ var ccNetViz = function(canvas, options){
   this.getLayerCoords = function(conf){
     if(checkRemoved()) return;
 
-    var x = conf.x;
-    var y = conf.y;
-    var dist = conf.radius;
+    var ret = {};       
 
-    x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
-    y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+    ['x','x1','x2'].forEach(function(k){
+      if(conf[k] !== undefined){
+	var x = conf[k];
+	x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+	ret[k] = x;
+      }
+    });
+    
+    
+    ['y','y1','y2'].forEach(function(k){
+      if(conf[k] !== undefined){
+	var y = conf[k];
+	y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+	ret[k] = y;
+      }
+    });
 
+    if(conf.radius !== undefined){
+      var dist = conf.radius;
 
-    var disth = dist / canvas.height;
-    var distw = dist / canvas.width;
-    dist = Math.max(disth, distw) * view.size;
+      var disth = dist / canvas.height;
+      var distw = dist / canvas.width;
+      dist = Math.max(disth, distw) * view.size;
+      
+      ret.radius = dist;
+    }
 
-    return {x: x, y:y, radius: dist};
+    return ret;
   }
   
-  this.find = function(){
+  var findMerge = function(funcname, args){
     if(checkRemoved()) return;
 
-    var f1 = layers.main.find.apply(layers.main, arguments);
+    var f1 = layers.main[funcname].apply(layers.main, args);
     
     if(!layers.temp)
       return f1;
       
-    var f2 = layers.temp.find.apply(layers.temp, arguments);
+    var f2 = layers.temp[funcname].apply(layers.temp, args);
 
     var r = {};
     for(var key in f1){
@@ -345,6 +362,10 @@ var ccNetViz = function(canvas, options){
 
     return r;
   };
+  
+  this.find = function(){return findMerge('find', arguments); };
+  this.findArea = function(){return findMerge('findArea', arguments); };
+  
   
   var onDownThis, onWheelThis;
   canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));

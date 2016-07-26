@@ -117,8 +117,16 @@
       var y = e.clientY - bb.top;
       var radius = 5;
       
-      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
-      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
+      var x1 = x-radius;
+      var y1 = y-radius;
+      var x2 = x+radius;
+      var y2 = y+radius;
+      
+//      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+//      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
+
+      var lCoords = graph.getLayerCoords({x1:x1, y1:y1, x2:x2, y2:y2});
+      var result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
       
       var reportel = document.getElementById("searchReport");
       reportel.style.display = 'block';

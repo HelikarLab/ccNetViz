@@ -1,4 +1,4 @@
-define(['./rbush'], function(rbush){
+define(['./rbush', '../geomutils'], function(rbush, geomutils){
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -163,6 +163,42 @@ function pDistance2(x, y, x1, y1, x2, y2) {
   return distance2(x,y,xx,yy);
 }
 
+function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y)
+{
+    var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
+    var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
+
+    if( d == 0 )
+    {
+        return false;
+    }
+
+    var r = q / d;
+
+    q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
+    var s = q / d;
+
+    if( r < 0 || r > 1 || s < 0 || s > 1 )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+function pointInRect(px,py, x1, y1, x2, y2){
+  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS
+}
+
+function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
+{
+    return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) ||
+    lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
+    lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
+    lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y) ||
+    (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) && pointInRect(p2x, p2y, r1x, r1y, r2x, r2y));
+}
+
     
 var EPS = Number.EPSILON || 1e-14;
 
@@ -176,6 +212,9 @@ class Node{
   getBBox(){
     return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
   };
+  intersectsRect(x1,x2,y1,y2){
+    return pointInRect(this.e.x, this.e.y, x1,x2,y1,y2);
+  };
   dist2(x,y, context){
     return distance2(x,y,this.e.x,this.e.y);
   };
@@ -187,15 +226,22 @@ class Line{
     this.e = l;
   };
   getBBox(){
-    var x1,x2,y1,y2;
-    x1 = this.e.source.x;
-    y1 = this.e.source.y;
-    x2 = this.e.target.x;
-    y2 = this.e.target.y; 
-    return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
+    var s = geomutils.edgeSource(this.e);
+    var t = geomutils.edgeTarget(this.e);
+    
+    return [Math.min(s.x,t.x), Math.min(s.x,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
+  };
+  intersectsRect(x1,x2,y1,y2){
+    var s = geomutils.edgeSource(this.e);
+    var t = geomutils.edgeTarget(this.e);
+
+    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1, x2, y1, y2);
   };
   dist2(x,y, context){
-    return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
+    var s = geomutils.edgeSource(this.e);
+    var t = geomutils.edgeTarget(this.e);
+
+    return pDistance2(x,y,s.x,s.y,t.x,t.y);
   };
 }
 
@@ -206,7 +252,7 @@ class Circle{
   };
   getBezierPoints(context, screensize){
     var x1,y1,s;
-    s = this.e.source;
+    s = geomutils.edgeSource(this.e);
     x1 = s.x;
     y1 = s.y;
 
@@ -232,6 +278,9 @@ class Circle{
     
     return getBBFromPoints(v);
   };
+  intersectsRect(x1,x2,y1,y2){
+    return true;
+  };
   dist2(x,y,context,size){
     var v = this.getBezierPoints(context,size);
 
@@ -250,12 +299,15 @@ class Curve{
   };
   getBezierPoints(context, size, normalize){
     var x1,x2,y1,y2;
-    x1 = this.e.source.x;
-    y1 = this.e.source.y;
-    x2 = this.e.target.x;
-    y2 = this.e.target.y; 
+    var s = geomutils.edgeSource(this.e);
+    var t = geomutils.edgeTarget(this.e);
+
+    x1 = s.x;
+    y1 = s.y;
+    x2 = t.x;
+    y2 = t.y; 
     
-    var d = normalize(this.e.source, this.e.target);
+    var d = normalize(s, t);
     
     var n2 = d.y;
     var n3 = context.aspect2*-d.x;
@@ -276,6 +328,9 @@ class Curve{
       y2
     ];
     return ret;
+  };
+  intersectsRect(x1,x2,y1,y2){
+    return true;
   };
   getBBox(context, size, normalize){
     var v = this.getBezierPoints(context, size, normalize);
@@ -339,6 +394,56 @@ class spatialIndex{
 
     this.rbushtree.load(d);
     
+  }
+  findArea(context,x1,y1,x2,y2,size,nodes,edges){
+    if(x1 > x2){
+      var p = x1;
+      x1 = x2;
+      x2 = p;
+    }
+    if(y1 > y2){
+      var p = y1;
+      y1 = y2;
+      y2 = p;
+    }
+
+    
+    var ret = {};
+    if(edges)
+      ret.edges = [];
+    if(nodes)
+      ret.nodes = [];
+
+    if(ret.nodes){
+      ret.nodes.sort(sortByDistances);
+    }
+    if(ret.edges){
+      ret.edges.sort(sortByDistances);
+    }
+    
+    var x = (x1+x2)/2;
+    var y = (y1+y2)/2;
+
+    var data = this.rbushtree.search([x1-EPS, y1-EPS, x2+EPS,  y2+EPS]);
+    
+    for(var i = 0; i < data.length; i++){
+      var e = data[i][4];
+
+      var dist2 = e.dist2(x,y, context, size, this.normalize);
+
+      if(!e.intersectsRect(x1,y1,x2,y2))
+	continue;
+      
+      if(e.isNode && nodes){
+	ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+      }
+      if(e.isEdge && edges){
+	ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+      }
+    }
+    
+    
+    return ret;    
   }
   find(context, x,y, radius, size, nodes, edges){
     var ret = {};

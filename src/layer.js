@@ -3,6 +3,7 @@ define([
         './gl',
         './primitive', 
         './layout/layout',
+	'./geomutils',
         './texts',
         './spatialSearch/spatialSearch'
     ], 
@@ -11,6 +12,7 @@ define([
         ccNetViz_gl,
         ccNetViz_primitive,
         ccNetViz_layout,
+        ccNetViz_geomutils,
         ccNetViz_texts,
         ccNetViz_spatialSearch
     ){
@@ -72,8 +74,8 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     var edgesFiller = {
       'lines': (style => ({
             set: (v, e, iV, iI) => {
-                var s = e.source;
-                var t = e.target;
+                var s = ccNetViz_geomutils.edgeSource(e);
+                var t = ccNetViz_geomutils.edgeTarget(e);
                 var dx = s.x-t.x;
                 var dy = s.y-t.y;
                 var d = normalize(s, t);
@@ -87,8 +89,8 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     numVertices: 3,
                     numIndices: 3,
                     set: (v, e, iV, iI) => {
-                        var s = e.source;
-                        var t = e.target;
+			var s = ccNetViz_geomutils.edgeSource(e);
+			var t = ccNetViz_geomutils.edgeTarget(e);
                         var dx = s.x-t.x;
                         var dy = s.y-t.y;
                         var d = normalize(s, t);
@@ -102,7 +104,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 })),
        'circles': (style => ({
                     set: (v, e, iV, iI) => {
-                        var s = e.source;
+                        var s = ccNetViz_geomutils.edgeSource(e);
                         var d = s.y < 0.5 ? 1 : -1;
 
                         var xdiff1 = 0;
@@ -124,8 +126,9 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     };
 
     var set = (v, e, iV, iI, dx, dy) => {
-        var tx = e.target.x;
-        var ty = e.target.y;
+	var t = ccNetViz_geomutils.edgeTarget(e);
+        var tx = t.x;
+        var ty = t.y;
         ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
         ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
         ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
@@ -137,14 +140,21 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     var arrowFiller = {
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
-                    var d = normalize(e.source, e.target);
+                    var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
                     set(v, e, iV, iI, d.x, d.y);
                 }})),
        curveArrows: (style => ({
-                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
+                        set: (v, e, iV, iI) => {
+			  var s = ccNetViz_geomutils.edgeSource(e);
+			  var t = ccNetViz_geomutils.edgeTarget(e);
+			  return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+			}
                     })),
        circleArrows: (style => ({
-                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
+                        set: (v, e, iV, iI) => {
+			  var t = ccNetViz_geomutils.edgeTarget(e);
+			  return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+			}
                     }))
     };
 
@@ -278,11 +288,14 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         }
     }
     
-    
     this.find = (x,y,dist,nodes,edges) => {
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
 
+    this.findArea = (x1,y1,x2,y2,nodes,edges) => {
+      return this.getCurrentSpatialSearch(context).findArea(context, x1,y1,x2,y2, view.size, nodes,edges);
+    }
+    
     this.updateNode = (n, i) => {
       this.nodes[i] = n;
 
