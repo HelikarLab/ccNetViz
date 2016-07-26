@@ -32,6 +32,8 @@
   <br />
   <input type='button' id='reflow' value='reflow'></button>
   <br />
+  <input type='button' id='remove' value='remove'></button>
+  <br />
   <div id='searchReport' />
   <script>
     var el;
@@ -100,6 +102,11 @@
 
     document.getElementById('reflow').addEventListener("click", function(){
       graph.reflow();
+      return false;
+    });
+
+    document.getElementById('remove').addEventListener("click", function(){
+      graph.remove();
       return false;
     });
     

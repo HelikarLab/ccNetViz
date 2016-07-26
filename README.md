@@ -146,6 +146,11 @@ Adjust graph for current canvas size.
 Reset zoom and panning.
 
 
+***remove()***
+
+Clear graph and remove internal events from DOM.
+
+
 ***nodes***
 
 Property to access nodes data of given graph. Use this just to read current values, for modification use "set" method instead.

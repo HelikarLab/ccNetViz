@@ -266,7 +266,7 @@ var ccNetViz = function(canvas, options){
       var x = conf.x;
       var y = conf.y;
       var dist = conf.radius;
-      
+
       var disth = dist / canvas.height;
       var distw = dist / canvas.width;
       dist = Math.max(disth, distw) * view.size;
@@ -295,6 +295,9 @@ var ccNetViz = function(canvas, options){
   canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
   
   this.remove = () => {
+    gl.viewport(0, 0, context.width*2, context.height*2);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     canvas.removeEventListener('mousedown', onDownThis);
     canvas.removeEventListener('wheel', onWheelThis);
   }
