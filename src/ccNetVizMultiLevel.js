@@ -1,8 +1,7 @@
 define([
-	'./layer',
+	'./ccNetViz',
     ], 
     function(
-	layer
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -14,15 +13,17 @@ define([
 
 
 var ccNetVizMultiLevel = function(canvas, options){
-  var vizScreen = new layer(canvas, options);
+  var vizScreen = new ccNetViz(canvas, options);
   var vizLayout;
 
   var history = [];
   var curlevel = {};
 
 
+  var onContextMenu, onClick;
+  
   //right click >> go back
-  canvas.addEventListener('contextmenu', function(e){
+  canvas.addEventListener('contextmenu', onContextMenu = function(e){
     if(history.length > 0){
 	var histel = history.pop();
 
@@ -36,14 +37,15 @@ var ccNetVizMultiLevel = function(canvas, options){
     e.preventDefault();
   });
 
-  canvas.addEventListener('click', function(e){
+  canvas.addEventListener('click', onClick = function(e){
     var bb = el.getBoundingClientRect();
 
     var x = e.clientX - bb.left;
     var y = e.clientY - bb.top;
     var radius = 5;
 
-    var result = vizScreen.find(x,y,radius,true,false);
+    var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+    var result = vizScreen.find(lCoords.x,lCoords.y,lCoords.radius,true,false);
     if(result.nodes.length > 0){
       var node = result.nodes[0].node;
 
@@ -70,15 +72,11 @@ var ccNetVizMultiLevel = function(canvas, options){
     }
   });
   
-  var exposeMethods = ['find', 'draw', 'resetView', 'resize'];
-  var self = this;
-  exposeMethods.forEach(function(method){
-    (function(method, self){
-      self[method] = function(){
-	return vizScreen[method].apply(vizScreen, arguments);
-      };
-    })(method, self);
-  });
+  this.remove = function(){
+    canvas.removeEventListener('contextmenu', onContextMenu);
+    canvas.removeEventListener('click', onClick);
+    vizScreen.remove();
+  };
 
 
   this.set = function(nodes, edges, layout){
@@ -90,6 +88,16 @@ var ccNetVizMultiLevel = function(canvas, options){
     vizLayout = layout;
     vizScreen.set.apply(vizScreen, arguments);
   }
+  
+  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'resize'];
+  var self = this;
+  exposeMethods.forEach(function(method){
+    (function(method, self){
+      self[method] = function(){
+	return vizScreen[method].apply(vizScreen, arguments);
+      };
+    })(method, self);
+  });
 };
 
 
