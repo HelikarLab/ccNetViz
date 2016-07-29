@@ -253,14 +253,14 @@ function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
     var diffy = r1y-r2y;
     
     var diff2xy = diffx*diffx + diffy*diffy;
-    var dist2 = distance2ToBezier(centerx, centery, a,b,c,d,e,f);
+    var dist2 = distance2ToBezier(centerx, centery, a,d,b,e,c,f);
     if(dist2*4 > diff2xy)
       return false;
     
-    return bezierIntersectsLine(a,b,c,d,e,f, r1y, r2x, r1y) ||
-	bezierIntersectsLine(a,b,c,d,e,f, r2x, r1y, r2x, r2y) ||
-	bezierIntersectsLine(a,b,c,d,e,f, r2x, r2y, r1x, r2y) ||
-	bezierIntersectsLine(a,b,c,d,e,f, r1x, r2y, r1x, r1y);
+    return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y) ||
+	bezierIntersectsLine(a,d,b,e,c,f, r2x, r1y, r2x, r2y) ||
+	bezierIntersectsLine(a,d,b,e,c,f, r2x, r2y, r1x, r2y) ||
+	bezierIntersectsLine(a,d,b,e,c,f, r1x, r2y, r1x, r1y);
 }
 
     
@@ -499,7 +499,7 @@ class spatialIndex{
 
       if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize))
 	continue;
-      
+
       if(e.isNode && nodes){
 	ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
       }
