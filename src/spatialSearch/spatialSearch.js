@@ -276,8 +276,8 @@ class Node{
   getBBox(){
     return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
   };
-  intersectsRect(x1,x2,y1,y2){
-    return pointInRect(this.e.x, this.e.y, x1,x2,y1,y2);
+  intersectsRect(x1,y1,x2,y2){
+    return pointInRect(this.e.x, this.e.y, x1,y1,x2,y2);
   };
   dist2(x,y, context){
     return distance2(x,y,this.e.x,this.e.y);
@@ -295,11 +295,11 @@ class Line{
     
     return [Math.min(s.x,t.x), Math.min(s.x,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
   };
-  intersectsRect(x1,x2,y1,y2){
+  intersectsRect(x1,y1,x2,y2){
     var s = geomutils.edgeSource(this.e);
     var t = geomutils.edgeTarget(this.e);
 
-    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1, x2, y1, y2);
+    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1,y1,x2,y2);
   };
   dist2(x,y, context){
     var s = geomutils.edgeSource(this.e);
@@ -342,9 +342,9 @@ class Circle{
     
     return getBBFromPoints(v);
   };
-  intersectsRect(x1,x2,y1,y2, context, size, normalize){
+  intersectsRect(x1,y1,x2,y2, context, size, normalize){
     var v = this.getBezierPoints(context,size);
-    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,x2,y1,y2) || bezierIntersectsRect(v[2],v[3],v[4],v[5],v[6],v[7],x1,x2,y1,y2);
+    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,y1,x2,y2) || bezierIntersectsRect(v[2],v[3],v[4],v[5],v[6],v[7],x1,y1,x2,y2);
   };
   dist2(x,y,context,size){
     var v = this.getBezierPoints(context,size);
@@ -394,9 +394,9 @@ class Curve{
     ];
     return ret;
   };
-  intersectsRect(x1,x2,y1,y2, context, size, normalize){
+  intersectsRect(x1,y1,x2,y2, context, size, normalize){
     var v = this.getBezierPoints(context, size, normalize);
-    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,x2,y1,y2);
+    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,y1,x2,y2);
   };
   getBBox(context, size, normalize){
     var v = this.getBezierPoints(context, size, normalize);
