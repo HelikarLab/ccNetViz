@@ -72,6 +72,8 @@ var ccNetVizMultiLevel = function(canvas, options){
     }
   });
   
+  ////TODO: Add interactivity functios into this class
+  
   this.remove = function(){
     canvas.removeEventListener('contextmenu', onContextMenu);
     canvas.removeEventListener('click', onClick);
