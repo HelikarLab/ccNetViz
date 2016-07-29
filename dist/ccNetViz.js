@@ -45,15 +45,128 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+		__webpack_require__(1),
+	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
+	    ){
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Aleš Saska
+	 */
+
+
+	var ccNetVizMultiLevel = function(canvas, options){
+	  var vizScreen = new ccNetViz(canvas, options);
+	  var vizLayout;
+
+	  var history = [];
+	  var curlevel = {};
+
+
+	  var onContextMenu, onClick;
+	  
+	  //right click >> go back
+	  canvas.addEventListener('contextmenu', onContextMenu = function(e){
+	    if(history.length > 0){
+		var histel = history.pop();
+
+		//currently shown level
+		curlevel = histel;
+
+		vizScreen.set(curlevel.nodes, curlevel.edges);
+		vizScreen.draw();
+	    }
+
+	    e.preventDefault();
+	  });
+
+	  canvas.addEventListener('click', onClick = function(e){
+	    var bb = el.getBoundingClientRect();
+
+	    var x = e.clientX - bb.left;
+	    var y = e.clientY - bb.top;
+	    var radius = 5;
+
+	    var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+	    var result = vizScreen.find(lCoords.x,lCoords.y,lCoords.radius,true,false);
+	    if(result.nodes.length > 0){
+	      var node = result.nodes[0].node;
+
+	      var layout = node.layout || vizLayout;
+	      if(node.__computedLayout){
+		//it is not nessesary to recompute layout if it was yet computed on this subgraph
+		layout = undefined;
+	      }else{
+		//we store that layout was once computed for this subgraph
+	        node.__computedLayout = true;
+	      }
+
+	      if(node.nodes && node.edges){
+		var insidenodes = node.nodes;
+		var insideedges = node.edges;
+
+		history.push(curlevel);
+
+		curlevel = {nodes: insidenodes, edges: insideedges};
+
+		vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+		vizScreen.draw();
+	      }
+	    }
+	  });
+	  
+	  ////TODO: Add interactivity functios into this class
+	  
+	  this.remove = function(){
+	    canvas.removeEventListener('contextmenu', onContextMenu);
+	    canvas.removeEventListener('click', onClick);
+	    vizScreen.remove();
+	  };
+
+
+	  this.set = function(nodes, edges, layout){
+	    toplevels = [];
+
+	    curlevel = {nodes: nodes, edges: edges};
+	    history = [];
+
+	    vizLayout = layout;
+	    vizScreen.set.apply(vizScreen, arguments);
+	  }
+	  
+	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'resize'];
+	  var self = this;
+	  exposeMethods.forEach(function(method){
+	    (function(method, self){
+	      self[method] = function(){
+		return vizScreen[method].apply(vizScreen, arguments);
+	      };
+	    })(method, self);
+	  });
+	};
+
+
+	window.ccNetVizMultiLevel = module.exports = ccNetVizMultiLevel;
+
+
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	//        './ccNetVizMultiLevel',
-	        __webpack_require__(1),
-	        __webpack_require__(6),
-	        __webpack_require__(3),
 	        __webpack_require__(2),
-	        __webpack_require__(13),
-	        __webpack_require__(14),
+	        __webpack_require__(7),
+	        __webpack_require__(4),
+	        __webpack_require__(3),
 	        __webpack_require__(15),
-	        __webpack_require__(11)
+	        __webpack_require__(16),
+	        __webpack_require__(17),
+	        __webpack_require__(13)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	//        ccNetVizMultiLevel,
 	        ccNetViz_layer,
@@ -106,6 +219,8 @@
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
 	  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
 	  
+	  var removed = false;
+	  
 	  var nodeStyle = options.styles.node = options.styles.node || {};
 	  nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
 	  nodeStyle.maxSize = nodeStyle.maxSize || 16;
@@ -154,13 +269,20 @@
 	      return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
 	  }
 	  
-	  var layerScreen,layerScreenTemp,vizLayout,view,gl,drawFunc;
+	  var layers = {};
+	  var vizLayout,view,gl,drawFunc;
 
 	  var getNodesCnt = (() => {
-	    return layerScreenTemp.cntShownNodes() + layerScreen.cntShownNodes();
+	    var n = layers.main.cntShownNodes();
+	    if(layers.temp)
+	      n+=layers.temp.cntShownNodes();
+	    return n;
 	  });
 	  var getEdgesCnt = (() => {
-	    return layerScreenTemp.cntShownEdges() + layerScreen.cntShownEdges();
+	    var e = layers.main.cntShownEdges();
+	    if(layers.temp)
+	      e+=layers.temp.cntShownEdges();
+	    return e;
 	  });
 
 	  var self = this;
@@ -169,27 +291,41 @@
 	    return false;
 	  }, 5);
 	  
-	  
+	  function checkRemoved(){
+	    if(removed){
+	      console.error("Cannot call any function on graph after remove()")
+	      return true;
+	    }
+	    return false;
+	  }
 	    
-	  var nodes;
-	  var edges;
+	  var nodes, nodes;
+	  
+	  function insertTempLayer(){
+	    if(layers.temp)
+	      return;
+	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);      
+	  }
 
 	  var batch = undefined;
 	  function getBatch(){
 	    if(!batch)
-	      batch = new ccNetViz_interactivityBatch(layerScreen, layerScreenTemp, drawFunc, nodes, edges);
+	      batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges);
 	    return batch;
 	  };
 	  
 	  this.set = (n, e, layout) => {
+	    if(checkRemoved()) return;
+	    
 	    nodes = n;
 	    edges = e;
 	    
 	    nodes.forEach(checkUniqId);
 	    edges.forEach(checkUniqId);
 	    
-	    layerScreenTemp.set([], [], layout);
-	    layerScreen.set(nodes, edges, layout);
+	    if(layers.temp)
+	      layers.temp.set([], [], layout);
+	    layers.main.set(nodes, edges, layout);
 	    
 	    //reset batch
 	    batch = undefined;
@@ -197,25 +333,34 @@
 	  
 	  //make all dynamic changes static
 	  this.reflow = () => {
+	    if(checkRemoved()) return;
+
 	    getBatch().applyChanges();
 	    
 	    //nodes and edges in dynamic chart are actual
-	    var n = layerScreen.getVisibleNodes().concat(layerScreenTemp.getVisibleNodes());
-	    var e = layerScreen.getVisibleEdges().concat(layerScreenTemp.getVisibleEdges());
+	    var n = layers.main.getVisibleNodes();
+	    if(layers.temp)
+	      n= n.concat(layers.temp.getVisibleNodes());
+	    
+	    var e = layers.main.getVisibleEdges();
+	    if(layers.temp)
+	      e = e.concat(layers.temp.getVisibleEdges());
 	    
 	    this.set(n,e);
 	    this.draw();
 	  };
 	  
-	  this.removeNode = (n) => { getBatch().removeNode(n); return this; };
-	  this.removeEdge = (e) => { getBatch().removeEdge(e); return this; };
-	  this.addEdge = (e) => { checkUniqId(e); getBatch().addEdge(e); return this;};
-	  this.addNode = (n) => { checkUniqId(n); getBatch().addNode(n); return this;};
-	  this.updateNode = (n) => { this.removeNode(n); this.addNode(n); return this; };
-	  this.updateEdge = (e) => { this.removeEdge(e); this.addEdge(e); return this; };
-	  this.applyChanges = () => { getBatch().applyChanges(); return this; };
+	  this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
+	  this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
+	  this.addEdge = (e) => { if(checkRemoved()){return this;} checkUniqId(e); getBatch().addEdge(e); return this;};
+	  this.addNode = (n) => { if(checkRemoved()){return this;} checkUniqId(n); getBatch().addNode(n); return this;};
+	  this.updateNode = (n) => { if(checkRemoved()){return this;} this.removeNode(n); this.addNode(n); return this; };
+	  this.updateEdge = (e) => { if(checkRemoved()){return this;} this.removeEdge(e); this.addEdge(e); return this; };
+	  this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
 
 	  this.addEdges = (edges) => {
+	    if(checkRemoved()) return this;
+	    
 	    edges.forEach((e) => {
 	      this.addEdge(e);
 	    });
@@ -224,6 +369,8 @@
 	  };
 	  
 	  this.addNodes = (nodes) => {
+	    if(checkRemoved()) return this;
+
 	    nodes.forEach((n) => {
 	      this.addNode(n);
 	    });
@@ -232,6 +379,8 @@
 	  };
 
 	  this.removeEdges = (edges) => {
+	    if(checkRemoved()) return this;
+
 	    edges.forEach((e) => {
 	      this.removeEdge(e);
 	    });
@@ -239,6 +388,8 @@
 	  };
 	  
 	  this.removeNodes = (nodes) => {
+	    if(checkRemoved()) return this;
+
 	    nodes.forEach((n) => {
 	      this.removeNode(n);
 	    });
@@ -246,6 +397,8 @@
 	  };
 
 	  this.updateNodes = (nodes) => {
+	    if(checkRemoved()) return this;
+
 	    nodes.forEach((n) => {
 	      this.updateNode(n);
 	    });
@@ -254,6 +407,8 @@
 	  };
 
 	  this.updateEdges = (edges) => {
+	    if(checkRemoved()) return this;
+
 	    edges.forEach((e) => {
 	      this.updateEdge(e);
 	    });
@@ -264,77 +419,100 @@
 
 	  
 	  var getSize = (c, n, sc) => {
-	      var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
-	      var s = c.style;
-	      if (s) {
-		  result = s.maxSize ? Math.min(s.maxSize, result) : result;
-		  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
-	      }
-	      return result;
+	    var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
+	    var s = c.style;
+	    if (s) {
+		result = s.maxSize ? Math.min(s.maxSize, result) : result;
+		result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+	    }
+	    return result;
 	  };
 
 	  var getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
-	/*  var getNodeSize = (c) => {
-	      var result = getSize(c, getNodesCnt(), 0.4);
-	      var s = c.style;
-	      if (s) {
-		  result = s.maxSize ? Math.min(s.maxSize, result) : result;
-		  result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
-	      }
-	      return result;
-	  };
-	*/
 
 	  var offset = 0.5 * nodeStyle.maxSize;
 
 	  this.draw = () => {
-	        var width = canvas.width;
-	        var height = canvas.height;
-	        var aspect = width / height;
-	        var o = view.size === 1 ? offset : 0;
-	        var ox = o / width;
-	        var oy = o / height;
+	    if(checkRemoved()) return;
 
-	        context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
-	        context.offsetX   = ox;
-	        context.offsetY   = oy;
-	        context.width     = 0.5 * width;
-	        context.height    = 0.5 * height;
-	        context.aspect2   = aspect * aspect;
-	        context.count     = getNodesCnt();
-	        context.style     = nodeStyle;
+	    var width = canvas.width;
+	    var height = canvas.height;
+	    var aspect = width / height;
+	    var o = view.size === 1 ? offset : 0;
+	    var ox = o / width;
+	    var oy = o / height;
 
-	        context.curveExc = getSize(context, getEdgesCnt(), 0.5);
-	        context.nodeSize = getNodeSize(context);
+	    context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
+	    context.offsetX   = ox;
+	    context.offsetY   = oy;
+	    context.width     = 0.5 * width;
+	    context.height    = 0.5 * height;
+	    context.aspect2   = aspect * aspect;
+	    context.count     = getNodesCnt();
 
-	        gl.viewport(0, 0, width, height);
+	    
+	    //bad hack because we use different size for curveExc and for nodeSize :(
+	    if(context.style) delete context.style;
+	    context.curveExc = getSize(context, getEdgesCnt(), 0.5);
+	    context.style     = nodeStyle;
+	    context.nodeSize = getNodeSize(context);
 
-		gl.clear(gl.COLOR_BUFFER_BIT);
+	    gl.viewport(0, 0, width, height);
 
-		for(var i = 0; i < layerScreen.scene.elements.length; i++){
-		  layerScreen.scene.elements[i].draw(context);
-		  layerScreenTemp.scene.elements[i].draw(context);
-		}
+	    gl.clear(gl.COLOR_BUFFER_BIT);
+
+	    for(var i = 0; i < layers.main.scene.elements.length; i++){
+	      layers.main.scene.elements[i].draw(context);
+	      if(layers.temp)
+		layers.temp.scene.elements[i].draw(context);
+	    }
 	  };
 	  drawFunc = this.draw.bind(this);
 	  
 	  this.getLayerCoords = function(conf){
-	      var x = conf.x;
-	      var y = conf.y;
+	    if(checkRemoved()) return;
+
+	    var ret = {};       
+
+	    ['x','x1','x2'].forEach(function(k){
+	      if(conf[k] !== undefined){
+		var x = conf[k];
+		x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+		ret[k] = x;
+	      }
+	    });
+	    
+	    
+	    ['y','y1','y2'].forEach(function(k){
+	      if(conf[k] !== undefined){
+		var y = conf[k];
+		y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+		ret[k] = y;
+	      }
+	    });
+
+	    if(conf.radius !== undefined){
 	      var dist = conf.radius;
-	      
+
 	      var disth = dist / canvas.height;
 	      var distw = dist / canvas.width;
 	      dist = Math.max(disth, distw) * view.size;
+	      
+	      ret.radius = dist;
+	    }
 
-	      x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
-	      y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
-	      return {x: x, y:y, radius: dist};
+	    return ret;
 	  }
 	  
-	  this.find = function(){
-	    var f1 = layerScreen.find.apply(layerScreen, arguments);
-	    var f2 = layerScreenTemp.find.apply(layerScreenTemp, arguments);
+	  var findMerge = function(funcname, args){
+	    if(checkRemoved()) return;
+
+	    var f1 = layers.main[funcname].apply(layers.main, args);
+	    
+	    if(!layers.temp)
+	      return f1;
+	      
+	    var f2 = layers.temp[funcname].apply(layers.temp, args);
 
 	    var r = {};
 	    for(var key in f1){
@@ -346,8 +524,25 @@
 	    return r;
 	  };
 	  
-	  canvas.addEventListener("mousedown", onMouseDown.bind(this));
-	  canvas.addEventListener("wheel", onWheel.bind(this));
+	  this.find = function(){return findMerge('find', arguments); };
+	  this.findArea = function(){return findMerge('findArea', arguments); };
+	  
+	  
+	  var onDownThis, onWheelThis;
+	  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
+	  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
+	  
+	  this.remove = () => {
+	    if(checkRemoved()) return;
+
+	    gl.viewport(0, 0, context.width*2, context.height*2);
+	    gl.clear(gl.COLOR_BUFFER_BIT);
+
+	    canvas.removeEventListener('mousedown', onDownThis);
+	    canvas.removeEventListener('wheel', onWheelThis);
+	    
+	    removed = true;
+	  }
 
 	  function onMouseDown(e) {
 	      var width = canvas.width / view.size;
@@ -384,18 +579,24 @@
 	  }
 
 	  this.image = function() {
-	      return canvas.toDataURL();
+	    if(checkRemoved()) return;
+
+	    return canvas.toDataURL();
 	  }
 
 	  
 	  this.resize = function() {
+	    if(checkRemoved()) return;
+
 	    canvas.width = canvas.offsetWidth;
 	    canvas.height = canvas.offsetHeight;
 	  }
 
 	  this.resetView = function() {
-	      view.size = 1;
-	      view.x = view.y = 0;
+	    if(checkRemoved()) return;
+
+	    view.size = 1;
+	    view.x = view.y = 0;
 	  }
 
 	  gl = getContext();
@@ -412,8 +613,8 @@
 	  this.resize();
 	  
 	  var textures = new ccNetViz_textures(options.onLoad || this.draw);
-	  layerScreen = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-	  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
+	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+	//  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 	};
 
 
@@ -427,21 +628,23 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-	        __webpack_require__(2),
 	        __webpack_require__(3),
-	        __webpack_require__(4), 
-	        __webpack_require__(6),
-	        __webpack_require__(10),
-	        __webpack_require__(11)
+	        __webpack_require__(4),
+	        __webpack_require__(5), 
+	        __webpack_require__(7),
+		__webpack_require__(11),
+	        __webpack_require__(12),
+	        __webpack_require__(13)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	        ccNetViz_color,
 	        ccNetViz_gl,
 	        ccNetViz_primitive,
 	        ccNetViz_layout,
+	        ccNetViz_geomutils,
 	        ccNetViz_texts,
 	        ccNetViz_spatialSearch
 	    ){
@@ -503,8 +706,8 @@
 	    var edgesFiller = {
 	      'lines': (style => ({
 	            set: (v, e, iV, iI) => {
-	                var s = e.source;
-	                var t = e.target;
+	                var s = ccNetViz_geomutils.edgeSource(e);
+	                var t = ccNetViz_geomutils.edgeTarget(e);
 	                var dx = s.x-t.x;
 	                var dy = s.y-t.y;
 	                var d = normalize(s, t);
@@ -518,8 +721,8 @@
 	                    numVertices: 3,
 	                    numIndices: 3,
 	                    set: (v, e, iV, iI) => {
-	                        var s = e.source;
-	                        var t = e.target;
+				var s = ccNetViz_geomutils.edgeSource(e);
+				var t = ccNetViz_geomutils.edgeTarget(e);
 	                        var dx = s.x-t.x;
 	                        var dy = s.y-t.y;
 	                        var d = normalize(s, t);
@@ -533,7 +736,7 @@
 	                })),
 	       'circles': (style => ({
 	                    set: (v, e, iV, iI) => {
-	                        var s = e.source;
+	                        var s = ccNetViz_geomutils.edgeSource(e);
 	                        var d = s.y < 0.5 ? 1 : -1;
 
 	                        var xdiff1 = 0;
@@ -555,8 +758,9 @@
 	    };
 
 	    var set = (v, e, iV, iI, dx, dy) => {
-	        var tx = e.target.x;
-	        var ty = e.target.y;
+		var t = ccNetViz_geomutils.edgeTarget(e);
+	        var tx = t.x;
+	        var ty = t.y;
 	        ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
 	        ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
 	        ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
@@ -568,14 +772,21 @@
 	    var arrowFiller = {
 	      lineArrows: (style => ({
 	                set: (v, e, iV, iI) => {
-	                    var d = normalize(e.source, e.target);
+	                    var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
 	                    set(v, e, iV, iI, d.x, d.y);
 	                }})),
 	       curveArrows: (style => ({
-	                        set: (v, e, iV, iI) => set(v, e, iV, iI, 0.5 * (e.target.x - e.source.x), 0.5 * (e.target.y - e.source.y))
+	                        set: (v, e, iV, iI) => {
+				  var s = ccNetViz_geomutils.edgeSource(e);
+				  var t = ccNetViz_geomutils.edgeTarget(e);
+				  return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+				}
 	                    })),
 	       circleArrows: (style => ({
-	                        set: (v, e, iV, iI) => set(v, e, iV, iI, e.target.x < 0.5 ? dx : -dx, e.target.y < 0.5 ? -dy : dy)
+	                        set: (v, e, iV, iI) => {
+				  var t = ccNetViz_geomutils.edgeTarget(e);
+				  return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+				}
 	                    }))
 	    };
 
@@ -709,11 +920,14 @@
 	        }
 	    }
 	    
-	    
 	    this.find = (x,y,dist,nodes,edges) => {
 	      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
 	    }
 
+	    this.findArea = (x1,y1,x2,y2,nodes,edges) => {
+	      return this.getCurrentSpatialSearch(context).findArea(context, x1,y1,x2,y2, view.size, nodes,edges);
+	    }
+	    
 	    this.updateNode = (n, i) => {
 	      this.nodes[i] = n;
 
@@ -1116,7 +1330,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1165,7 +1379,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1257,10 +1471,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(5), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(6), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_shader,ccNetViz_color){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1478,10 +1692,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1531,10 +1745,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(7), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(8), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = function(layoutForce, layoutRandom){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -1578,10 +1792,10 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_quadtree){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1755,7 +1969,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1907,7 +2121,7 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -1932,7 +2146,51 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 10 */
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: David Tichy
+	 */
+
+	var geomutils = function() {};
+
+	geomutils.edgeSource = function(e) {
+	  if(e.source.source){
+	    //source is edge
+	    var s = geomutils.edgeSource(e.source);
+	    var t = geomutils.edgeTarget(e.source);
+	    
+	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+	  }
+	  
+	  return e.source;
+	};
+
+	geomutils.edgeTarget = function(e) {
+	  if(e.target.source){
+	    //target is edge
+	    var s = geomutils.edgeSource(e.target);
+	    var t = geomutils.edgeTarget(e.target);
+	    
+	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+	  }
+
+	  return e.target;
+	};
+
+	module.exports = geomutils;
+
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -2015,10 +2273,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush, geomutils){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2183,6 +2441,106 @@
 	  return distance2(x,y,xx,yy);
 	}
 
+	function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y)
+	{
+	    var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
+	    var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
+
+	    if( d == 0 )
+	    {
+	        return false;
+	    }
+
+	    var r = q / d;
+
+	    q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
+	    var s = q / d;
+
+	    if( r < 0 || r > 1 || s < 0 || s > 1 )
+	    {
+	        return false;
+	    }
+
+	    return true;
+	}
+
+	function pointInRect(px,py, x1, y1, x2, y2){
+	  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS
+	}
+
+	function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
+	{
+	    if(pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y))
+	      return true;
+	    
+	    return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) ||
+		lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
+		lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
+		lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+	}
+
+	function eq(a,b){
+	  return a >= b-EPS && a <= b+eps;
+	}
+
+	//function bezierIntersectsLine(a,d,b,e,c,f, r1x, r1y, r2x, r2y){
+	function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
+	    //TODO:Add proper intersection between bezier curve and rectangle    
+	    
+	    return true;
+	  
+	/*    //solve ((d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t) = s + ((-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r))*(v - s)) for t
+	    if(eq(q,r)){
+	      
+	    }
+	  
+	    //q,s,r,v
+	    var d = (2*b-2*a)*(2*b-2*a) - 4*(a-2*b+c)*(a+q*u-q-r*u);
+	    var d2 = (-a+2b-c);
+	    
+	    var ts = [];
+	    if(d2 != 0){
+	      ts.push((-0.5*Math.sqrt(d)-a+b) / d2);
+	      ts.push((0.5*Math.sqrt(d)-a+b) / d2);
+	    }
+	    
+	    if(eq(a, 2*b-c) && b-c != 0){
+	      ts.push()
+	    }
+	    var t1 = (-0.5*Math.sqrt(d)-a+b) / (-a+2b-c);
+	    
+	    var ts = [];
+	  
+	    
+	    q != r
+	  
+	    var u = (-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r);
+	    
+	*/  
+	}
+
+	function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
+	{
+	    if(pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y))
+	      return true;
+	    
+	    var centerx = (r1x+r2x)/2;
+	    var centery = (r1y+r2y)/2;
+	    
+	    var diffx = r1x-r2x;
+	    var diffy = r1y-r2y;
+	    
+	    var diff2xy = diffx*diffx + diffy*diffy;
+	    var dist2 = distance2ToBezier(centerx, centery, a,b,c,d,e,f);
+	    if(dist2*4 > diff2xy)
+	      return false;
+	    
+	    return bezierIntersectsLine(a,b,c,d,e,f, r1y, r2x, r1y) ||
+		bezierIntersectsLine(a,b,c,d,e,f, r2x, r1y, r2x, r2y) ||
+		bezierIntersectsLine(a,b,c,d,e,f, r2x, r2y, r1x, r2y) ||
+		bezierIntersectsLine(a,b,c,d,e,f, r1x, r2y, r1x, r1y);
+	}
+
 	    
 	var EPS = Number.EPSILON || 1e-14;
 
@@ -2196,6 +2554,9 @@
 	  getBBox(){
 	    return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
 	  };
+	  intersectsRect(x1,y1,x2,y2){
+	    return pointInRect(this.e.x, this.e.y, x1,y1,x2,y2);
+	  };
 	  dist2(x,y, context){
 	    return distance2(x,y,this.e.x,this.e.y);
 	  };
@@ -2207,15 +2568,22 @@
 	    this.e = l;
 	  };
 	  getBBox(){
-	    var x1,x2,y1,y2;
-	    x1 = this.e.source.x;
-	    y1 = this.e.source.y;
-	    x2 = this.e.target.x;
-	    y2 = this.e.target.y; 
-	    return [Math.min(x1,x2), Math.min(y1,y2), Math.max(x1,x2), Math.max(y1,y2)];
+	    var s = geomutils.edgeSource(this.e);
+	    var t = geomutils.edgeTarget(this.e);
+	    
+	    return [Math.min(s.x,t.x), Math.min(s.x,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
+	  };
+	  intersectsRect(x1,y1,x2,y2){
+	    var s = geomutils.edgeSource(this.e);
+	    var t = geomutils.edgeTarget(this.e);
+
+	    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1,y1,x2,y2);
 	  };
 	  dist2(x,y, context){
-	    return pDistance2(x,y,this.e.source.x,this.e.source.y,this.e.target.x,this.e.target.y);
+	    var s = geomutils.edgeSource(this.e);
+	    var t = geomutils.edgeTarget(this.e);
+
+	    return pDistance2(x,y,s.x,s.y,t.x,t.y);
 	  };
 	}
 
@@ -2226,7 +2594,7 @@
 	  };
 	  getBezierPoints(context, screensize){
 	    var x1,y1,s;
-	    s = this.e.source;
+	    s = geomutils.edgeSource(this.e);
 	    x1 = s.x;
 	    y1 = s.y;
 
@@ -2252,6 +2620,10 @@
 	    
 	    return getBBFromPoints(v);
 	  };
+	  intersectsRect(x1,y1,x2,y2, context, size, normalize){
+	    var v = this.getBezierPoints(context,size);
+	    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,y1,x2,y2) || bezierIntersectsRect(v[2],v[3],v[4],v[5],v[6],v[7],x1,y1,x2,y2);
+	  };
 	  dist2(x,y,context,size){
 	    var v = this.getBezierPoints(context,size);
 
@@ -2270,12 +2642,15 @@
 	  };
 	  getBezierPoints(context, size, normalize){
 	    var x1,x2,y1,y2;
-	    x1 = this.e.source.x;
-	    y1 = this.e.source.y;
-	    x2 = this.e.target.x;
-	    y2 = this.e.target.y; 
+	    var s = geomutils.edgeSource(this.e);
+	    var t = geomutils.edgeTarget(this.e);
+
+	    x1 = s.x;
+	    y1 = s.y;
+	    x2 = t.x;
+	    y2 = t.y; 
 	    
-	    var d = normalize(this.e.source, this.e.target);
+	    var d = normalize(s, t);
 	    
 	    var n2 = d.y;
 	    var n3 = context.aspect2*-d.x;
@@ -2296,6 +2671,10 @@
 	      y2
 	    ];
 	    return ret;
+	  };
+	  intersectsRect(x1,y1,x2,y2, context, size, normalize){
+	    var v = this.getBezierPoints(context, size, normalize);
+	    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,y1,x2,y2);
 	  };
 	  getBBox(context, size, normalize){
 	    var v = this.getBezierPoints(context, size, normalize);
@@ -2360,6 +2739,56 @@
 	    this.rbushtree.load(d);
 	    
 	  }
+	  findArea(context,x1,y1,x2,y2,size,nodes,edges){
+	    if(x1 > x2){
+	      var p = x1;
+	      x1 = x2;
+	      x2 = p;
+	    }
+	    if(y1 > y2){
+	      var p = y1;
+	      y1 = y2;
+	      y2 = p;
+	    }
+
+	    
+	    var ret = {};
+	    if(edges)
+	      ret.edges = [];
+	    if(nodes)
+	      ret.nodes = [];
+
+	    if(ret.nodes){
+	      ret.nodes.sort(sortByDistances);
+	    }
+	    if(ret.edges){
+	      ret.edges.sort(sortByDistances);
+	    }
+	    
+	    var x = (x1+x2)/2;
+	    var y = (y1+y2)/2;
+
+	    var data = this.rbushtree.search([x1-EPS, y1-EPS, x2+EPS,  y2+EPS]);
+	    
+	    for(var i = 0; i < data.length; i++){
+	      var e = data[i][4];
+
+	      var dist2 = e.dist2(x,y, context, size, this.normalize);
+
+	      if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize))
+		continue;
+	      
+	      if(e.isNode && nodes){
+		ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	      }
+	      if(e.isEdge && edges){
+		ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	      }
+	    }
+	    
+	    
+	    return ret;    
+	  }
 	  find(context, x,y, radius, size, nodes, edges){
 	    var ret = {};
 	    if(edges)
@@ -2414,7 +2843,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -3036,7 +3465,7 @@
 	})();
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){
@@ -3088,10 +3517,10 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(13), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(15), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz_utils, ccNetViz_gl){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -3135,7 +3564,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -3159,7 +3588,7 @@
 
 	var uniqid = [];
 
-	var interactivityBatch = function(layerScreen, layerScreenTemp, draw, nodes, edges){
+	var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
 	    var toAddEdges = [];
 	    var toAddNodes = [];
 	    var toRemoveEdges = [];
@@ -3195,7 +3624,7 @@
 	      if(nPos[n.uniqid] !== undefined){
 	        //in the normal graph
 	        var pos = nPos[n.uniqid];
-	        layerScreen.removeNodeAtPos(pos);
+	        layers.main.removeNodeAtPos(pos);
 	      }else{
 	        //try to remove from temp graph
 	        
@@ -3221,7 +3650,7 @@
 	      if(ePos[e.uniqid] !== undefined){
 	        //in the normal graph
 	        var pos = ePos[e.uniqid];
-	        layerScreen.removeEdgeAtPos(pos);
+	        layers.main.removeEdgeAtPos(pos);
 	      }else{
 	        //try to remove from temp graph
 	        
@@ -3294,7 +3723,8 @@
 	    if((eDirs[tid] || {})[sid]){
 	      //must remove line and add two curves
 	      
-	      toRemoveEdges.push(eDirs[tid][sid]);
+	      doRemoveEdges([eDirs[tid][sid]]);
+	//      toRemoveEdges.push(eDirs[tid][sid]);
 	      toAddEdges.push(eDirs[tid][sid]);
 
 	      toAddEdges.push(eDirs[sid][tid] = e);
@@ -3327,8 +3757,8 @@
 	    if(toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0)
 	      return this;
 	    
-	    actualTempNodes = layerScreenTemp.nodes;
-	    actualTempEdges = layerScreenTemp.edges;
+	    actualTempNodes = layers.temp ? layers.temp.nodes : [];
+	    actualTempEdges = layers.temp ? layers.temp.edges : [];
 	    
 	    doRemoveEdges(toRemoveEdges);
 	    doRemoveNodes(toRemoveNodes);
@@ -3340,8 +3770,9 @@
 	    toRemoveEdges = [];
 	    toRemoveNodes = [];
 	    
-	    
-	    layerScreenTemp.set(actualTempNodes, actualTempEdges);
+	    insertTempLayer();
+	    layers.temp.set(actualTempNodes, actualTempEdges);
+
 	    draw();
 	    
 	    return this;
