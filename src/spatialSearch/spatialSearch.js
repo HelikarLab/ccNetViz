@@ -192,11 +192,75 @@ function pointInRect(px,py, x1, y1, x2, y2){
 
 function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
 {
+    if(pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y))
+      return true;
+    
     return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) ||
-    lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
-    lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
-    lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y) ||
-    (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) && pointInRect(p2x, p2y, r1x, r1y, r2x, r2y));
+	lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
+	lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
+	lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+}
+
+function eq(a,b){
+  return a >= b-EPS && a <= b+eps;
+}
+
+//function bezierIntersectsLine(a,d,b,e,c,f, r1x, r1y, r2x, r2y){
+function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
+    //TODO:Add proper intersection between bezier curve and rectangle    
+    
+    return true;
+  
+/*    //solve ((d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t) = s + ((-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r))*(v - s)) for t
+    if(eq(q,r)){
+      
+    }
+  
+    //q,s,r,v
+    var d = (2*b-2*a)*(2*b-2*a) - 4*(a-2*b+c)*(a+q*u-q-r*u);
+    var d2 = (-a+2b-c);
+    
+    var ts = [];
+    if(d2 != 0){
+      ts.push((-0.5*Math.sqrt(d)-a+b) / d2);
+      ts.push((0.5*Math.sqrt(d)-a+b) / d2);
+    }
+    
+    if(eq(a, 2*b-c) && b-c != 0){
+      ts.push()
+    }
+    var t1 = (-0.5*Math.sqrt(d)-a+b) / (-a+2b-c);
+    
+    var ts = [];
+  
+    
+    q != r
+  
+    var u = (-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r);
+    
+*/  
+}
+
+function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
+{
+    if(pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y))
+      return true;
+    
+    var centerx = (r1x+r2x)/2;
+    var centery = (r1y+r2y)/2;
+    
+    var diffx = r1x-r2x;
+    var diffy = r1y-r2y;
+    
+    var diff2xy = diffx*diffx + diffy*diffy;
+    var dist2 = distance2ToBezier(centerx, centery, a,b,c,d,e,f);
+    if(dist2*4 > diff2xy)
+      return false;
+    
+    return bezierIntersectsLine(a,b,c,d,e,f, r1y, r2x, r1y) ||
+	bezierIntersectsLine(a,b,c,d,e,f, r2x, r1y, r2x, r2y) ||
+	bezierIntersectsLine(a,b,c,d,e,f, r2x, r2y, r1x, r2y) ||
+	bezierIntersectsLine(a,b,c,d,e,f, r1x, r2y, r1x, r1y);
 }
 
     
@@ -278,8 +342,9 @@ class Circle{
     
     return getBBFromPoints(v);
   };
-  intersectsRect(x1,x2,y1,y2){
-    return true;
+  intersectsRect(x1,x2,y1,y2, context, size, normalize){
+    var v = this.getBezierPoints(context,size);
+    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,x2,y1,y2) || bezierIntersectsRect(v[2],v[3],v[4],v[5],v[6],v[7],x1,x2,y1,y2);
   };
   dist2(x,y,context,size){
     var v = this.getBezierPoints(context,size);
@@ -329,8 +394,9 @@ class Curve{
     ];
     return ret;
   };
-  intersectsRect(x1,x2,y1,y2){
-    return true;
+  intersectsRect(x1,x2,y1,y2, context, size, normalize){
+    var v = this.getBezierPoints(context, size, normalize);
+    return bezierIntersectsRect(v[0],v[1],v[2],v[3],v[4],v[5],x1,x2,y1,y2);
   };
   getBBox(context, size, normalize){
     var v = this.getBezierPoints(context, size, normalize);
@@ -431,7 +497,7 @@ class spatialIndex{
 
       var dist2 = e.dist2(x,y, context, size, this.normalize);
 
-      if(!e.intersectsRect(x1,y1,x2,y2))
+      if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize))
 	continue;
       
       if(e.isNode && nodes){
