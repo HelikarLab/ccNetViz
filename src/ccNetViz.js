@@ -1,5 +1,4 @@
 define([
-//        './ccNetVizMultiLevel',
         './layer',
         './layout/layout',
         './gl',
@@ -10,7 +9,6 @@ define([
         './spatialSearch/spatialSearch'
     ], 
     function(
-//        ccNetVizMultiLevel,
         ccNetViz_layer,
 	ccNetViz_layout,
 	ccNetViz_gl,
