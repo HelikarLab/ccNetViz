@@ -10,6 +10,11 @@ define(['./rbush', '../geomutils'], function(rbush, geomutils){
 
 
 
+var EPS = Number.EPSILON || 1e-14;
+
+
+
+
 //solving cube analyticaly for bezier curves
 function cuberoot(x) {
     var y = Math.pow(Math.abs(x), 1/3);
@@ -202,43 +207,77 @@ function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
 }
 
 function eq(a,b){
-  return a >= b-EPS && a <= b+eps;
+  return a >= b-EPS && a <= b+EPS;
+}
+
+function neq(a,b){
+  return !eq(a,b);
+}
+
+
+function checkBezierTkoef(a,d,b,e,c,f,t,q,s,r,v){
+  if(t < 0 || t > 1)
+    return false;
+  
+  if(neq(v-s,0)){
+    var x = (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t)/(v-s);
+    if(x < 0 || x > 1)
+      return false;
+  }
+  
+  return true;
 }
 
 //function bezierIntersectsLine(a,d,b,e,c,f, r1x, r1y, r2x, r2y){
 function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
     //TODO:Add proper intersection between bezier curve and rectangle    
-    
-    return true;
+
+    //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
   
-/*    //solve ((d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t) = s + ((-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r))*(v - s)) for t
-    if(eq(q,r)){
-      
+    var t;
+    
+    var tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
+    if(neq(tden, 0)){
+      if(neq(q-r, 0)){
+	var sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
+	var sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
+	if(sq >= 0){
+	  var t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
+	  
+	  t = (t1-0.5*Math.sqrt(sq))/tden;
+	  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+	    return true;
+	  
+	  t = (t1+0.5*Math.sqrt(sq))/tden;
+	  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+	    return true;
+	}
+      }
     }
-  
-    //q,s,r,v
-    var d = (2*b-2*a)*(2*b-2*a) - 4*(a-2*b+c)*(a+q*u-q-r*u);
-    var d2 = (-a+2b-c);
-    
-    var ts = [];
-    if(d2 != 0){
-      ts.push((-0.5*Math.sqrt(d)-a+b) / d2);
-      ts.push((0.5*Math.sqrt(d)-a+b) / d2);
+
+    var tden = -b*s+b*v+c*s-c*v+e*q-e*r-f*q+f*r;
+    if(eq(d, 2*e-f) && eq(a,2*b-c) && neq(tden, 0) && neq(q*s-q*v-r*s+r*v,0)){
+      t = -2*b*s+2*b*v+c*s-c*v+2*e*q-2*e*r-f*q+f*r-q*v+r*s;
+      t = t/(2*tden);
+      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+	return true;
     }
-    
-    if(eq(a, 2*b-c) && b-c != 0){
-      ts.push()
+
+    if(eq(s,v) && eq(d,2*e-f) && neq(e-f,0) && neq(q-r,0)){
+      t = (2*e-f-v)/(2*(e-f));
+      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+	return true;
     }
-    var t1 = (-0.5*Math.sqrt(d)-a+b) / (-a+2b-c);
-    
-    var ts = [];
-  
-    
-    q != r
-  
-    var u = (-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r);
-    
-*/  
+
+    var aeq = (2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r)/(s-v);
+    var val = b*d*s-b*d*v-2*b*e*s+2*b*e*v+b*f*s-b*f*v-c*d*s+c*d*v+2*c*e*s-2*c*e*v-c*f*s+c*f*v-d*e*q+d*e*r+d*f*q-d*f*r+2*e*e*q-2*e*e*r-3*e*f*q+3*e*f*r+f*f*q-f*f*r;
+    if(eq(a, aeq) && neq(val,0) && neq(q-r, 0)){
+      t = (2*b*s-2*b*v-c*s+c*v-2*e*q+2*e*r+f*q-f*r+q*v-r*s)/(2*(b*s-b*v-c*s+c*v-e*q+e*r+f*q-f*r));
+      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+	return true;
+    }
+
+    return false;
 }
 
 function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
@@ -252,19 +291,20 @@ function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
     var diffx = r1x-r2x;
     var diffy = r1y-r2y;
     
+    //performance optimalization based on distance
     var diff2xy = diffx*diffx + diffy*diffy;
     var dist2 = distance2ToBezier(centerx, centery, a,d,b,e,c,f);
     if(dist2*4 > diff2xy)
       return false;
+    if(dist2*4 <= Math.min(diffx*diffx, diffy*diffy))
+      return true;
     
-    return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y) ||
+    return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y, r1y) ||
 	bezierIntersectsLine(a,d,b,e,c,f, r2x, r1y, r2x, r2y) ||
 	bezierIntersectsLine(a,d,b,e,c,f, r2x, r2y, r1x, r2y) ||
 	bezierIntersectsLine(a,d,b,e,c,f, r1x, r2y, r1x, r1y);
 }
 
-    
-var EPS = Number.EPSILON || 1e-14;
 
 
 
