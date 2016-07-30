@@ -228,12 +228,11 @@ function checkBezierTkoef(a,d,b,e,c,f,t,q,s,r,v){
   return true;
 }
 
-//function bezierIntersectsLine(a,d,b,e,c,f, r1x, r1y, r2x, r2y){
 function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
     //TODO:Add proper intersection between bezier curve and rectangle    
 
     //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
-  
+
     var t;
     
     var tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
