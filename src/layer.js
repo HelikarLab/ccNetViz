@@ -21,7 +21,9 @@ define([
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Author: David Tichy
+ *  Authors: 
+ * 	David Tichy
+ * 	Aleš Saska - http://alessaska.cz/
  */
 
 var layer = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {

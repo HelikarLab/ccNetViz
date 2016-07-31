@@ -23,7 +23,7 @@ define([
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Author: Aleš Saska
+ *  Author: Aleš Saska - http://alessaska.cz/
  */
 
 

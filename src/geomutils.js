@@ -5,7 +5,7 @@ define(function(){
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Author: David Tichy
+ *  Author: Aleš Saska - http://alessaska.cz/
  */
 
 var geomutils = function() {};
