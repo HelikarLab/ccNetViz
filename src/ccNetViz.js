@@ -451,10 +451,9 @@ var ccNetViz = function(canvas, options){
 
   this.resetView();
   this.resize();
-  
+
   var textures = new ccNetViz_textures(options.onLoad || this.draw);
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-//  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 };
 
 
