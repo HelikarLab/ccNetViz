@@ -1,6 +1,8 @@
 define([
+    './geomutils'
     ], 
     function(
+      geomutils
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -41,7 +43,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
       });
       
       edges.forEach((e, i) => {
-        eDirs[e.source.uniqid][e.target.uniqid] = e;
+        eDirs[s.uniqid][t.uniqid] = e;
         ePos[e.uniqid] = i;
       });
       
@@ -76,8 +78,11 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
     edges.forEach((e) => {
       if(e.uniqid === undefined)
         return;
+      
+      var s = geomutils.edgeSource(e);
+      var t = geomutils.edgeTarget(e);
 
-      delete (eDirs[e.source.uniqid] || {})[e.target.uniqid];
+      delete (eDirs[s.uniqid] || {})[t.uniqid];
       
       if(ePos[e.uniqid] !== undefined){
         //in the normal graph
@@ -102,8 +107,6 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
   function doAddEdges(){
     toAddEdges.forEach((e) => {
       //already added in main graph
-//      var tid = e.target.uniqid;
-//      var sid = e.source.uniqid;
       if(
 	ePos[e.uniqid] !== undefined
       ){
@@ -144,8 +147,11 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
   }
 
   this.addEdge = (e) => {
-    var tid = e.target.uniqid;
-    var sid = e.source.uniqid;
+    var s = geomutils.edgeSource(e);
+    var t = geomutils.edgeTarget(e);
+    
+    var tid = t.uniqid;
+    var sid = s.uniqid;
     
     if((eDirs[sid] || {})[tid]){
       //this edge was already added >> remove it
@@ -156,7 +162,6 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
       //must remove line and add two curves
       
       doRemoveEdges([eDirs[tid][sid]]);
-//      toRemoveEdges.push(eDirs[tid][sid]);
       toAddEdges.push(eDirs[tid][sid]);
 
       toAddEdges.push(eDirs[sid][tid] = e);
