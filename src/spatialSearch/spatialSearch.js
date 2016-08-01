@@ -330,7 +330,7 @@ class Line{
     var s = geomutils.edgeSource(this.e);
     var t = geomutils.edgeTarget(this.e);
     
-    return [Math.min(s.x,t.x), Math.min(s.x,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
+    return [Math.min(s.x,t.x), Math.min(s.y,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
   };
   intersectsRect(x1,y1,x2,y2){
     var s = geomutils.edgeSource(this.e);
@@ -566,13 +566,13 @@ class spatialIndex{
       var e = data[i][4];
       var dist2 = e.dist2(x,y, context, size, this.normalize);
       if(dist2 > radius2)
-	continue;
+        continue;
 
       if(e.isNode && nodes){
-	ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
       }
       if(e.isEdge && edges){
-	ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
       }
     }
 

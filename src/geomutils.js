@@ -16,7 +16,7 @@ geomutils.edgeSource = function(e) {
     var s = geomutils.edgeSource(e.source);
     var t = geomutils.edgeTarget(e.source);
     
-    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index};
   }
   
   return e.source;
@@ -28,7 +28,7 @@ geomutils.edgeTarget = function(e) {
     var s = geomutils.edgeSource(e.target);
     var t = geomutils.edgeTarget(e.target);
     
-    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index};
   }
 
   return e.target;

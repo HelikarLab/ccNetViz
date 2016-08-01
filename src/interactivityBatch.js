@@ -19,9 +19,6 @@ function pushUnique(arr, e){
   arr.push(e);
 }
 
-
-var uniqid = [];
-
 var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
     var toAddEdges = [];
     var toAddNodes = [];
@@ -43,6 +40,9 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
       });
       
       edges.forEach((e, i) => {
+        var s = geomutils.edgeSource(e);
+        var t = geomutils.edgeTarget(e);
+
         eDirs[s.uniqid][t.uniqid] = e;
         ePos[e.uniqid] = i;
       });
@@ -161,8 +161,8 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
     if((eDirs[tid] || {})[sid]){
       //must remove line and add two curves
       
-      doRemoveEdges([eDirs[tid][sid]]);
       toAddEdges.push(eDirs[tid][sid]);
+      doRemoveEdges([eDirs[tid][sid]]);
 
       toAddEdges.push(eDirs[sid][tid] = e);
       
