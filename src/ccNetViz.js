@@ -459,6 +459,7 @@ var ccNetViz = function(canvas, options){
 };
 
 
+ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 
