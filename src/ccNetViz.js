@@ -23,7 +23,9 @@ define([
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Author: Aleš Saska - http://alessaska.cz/
+ *  Authors: 
+ * 	David Tichy
+ *  	Aleš Saska - http://alessaska.cz/
  */
 
 
