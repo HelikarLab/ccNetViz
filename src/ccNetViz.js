@@ -10,13 +10,13 @@ define([
     ], 
     function(
         ccNetViz_layer,
-	ccNetViz_layout,
-	ccNetViz_gl,
-	ccNetViz_color,
+        ccNetViz_layout,
+        ccNetViz_gl,
+        ccNetViz_color,
         ccNetViz_utils,
-	ccNetViz_textures,
+        ccNetViz_textures,
         ccNetViz_interactivityBatch,
-	ccNetViz_spatialSearch
+        ccNetViz_spatialSearch
     ){
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -264,8 +264,8 @@ var ccNetViz = function(canvas, options){
     var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
     var s = c.style;
     if (s) {
-	result = s.maxSize ? Math.min(s.maxSize, result) : result;
-	result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+      result = s.maxSize ? Math.min(s.maxSize, result) : result;
+      result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
     }
     return result;
   };
@@ -306,7 +306,7 @@ var ccNetViz = function(canvas, options){
     for(var i = 0; i < layers.main.scene.elements.length; i++){
       layers.main.scene.elements[i].draw(context);
       if(layers.temp)
-	layers.temp.scene.elements[i].draw(context);
+        layers.temp.scene.elements[i].draw(context);
     }
   };
   drawFunc = this.draw.bind(this);

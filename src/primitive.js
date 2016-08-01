@@ -8,8 +8,8 @@ define(['./shader', './color'], function(ccNetViz_shader,ccNetViz_color){
  *  Author: David Tichy
  */
 
-var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
-    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'));
+var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
+    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
     var buffers = [];
     var sections = [];   
     

@@ -128,9 +128,19 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     };
 
     var set = (v, e, iV, iI, dx, dy) => {
-	var t = ccNetViz_geomutils.edgeTarget(e);
+        var t = ccNetViz_geomutils.edgeTarget(e);
         var tx = t.x;
         var ty = t.y;
+
+        var offsetMul;
+        if(t.is_edge)	//if target is edge, disable node offset for arrow
+          offsetMul = 0;
+        else
+          offsetMul = 1;
+
+
+
+        ccNetViz_primitive.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
         ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
         ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
         ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
@@ -143,20 +153,21 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
                     var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
+                    var t = ccNetViz_geomutils.edgeTarget(e);
                     set(v, e, iV, iI, d.x, d.y);
                 }})),
        curveArrows: (style => ({
                         set: (v, e, iV, iI) => {
-			  var s = ccNetViz_geomutils.edgeSource(e);
-			  var t = ccNetViz_geomutils.edgeTarget(e);
-			  return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
-			}
+                          var s = ccNetViz_geomutils.edgeSource(e);
+                          var t = ccNetViz_geomutils.edgeTarget(e);			  
+                          return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+                        }
                     })),
        circleArrows: (style => ({
                         set: (v, e, iV, iI) => {
-			  var t = ccNetViz_geomutils.edgeTarget(e);
-			  return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
-			}
+                          var t = ccNetViz_geomutils.edgeTarget(e);
+                          return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+                        }
                     }))
     };
 
@@ -547,9 +558,12 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     }
 
     if (edgeStyle.arrow) {
+        var shaderparams = {attribute:{offsetMul:1}};
+
         var bind = c => {
             var size = getSize(c, getEdgesCnt(), 0.2);
             if (!size) return true;
+
             gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(c.shader.uniforms.size, size, c.style.aspect * size);
             c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, 0.5 * view.size * c.curveExc);
@@ -562,6 +576,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "attribute vec2 position;",
                 "attribute vec2 direction;",
                 "attribute vec2 textureCoord;",
+		"attribute float offsetMul;",		    
                 "uniform float offset;",
                 "uniform vec2 size;",
                 "uniform vec2 screen;",
@@ -572,10 +587,10 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "   vec2 u = direction / length(screen * direction);",
                 "   vec2 v = vec2(u.y, -aspect2 * u.x);",
                 "   v = v / length(screen * v);",
-                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u, 0, 0) + transform * vec4(position, 0, 1);",
+                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
                 "   tc = textureCoord;",
                 "}"
-            ], fsColorTexture, bind)
+            ], fsColorTexture, bind, shaderparams)
         );
 
         if (extensions.OES_standard_derivatives) {
@@ -583,6 +598,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "attribute vec2 position;",
                     "attribute vec2 direction;",
                     "attribute vec2 textureCoord;",
+                    "attribute float offsetMul;",		    
                     "uniform float offset;",
                     "uniform vec2 size;",
                     "uniform float exc;",
@@ -599,12 +615,13 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
-                ], fsColorTexture, bind)
+                ], fsColorTexture, bind, shaderparams)
             );
             scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
                     "attribute vec2 position;",
                     "attribute vec2 direction;",
                     "attribute vec2 textureCoord;",
+                    "attribute float offsetMul;",		    
                     "uniform float offset;",
                     "uniform vec2 size;",
                     "uniform vec2 screen;",
@@ -616,7 +633,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
-                ], fsColorTexture, bind)
+                ], fsColorTexture, bind, shaderparams)
             );
         }
     }

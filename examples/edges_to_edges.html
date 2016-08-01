@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz complex graphs example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+    }
+    
+    #body {
+      display: inline-block;
+    }
+    
+    #info {
+/*      float: right;*/
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Edges to edges example</h1>
+  <div id='body'>
+  <canvas id="container"></canvas>
+  </div>
+  <script>
+  
+  $(function(){
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      styles: {
+        node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } },
+        edgeHover: {
+          color: "rgb(0, 0, 255)"
+        },
+        nodeHover: {
+	  texture: "images/node.png", label: { hideSize: 16 }
+	}
+      }
+    });
+    var nodes = [
+      { label: "Hello" },
+      { label: "World" },
+      { label: "!" }
+    ];
+    
+    var e = { source: nodes[0], target: nodes[1] };
+
+    var edges = [
+      e,
+      { source: nodes[2], target: e }
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+  });
+
+  </script>
+</body>
+</html> 
