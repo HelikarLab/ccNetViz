@@ -13,13 +13,14 @@
     }
     
     #info {
-      float: right;
+/*      float: right;*/
     }
-  </style>
+  </style>Máme pro Vás novinku! Po letošek otvíráme také KATEGORII ELEKTROKOL! Je určena pro muže ročníků 1955 a méně a ženy ročníků 1965 a méně. Víte o někom, kdo by se mohl zúčastnit? Řekněte mu o tom nebo ho rovnou přihlašte:)
   <script src="./libs/jquery.min.js"></script>
   <script src="../dist/ccNetViz.js"></script>
 </head>
 <body>
+  <h1>Different graphs example</h1>
   <div id='body'>
   <canvas id="container"></canvas>
   </div>
@@ -53,11 +54,15 @@
       onChange.call(select);
     };
 
+    var graph;
     function showGraph(data){
       var startTime = new Date();
     
       var el = document.getElementById('container');
-      var graph = new ccNetViz(el, {
+      
+      if(graph) graph.remove();	//if there was old graph, remove its handlers from DOM content
+
+      graph = new ccNetViz(el, {
 	styles: {
 	  node: { texture: "images/node.png", label: { hideSize: 16 } },
 	  node: { label: { hideSize: 16 } },
