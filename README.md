@@ -18,7 +18,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
       height: 500px;
     }
   </style>
-  <script src="dist/builds/ccNetViz-1.0.0.min.js"></script>
+  <script src="dist/ccNetViz.min.js"></script>
 </head>
 <body>
   <canvas id="container"/>
@@ -44,6 +44,16 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 </body>
 </html>
 ```
+
+**Advanced Examples**
+
+* Advanced styling - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
+* Complex graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/complex.html)
+* Mouse event on hover - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_hover.html)
+* Mouse events on move - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
+* Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
+* Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
+
 
 **Documentation**
 
@@ -129,6 +139,14 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 * style (optional): name of custom style class used for this edge
 
 Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random". If not specified, positions are taken from each node x, y properties.
+
+
+***find(x, y, radius, nodes, edges)***
+
+
+***findArea(x1, y1, x2, y2, nodes, edges)***
+
+
 
 
 ***draw()***
