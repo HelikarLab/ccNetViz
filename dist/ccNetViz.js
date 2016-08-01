@@ -53,7 +53,7 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Aleš Saska
+	 *  Author: Aleš Saska - http://alessaska.cz/
 	 */
 
 
@@ -158,7 +158,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-	//        './ccNetVizMultiLevel',
 	        __webpack_require__(2),
 	        __webpack_require__(7),
 	        __webpack_require__(4),
@@ -168,22 +167,23 @@
 	        __webpack_require__(17),
 	        __webpack_require__(13)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
-	//        ccNetVizMultiLevel,
 	        ccNetViz_layer,
-		ccNetViz_layout,
-		ccNetViz_gl,
-		ccNetViz_color,
+	        ccNetViz_layout,
+	        ccNetViz_gl,
+	        ccNetViz_color,
 	        ccNetViz_utils,
-		ccNetViz_textures,
+	        ccNetViz_textures,
 	        ccNetViz_interactivityBatch,
-		ccNetViz_spatialSearch
+	        ccNetViz_spatialSearch
 	    ){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Aleš Saska
+	 *  Authors: 
+	 * 	David Tichy
+	 *  	Aleš Saska - http://alessaska.cz/
 	 */
 
 
@@ -422,8 +422,8 @@
 	    var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
 	    var s = c.style;
 	    if (s) {
-		result = s.maxSize ? Math.min(s.maxSize, result) : result;
-		result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+	      result = s.maxSize ? Math.min(s.maxSize, result) : result;
+	      result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
 	    }
 	    return result;
 	  };
@@ -464,7 +464,7 @@
 	    for(var i = 0; i < layers.main.scene.elements.length; i++){
 	      layers.main.scene.elements[i].draw(context);
 	      if(layers.temp)
-		layers.temp.scene.elements[i].draw(context);
+	        layers.temp.scene.elements[i].draw(context);
 	    }
 	  };
 	  drawFunc = this.draw.bind(this);
@@ -611,10 +611,9 @@
 
 	  this.resetView();
 	  this.resize();
-	  
+
 	  var textures = new ccNetViz_textures(options.onLoad || this.draw);
 	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
-	//  layerScreenTemp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);  
 	};
 
 
@@ -653,7 +652,9 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
+	 *  Authors: 
+	 * 	David Tichy
+	 * 	Aleš Saska - http://alessaska.cz/
 	 */
 
 	var layer = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
@@ -758,9 +759,19 @@
 	    };
 
 	    var set = (v, e, iV, iI, dx, dy) => {
-		var t = ccNetViz_geomutils.edgeTarget(e);
+	        var t = ccNetViz_geomutils.edgeTarget(e);
 	        var tx = t.x;
 	        var ty = t.y;
+
+	        var offsetMul;
+	        if(t.is_edge)	//if target is edge, disable node offset for arrow
+	          offsetMul = 0;
+	        else
+	          offsetMul = 1;
+
+
+
+	        ccNetViz_primitive.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
 	        ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
 	        ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
 	        ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
@@ -773,20 +784,21 @@
 	      lineArrows: (style => ({
 	                set: (v, e, iV, iI) => {
 	                    var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
+	                    var t = ccNetViz_geomutils.edgeTarget(e);
 	                    set(v, e, iV, iI, d.x, d.y);
 	                }})),
 	       curveArrows: (style => ({
 	                        set: (v, e, iV, iI) => {
-				  var s = ccNetViz_geomutils.edgeSource(e);
-				  var t = ccNetViz_geomutils.edgeTarget(e);
-				  return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
-				}
+	                          var s = ccNetViz_geomutils.edgeSource(e);
+	                          var t = ccNetViz_geomutils.edgeTarget(e);			  
+	                          return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+	                        }
 	                    })),
 	       circleArrows: (style => ({
 	                        set: (v, e, iV, iI) => {
-				  var t = ccNetViz_geomutils.edgeTarget(e);
-				  return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
-				}
+	                          var t = ccNetViz_geomutils.edgeTarget(e);
+	                          return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+	                        }
 	                    }))
 	    };
 
@@ -1177,9 +1189,12 @@
 	    }
 
 	    if (edgeStyle.arrow) {
+	        var shaderparams = {attribute:{offsetMul:1}};
+
 	        var bind = c => {
 	            var size = getSize(c, getEdgesCnt(), 0.2);
 	            if (!size) return true;
+
 	            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
 	            gl.uniform2f(c.shader.uniforms.size, size, c.style.aspect * size);
 	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, 0.5 * view.size * c.curveExc);
@@ -1192,6 +1207,7 @@
 	                "attribute vec2 position;",
 	                "attribute vec2 direction;",
 	                "attribute vec2 textureCoord;",
+			"attribute float offsetMul;",		    
 	                "uniform float offset;",
 	                "uniform vec2 size;",
 	                "uniform vec2 screen;",
@@ -1202,10 +1218,10 @@
 	                "   vec2 u = direction / length(screen * direction);",
 	                "   vec2 v = vec2(u.y, -aspect2 * u.x);",
 	                "   v = v / length(screen * v);",
-	                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u, 0, 0) + transform * vec4(position, 0, 1);",
+	                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   tc = textureCoord;",
 	                "}"
-	            ], fsColorTexture, bind)
+	            ], fsColorTexture, bind, shaderparams)
 	        );
 
 	        if (extensions.OES_standard_derivatives) {
@@ -1213,6 +1229,7 @@
 	                    "attribute vec2 position;",
 	                    "attribute vec2 direction;",
 	                    "attribute vec2 textureCoord;",
+	                    "attribute float offsetMul;",		    
 	                    "uniform float offset;",
 	                    "uniform vec2 size;",
 	                    "uniform float exc;",
@@ -1229,12 +1246,13 @@
 	                    "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u, 0, 0) + transform * vec4(position, 0, 1);",
 	                    "   tc = textureCoord;",
 	                    "}"
-	                ], fsColorTexture, bind)
+	                ], fsColorTexture, bind, shaderparams)
 	            );
 	            scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
 	                    "attribute vec2 position;",
 	                    "attribute vec2 direction;",
 	                    "attribute vec2 textureCoord;",
+	                    "attribute float offsetMul;",		    
 	                    "uniform float offset;",
 	                    "uniform vec2 size;",
 	                    "uniform vec2 screen;",
@@ -1246,7 +1264,7 @@
 	                    "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
 	                    "   tc = textureCoord;",
 	                    "}"
-	                ], fsColorTexture, bind)
+	                ], fsColorTexture, bind, shaderparams)
 	            );
 	        }
 	    }
@@ -1484,8 +1502,8 @@
 	 *  Author: David Tichy
 	 */
 
-	var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind) {
-	    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'));
+	var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
+	    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
 	    var buffers = [];
 	    var sections = [];   
 	    
@@ -1705,7 +1723,7 @@
 	 *  Author: David Tichy
 	 */
 
-	var shader = function(gl, vs, fs) {
+	var shader = function(gl, vs, fs, shaderParams) {
 	    var program = gl.createProgram();
 
 	    gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.VERTEX_SHADER, vs));
@@ -1718,12 +1736,15 @@
 	        var name = gl.getActiveUniform(program, i).name;
 	        this.uniforms[name] = gl.getUniformLocation(program, name);
 	    }
+	    
+	    var attrParams = (shaderParams || {}).attribute || {};
+
 
 	    this.attributes = {};
 	    n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
 	    for (var i = 0; i < n; i++) {
 	        var name = gl.getActiveAttrib(program, i).name;
-	        this.attributes[name] = { index: i, size: shader.attribute[name] || 2 };
+	        this.attributes[name] = { index: i, size: attrParams[name] || shader.attribute[name] || 2 };
 	    }
 
 	    this.bind = () => {
@@ -2156,7 +2177,7 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
+	 *  Author: Aleš Saska - http://alessaska.cz/
 	 */
 
 	var geomutils = function() {};
@@ -2167,7 +2188,7 @@
 	    var s = geomutils.edgeSource(e.source);
 	    var t = geomutils.edgeTarget(e.source);
 	    
-	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
 	  }
 	  
 	  return e.source;
@@ -2179,7 +2200,7 @@
 	    var s = geomutils.edgeSource(e.target);
 	    var t = geomutils.edgeTarget(e.target);
 	    
-	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2};
+	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
 	  }
 
 	  return e.target;
@@ -2283,8 +2304,13 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Aleš Saska
+	 *  Author: Aleš Saska - http://alessaska.cz/
 	 */
+
+
+
+	var EPS = Number.EPSILON || 1e-14;
+
 
 
 
@@ -2480,43 +2506,74 @@
 	}
 
 	function eq(a,b){
-	  return a >= b-EPS && a <= b+eps;
+	  return a >= b-EPS && a <= b+EPS;
 	}
 
-	//function bezierIntersectsLine(a,d,b,e,c,f, r1x, r1y, r2x, r2y){
+	function neq(a,b){
+	  return !eq(a,b);
+	}
+
+
+	function checkBezierTkoef(a,d,b,e,c,f,t,q,s,r,v){
+	  if(t < 0 || t > 1)
+	    return false;
+	  
+	  if(neq(v-s,0)){
+	    var x = (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t)/(v-s);
+	    if(x < 0 || x > 1)
+	      return false;
+	  }
+	  
+	  return true;
+	}
+
 	function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
-	    //TODO:Add proper intersection between bezier curve and rectangle    
+	    //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
+
+	    var t;
 	    
-	    return true;
-	  
-	/*    //solve ((d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t) = s + ((-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r))*(v - s)) for t
-	    if(eq(q,r)){
-	      
+	    var tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
+	    if(neq(tden, 0)){
+	      if(neq(q-r, 0)){
+		var sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
+		var sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
+		if(sq >= 0){
+		  var t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
+		  
+		  t = (t1-0.5*Math.sqrt(sq))/tden;
+		  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+		    return true;
+		  
+		  t = (t1+0.5*Math.sqrt(sq))/tden;
+		  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+		    return true;
+		}
+	      }
 	    }
-	  
-	    //q,s,r,v
-	    var d = (2*b-2*a)*(2*b-2*a) - 4*(a-2*b+c)*(a+q*u-q-r*u);
-	    var d2 = (-a+2b-c);
-	    
-	    var ts = [];
-	    if(d2 != 0){
-	      ts.push((-0.5*Math.sqrt(d)-a+b) / d2);
-	      ts.push((0.5*Math.sqrt(d)-a+b) / d2);
+
+	    var tden = -b*s+b*v+c*s-c*v+e*q-e*r-f*q+f*r;
+	    if(eq(d, 2*e-f) && eq(a,2*b-c) && neq(tden, 0) && neq(q*s-q*v-r*s+r*v,0)){
+	      t = -2*b*s+2*b*v+c*s-c*v+2*e*q-2*e*r-f*q+f*r-q*v+r*s;
+	      t = t/(2*tden);
+	      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+		return true;
 	    }
-	    
-	    if(eq(a, 2*b-c) && b-c != 0){
-	      ts.push()
+
+	    if(eq(s,v) && eq(d,2*e-f) && neq(e-f,0) && neq(q-r,0)){
+	      t = (2*e-f-v)/(2*(e-f));
+	      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+		return true;
 	    }
-	    var t1 = (-0.5*Math.sqrt(d)-a+b) / (-a+2b-c);
-	    
-	    var ts = [];
-	  
-	    
-	    q != r
-	  
-	    var u = (-a*(t-1)*(t-1) + t*(2*b*(t-1)-c*t)+q)/(q-r);
-	    
-	*/  
+
+	    var aeq = (2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r)/(s-v);
+	    var val = b*d*s-b*d*v-2*b*e*s+2*b*e*v+b*f*s-b*f*v-c*d*s+c*d*v+2*c*e*s-2*c*e*v-c*f*s+c*f*v-d*e*q+d*e*r+d*f*q-d*f*r+2*e*e*q-2*e*e*r-3*e*f*q+3*e*f*r+f*f*q-f*f*r;
+	    if(eq(a, aeq) && neq(val,0) && neq(q-r, 0)){
+	      t = (2*b*s-2*b*v-c*s+c*v-2*e*q+2*e*r+f*q-f*r+q*v-r*s)/(2*(b*s-b*v-c*s+c*v-e*q+e*r+f*q-f*r));
+	      if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+		return true;
+	    }
+
+	    return false;
 	}
 
 	function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
@@ -2530,19 +2587,20 @@
 	    var diffx = r1x-r2x;
 	    var diffy = r1y-r2y;
 	    
+	    //performance optimalization based on distance
 	    var diff2xy = diffx*diffx + diffy*diffy;
 	    var dist2 = distance2ToBezier(centerx, centery, a,d,b,e,c,f);
 	    if(dist2*4 > diff2xy)
 	      return false;
+	    if(dist2*4 <= Math.min(diffx*diffx, diffy*diffy))
+	      return true;
 	    
-	    return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y) ||
+	    return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y, r1y) ||
 		bezierIntersectsLine(a,d,b,e,c,f, r2x, r1y, r2x, r2y) ||
 		bezierIntersectsLine(a,d,b,e,c,f, r2x, r2y, r1x, r2y) ||
 		bezierIntersectsLine(a,d,b,e,c,f, r1x, r2y, r1x, r1y);
 	}
 
-	    
-	var EPS = Number.EPSILON || 1e-14;
 
 
 
@@ -2571,7 +2629,7 @@
 	    var s = geomutils.edgeSource(this.e);
 	    var t = geomutils.edgeTarget(this.e);
 	    
-	    return [Math.min(s.x,t.x), Math.min(s.x,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
+	    return [Math.min(s.x,t.x), Math.min(s.y,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
 	  };
 	  intersectsRect(x1,y1,x2,y2){
 	    var s = geomutils.edgeSource(this.e);
@@ -2807,13 +2865,13 @@
 	      var e = data[i][4];
 	      var dist2 = e.dist2(x,y, context, size, this.normalize);
 	      if(dist2 > radius2)
-		continue;
+	        continue;
 
 	      if(e.isNode && nodes){
-		ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	        ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
 	      }
 	      if(e.isEdge && edges){
-		ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+	        ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
 	      }
 	    }
 
@@ -3568,7 +3626,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	    __webpack_require__(11)
 	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
+	      geomutils
 	    ){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -3584,9 +3644,6 @@
 	    return;
 	  arr.push(e);
 	}
-
-
-	var uniqid = [];
 
 	var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
 	    var toAddEdges = [];
@@ -3609,7 +3666,10 @@
 	      });
 	      
 	      edges.forEach((e, i) => {
-	        eDirs[e.source.uniqid][e.target.uniqid] = e;
+	        var s = geomutils.edgeSource(e);
+	        var t = geomutils.edgeTarget(e);
+
+	        eDirs[s.uniqid][t.uniqid] = e;
 	        ePos[e.uniqid] = i;
 	      });
 	      
@@ -3644,8 +3704,11 @@
 	    edges.forEach((e) => {
 	      if(e.uniqid === undefined)
 	        return;
+	      
+	      var s = geomutils.edgeSource(e);
+	      var t = geomutils.edgeTarget(e);
 
-	      delete (eDirs[e.source.uniqid] || {})[e.target.uniqid];
+	      delete (eDirs[s.uniqid] || {})[t.uniqid];
 	      
 	      if(ePos[e.uniqid] !== undefined){
 	        //in the normal graph
@@ -3670,8 +3733,6 @@
 	  function doAddEdges(){
 	    toAddEdges.forEach((e) => {
 	      //already added in main graph
-	//      var tid = e.target.uniqid;
-	//      var sid = e.source.uniqid;
 	      if(
 		ePos[e.uniqid] !== undefined
 	      ){
@@ -3712,8 +3773,11 @@
 	  }
 
 	  this.addEdge = (e) => {
-	    var tid = e.target.uniqid;
-	    var sid = e.source.uniqid;
+	    var s = geomutils.edgeSource(e);
+	    var t = geomutils.edgeTarget(e);
+	    
+	    var tid = t.uniqid;
+	    var sid = s.uniqid;
 	    
 	    if((eDirs[sid] || {})[tid]){
 	      //this edge was already added >> remove it
@@ -3723,9 +3787,8 @@
 	    if((eDirs[tid] || {})[sid]){
 	      //must remove line and add two curves
 	      
-	      doRemoveEdges([eDirs[tid][sid]]);
-	//      toRemoveEdges.push(eDirs[tid][sid]);
 	      toAddEdges.push(eDirs[tid][sid]);
+	      doRemoveEdges([eDirs[tid][sid]]);
 
 	      toAddEdges.push(eDirs[sid][tid] = e);
 	      
