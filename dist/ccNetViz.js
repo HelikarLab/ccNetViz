@@ -136,7 +136,7 @@
 	    vizScreen.set.apply(vizScreen, arguments);
 	  }
 	  
-	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'resize'];
+	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'resize', 'update'];
 	  var self = this;
 	  exposeMethods.forEach(function(method){
 	    (function(method, self){
@@ -599,6 +599,19 @@
 	    view.x = view.y = 0;
 	  }
 
+	  var self = this;
+	  //expose these methods from layer into this class
+	  ['update'].forEach(function(method){
+	    (function(method, self){
+	      self[method] = function(){
+		var args = arguments;
+		layers.forEach(function(l){
+		  l[method].apply(l,args);
+		});
+	      };
+	    })(method, self);
+	  });
+	  
 	  gl = getContext();
 
 	  gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
@@ -617,14 +630,16 @@
 	};
 
 
+	ccNetViz.color = ccNetViz_color;
 	ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 	ccNetViz.layout = ccNetViz_layout;
+	ccNetViz.color = ccNetViz_color;
 
 
-	window.ccNetViz = module.exports = ccNetViz;
-
+	return window.ccNetViz = module.exports = ccNetViz;
 
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ },
 /* 2 */
@@ -930,6 +945,12 @@
 	                scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
 	            }
 	        }
+	    }
+	    
+	    this.update = function(element, attribute, data) {
+	        scene[element].update(gl, attribute, data, function(style)  {return {
+	            set: function(v, e, iV)  {return ccNetViz_primitive.colors(v, iV, e, e, e, e);}
+	        };});
 	    }
 	    
 	    this.find = (x,y,dist,nodes,edges) => {
@@ -1615,7 +1636,22 @@
 	    }
 
 	    var fb;
-	    this.updateEl = (gl, el, pos, get) => {
+	    this.update = function(gl, attribute, data, get)  {
+	        var i = 0, size = shader.attributes[attribute].size;
+	        sections.forEach(function(section)  {
+	            var filler = get(section.style);
+	            filler.numVertices = filler.numVertices || 4;
+
+	            section.buffers.forEach(function(e)  {
+	                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
+	                for (var iV = 0; iV < e.numVertices; iV += filler.numVertices) filler.set(fb, data[i++], iV);
+	                gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
+	                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
+	            });
+	        });
+	   }
+
+	   this.updateEl = (gl, el, pos, get) => {
 	        var storeToPos = (b, i) => {
 	            for (var a in shader.attributes) {
 	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
