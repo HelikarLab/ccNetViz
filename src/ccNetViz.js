@@ -446,10 +446,11 @@ var ccNetViz = function(canvas, options){
   ['update'].forEach(function(method){
     (function(method, self){
       self[method] = function(){
-	var args = arguments;
-	layers.forEach(function(l){
-	  l[method].apply(l,args);
-	});
+        var args = arguments;
+        for(var k in layers){
+	  var l = layers[k];
+          l[method].apply(l,args);
+        };
       };
     })(method, self);
   });
