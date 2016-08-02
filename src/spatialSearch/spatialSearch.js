@@ -201,9 +201,9 @@ function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
       return true;
     
     return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) ||
-	lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
-	lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
-	lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+        lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) ||
+        lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) ||
+        lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
 }
 
 function eq(a,b){
@@ -236,19 +236,19 @@ function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
     var tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
     if(neq(tden, 0)){
       if(neq(q-r, 0)){
-	var sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
-	var sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
-	if(sq >= 0){
-	  var t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
-	  
-	  t = (t1-0.5*Math.sqrt(sq))/tden;
-	  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
-	    return true;
-	  
-	  t = (t1+0.5*Math.sqrt(sq))/tden;
-	  if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
-	    return true;
-	}
+        var sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
+        var sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
+        if(sq >= 0){
+          var t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
+  
+          t = (t1-0.5*Math.sqrt(sq))/tden;
+          if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+            return true;
+  
+          t = (t1+0.5*Math.sqrt(sq))/tden;
+          if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
+            return true;
+        }
       }
     }
 
@@ -257,13 +257,13 @@ function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
       t = -2*b*s+2*b*v+c*s-c*v+2*e*q-2*e*r-f*q+f*r-q*v+r*s;
       t = t/(2*tden);
       if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
-	return true;
+        return true;
     }
 
     if(eq(s,v) && eq(d,2*e-f) && neq(e-f,0) && neq(q-r,0)){
       t = (2*e-f-v)/(2*(e-f));
       if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
-	return true;
+        return true;
     }
 
     var aeq = (2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r)/(s-v);
@@ -271,7 +271,7 @@ function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
     if(eq(a, aeq) && neq(val,0) && neq(q-r, 0)){
       t = (2*b*s-2*b*v-c*s+c*v-2*e*q+2*e*r+f*q-f*r+q*v-r*s)/(2*(b*s-b*v-c*s+c*v-e*q+e*r+f*q-f*r));
       if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
-	return true;
+        return true;
     }
 
     return false;
@@ -295,11 +295,11 @@ function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
       return false;
     if(dist2*4 <= Math.min(diffx*diffx, diffy*diffy))
       return true;
-    
+
     return bezierIntersectsLine(a,d,b,e,c,f, r1y, r2x, r1y, r1y) ||
-	bezierIntersectsLine(a,d,b,e,c,f, r2x, r1y, r2x, r2y) ||
-	bezierIntersectsLine(a,d,b,e,c,f, r2x, r2y, r1x, r2y) ||
-	bezierIntersectsLine(a,d,b,e,c,f, r1x, r2y, r1x, r1y);
+        bezierIntersectsLine(a,d,b,e,c,f, r2x, r1y, r2x, r2y) ||
+        bezierIntersectsLine(a,d,b,e,c,f, r2x, r2y, r1x, r2y) ||
+        bezierIntersectsLine(a,d,b,e,c,f, r1x, r2y, r1x, r1y);
 }
 
 
@@ -535,13 +535,13 @@ class spatialIndex{
       var dist2 = e.dist2(x,y, context, size, this.normalize);
 
       if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize))
-	continue;
+        continue;
 
       if(e.isNode && nodes){
-	ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        ret.nodes.push({node:e.e, dist: Math.sqrt(dist2), dist2: dist2});
       }
       if(e.isEdge && edges){
-	ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
+        ret.edges.push({edge:e.e, dist: Math.sqrt(dist2), dist2: dist2});
       }
     }
     
