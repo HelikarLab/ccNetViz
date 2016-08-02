@@ -171,6 +171,14 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     }))
     };
 
+    this.getCurrentSpatialSearch = (context) => {
+      if(spatialSearch === undefined){
+        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], 1, normalize);
+      }
+      return spatialSearch;
+    }
+    
+    
     var edgeTypes;
     var edgePoses;
 
