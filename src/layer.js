@@ -618,7 +618,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "   u = u / length(screen * u);",
                     "   vec2 v = vec2(u.y, -aspect2 * u.x);",
                     "   v = v / length(screen * v);",
-                    "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u, 0, 0) + transform * vec4(position, 0, 1);",
+                    "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
                 ], fsColorTexture, bind, shaderparams)
@@ -636,7 +636,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "void main(void) {",
                     "   vec2 u = direction;",
                     "   vec2 v = vec2(direction.y, -direction.x);",
-                    "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
+                    "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
                 ], fsColorTexture, bind, shaderparams)
