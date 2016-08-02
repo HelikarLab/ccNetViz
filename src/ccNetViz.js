@@ -441,6 +441,19 @@ var ccNetViz = function(canvas, options){
     view.x = view.y = 0;
   }
 
+  var self = this;
+  //expose these methods from layer into this class
+  ['update'].forEach(function(method){
+    (function(method, self){
+      self[method] = function(){
+	var args = arguments;
+	layers.forEach(function(l){
+	  l[method].apply(l,args);
+	});
+      };
+    })(method, self);
+  });
+  
   gl = getContext();
 
   gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);

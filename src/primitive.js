@@ -121,7 +121,22 @@ var primitive = function(gl, baseStyle, styleProperty, vs, fs, bind, shaderParam
     }
 
     var fb;
-    this.updateEl = (gl, el, pos, get) => {
+    this.update = function(gl, attribute, data, get)  {
+        var i = 0, size = shader.attributes[attribute].size;
+        sections.forEach(function(section)  {
+            var filler = get(section.style);
+            filler.numVertices = filler.numVertices || 4;
+
+            section.buffers.forEach(function(e)  {
+                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
+                for (var iV = 0; iV < e.numVertices; iV += filler.numVertices) filler.set(fb, data[i++], iV);
+                gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
+                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
+            });
+        });
+   }
+
+   this.updateEl = (gl, el, pos, get) => {
         var storeToPos = (b, i) => {
             for (var a in shader.attributes) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);

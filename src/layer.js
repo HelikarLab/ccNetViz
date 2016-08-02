@@ -301,6 +301,12 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         }
     }
     
+    this.update = function(element, attribute, data) {
+        scene[element].update(gl, attribute, data, function(style)  {return {
+            set: function(v, e, iV)  {return ccNetViz_primitive.colors(v, iV, e, e, e, e);}
+        };});
+    }
+    
     this.find = (x,y,dist,nodes,edges) => {
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
     }
