@@ -136,7 +136,7 @@
 	    vizScreen.set.apply(vizScreen, arguments);
 	  }
 	  
-	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'resize', 'update'];
+	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
 	  var self = this;
 	  exposeMethods.forEach(function(method){
 	    (function(method, self){
@@ -215,6 +215,8 @@
 	}
 
 	var ccNetViz = function(canvas, options){
+	  options.onChangeViewport = options.onChangeViewport || function(){};
+
 
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
 	  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
@@ -450,7 +452,6 @@
 	    context.aspect2   = aspect * aspect;
 	    context.count     = getNodesCnt();
 
-	    
 	    //bad hack because we use different size for curveExc and for nodeSize :(
 	    if(context.style) delete context.style;
 	    context.curveExc = getSize(context, getEdgesCnt(), 0.5);
@@ -497,21 +498,21 @@
 	      var disth = dist / canvas.height;
 	      var distw = dist / canvas.width;
 	      dist = Math.max(disth, distw) * view.size;
-	      
+
 	      ret.radius = dist;
 	    }
 
 	    return ret;
 	  }
-	  
+
 	  var findMerge = function(funcname, args){
 	    if(checkRemoved()) return;
 
 	    var f1 = layers.main[funcname].apply(layers.main, args);
-	    
+
 	    if(!layers.temp)
 	      return f1;
-	      
+
 	    var f2 = layers.temp[funcname].apply(layers.temp, args);
 
 	    var r = {};
@@ -523,15 +524,15 @@
 
 	    return r;
 	  };
-	  
+
 	  this.find = function(){return findMerge('find', arguments); };
 	  this.findArea = function(){return findMerge('findArea', arguments); };
-	  
-	  
+
+
 	  var onDownThis, onWheelThis;
 	  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
 	  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
-	  
+
 	  this.remove = () => {
 	    if(checkRemoved()) return;
 
@@ -540,7 +541,7 @@
 
 	    canvas.removeEventListener('mousedown', onDownThis);
 	    canvas.removeEventListener('wheel', onWheelThis);
-	    
+
 	    removed = true;
 	  }
 
@@ -555,6 +556,8 @@
 		  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
 		  this.draw();
 		  e.preventDefault();
+
+		  options.onChangeViewport(view);
 	      };
 
 	      var up = () => {
@@ -564,7 +567,7 @@
 	      window.addEventListener('mouseup', up);
 	      window.addEventListener('mousemove', drag);
 	  }
-	  
+
 	  function onWheel(e) {
 	      var rect = canvas.getBoundingClientRect();
 	      var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
@@ -576,6 +579,8 @@
 
 	      this.draw();
 	      e.preventDefault();
+
+	      options.onChangeViewport(view);
 	  }
 
 	  this.image = function() {
@@ -584,7 +589,6 @@
 	    return canvas.toDataURL();
 	  }
 
-	  
 	  this.resize = function() {
 	    if(checkRemoved()) return;
 
@@ -592,12 +596,15 @@
 	    canvas.height = canvas.offsetHeight;
 	  }
 
-	  this.resetView = function() {
+	  this.setViewport = function(v) {
 	    if(checkRemoved()) return;
 
-	    view.size = 1;
-	    view.x = view.y = 0;
+	    for(var k in v){view[k] = v[k]};
+
+	    options.onChangeViewport(view);
 	  }
+
+	  this.resetView = () => this.setViewport({size:1,x:0,y:0});
 
 	  var self = this;
 	  //expose these methods from layer into this class
@@ -612,7 +619,7 @@
 	      };
 	    })(method, self);
 	  });
-	  
+
 	  gl = getContext();
 
 	  gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
