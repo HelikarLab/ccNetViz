@@ -62,7 +62,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 
 Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles defined in styles property of options parameter.
 
-*Example style options*
+*Example options*
 
 ```javascript
 {
@@ -112,7 +112,9 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
         color: "rgb(255, 255, 255)"
       }
     }
-  }
+  },
+  onChangeViewport: function(viewport){},	//called every time viewport changes
+  onLoad: function(){}	//called when graph loaded
 }
 ```
 
@@ -163,6 +165,23 @@ Adjust graph for current canvas size.
 ***resetView()***
 
 Reset zoom and panning.
+
+
+***setViewport(viewport)***
+
+Set graph viewport.
+
+"viewport" argument is object with keys to modify (all of keys are optional)
+
+{
+
+"x": 0.123,	//x offset of viewport (number in range 0-1), optional
+
+"y": 0.326,	//y offset of viewport (number in range 0-1), optional
+
+"size": 0.98,	//size value of viewport (number in range 0-1) - the amount of original screen that is visible, optional
+
+}
 
 
 ***remove()***
