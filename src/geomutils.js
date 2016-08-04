@@ -16,7 +16,14 @@ geomutils.edgeSource = function(e) {
     var s = geomutils.edgeSource(e.source);
     var t = geomutils.edgeTarget(e.source);
     
-    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
+    return {
+            x: (s.x+t.x)/2, 
+            y: (s.y+t.y)/2, 
+            uniqid: e.uniqid, 
+            index: e.index, 
+            is_edge: true, 
+            e: e.source
+    };
   }
   
   return e.source;
@@ -28,7 +35,14 @@ geomutils.edgeTarget = function(e) {
     var s = geomutils.edgeSource(e.target);
     var t = geomutils.edgeTarget(e.target);
     
-    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
+    return {
+            x: (s.x+t.x)/2,
+            y: (s.y+t.y)/2,
+            uniqid: e.uniqid,
+            index: e.index,
+            is_edge: true,
+            e: e.target
+    };
   }
 
   return e.target;

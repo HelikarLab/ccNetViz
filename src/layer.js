@@ -73,6 +73,57 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         return { x: sc * x, y: sc * y };
     };
     
+    var dx = Math.cos(0.9);
+    var dy = Math.sin(0.9);
+
+    var getCurveShift = (e ,r) => {
+        r = r || {};
+	r.x = r.y = r.cx = r.cy = 0;
+        if(e.t && e.t >= 1){	//curve or circle
+          if(e.t >= 2){ //circle
+            var s = ccNetViz_geomutils.edgeSource(e);
+            var d = s.y < 0.5 ? 1 : -1;
+            
+            r.cx = d * 1.25;
+            r.cy = 0;
+          }else{
+            var se = ccNetViz_geomutils.edgeSource(e);
+            var te = ccNetViz_geomutils.edgeTarget(e);
+
+            r.x = se.x - te.x;
+            r.y = se.y - te.y;
+          }
+        }
+    };
+    
+    var ct1 = {}, ct2 = {}, ct = {};
+    var setVerticeCurveShift = (v,iV,s,t) => {
+        var csx,csy,ctx,cty,cisx,sisy,citx,city;
+        if(t.is_edge){
+          getCurveShift(t.e,ct1);
+          ctx = ct1.x;
+          cty = ct1.y;
+          citx = ct1.cx;
+          city = ct1.cy;
+        }else{
+          citx = city = ctx = cty = 0;
+        }
+
+        if(s.is_edge){
+          //normal of that edge
+          getCurveShift(s.e,ct2);
+          csx = ct2.x;
+          csy = ct2.y;
+          cisx = ct2.cx;
+          cisy = ct2.cy;
+        }else{
+          cisx = cisy = csx = csy = 0;
+        }
+
+        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
+        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
+    };
+    
     var edgesFiller = {
       'lines': (style => ({
             set: (v, e, iV, iI) => {
@@ -81,6 +132,8 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 var dx = s.x-t.x;
                 var dy = s.y-t.y;
                 var d = normalize(s, t);
+
+                setVerticeCurveShift(v,iV,s,t);
 
                 ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
                 ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
@@ -91,11 +144,13 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     numVertices: 3,
                     numIndices: 3,
                     set: (v, e, iV, iI) => {
-			var s = ccNetViz_geomutils.edgeSource(e);
-			var t = ccNetViz_geomutils.edgeTarget(e);
+                        var s = ccNetViz_geomutils.edgeSource(e);
+                        var t = ccNetViz_geomutils.edgeTarget(e);
                         var dx = s.x-t.x;
                         var dy = s.y-t.y;
                         var d = normalize(s, t);
+
+                        setVerticeCurveShift(v,iV,s,t);
 
                         ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
                         ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
@@ -127,18 +182,30 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 }))
     };
 
-    var set = (v, e, iV, iI, dx, dy) => {
-        var t = ccNetViz_geomutils.edgeTarget(e);
+    var set = (v, e, s, t, iV, iI, dx, dy) => {
         var tx = t.x;
         var ty = t.y;
 
         var offsetMul;
-        if(t.is_edge)	//if target is edge, disable node offset for arrow
+        var ctx,cty,citx,city;
+        citx = city = ctx = cty = 0;
+        if(t.is_edge){	//if target is edge, disable node offset for arrow
+
+          if(t.is_edge){
+            //normal of that edge
+            getCurveShift(t.e,ct);
+            ctx = ct.x;
+            cty = ct.y;
+            citx = ct.cx;
+            city = ct.cy;
+          }
+
           offsetMul = 0;
-        else
+        }else{
           offsetMul = 1;
-
-
+        }
+        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -cty, ctx, -cty, ctx, -cty, ctx, -cty, ctx);
+        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -city, citx, -city, citx, -city, citx, -city, citx);
 
         ccNetViz_primitive.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
         ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
@@ -147,26 +214,25 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         ccNetViz_primitive.quad(v.indices, iV, iI);
     };
             
-    var dx = Math.cos(0.9);
-    var dy = Math.sin(0.9);
     var arrowFiller = {
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
-                    var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
+                    var s = ccNetViz_geomutils.edgeSource(e);
                     var t = ccNetViz_geomutils.edgeTarget(e);
-                    set(v, e, iV, iI, d.x, d.y);
+                    var d = normalize(s, t);
+                    set(v, e, s, t, iV, iI, d.x, d.y);
                 }})),
        curveArrows: (style => ({
                         set: (v, e, iV, iI) => {
                           var s = ccNetViz_geomutils.edgeSource(e);
                           var t = ccNetViz_geomutils.edgeTarget(e);			  
-                          return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+                          return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
                         }
                     })),
        circleArrows: (style => ({
                         set: (v, e, iV, iI) => {
                           var t = ccNetViz_geomutils.edgeTarget(e);
-                          return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+                          return set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
                         }
                     }))
     };
@@ -212,10 +278,18 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
           }
           return spatialSearch;
         }
+        
+        var getIndex = (e) => {
+	    return e.uniqid || -e.index || -e.nidx;
+	}
 
         var init = () => {
             for (var i = 0; i < nodes.length; i++) {
                 nodes[i].index = i;
+            }
+
+            for (var i = 0,j=nodes.length + 10; i < edges.length; i++, j++) {
+                edges[i].nidx = j;
             }
 
             edgeTypes = [];
@@ -230,8 +304,8 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 for (var i = 0; i < edges.length; i++) {
                     var e = edges[i];
     
-                    var si = e.source.uniqid || -e.source.index;
-                    var ti = e.target.uniqid || -e.target.index;
+                    var si = getIndex(e.source);
+                    var ti = getIndex(e.target);
     
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
@@ -239,19 +313,22 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 for (var i = 0; i < edges.length; i++) {
                     var target, e = edges[i];
 
-                    var si = e.source.uniqid || -e.source.index;
-                    var ti = e.target.uniqid || -e.target.index;
+                    var si = getIndex(e.source);
+                    var ti = getIndex(e.target);
     
                     var t = dummysd;
                     if (si === ti) {
+			e.t = 2;	//circle
                         target = circles;
                         t = circlesd;
                     }else {
                         var m = map[ti];
                         if(m && m[si]){
+			  e.t = 1;	//curve
                           target = curves;
                           t = curvesd;
                         }else{
+			  e.t = 0;	//line
                           target = lines;
                           t = linesd;
                         }
@@ -264,12 +341,13 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 for (var i = 0; i < edges.length; i++) {
                     var e = edges[i];
 
-                    var si = e.source.uniqid || -e.source.index;
-                    var ti = e.target.uniqid || -e.target.index;
+                    var si = getIndex(e.source);
+                    var ti = getIndex(e.target);
 
                     var t = dummysd;
                     if(si !== ti){
                       t = linesd;
+		      e.t = 0;
                       lines.push(e);
                     }
                     edgeTypes.push(t);
@@ -462,18 +540,37 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         "   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));",
         "}"
     ];
+    
+
+    var getShiftFunc = [
+        "attribute vec2 curveShift;",
+        "vec4 getShiftCurve(void) {",
+        "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);",
+        "   float length = length(screen * shiftN);",
+        "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);",
+        "}",
+        "attribute vec2 circleShift;",
+        "vec4 getShiftCircle(void) {",
+        "   return vec4(size*circleShift,0,0);",
+        "}"
+    ];
 
     scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
             "precision mediump float;",
             "attribute vec2 position;",
             "attribute vec2 normal;",
             "attribute vec2 lengthSoFar;",
+	    "uniform float exc;",
+	    "uniform vec2 size;",
+	    "uniform vec2 screen;",
+	    "uniform float aspect2;",
             "uniform vec2 width;",
             "uniform mat4 transform;",
             "varying vec2 n;",
-            "varying vec2 v_lengthSoFar;",
+            "varying vec2 v_lengthSoFar;"
+	    ].concat(getShiftFunc).concat([
             "void main(void) {",
-            "   gl_Position = vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+            "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
 
             "   vec4 p = transform*vec4(lengthSoFar,0,0);",
             "   v_lengthSoFar.x = p.x;",
@@ -481,7 +578,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
 
             "   n = normal;",
             "}"
-        ], [
+        ]), [
             "precision mediump float;",
             "uniform float type;",
             "uniform vec4 color;",
@@ -501,6 +598,11 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
             "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
         ], c => {
+	    c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+	    gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+	    var size = 2.5 * c.nodeSize;
+	    c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	    gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(c.shader.uniforms.type, c.style.type);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -514,17 +616,19 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "attribute vec2 normal;",
                 "attribute vec2 curve;",
                 "attribute vec2 lengthSoFar;",
+                "uniform vec2 size;",
                 "uniform float exc;",
                 "uniform vec2 screen;",
                 "uniform float aspect2;",
                 "uniform mat4 transform;",
                 "varying vec2 v_lengthSoFar;",
                 "varying vec2 c;",
+		].concat(getShiftFunc).concat([
                 "void main(void) {",
                 "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
                 "   float length = length(screen * n);",
                 "   n = length == 0.0 ? vec2(0, 0) : n / length;",
-                "   gl_Position = vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
+                "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
                 "   c = curve;",
 
                 "   vec4 p = transform*vec4(lengthSoFar,0,0);",
@@ -532,13 +636,15 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "   v_lengthSoFar.y = p.y;",
 
                 "}"
-            ], fsCurve, c => {
+            ]), fsCurve, c => {
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
                 gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+                var size = 2.5 * c.nodeSize;
+                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
-                gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
+                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
                 ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
@@ -564,8 +670,8 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
                 var size = 2.5 * c.nodeSize;
-                gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-                gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
+                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
                 ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
@@ -579,10 +685,15 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
             if (!size) return true;
 
             gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-            gl.uniform2f(c.shader.uniforms.size, size, c.style.aspect * size);
-            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, 0.5 * view.size * c.curveExc);
+            gl.uniform2f(c.shader.uniforms.arrowsize, size, c.style.aspect * size);
+	    gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+            c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
+	    if(c.shader.uniforms.size){
+	      var size = 2.5 * c.nodeSize;
+	      c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	    }
             gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-            c.shader.uniforms.aspect2 && gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         };
       
@@ -592,19 +703,22 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "attribute vec2 textureCoord;",
 		"attribute float offsetMul;",		    
                 "uniform float offset;",
+		"uniform vec2 arrowsize;",
                 "uniform vec2 size;",
                 "uniform vec2 screen;",
+		"uniform float exc;",
                 "uniform float aspect2;",
                 "uniform mat4 transform;",
                 "varying vec2 tc;",
+		].concat(getShiftFunc).concat([
                 "void main(void) {",
                 "   vec2 u = direction / length(screen * direction);",
                 "   vec2 v = vec2(u.y, -aspect2 * u.x);",
                 "   v = v / length(screen * v);",
-                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
+                "   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
                 "   tc = textureCoord;",
                 "}"
-            ], fsColorTexture, bind, shaderparams)
+            ]), fsColorTexture, bind, shaderparams)
         );
 
         if (extensions.OES_standard_derivatives) {
@@ -614,22 +728,25 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "attribute vec2 textureCoord;",
                     "attribute float offsetMul;",		    
                     "uniform float offset;",
+                    "uniform vec2 arrowsize;",
                     "uniform vec2 size;",
                     "uniform float exc;",
+                    "uniform float cexc;",
                     "uniform vec2 screen;",
                     "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
+		    ].concat(getShiftFunc).concat([
                     "void main(void) {",
                     "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));",
-                    "   u = normalize(direction - exc * u / length(screen * u));",
+                    "   u = normalize(direction - cexc * u / length(screen * u));",
                     "   u = u / length(screen * u);",
                     "   vec2 v = vec2(u.y, -aspect2 * u.x);",
                     "   v = v / length(screen * v);",
-                    "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
+                    "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
-                ], fsColorTexture, bind, shaderparams)
+                ]), fsColorTexture, bind, shaderparams)
             );
             scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
                     "attribute vec2 position;",
@@ -637,17 +754,21 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "attribute vec2 textureCoord;",
                     "attribute float offsetMul;",		    
                     "uniform float offset;",
+                    "uniform vec2 arrowsize;",
                     "uniform vec2 size;",
                     "uniform vec2 screen;",
+                    "uniform float exc;",
+                    "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
+		    ].concat(getShiftFunc).concat([
                     "void main(void) {",
                     "   vec2 u = direction;",
                     "   vec2 v = vec2(direction.y, -direction.x);",
-                    "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
+                    "   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
                     "   tc = textureCoord;",
                     "}"
-                ], fsColorTexture, bind, shaderparams)
+                ]), fsColorTexture, bind, shaderparams)
             );
         }
     }

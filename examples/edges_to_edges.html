@@ -45,12 +45,21 @@
       { label: "World" },
       { label: "!" }
     ];
-    
+
     var e = { source: nodes[0], target: nodes[1] };
+    var e2 = { source: nodes[1], target: nodes[0] };
+    var e3 = { source: nodes[1], target: nodes[2] };
+    var e4 = { source: nodes[0], target: nodes[0] };
 
     var edges = [
       e,
-      { source: nodes[2], target: e }
+      e2,
+      e3,
+      e4,
+      { source: nodes[2], target: e2 },
+      { source: nodes[0], target: e3 },
+      { source: e2, target: nodes[2] },
+      { source: nodes[2], target: e4 }
     ];
 
     graph.set(nodes, edges, "force");
