@@ -173,15 +173,13 @@ Set graph viewport.
 
 "viewport" argument is object with keys to modify (all of keys are optional)
 
+```javascript
 {
-
-"x": 0.123,	//x offset of viewport (number in range 0-1), optional
-
-"y": 0.326,	//y offset of viewport (number in range 0-1), optional
-
-"size": 0.98,	//size value of viewport (number in range 0-1) - the amount of original screen that is visible, optional
-
+  "x": 0.123,	//x offset of viewport (number in range 0-1), optional
+  "y": 0.326,	//y offset of viewport (number in range 0-1), optional
+  "size": 0.98,	//size value of viewport (number in range 0-1) - the amount of original screen that is visible, optional
 }
+```
 
 
 ***remove()***
