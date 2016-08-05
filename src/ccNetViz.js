@@ -161,8 +161,8 @@ var ccNetViz = function(canvas, options){
   this.set = (n, e, layout) => {
     if(checkRemoved()) return;
     
-    nodes = n;
-    edges = e;
+    nodes = n || [];
+    edges = e || [];
     
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
