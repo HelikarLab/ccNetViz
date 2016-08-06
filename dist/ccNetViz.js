@@ -798,6 +798,8 @@
 	                        var xdiff4 = 3;
 	                        var ydiff4 = 1.5*d;
 
+	                        setVerticeCurveShift(v,iV,s,s);
+
 	                        ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
 	                        ccNetViz_primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
 	                        ccNetViz_primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
@@ -1276,23 +1278,30 @@
 	                "attribute vec2 normal;",
 	                "attribute vec2 curve;",
 	                "attribute vec2 lengthSoFar;",
+			"uniform float exc;",
+			"uniform vec2 screen;",
+			"uniform float aspect2;",
 	                "uniform vec2 size;",
 	                "uniform mat4 transform;",
 	                "varying vec2 c;",
 	                "varying vec2 v_lengthSoFar;",
+			].concat(getShiftFuncs).concat([
 	                "void main(void) {",
-	                "   gl_Position = vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
+	                "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   c = curve;",
 
 	                "   vec4 p = transform*vec4(size * lengthSoFar,0,0);",
 	                "   v_lengthSoFar.x = p.x;",
 	                "   v_lengthSoFar.y = p.y;",
-	                "}"
-	            ], fsCurve, c => {
+	                "}"])
+	            , fsCurve, c => {
+			c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	                gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
+	                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	                var size = 2.5 * c.nodeSize;
 	                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
@@ -2912,7 +2921,7 @@
 
 	    var d = s.y < 0.5 ? 1 : -1;
 
-	    getEdgeShift(context, size, s.e, ct);
+	    getEdgeShift(context, screensize, s.e, ct);
 	    x1 += ct.x;
 	    y1 += ct.y;
 	    
