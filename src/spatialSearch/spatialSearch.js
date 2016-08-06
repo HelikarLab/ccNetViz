@@ -407,7 +407,7 @@ class Circle{
 
     var d = s.y < 0.5 ? 1 : -1;
 
-    getEdgeShift(context, size, s.e, ct);
+    getEdgeShift(context, screensize, s.e, ct);
     x1 += ct.x;
     y1 += ct.y;
     
