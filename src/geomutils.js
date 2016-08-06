@@ -48,6 +48,31 @@ geomutils.edgeTarget = function(e) {
   return e.target;
 };
 
+geomutils.getCurveShift = (e ,r) => {
+    r = r || {};
+    r.x = r.y = r.cx = r.cy = 0;
+    if(!e)
+      return r;
+    if(e.t && e.t >= 1){	//curve or circle
+      if(e.t >= 2){ //circle
+	var s = geomutils.edgeSource(e);
+	var d = s.y < 0.5 ? 1 : -1;
+	
+	r.cx = d * 1.25;
+	r.cy = 0;
+      }else{
+	var se = geomutils.edgeSource(e);
+	var te = geomutils.edgeTarget(e);
+
+	r.x = se.x - te.x;
+	r.y = se.y - te.y;
+      }
+    }
+    return r;
+};
+
+
+
 module.exports = geomutils;
 
 });

@@ -75,50 +75,21 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     
     var dx = Math.cos(0.9);
     var dy = Math.sin(0.9);
-
-    var getCurveShift = (e ,r) => {
-        r = r || {};
-	r.x = r.y = r.cx = r.cy = 0;
-        if(e.t && e.t >= 1){	//curve or circle
-          if(e.t >= 2){ //circle
-            var s = ccNetViz_geomutils.edgeSource(e);
-            var d = s.y < 0.5 ? 1 : -1;
-            
-            r.cx = d * 1.25;
-            r.cy = 0;
-          }else{
-            var se = ccNetViz_geomutils.edgeSource(e);
-            var te = ccNetViz_geomutils.edgeTarget(e);
-
-            r.x = se.x - te.x;
-            r.y = se.y - te.y;
-          }
-        }
-    };
     
     var ct1 = {}, ct2 = {}, ct = {};
     var setVerticeCurveShift = (v,iV,s,t) => {
         var csx,csy,ctx,cty,cisx,sisy,citx,city;
-        if(t.is_edge){
-          getCurveShift(t.e,ct1);
-          ctx = ct1.x;
-          cty = ct1.y;
-          citx = ct1.cx;
-          city = ct1.cy;
-        }else{
-          citx = city = ctx = cty = 0;
-        }
+        ccNetViz_geomutils.getCurveShift(t.e,ct1);
+        ctx = ct1.x;
+        cty = ct1.y;
+        citx = ct1.cx;
+        city = ct1.cy;
 
-        if(s.is_edge){
-          //normal of that edge
-          getCurveShift(s.e,ct2);
-          csx = ct2.x;
-          csy = ct2.y;
-          cisx = ct2.cx;
-          cisy = ct2.cy;
-        }else{
-          cisx = cisy = csx = csy = 0;
-        }
+        ccNetViz_geomutils.getCurveShift(s.e,ct2);
+        csx = ct2.x;
+        csy = ct2.y;
+        cisx = ct2.cx;
+        cisy = ct2.cy;
 
         v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
         v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
@@ -188,18 +159,15 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
 
         var offsetMul;
         var ctx,cty,citx,city;
-        citx = city = ctx = cty = 0;
+
+        ccNetViz_geomutils.getCurveShift(t.e,ct);
+        ctx = ct.x;
+        cty = ct.y;
+        citx = ct.cx;
+        city = ct.cy;
+
         if(t.is_edge){	//if target is edge, disable node offset for arrow
-
-          if(t.is_edge){
-            //normal of that edge
-            getCurveShift(t.e,ct);
-            ctx = ct.x;
-            cty = ct.y;
-            citx = ct.cx;
-            city = ct.cy;
-          }
-
+          //normal of that edge
           offsetMul = 0;
         }else{
           offsetMul = 1;
@@ -239,7 +207,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
 
     this.getCurrentSpatialSearch = (context) => {
       if(spatialSearch === undefined){
-        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], 1, normalize);
+        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], normalize);
       }
       return spatialSearch;
     }
@@ -274,7 +242,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
 
         this.getCurrentSpatialSearch = (context) => {
           if(spatialSearch === undefined){
-            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
+            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
           }
           return spatialSearch;
         }
@@ -542,7 +510,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     ];
     
 
-    var getShiftFunc = [
+    var getShiftFuncs = [
         "attribute vec2 curveShift;",
         "vec4 getShiftCurve(void) {",
         "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);",
@@ -568,7 +536,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
             "uniform mat4 transform;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;"
-	    ].concat(getShiftFunc).concat([
+	    ].concat(getShiftFuncs).concat([
             "void main(void) {",
             "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
 
@@ -623,7 +591,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "uniform mat4 transform;",
                 "varying vec2 v_lengthSoFar;",
                 "varying vec2 c;",
-		].concat(getShiftFunc).concat([
+		].concat(getShiftFuncs).concat([
                 "void main(void) {",
                 "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
                 "   float length = length(screen * n);",
@@ -710,7 +678,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                 "uniform float aspect2;",
                 "uniform mat4 transform;",
                 "varying vec2 tc;",
-		].concat(getShiftFunc).concat([
+		].concat(getShiftFuncs).concat([
                 "void main(void) {",
                 "   vec2 u = direction / length(screen * direction);",
                 "   vec2 v = vec2(u.y, -aspect2 * u.x);",
@@ -736,7 +704,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
-		    ].concat(getShiftFunc).concat([
+		    ].concat(getShiftFuncs).concat([
                     "void main(void) {",
                     "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));",
                     "   u = normalize(direction - cexc * u / length(screen * u));",
@@ -761,7 +729,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
                     "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
-		    ].concat(getShiftFunc).concat([
+		    ].concat(getShiftFuncs).concat([
                     "void main(void) {",
                     "   vec2 u = direction;",
                     "   vec2 v = vec2(direction.y, -direction.x);",

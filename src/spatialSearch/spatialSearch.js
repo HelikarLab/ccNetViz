@@ -1,4 +1,4 @@
-define(['./rbush', '../geomutils'], function(rbush, geomutils){
+define(['./rbush', '../geomutils'], function(rbush, ccNetViz_geomutils){
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -303,7 +303,34 @@ function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
 }
 
 
+var ct = {};
+function getEdgeShift(context, screensize, e, ct){
+  ccNetViz_geomutils.getCurveShift(e,ct);
+  
+  var ctx,cty,citx,city;
+  
+  ctx = -ct.y;
+  cty = ct.x * context.aspect2;
+  
+  var len2 = ctx*context.width*ctx*context.width + cty*context.height*cty*context.height;
+  
+  if(eq(len2, 0)){
+    ctx = 0;
+    cty = 0;
+  }else{
+    var len = Math.sqrt(len2);
+    ctx *= context.curveExc * 0.25 * screensize / len;
+    cty *= context.curveExc * 0.25 * screensize / len;
+  }
 
+  var sizex = 2.5 * context.nodeSize * screensize / context.width;
+  var sizey = 2.5 * context.nodeSize * screensize / context.height;
+  citx = -ct.cy * 0.5 * sizex;
+  city = ct.cx * 0.5 * sizey;
+  
+  ct.x = ctx + citx;
+  ct.y = cty + city;
+}
 
 class Node{
   constructor(n){
@@ -326,23 +353,40 @@ class Line{
     this.isEdge = true;
     this.e = l;
   };
-  getBBox(){
-    var s = geomutils.edgeSource(this.e);
-    var t = geomutils.edgeTarget(this.e);
+  getPoints(context, size){
+    var x1,y1,x2,y2;
     
-    return [Math.min(s.x,t.x), Math.min(s.y,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
-  };
-  intersectsRect(x1,y1,x2,y2){
-    var s = geomutils.edgeSource(this.e);
-    var t = geomutils.edgeTarget(this.e);
+    var s = ccNetViz_geomutils.edgeSource(this.e);
+    var t = ccNetViz_geomutils.edgeTarget(this.e);
+    
+    x1 = s.x;
+    y1 = s.y;
+    x2 = t.x;
+    y2 = t.y;
+    
+    getEdgeShift(context, size, s.e, ct);
+    x1 += ct.x;
+    y1 += ct.y;
+    getEdgeShift(context, size, t.e, ct);
+    x2 += ct.x;
+    y2 += ct.y;
 
-    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1,y1,x2,y2);
+    return [x1,y1,x2,y2];
   };
-  dist2(x,y, context){
-    var s = geomutils.edgeSource(this.e);
-    var t = geomutils.edgeTarget(this.e);
+  getBBox(context, size){
+    var p = this.getPoints(context, size);
+    
+    return [Math.min(p[0],p[2]), Math.min(p[1],p[3]), Math.max(p[0],p[2]), Math.max(p[1],p[3])];
+  };
+  intersectsRect(x1,y1,x2,y2, context, size){
+    var p = this.getPoints(context, size);
 
-    return pDistance2(x,y,s.x,s.y,t.x,t.y);
+    return lineIntersectsRect(p[0], p[1], p[2], p[3], x1,y1,x2,y2);
+  };
+  dist2(x,y, context, size){
+    var p = this.getPoints(context, size);
+
+    return pDistance2(x,y,p[0],p[1],p[2],p[3]);
   };
 }
 
@@ -353,7 +397,7 @@ class Circle{
   };
   getBezierPoints(context, screensize){
     var x1,y1,s;
-    s = geomutils.edgeSource(this.e);
+    s = ccNetViz_geomutils.edgeSource(this.e);
     x1 = s.x;
     y1 = s.y;
 
@@ -362,6 +406,10 @@ class Circle{
     var ysize = size / context.height / 2;
 
     var d = s.y < 0.5 ? 1 : -1;
+
+    getEdgeShift(context, size, s.e, ct);
+    x1 += ct.x;
+    y1 += ct.y;
     
     return [
       x1,
@@ -401,8 +449,8 @@ class Curve{
   };
   getBezierPoints(context, size, normalize){
     var x1,x2,y1,y2;
-    var s = geomutils.edgeSource(this.e);
-    var t = geomutils.edgeTarget(this.e);
+    var s = ccNetViz_geomutils.edgeSource(this.e);
+    var t = ccNetViz_geomutils.edgeTarget(this.e);
 
     x1 = s.x;
     y1 = s.y;
@@ -420,6 +468,13 @@ class Curve{
 
     n2 *= context.curveExc*size/l;
     n3 *= context.curveExc*size/l;
+
+    getEdgeShift(context, size, s.e, ct);
+    x1 += ct.x;
+    y1 += ct.y;
+    getEdgeShift(context, size, t.e, ct);
+    x2 += ct.x;
+    y2 += ct.y;
 
     var ret = [
       x1,
@@ -452,7 +507,9 @@ function sortByDistances(e1, e2){
 
 
 class spatialIndex{
-  constructor(c, nodes, lines, curves, circles, size, normalize){
+  constructor(c, nodes, lines, curves, circles, normalize){
+    var size = 1;
+    
     this.normalize = normalize;
     
     //tree initialization

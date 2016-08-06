@@ -319,8 +319,8 @@
 	  this.set = (n, e, layout) => {
 	    if(checkRemoved()) return;
 	    
-	    nodes = n;
-	    edges = e;
+	    nodes = n || [];
+	    edges = e || [];
 	    
 	    nodes.forEach(checkUniqId);
 	    edges.forEach(checkUniqId);
@@ -727,6 +727,28 @@
 	        return { x: sc * x, y: sc * y };
 	    };
 	    
+	    var dx = Math.cos(0.9);
+	    var dy = Math.sin(0.9);
+	    
+	    var ct1 = {}, ct2 = {}, ct = {};
+	    var setVerticeCurveShift = (v,iV,s,t) => {
+	        var csx,csy,ctx,cty,cisx,sisy,citx,city;
+	        ccNetViz_geomutils.getCurveShift(t.e,ct1);
+	        ctx = ct1.x;
+	        cty = ct1.y;
+	        citx = ct1.cx;
+	        city = ct1.cy;
+
+	        ccNetViz_geomutils.getCurveShift(s.e,ct2);
+	        csx = ct2.x;
+	        csy = ct2.y;
+	        cisx = ct2.cx;
+	        cisy = ct2.cy;
+
+	        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
+	        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
+	    };
+	    
 	    var edgesFiller = {
 	      'lines': (style => ({
 	            set: (v, e, iV, iI) => {
@@ -735,6 +757,8 @@
 	                var dx = s.x-t.x;
 	                var dy = s.y-t.y;
 	                var d = normalize(s, t);
+
+	                setVerticeCurveShift(v,iV,s,t);
 
 	                ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
 	                ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
@@ -745,11 +769,13 @@
 	                    numVertices: 3,
 	                    numIndices: 3,
 	                    set: (v, e, iV, iI) => {
-				var s = ccNetViz_geomutils.edgeSource(e);
-				var t = ccNetViz_geomutils.edgeTarget(e);
+	                        var s = ccNetViz_geomutils.edgeSource(e);
+	                        var t = ccNetViz_geomutils.edgeTarget(e);
 	                        var dx = s.x-t.x;
 	                        var dy = s.y-t.y;
 	                        var d = normalize(s, t);
+
+	                        setVerticeCurveShift(v,iV,s,t);
 
 	                        ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
 	                        ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,dx/2, dy/2, dx, dy);
@@ -781,18 +807,27 @@
 	                }))
 	    };
 
-	    var set = (v, e, iV, iI, dx, dy) => {
-	        var t = ccNetViz_geomutils.edgeTarget(e);
+	    var set = (v, e, s, t, iV, iI, dx, dy) => {
 	        var tx = t.x;
 	        var ty = t.y;
 
 	        var offsetMul;
-	        if(t.is_edge)	//if target is edge, disable node offset for arrow
+	        var ctx,cty,citx,city;
+
+	        ccNetViz_geomutils.getCurveShift(t.e,ct);
+	        ctx = ct.x;
+	        cty = ct.y;
+	        citx = ct.cx;
+	        city = ct.cy;
+
+	        if(t.is_edge){	//if target is edge, disable node offset for arrow
+	          //normal of that edge
 	          offsetMul = 0;
-	        else
+	        }else{
 	          offsetMul = 1;
-
-
+	        }
+	        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -cty, ctx, -cty, ctx, -cty, ctx, -cty, ctx);
+	        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -city, citx, -city, citx, -city, citx, -city, citx);
 
 	        ccNetViz_primitive.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
 	        ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
@@ -801,33 +836,32 @@
 	        ccNetViz_primitive.quad(v.indices, iV, iI);
 	    };
 	            
-	    var dx = Math.cos(0.9);
-	    var dy = Math.sin(0.9);
 	    var arrowFiller = {
 	      lineArrows: (style => ({
 	                set: (v, e, iV, iI) => {
-	                    var d = normalize(ccNetViz_geomutils.edgeSource(e), ccNetViz_geomutils.edgeTarget(e));
+	                    var s = ccNetViz_geomutils.edgeSource(e);
 	                    var t = ccNetViz_geomutils.edgeTarget(e);
-	                    set(v, e, iV, iI, d.x, d.y);
+	                    var d = normalize(s, t);
+	                    set(v, e, s, t, iV, iI, d.x, d.y);
 	                }})),
 	       curveArrows: (style => ({
 	                        set: (v, e, iV, iI) => {
 	                          var s = ccNetViz_geomutils.edgeSource(e);
 	                          var t = ccNetViz_geomutils.edgeTarget(e);			  
-	                          return set(v, e, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+	                          return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
 	                        }
 	                    })),
 	       circleArrows: (style => ({
 	                        set: (v, e, iV, iI) => {
 	                          var t = ccNetViz_geomutils.edgeTarget(e);
-	                          return set(v, e, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
+	                          return set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
 	                        }
 	                    }))
 	    };
 
 	    this.getCurrentSpatialSearch = (context) => {
 	      if(spatialSearch === undefined){
-	        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], 1, normalize);
+	        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], normalize);
 	      }
 	      return spatialSearch;
 	    }
@@ -862,14 +896,22 @@
 
 	        this.getCurrentSpatialSearch = (context) => {
 	          if(spatialSearch === undefined){
-	            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, view.size, normalize);
+	            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
 	          }
 	          return spatialSearch;
 	        }
+	        
+	        var getIndex = (e) => {
+		    return e.uniqid || -e.index || -e.nidx;
+		}
 
 	        var init = () => {
 	            for (var i = 0; i < nodes.length; i++) {
 	                nodes[i].index = i;
+	            }
+
+	            for (var i = 0,j=nodes.length + 10; i < edges.length; i++, j++) {
+	                edges[i].nidx = j;
 	            }
 
 	            edgeTypes = [];
@@ -884,8 +926,8 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
 	    
-	                    var si = e.source.uniqid || -e.source.index;
-	                    var ti = e.target.uniqid || -e.target.index;
+	                    var si = getIndex(e.source);
+	                    var ti = getIndex(e.target);
 	    
 	                    (map[si] || (map[si] = {}))[ti] = true;
 	                }
@@ -893,19 +935,22 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var target, e = edges[i];
 
-	                    var si = e.source.uniqid || -e.source.index;
-	                    var ti = e.target.uniqid || -e.target.index;
+	                    var si = getIndex(e.source);
+	                    var ti = getIndex(e.target);
 	    
 	                    var t = dummysd;
 	                    if (si === ti) {
+				e.t = 2;	//circle
 	                        target = circles;
 	                        t = circlesd;
 	                    }else {
 	                        var m = map[ti];
 	                        if(m && m[si]){
+				  e.t = 1;	//curve
 	                          target = curves;
 	                          t = curvesd;
 	                        }else{
+				  e.t = 0;	//line
 	                          target = lines;
 	                          t = linesd;
 	                        }
@@ -918,12 +963,13 @@
 	                for (var i = 0; i < edges.length; i++) {
 	                    var e = edges[i];
 
-	                    var si = e.source.uniqid || -e.source.index;
-	                    var ti = e.target.uniqid || -e.target.index;
+	                    var si = getIndex(e.source);
+	                    var ti = getIndex(e.target);
 
 	                    var t = dummysd;
 	                    if(si !== ti){
 	                      t = linesd;
+			      e.t = 0;
 	                      lines.push(e);
 	                    }
 	                    edgeTypes.push(t);
@@ -1116,18 +1162,37 @@
 	        "   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));",
 	        "}"
 	    ];
+	    
+
+	    var getShiftFuncs = [
+	        "attribute vec2 curveShift;",
+	        "vec4 getShiftCurve(void) {",
+	        "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);",
+	        "   float length = length(screen * shiftN);",
+	        "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);",
+	        "}",
+	        "attribute vec2 circleShift;",
+	        "vec4 getShiftCircle(void) {",
+	        "   return vec4(size*circleShift,0,0);",
+	        "}"
+	    ];
 
 	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
 	            "precision mediump float;",
 	            "attribute vec2 position;",
 	            "attribute vec2 normal;",
 	            "attribute vec2 lengthSoFar;",
+		    "uniform float exc;",
+		    "uniform vec2 size;",
+		    "uniform vec2 screen;",
+		    "uniform float aspect2;",
 	            "uniform vec2 width;",
 	            "uniform mat4 transform;",
 	            "varying vec2 n;",
-	            "varying vec2 v_lengthSoFar;",
+	            "varying vec2 v_lengthSoFar;"
+		    ].concat(getShiftFuncs).concat([
 	            "void main(void) {",
-	            "   gl_Position = vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+	            "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
 
 	            "   vec4 p = transform*vec4(lengthSoFar,0,0);",
 	            "   v_lengthSoFar.x = p.x;",
@@ -1135,7 +1200,7 @@
 
 	            "   n = normal;",
 	            "}"
-	        ], [
+	        ]), [
 	            "precision mediump float;",
 	            "uniform float type;",
 	            "uniform vec4 color;",
@@ -1155,6 +1220,11 @@
 	            "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
 	            "}"
 	        ], c => {
+		    c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+		    gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+		    var size = 2.5 * c.nodeSize;
+		    c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+		    gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	            gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
 	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -1168,17 +1238,19 @@
 	                "attribute vec2 normal;",
 	                "attribute vec2 curve;",
 	                "attribute vec2 lengthSoFar;",
+	                "uniform vec2 size;",
 	                "uniform float exc;",
 	                "uniform vec2 screen;",
 	                "uniform float aspect2;",
 	                "uniform mat4 transform;",
 	                "varying vec2 v_lengthSoFar;",
 	                "varying vec2 c;",
+			].concat(getShiftFuncs).concat([
 	                "void main(void) {",
 	                "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
 	                "   float length = length(screen * n);",
 	                "   n = length == 0.0 ? vec2(0, 0) : n / length;",
-	                "   gl_Position = vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
+	                "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   c = curve;",
 
 	                "   vec4 p = transform*vec4(lengthSoFar,0,0);",
@@ -1186,13 +1258,15 @@
 	                "   v_lengthSoFar.y = p.y;",
 
 	                "}"
-	            ], fsCurve, c => {
+	            ]), fsCurve, c => {
 	                gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	                gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+	                var size = 2.5 * c.nodeSize;
+	                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
-	                gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
+	                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
 	                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
@@ -1218,8 +1292,8 @@
 	                gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	                gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	                var size = 2.5 * c.nodeSize;
-	                gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	                gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
+	                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	            })
 	        );
@@ -1233,10 +1307,15 @@
 	            if (!size) return true;
 
 	            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-	            gl.uniform2f(c.shader.uniforms.size, size, c.style.aspect * size);
-	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, 0.5 * view.size * c.curveExc);
+	            gl.uniform2f(c.shader.uniforms.arrowsize, size, c.style.aspect * size);
+		    gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+	            c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
+		    if(c.shader.uniforms.size){
+		      var size = 2.5 * c.nodeSize;
+		      c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+		    }
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-	            c.shader.uniforms.aspect2 && gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        };
 	      
@@ -1246,19 +1325,22 @@
 	                "attribute vec2 textureCoord;",
 			"attribute float offsetMul;",		    
 	                "uniform float offset;",
+			"uniform vec2 arrowsize;",
 	                "uniform vec2 size;",
 	                "uniform vec2 screen;",
+			"uniform float exc;",
 	                "uniform float aspect2;",
 	                "uniform mat4 transform;",
 	                "varying vec2 tc;",
+			].concat(getShiftFuncs).concat([
 	                "void main(void) {",
 	                "   vec2 u = direction / length(screen * direction);",
 	                "   vec2 v = vec2(u.y, -aspect2 * u.x);",
 	                "   v = v / length(screen * v);",
-	                "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
+	                "   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
 	                "   tc = textureCoord;",
 	                "}"
-	            ], fsColorTexture, bind, shaderparams)
+	            ]), fsColorTexture, bind, shaderparams)
 	        );
 
 	        if (extensions.OES_standard_derivatives) {
@@ -1268,22 +1350,25 @@
 	                    "attribute vec2 textureCoord;",
 	                    "attribute float offsetMul;",		    
 	                    "uniform float offset;",
+	                    "uniform vec2 arrowsize;",
 	                    "uniform vec2 size;",
 	                    "uniform float exc;",
+	                    "uniform float cexc;",
 	                    "uniform vec2 screen;",
 	                    "uniform float aspect2;",
 	                    "uniform mat4 transform;",
 	                    "varying vec2 tc;",
+			    ].concat(getShiftFuncs).concat([
 	                    "void main(void) {",
 	                    "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));",
-	                    "   u = normalize(direction - exc * u / length(screen * u));",
+	                    "   u = normalize(direction - cexc * u / length(screen * u));",
 	                    "   u = u / length(screen * u);",
 	                    "   vec2 v = vec2(u.y, -aspect2 * u.x);",
 	                    "   v = v / length(screen * v);",
-	                    "   gl_Position = vec4(size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
+	                    "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);",
 	                    "   tc = textureCoord;",
 	                    "}"
-	                ], fsColorTexture, bind, shaderparams)
+	                ]), fsColorTexture, bind, shaderparams)
 	            );
 	            scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
 	                    "attribute vec2 position;",
@@ -1291,17 +1376,21 @@
 	                    "attribute vec2 textureCoord;",
 	                    "attribute float offsetMul;",		    
 	                    "uniform float offset;",
+	                    "uniform vec2 arrowsize;",
 	                    "uniform vec2 size;",
 	                    "uniform vec2 screen;",
+	                    "uniform float exc;",
+	                    "uniform float aspect2;",
 	                    "uniform mat4 transform;",
 	                    "varying vec2 tc;",
+			    ].concat(getShiftFuncs).concat([
 	                    "void main(void) {",
 	                    "   vec2 u = direction;",
 	                    "   vec2 v = vec2(direction.y, -direction.x);",
-	                    "   gl_Position = vec4((size.x * (0.5 - textureCoord.x) * v - size.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
+	                    "   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);",
 	                    "   tc = textureCoord;",
 	                    "}"
-	                ], fsColorTexture, bind, shaderparams)
+	                ]), fsColorTexture, bind, shaderparams)
 	            );
 	        }
 	    }
@@ -1405,6 +1494,15 @@
 	        this.b = arguments[2];
 	        arguments.length > 3 && (this.a = arguments[3]);
 	    }
+	    else if (/^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
+			color = /^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
+			var get = v => parseInt(v, 10) / 255;
+
+			this.r = get(color[1]);
+			this.g = get(color[2]);
+			this.b = get(color[3]);
+			this.a = get(color[4]);
+		}
 	    else if (/^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
 	        color = /^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
 	        var get = v => parseInt(v, 10) / 255;
@@ -1432,6 +1530,7 @@
 	    }
 	};
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ },
 /* 4 */
@@ -1835,34 +1934,50 @@
 	layout.random = layoutRandom;
 
 
-	layout.normalize = function(nodes) {
-	    var n = nodes.length;
-	    var maxX = -Infinity;
-	    var maxY = -Infinity;
-	    var minX = Infinity;
-	    var minY = Infinity;
+	layout.normalize = function(nodes, dim) {
+	    var minX, minY, n = nodes.length;
+	    
+	    if (dim) {
+	        minX = dim.minX;
+	        minY = dim.minY;
+	    }
+	    else {
+	        var maxX = -Infinity;
+	        var maxY = -Infinity;
+	        minX = minY = Infinity;
+	        
+	        for (var i = 0; i < n; i++) {
+	            var o = nodes[i];
+	            maxX = Math.max(maxX, o.x);
+	            maxY = Math.max(maxY, o.y);
+	            minX = Math.min(minX, o.x);
+	            minY = Math.min(minY, o.y);
+	        };
+	        
+	        dim = {
+	            maxX: maxX,
+	            maxY: maxY,
+	            minX: minX,
+	            minY: minY
+	        }
+	    }
 
-	    for (var i = 0; i < n; i++) {
-	        var o = nodes[i];
-	        maxX = Math.max(maxX, o.x);
-	        maxY = Math.max(maxY, o.y);
-	        minX = Math.min(minX, o.x);
-	        minY = Math.min(minY, o.y);
-	    };
-
-	    var scX = minX !== maxX ? 1 / (maxX - minX) : ((minX -= 0.5), 1);
-	    var scY = minY !== maxY ? 1 / (maxY - minY) : ((minY -= 0.5), 1);
+	    var scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : ((minX -= 0.5), 1);
+	    var scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : ((minY -= 0.5), 1);
 
 	    for (var i = 0; i < n; i++) {
 	        var o = nodes[i];
 	        o.x = scX * (o.x - minX);
 	        o.y = scY * (o.y - minY);
 	    }
+	    
+	    return dim;
 	}
 
 	module.exports = layout;
 
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ },
 /* 8 */
@@ -2240,7 +2355,14 @@
 	    var s = geomutils.edgeSource(e.source);
 	    var t = geomutils.edgeTarget(e.source);
 	    
-	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
+	    return {
+	            x: (s.x+t.x)/2, 
+	            y: (s.y+t.y)/2, 
+	            uniqid: e.uniqid, 
+	            index: e.index, 
+	            is_edge: true, 
+	            e: e.source
+	    };
 	  }
 	  
 	  return e.source;
@@ -2252,11 +2374,43 @@
 	    var s = geomutils.edgeSource(e.target);
 	    var t = geomutils.edgeTarget(e.target);
 	    
-	    return {x: (s.x+t.x)/2, y: (s.y+t.y)/2, uniqid: e.uniqid, index: e.index, is_edge: true};
+	    return {
+	            x: (s.x+t.x)/2,
+	            y: (s.y+t.y)/2,
+	            uniqid: e.uniqid,
+	            index: e.index,
+	            is_edge: true,
+	            e: e.target
+	    };
 	  }
 
 	  return e.target;
 	};
+
+	geomutils.getCurveShift = (e ,r) => {
+	    r = r || {};
+	    r.x = r.y = r.cx = r.cy = 0;
+	    if(!e)
+	      return r;
+	    if(e.t && e.t >= 1){	//curve or circle
+	      if(e.t >= 2){ //circle
+		var s = geomutils.edgeSource(e);
+		var d = s.y < 0.5 ? 1 : -1;
+		
+		r.cx = d * 1.25;
+		r.cy = 0;
+	      }else{
+		var se = geomutils.edgeSource(e);
+		var te = geomutils.edgeTarget(e);
+
+		r.x = se.x - te.x;
+		r.y = se.y - te.y;
+	      }
+	    }
+	    return r;
+	};
+
+
 
 	module.exports = geomutils;
 
@@ -2349,7 +2503,7 @@
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush, geomutils){
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(14), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = function(rbush, ccNetViz_geomutils){
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2654,7 +2808,34 @@
 	}
 
 
+	var ct = {};
+	function getEdgeShift(context, screensize, e, ct){
+	  ccNetViz_geomutils.getCurveShift(e,ct);
+	  
+	  var ctx,cty,citx,city;
+	  
+	  ctx = -ct.y;
+	  cty = ct.x * context.aspect2;
+	  
+	  var len2 = ctx*context.width*ctx*context.width + cty*context.height*cty*context.height;
+	  
+	  if(eq(len2, 0)){
+	    ctx = 0;
+	    cty = 0;
+	  }else{
+	    var len = Math.sqrt(len2);
+	    ctx *= context.curveExc * 0.25 * screensize / len;
+	    cty *= context.curveExc * 0.25 * screensize / len;
+	  }
 
+	  var sizex = 2.5 * context.nodeSize * screensize / context.width;
+	  var sizey = 2.5 * context.nodeSize * screensize / context.height;
+	  citx = -ct.cy * 0.5 * sizex;
+	  city = ct.cx * 0.5 * sizey;
+	  
+	  ct.x = ctx + citx;
+	  ct.y = cty + city;
+	}
 
 	class Node{
 	  constructor(n){
@@ -2677,23 +2858,40 @@
 	    this.isEdge = true;
 	    this.e = l;
 	  };
-	  getBBox(){
-	    var s = geomutils.edgeSource(this.e);
-	    var t = geomutils.edgeTarget(this.e);
+	  getPoints(context, size){
+	    var x1,y1,x2,y2;
 	    
-	    return [Math.min(s.x,t.x), Math.min(s.y,t.y), Math.max(s.x,t.x), Math.max(s.y,t.y)];
-	  };
-	  intersectsRect(x1,y1,x2,y2){
-	    var s = geomutils.edgeSource(this.e);
-	    var t = geomutils.edgeTarget(this.e);
+	    var s = ccNetViz_geomutils.edgeSource(this.e);
+	    var t = ccNetViz_geomutils.edgeTarget(this.e);
+	    
+	    x1 = s.x;
+	    y1 = s.y;
+	    x2 = t.x;
+	    y2 = t.y;
+	    
+	    getEdgeShift(context, size, s.e, ct);
+	    x1 += ct.x;
+	    y1 += ct.y;
+	    getEdgeShift(context, size, t.e, ct);
+	    x2 += ct.x;
+	    y2 += ct.y;
 
-	    return lineIntersectsRect(s.x, s.y, t.x, t.y, x1,y1,x2,y2);
+	    return [x1,y1,x2,y2];
 	  };
-	  dist2(x,y, context){
-	    var s = geomutils.edgeSource(this.e);
-	    var t = geomutils.edgeTarget(this.e);
+	  getBBox(context, size){
+	    var p = this.getPoints(context, size);
+	    
+	    return [Math.min(p[0],p[2]), Math.min(p[1],p[3]), Math.max(p[0],p[2]), Math.max(p[1],p[3])];
+	  };
+	  intersectsRect(x1,y1,x2,y2, context, size){
+	    var p = this.getPoints(context, size);
 
-	    return pDistance2(x,y,s.x,s.y,t.x,t.y);
+	    return lineIntersectsRect(p[0], p[1], p[2], p[3], x1,y1,x2,y2);
+	  };
+	  dist2(x,y, context, size){
+	    var p = this.getPoints(context, size);
+
+	    return pDistance2(x,y,p[0],p[1],p[2],p[3]);
 	  };
 	}
 
@@ -2704,7 +2902,7 @@
 	  };
 	  getBezierPoints(context, screensize){
 	    var x1,y1,s;
-	    s = geomutils.edgeSource(this.e);
+	    s = ccNetViz_geomutils.edgeSource(this.e);
 	    x1 = s.x;
 	    y1 = s.y;
 
@@ -2713,6 +2911,10 @@
 	    var ysize = size / context.height / 2;
 
 	    var d = s.y < 0.5 ? 1 : -1;
+
+	    getEdgeShift(context, size, s.e, ct);
+	    x1 += ct.x;
+	    y1 += ct.y;
 	    
 	    return [
 	      x1,
@@ -2752,8 +2954,8 @@
 	  };
 	  getBezierPoints(context, size, normalize){
 	    var x1,x2,y1,y2;
-	    var s = geomutils.edgeSource(this.e);
-	    var t = geomutils.edgeTarget(this.e);
+	    var s = ccNetViz_geomutils.edgeSource(this.e);
+	    var t = ccNetViz_geomutils.edgeTarget(this.e);
 
 	    x1 = s.x;
 	    y1 = s.y;
@@ -2771,6 +2973,13 @@
 
 	    n2 *= context.curveExc*size/l;
 	    n3 *= context.curveExc*size/l;
+
+	    getEdgeShift(context, size, s.e, ct);
+	    x1 += ct.x;
+	    y1 += ct.y;
+	    getEdgeShift(context, size, t.e, ct);
+	    x2 += ct.x;
+	    y2 += ct.y;
 
 	    var ret = [
 	      x1,
@@ -2803,7 +3012,9 @@
 
 
 	class spatialIndex{
-	  constructor(c, nodes, lines, curves, circles, size, normalize){
+	  constructor(c, nodes, lines, curves, circles, normalize){
+	    var size = 1;
+	    
 	    this.normalize = normalize;
 	    
 	    //tree initialization
