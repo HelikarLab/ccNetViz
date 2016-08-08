@@ -438,15 +438,15 @@ var ccNetViz = function(canvas, options){
     canvas.height = canvas.offsetHeight;
   }
 
-  this.setViewport = function(v) {
+  this.setViewport = function(v, silent) {
     if(checkRemoved()) return;
 
     for(var k in v){view[k] = v[k]};
 
-    options.onChangeViewport(view);
+    !silent && options.onChangeViewport(view);
   }
 
-  this.resetView = () => this.setViewport({size:1,x:0,y:0});
+  this.resetView = (silent) => this.setViewport({size:1,x:0,y:0}, silent);
 
   var self = this;
   //expose these methods from layer into this class
@@ -472,7 +472,7 @@ var ccNetViz = function(canvas, options){
   view = {};
   var context = {};
 
-  this.resetView();
+  this.resetView(true);
   this.resize();
 
   var textures = new ccNetViz_textures(options.onLoad || this.draw);
