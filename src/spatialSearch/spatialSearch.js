@@ -512,6 +512,8 @@ var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
 
 class spatialIndex{
   constructor(c, nodes, lines, curves, circles, normalize){
+    
+    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
     var size = 1;
     
     this.normalize = normalize;
@@ -647,6 +649,7 @@ class spatialIndex{
     return ret;
   }
   update(context, t, i, v){
+    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
     var size = 1;
 
     this.rbushtree.remove(this.types[t][i]);
