@@ -305,8 +305,10 @@ function bezierIntersectsRect(a,d,b,e,c,f, r1x, r1y, r2x, r2y)
 
 var ct = {};
 function getEdgeShift(context, screensize, e, ct){
-  ccNetViz_geomutils.getCurveShift(e,ct);
+  ccNetViz_geomutils.getCurveShift(e,ct);	//get shift because of edge-to-edge functionality
   
+  
+  //compute all transformations made in the vertex shader
   var ctx,cty,citx,city;
   
   ctx = -ct.y;
@@ -506,6 +508,8 @@ function sortByDistances(e1, e2){
 }
 
 
+var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+
 class spatialIndex{
   constructor(c, nodes, lines, curves, circles, normalize){
     var size = 1;
@@ -642,8 +646,9 @@ class spatialIndex{
 
     return ret;
   }
-  update(context, size, t, i, v){
-    var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+  update(context, t, i, v){
+    var size = 1;
+
     this.rbushtree.remove(this.types[t][i]);
 
     var e = new tConst[t](v);
