@@ -57,7 +57,7 @@ function mergeArrays(a, b, cmp){
 }
 
 var ccNetViz = function(canvas, options){
-  options.onChangeViewport = options.onChangeViewport || function(){};
+  options = ccNetViz_utils.extend({onChangeViewport: () => {}, onDrag: () => {return true;}, onZoom: () => {return true;}}, options);
 
 
   var backgroundStyle = options.styles.background = options.styles.background || {};
@@ -115,19 +115,22 @@ var ccNetViz = function(canvas, options){
   
   var layers = {};
   var vizLayout,view,gl,drawFunc;
-
-  var getNodesCnt = (() => {
+  
+  this.cntShownNodes = () => {
     var n = layers.main.cntShownNodes();
     if(layers.temp)
       n+=layers.temp.cntShownNodes();
     return n;
-  });
-  var getEdgesCnt = (() => {
+  }
+  var getNodesCnt = options.getNodesCnt || this.cntShownNodes;
+  
+  this.cntShownEdges = () => {
     var e = layers.main.cntShownEdges();
     if(layers.temp)
       e+=layers.temp.cntShownEdges();
     return e;
-  });
+  }
+  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
   var self = this;
   var onRedraw = ccNetViz_utils.debounce(() => {
@@ -386,6 +389,22 @@ var ccNetViz = function(canvas, options){
 
     removed = true;
   }
+  
+  var last_view = {};
+  function checkChangeViewport(){
+    var is_change = false;
+    if(last_view){
+      for(var k in view){
+	if(last_view[k] !== view[k]) 
+	  is_change = true;
+      }
+    }
+    ccNetViz_utils.extend(last_view, view);
+       
+    if(is_change){
+      options.onChangeViewport(view);
+    }
+  }
 
   function onMouseDown(e) {
       var width = canvas.width / view.size;
@@ -394,17 +413,28 @@ var ccNetViz = function(canvas, options){
       var dy = e.clientY / height - view.y;
 
       var drag = e => {
-	  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-	  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-	  this.draw();
-	  e.preventDefault();
+          var oldx = view.x;
+          var oldy = view.y;
 
-	  options.onChangeViewport(view);
+          view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+          view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+  
+          e.preventDefault()
+          if(options.onDrag(view) === false){
+            view.x = oldx;
+            view.y = oldy;
+            return;
+          }
+
+          checkChangeViewport();
+
+          this.draw();
+  
       };
 
       var up = () => {
-	  window.removeEventListener('mouseup', up);
-	  window.removeEventListener('mousemove', drag);
+          window.removeEventListener('mouseup', up);
+          window.removeEventListener('mousemove', drag);
       };
       window.addEventListener('mouseup', up);
       window.addEventListener('mousemove', drag);
@@ -415,14 +445,27 @@ var ccNetViz = function(canvas, options){
       var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
       var delta = size - view.size;
 
+      e.preventDefault();
+
+      var oldsize = view.size;
+      var oldx = view.x;
+      var oldy = view.y;
+      
+      
       view.size = size;
       view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
       view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
 
+      if(options.onZoom(view) === false){
+        view.size = oldsize;
+        view.x = oldx;
+        view.y = oldy;
+        return;
+      }
+      
+      checkChangeViewport();
+      
       this.draw();
-      e.preventDefault();
-
-      options.onChangeViewport(view);
   }
 
   this.image = function() {
@@ -438,15 +481,15 @@ var ccNetViz = function(canvas, options){
     canvas.height = canvas.offsetHeight;
   }
 
-  this.setViewport = function(v, silent) {
+  this.setViewport = function(v) {
     if(checkRemoved()) return;
 
-    for(var k in v){view[k] = v[k]};
+    ccNetViz_utils.extend(view, v);
 
-    !silent && options.onChangeViewport(view);
+    checkChangeViewport();
   }
 
-  this.resetView = (silent) => this.setViewport({size:1,x:0,y:0}, silent);
+  this.resetView = () => this.setViewport({size:1,x:0,y:0});
 
   var self = this;
   //expose these methods from layer into this class
@@ -469,10 +512,9 @@ var ccNetViz = function(canvas, options){
   gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
   gl.enable(gl.BLEND);
 
-  view = {};
+  var view = {size:1,x:0,y:0};
   var context = {};
 
-  this.resetView(true);
   this.resize();
 
   var textures = new ccNetViz_textures(options.onLoad || this.draw);

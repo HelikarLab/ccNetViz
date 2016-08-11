@@ -215,7 +215,7 @@
 	}
 
 	var ccNetViz = function(canvas, options){
-	  options.onChangeViewport = options.onChangeViewport || function(){};
+	  options = ccNetViz_utils.extend({onChangeViewport: () => {}, onDrag: () => {return true;}, onZoom: () => {return true;}}, options);
 
 
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
@@ -273,19 +273,22 @@
 	  
 	  var layers = {};
 	  var vizLayout,view,gl,drawFunc;
-
-	  var getNodesCnt = (() => {
+	  
+	  this.cntShownNodes = () => {
 	    var n = layers.main.cntShownNodes();
 	    if(layers.temp)
 	      n+=layers.temp.cntShownNodes();
 	    return n;
-	  });
-	  var getEdgesCnt = (() => {
+	  }
+	  var getNodesCnt = options.getNodesCnt || this.cntShownNodes;
+	  
+	  this.cntShownEdges = () => {
 	    var e = layers.main.cntShownEdges();
 	    if(layers.temp)
 	      e+=layers.temp.cntShownEdges();
 	    return e;
-	  });
+	  }
+	  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
 	  var self = this;
 	  var onRedraw = ccNetViz_utils.debounce(() => {
@@ -544,6 +547,22 @@
 
 	    removed = true;
 	  }
+	  
+	  var last_view = {};
+	  function checkChangeViewport(){
+	    var is_change = false;
+	    if(last_view){
+	      for(var k in view){
+		if(last_view[k] !== view[k]) 
+		  is_change = true;
+	      }
+	    }
+	    ccNetViz_utils.extend(last_view, view);
+	       
+	    if(is_change){
+	      options.onChangeViewport(view);
+	    }
+	  }
 
 	  function onMouseDown(e) {
 	      var width = canvas.width / view.size;
@@ -552,17 +571,28 @@
 	      var dy = e.clientY / height - view.y;
 
 	      var drag = e => {
-		  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-		  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-		  this.draw();
-		  e.preventDefault();
+	          var oldx = view.x;
+	          var oldy = view.y;
 
-		  options.onChangeViewport(view);
+	          view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+	          view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+	  
+	          e.preventDefault()
+	          if(options.onDrag(view) === false){
+	            view.x = oldx;
+	            view.y = oldy;
+	            return;
+	          }
+
+	          checkChangeViewport();
+
+	          this.draw();
+	  
 	      };
 
 	      var up = () => {
-		  window.removeEventListener('mouseup', up);
-		  window.removeEventListener('mousemove', drag);
+	          window.removeEventListener('mouseup', up);
+	          window.removeEventListener('mousemove', drag);
 	      };
 	      window.addEventListener('mouseup', up);
 	      window.addEventListener('mousemove', drag);
@@ -573,14 +603,27 @@
 	      var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
 	      var delta = size - view.size;
 
+	      e.preventDefault();
+
+	      var oldsize = view.size;
+	      var oldx = view.x;
+	      var oldy = view.y;
+	      
+	      
 	      view.size = size;
 	      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
 	      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
 
+	      if(options.onZoom(view) === false){
+	        view.size = oldsize;
+	        view.x = oldx;
+	        view.y = oldy;
+	        return;
+	      }
+	      
+	      checkChangeViewport();
+	      
 	      this.draw();
-	      e.preventDefault();
-
-	      options.onChangeViewport(view);
 	  }
 
 	  this.image = function() {
@@ -596,15 +639,15 @@
 	    canvas.height = canvas.offsetHeight;
 	  }
 
-	  this.setViewport = function(v, silent) {
+	  this.setViewport = function(v) {
 	    if(checkRemoved()) return;
 
-	    for(var k in v){view[k] = v[k]};
+	    ccNetViz_utils.extend(view, v);
 
-	    !silent && options.onChangeViewport(view);
+	    checkChangeViewport();
 	  }
 
-	  this.resetView = (silent) => this.setViewport({size:1,x:0,y:0}, silent);
+	  this.resetView = () => this.setViewport({size:1,x:0,y:0});
 
 	  var self = this;
 	  //expose these methods from layer into this class
@@ -627,10 +670,9 @@
 	  gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
 	  gl.enable(gl.BLEND);
 
-	  view = {};
+	  var view = {size:1,x:0,y:0};
 	  var context = {};
 
-	  this.resetView(true);
 	  this.resize();
 
 	  var textures = new ccNetViz_textures(options.onLoad || this.draw);
@@ -1032,7 +1074,7 @@
 	      scene.labels.updateEl(gl, n, i, labelsFiller);
 	      
 	      if(spatialSearch)
-	        spatialSearch.update(context, view.size, 'nodes', i, n);
+	        spatialSearch.update(context, 'nodes', i, n);
 	    };
 	    
 	    this.updateEdge = ((e, i) => {
@@ -1045,7 +1087,7 @@
 		scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
 	      
 	      if(spatialSearch)
-	        spatialSearch.update(context, view.size, t.k, pos, e);
+	        spatialSearch.update(context, t.k, pos, e);
 	    });
 	    
 	    var removedNodes = 0;
@@ -2403,17 +2445,17 @@
 	      return r;
 	    if(e.t && e.t >= 1){	//curve or circle
 	      if(e.t >= 2){ //circle
-		var s = geomutils.edgeSource(e);
-		var d = s.y < 0.5 ? 1 : -1;
-		
-		r.cx = d * 1.25;
-		r.cy = 0;
-	      }else{
-		var se = geomutils.edgeSource(e);
-		var te = geomutils.edgeTarget(e);
+	        var s = geomutils.edgeSource(e);
+	        var d = s.y < 0.5 ? 1 : -1;
 
-		r.x = se.x - te.x;
-		r.y = se.y - te.y;
+	        r.cx = d * 1.25;
+	        r.cy = 0;
+	      }else{
+	        var se = geomutils.edgeSource(e);
+	        var te = geomutils.edgeTarget(e);
+
+	        r.x = se.x - te.x;
+	        r.y = se.y - te.y;
 	      }
 	    }
 	    return r;
@@ -2819,8 +2861,10 @@
 
 	var ct = {};
 	function getEdgeShift(context, screensize, e, ct){
-	  ccNetViz_geomutils.getCurveShift(e,ct);
+	  ccNetViz_geomutils.getCurveShift(e,ct);	//get shift because of edge-to-edge functionality
 	  
+	  
+	  //compute all transformations made in the vertex shader
 	  var ctx,cty,citx,city;
 	  
 	  ctx = -ct.y;
@@ -3020,8 +3064,12 @@
 	}
 
 
+	var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+
 	class spatialIndex{
 	  constructor(c, nodes, lines, curves, circles, normalize){
+	    
+	    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
 	    var size = 1;
 	    
 	    this.normalize = normalize;
@@ -3156,8 +3204,10 @@
 
 	    return ret;
 	  }
-	  update(context, size, t, i, v){
-	    var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+	  update(context, t, i, v){
+	    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
+	    var size = 1;
+
 	    this.rbushtree.remove(this.types[t][i]);
 
 	    var e = new tConst[t](v);
@@ -3842,6 +3892,15 @@
 	    };
 	};
 
+	utils.extend = function(from){
+	  for(var i = 1; i < arguments.length; i++){
+	    for(var k in arguments[i]){
+	      from[k] = arguments[i][k];
+	    }
+	  }
+	  return from;
+	}
+
 	module.exports = utils;
 
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -4006,9 +4065,9 @@
 	    toAddEdges.forEach((e) => {
 	      //already added in main graph
 	      if(
-		ePos[e.uniqid] !== undefined
+	        ePos[e.uniqid] !== undefined
 	      ){
-		doRemoveEdges([e]);
+	        doRemoveEdges([e]);
 	      }
 	      
 	      if(e.uniqid !== undefined){
