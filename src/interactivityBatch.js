@@ -108,9 +108,9 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
     toAddEdges.forEach((e) => {
       //already added in main graph
       if(
-	ePos[e.uniqid] !== undefined
+        ePos[e.uniqid] !== undefined
       ){
-	doRemoveEdges([e]);
+        doRemoveEdges([e]);
       }
       
       if(e.uniqid !== undefined){
