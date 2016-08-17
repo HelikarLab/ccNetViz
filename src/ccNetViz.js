@@ -104,8 +104,12 @@ var ccNetViz = function(canvas, options){
   
 
   var checkUniqId = (el) => {
-    if(el.uniqid === undefined)
+    if(el.__uniqid !== undefined){
+      el.uniqid = el.__uniqid;
+      delete el.__uniqid;
+    }else if(el.uniqid === undefined){
       el.uniqid = ++lastUniqId;
+    }
   }
   
   function getContext(){
@@ -151,13 +155,13 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);      
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
   }
 
   var batch = undefined;
   function getBatch(){
     if(!batch)
-      batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges);
+      batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
     return batch;
   };
   
@@ -199,8 +203,8 @@ var ccNetViz = function(canvas, options){
   
   this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
   this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
-  this.addEdge = (e) => { if(checkRemoved()){return this;} checkUniqId(e); getBatch().addEdge(e); return this;};
-  this.addNode = (n) => { if(checkRemoved()){return this;} checkUniqId(n); getBatch().addNode(n); return this;};
+  this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
+  this.addNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this;};
   this.updateNode = (n) => { if(checkRemoved()){return this;} this.removeNode(n); this.addNode(n); return this; };
   this.updateEdge = (e) => { if(checkRemoved()){return this;} this.removeEdge(e); this.addEdge(e); return this; };
   this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };

@@ -19,7 +19,7 @@ function pushUnique(arr, e){
   arr.push(e);
 }
 
-var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
+var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, checkUniqId){
     var toAddEdges = [];
     var toAddNodes = [];
     var toRemoveEdges = [];
@@ -70,6 +70,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
         }
       }
       
+      n.__uniqid = n.uniqid;
       delete n.uniqid;
     });
   }
@@ -100,6 +101,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
 
       }
       
+      e.__uniqid = e.uniqid;
       delete e.uniqid;
     });
   }
@@ -118,6 +120,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
         console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
         return;
       }
+      checkUniqId(e);
       
       //add this node into temporary chart
       
@@ -138,6 +141,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges){
         console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
         return;
       }
+      checkUniqId(n);
       
       eDirs[n.uniqid] = {};
 
