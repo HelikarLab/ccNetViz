@@ -1,7 +1,7 @@
 Network graphs visualization library
 ====================================
 
-[ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight (22kB minified), high performance javascript library for large network graphs visualization using WebGL.
+[ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs visualization using WebGL.
 It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
@@ -115,7 +115,11 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
     }
   },
   onChangeViewport: function(viewport){},	//called every time viewport changes
-  onLoad: function(){}	//called when graph loaded
+  onLoad: function(){},	//called when graph loaded
+  getNodesCount(){},	//callback to use if you want to force nodes count into this library (used to calculate curve excentricity and other built in options), expecting number as return value
+  getEdgesCount(){},		//callback to use if you want to force edges count into this library (used to calculate curve excentricity and other built in options), expecting number as return value
+  onDrag: function(viewport){}, //drag event, disable original evet in case of return false
+  onZoom: function(viewport){}, //zoom event, disable original evet in case of return false
 }
 ```
 
@@ -181,6 +185,14 @@ Set graph viewport.
   "size": 0.98,	//size value of viewport (number in range 0-1) - the amount of original screen that is visible, optional
 }
 ```
+
+***cntShownNodes()***
+
+Get number of nodes
+
+***cntShownEdges()***
+
+Get number of edges
 
 
 ***remove()***
