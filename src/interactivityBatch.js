@@ -59,6 +59,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         //in the normal graph
         var pos = nPos[n.uniqid];
         layers.main.removeNodeAtPos(pos);
+        delete nPos[n.uniqid];
       }else{
         //try to remove from temp graph
         
@@ -89,6 +90,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         //in the normal graph
         var pos = ePos[e.uniqid];
         layers.main.removeEdgeAtPos(pos);
+        delete ePos[n.uniqid];
       }else{
         //try to remove from temp graph
         
@@ -132,7 +134,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
   function doAddNodes(nodes){
     toAddNodes.forEach((n) => {
       if(nPos[n.uniqid] !== undefined){
-	doRemoveNodes([n]);
+        doRemoveNodes([n]);
       }
       
       //already added
