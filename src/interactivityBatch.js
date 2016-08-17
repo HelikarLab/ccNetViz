@@ -90,7 +90,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         //in the normal graph
         var pos = ePos[e.uniqid];
         layers.main.removeEdgeAtPos(pos);
-        delete ePos[n.uniqid];
+        delete ePos[e.uniqid];
       }else{
         //try to remove from temp graph
         
