@@ -51,7 +51,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 * Complex graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/complex.html)
 * Mouse event on hover - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_hover.html)
 * Mouse events on move - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
-* Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
+* Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/multi_level.html)
 * Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
 * User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
 * Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
