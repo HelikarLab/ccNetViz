@@ -57,9 +57,6 @@ function mergeArrays(a, b, cmp){
 }
 
 var ccNetViz = function(canvas, options){
-  options = ccNetViz_utils.extend({onChangeViewport: () => {}, onDrag: () => {return true;}, onZoom: () => {return true;}}, options);
-
-
   var backgroundStyle = options.styles.background = options.styles.background || {};
   var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
   
@@ -406,7 +403,7 @@ var ccNetViz = function(canvas, options){
     ccNetViz_utils.extend(last_view, view);
        
     if(is_change){
-      options.onChangeViewport(view);
+      options.onChangeViewport && options.onChangeViewport(view);
     }
   }
 
@@ -424,7 +421,7 @@ var ccNetViz = function(canvas, options){
           view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
   
           e.preventDefault()
-          if(options.onDrag(view) === false){
+          if(options.onDrag && options.onDrag(view) === false){
             view.x = oldx;
             view.y = oldy;
             return;
@@ -460,7 +457,7 @@ var ccNetViz = function(canvas, options){
       view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
       view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
 
-      if(options.onZoom(view) === false){
+      if(options.onZoom && options.onZoom(view) === false){
         view.size = oldsize;
         view.x = oldx;
         view.y = oldy;
