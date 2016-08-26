@@ -408,37 +408,49 @@ var ccNetViz = function(canvas, options){
   }
 
   function onMouseDown(e) {
-      var width = canvas.width / view.size;
-      var height = canvas.height / view.size;
-      var dx = view.x + e.clientX / width;
-      var dy = e.clientY / height - view.y;
+    var width = canvas.width / view.size;
+    var height = canvas.height / view.size;
+    var sx = e.clientX;
+    var sy = e.clientY;
+    var dx = view.x + sx / width;
+    var dy = sy / height - view.y;
+    var od = options.onDrag;
+    var dragged, custom;
 
-      var drag = e => {
-          var oldx = view.x;
-          var oldy = view.y;
-
-          view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-          view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-  
-          e.preventDefault()
-          if(options.onDrag && options.onDrag(view) === false){
-            view.x = oldx;
-            view.y = oldy;
-            return;
+    var drag = e => {
+      if (dragged) {
+          if (custom) {
+              od.drag && od.drag(e);
           }
+          else {
+              view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+              view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+              checkChangeViewport();
+              this.draw();
+          }
+      }
+      else {
+          var mx = e.clientX - sx;
+          var my = e.clientY - sy;
 
-          checkChangeViewport();
+          if (mx * mx + my * my > 8) {
+              dragged = true;
+              custom = od && od.start({ clientX: sx, clientY: sy });
+              custom && od.drag && od.drag(e);
+          }
+      }
+      e.preventDefault();
+    };
 
-          this.draw();
-  
-      };
+    var up = e => {
+        custom && od.stop && od.stop(e);
+        !dragged && options.onClick && options.onClick(e);
 
-      var up = () => {
-          window.removeEventListener('mouseup', up);
-          window.removeEventListener('mousemove', drag);
-      };
-      window.addEventListener('mouseup', up);
-      window.addEventListener('mousemove', drag);
+        window.removeEventListener('mouseup', up);
+        window.removeEventListener('mousemove', drag);
+    };
+    window.addEventListener('mouseup', up);
+    window.addEventListener('mousemove', drag);
   }
 
   function onWheel(e) {
@@ -480,6 +492,10 @@ var ccNetViz = function(canvas, options){
 
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+  }
+
+  this.getViewport = function() {
+    return view;
   }
 
   this.setViewport = function(v) {
