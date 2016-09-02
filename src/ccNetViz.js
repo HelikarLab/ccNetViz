@@ -163,7 +163,7 @@ var ccNetViz = function(canvas, options){
   };
   
   this.set = (n, e, layout) => {
-    if(checkRemoved()) return;
+    if(checkRemoved()) return this;
     
     nodes = n || [];
     edges = e || [];
@@ -177,6 +177,7 @@ var ccNetViz = function(canvas, options){
     
     //reset batch
     batch = undefined;
+    return this;
   };
   
   //make all dynamic changes static
@@ -518,6 +519,7 @@ var ccNetViz = function(canvas, options){
 	  var l = layers[k];
           l[method].apply(l,args);
         };
+        return self;
       };
     })(method, self);
   });
