@@ -78,7 +78,7 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
     
     var ct1 = {}, ct2 = {}, ct = {};
     var setVerticeCurveShift = (v,iV,s,t) => {
-        var csx,csy,ctx,cty,cisx,sisy,citx,city;
+        var csx,csy,ctx,cty,cisx,cisy,sisy,citx,city;
         ccNetViz_geomutils.getCurveShift(t.e,ct1);
         ctx = ct1.x;
         cty = ct1.y;

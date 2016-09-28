@@ -24,6 +24,7 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
     var toAddNodes = [];
     var toRemoveEdges = [];
     var toRemoveNodes = [];
+    var actualTempNodes, actualTempEdges;
     
     var ePos,nPos,eDirs,lastNodeIndex,lastEdgeIndex;
     
@@ -46,8 +47,6 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         eDirs[s.uniqid][t.uniqid] = e;
         ePos[e.uniqid] = i;
       });
-      
-      supStructsCreated = true;
     };
 
   function doRemoveNodes(nodes){

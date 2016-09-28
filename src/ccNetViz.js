@@ -147,7 +147,7 @@ var ccNetViz = function(canvas, options){
     return false;
   }
     
-  var nodes, nodes;
+  var nodes, edges;
   
   function insertTempLayer(){
     if(layers.temp)

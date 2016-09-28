@@ -46,8 +46,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(1),
-	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
-	    ){
+	    ], __WEBPACK_AMD_DEFINE_RESULT__ = function(ccNetViz){
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -83,13 +82,13 @@
 	  });
 
 	  canvas.addEventListener('click', onClick = function(e){
-	    var bb = el.getBoundingClientRect();
+	    var bb = canvas.getBoundingClientRect();
 
 	    var x = e.clientX - bb.left;
 	    var y = e.clientY - bb.top;
 	    var radius = 5;
 
-	    var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+	    var lCoords = vizScreen.getLayerCoords({radius: radius, x:x, y:y});
 	    var result = vizScreen.find(lCoords.x,lCoords.y,lCoords.radius,true,false);
 	    if(result.nodes.length > 0){
 	      var node = result.nodes[0].node;
@@ -127,8 +126,6 @@
 
 
 	  this.set = function(nodes, edges, layout){
-	    toplevels = [];
-
 	    curlevel = {nodes: nodes, edges: edges};
 	    history = [];
 
@@ -305,7 +302,7 @@
 	    return false;
 	  }
 	    
-	  var nodes, nodes;
+	  var nodes, edges;
 	  
 	  function insertTempLayer(){
 	    if(layers.temp)
@@ -793,7 +790,7 @@
 	    
 	    var ct1 = {}, ct2 = {}, ct = {};
 	    var setVerticeCurveShift = (v,iV,s,t) => {
-	        var csx,csy,ctx,cty,cisx,sisy,citx,city;
+	        var csx,csy,ctx,cty,cisx,cisy,sisy,citx,city;
 	        ccNetViz_geomutils.getCurveShift(t.e,ct1);
 	        ctx = ct1.x;
 	        cty = ct1.y;
@@ -4000,6 +3997,7 @@
 	    var toAddNodes = [];
 	    var toRemoveEdges = [];
 	    var toRemoveNodes = [];
+	    var actualTempNodes, actualTempEdges;
 	    
 	    var ePos,nPos,eDirs,lastNodeIndex,lastEdgeIndex;
 	    
@@ -4022,8 +4020,6 @@
 	        eDirs[s.uniqid][t.uniqid] = e;
 	        ePos[e.uniqid] = i;
 	      });
-	      
-	      supStructsCreated = true;
 	    };
 
 	  function doRemoveNodes(nodes){

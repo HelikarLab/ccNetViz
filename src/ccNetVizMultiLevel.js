@@ -1,8 +1,7 @@
-define([
+﻿define([
 	'./ccNetViz',
     ], 
-    function(
-    ){
+    function(ccNetViz){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -38,13 +37,13 @@ var ccNetVizMultiLevel = function(canvas, options){
   });
 
   canvas.addEventListener('click', onClick = function(e){
-    var bb = el.getBoundingClientRect();
+    var bb = canvas.getBoundingClientRect();
 
     var x = e.clientX - bb.left;
     var y = e.clientY - bb.top;
     var radius = 5;
 
-    var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+    var lCoords = vizScreen.getLayerCoords({radius: radius, x:x, y:y});
     var result = vizScreen.find(lCoords.x,lCoords.y,lCoords.radius,true,false);
     if(result.nodes.length > 0){
       var node = result.nodes[0].node;
@@ -82,8 +81,6 @@ var ccNetVizMultiLevel = function(canvas, options){
 
 
   this.set = function(nodes, edges, layout){
-    toplevels = [];
-
     curlevel = {nodes: nodes, edges: edges};
     history = [];
 
