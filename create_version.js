@@ -1,11 +1,9 @@
-var ClosureCompiler = require('google-closure-compiler').compiler;
-
-
-console.log('Compiling ccNetViz library');
-
 var fs = require('fs');
 
 var version = fs.readFileSync('curversion');
+
+
+console.log('Creating ccNetViz library v: '+version);
 
 function copyFile(from, to){
     fs.createReadStream(from).pipe(fs.createWriteStream(to));

@@ -1,0 +1,28 @@
+====================================
+Create builded version (packed) - dist/ccNetViz.js
+
+run:
+$ npm run build
+
+
+
+
+
+====================================
+Create compiled version (with Google closure compiler) - dist/ccNetViz.min.js
+
+run:
+$ npm run compiled
+
+
+
+
+
+
+====================================
+Create compiled version with version code - dist/builds/ccNetViz-VERSION.js and dist/builds/ccNetViz-VERSION.min.js
+
+run:
+$ npm run compiled
+$ npm run create-version
+
