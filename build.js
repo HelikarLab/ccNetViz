@@ -9,7 +9,7 @@ process.argv.forEach(function (val, index, array) {
 var ClosureCompiler = require('google-closure-compiler').compiler;
 
 function runClosueCompiler(){
-    if(!flags.compiled)
+    if(!flags.compile)
       return;
 
     console.log('Compiling ccNetViz library with Google closure compiler');
