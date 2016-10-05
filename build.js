@@ -52,6 +52,7 @@ var webpackinst = Webpack({
 //      test: /\.js?$/g,
       exclude: /(node_modules|bower_components)/,
       query: {
+//	plugins: ['transform-es2015-modules-commonjs'],
         presets: ['es2015']
 //      compact: false
       },
@@ -59,6 +60,12 @@ var webpackinst = Webpack({
     }
   ]
   }
+},function(err, stats) {
+        if (err) { 
+            console.error(" --- ERROR in webpack configuration");
+            console.error(stats);
+            process.exit(0);
+        }
 });
 
 
@@ -70,9 +77,23 @@ webpackinst.run(function(err, stats) {
         return;
     }
 
-    console.log(' --- Successfully packed into dist/ccNetViz.js');
 
-    runClosueCompiler();
+    setTimeout(function(){
+      console.log(' --- appending module.exports into dist/ccNetViz.js (import fix)');
+      var fs = require('fs');
+      var filedata = [
+        fs.readFileSync(__dirname+'/dist/ccNetViz.js').toString(),
+        'if(typeof module !== "undefined")',
+        'module.exports = ccNetViz;'
+      ];
+
+      //append to file export
+      fs.writeFileSync(__dirname+'/dist/ccNetViz.js', filedata.join('\n'));
+
+      console.log(' --- Successfully packed into dist/ccNetViz.js');
+
+      runClosueCompiler();
+    },5*100);
 });
 
 
