@@ -142,9 +142,6 @@
 	  };
 
 	  window.ccNetVizMultiLevel = module.exports = ccNetVizMultiLevel;
-
-	  //export ccNetVizMultiLevel;
-	  //export ccNetViz;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
@@ -3998,3 +3995,5 @@
 
 /***/ }
 /******/ ]);
+if(typeof module !== "undefined")
+module.exports = ccNetViz;
