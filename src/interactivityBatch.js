@@ -1,9 +1,4 @@
-define([
-    './geomutils'
-    ], 
-    function(
-      geomutils
-    ){
+var geomutils = require('./geomutils');
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -225,8 +220,5 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
 }
 
 module.exports = interactivityBatch;
-
-});
-
 
  

@@ -1,5 +1,3 @@
-define(function(){
-
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -74,5 +72,3 @@ geomutils.getCurveShift = (e ,r) => {
 
 
 module.exports = geomutils;
-
-});

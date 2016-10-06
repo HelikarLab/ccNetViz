@@ -1,7 +1,5 @@
-﻿define([
-	'./ccNetViz',
-    ], 
-    function(ccNetViz){
+﻿var ccNetViz = require('./ccNetViz');
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -100,7 +98,6 @@ var ccNetVizMultiLevel = function(canvas, options){
 };
 
 
-window.ccNetVizMultiLevel = module.exports = ccNetVizMultiLevel;
+window.ccNetVizMultiLevel = ccNetVizMultiLevel;
 
-
-});
+module.exports = ccNetVizMultiLevel;

@@ -1,4 +1,5 @@
-define(['./utils', './gl'], function(ccNetViz_utils, ccNetViz_gl){
+var ccNetViz_utils = require('./utils');
+var ccNetViz_gl = require('./gl');
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -38,5 +39,3 @@ var textures = function(onLoad) {
 }
 
 module.exports = textures;
-
-});

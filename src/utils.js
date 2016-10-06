@@ -1,5 +1,3 @@
-define(function(){
-
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -52,5 +50,3 @@ utils.extend = function(from){
 }
 
 module.exports = utils;
-
-});

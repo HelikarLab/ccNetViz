@@ -1,4 +1,5 @@
-define(['./force', './random'], function(layoutForce, layoutRandom){
+var layoutForce = require( './force' );
+var layoutRandom = require( './random' );
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -53,5 +54,3 @@ layout.normalize = function(nodes, dim) {
 }
 
 module.exports = layout;
-
-});

@@ -1,4 +1,4 @@
-define(['./gl'], function(ccNetViz_gl){
+var ccNetViz_gl = require( './gl' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -47,5 +47,3 @@ shader.attribute = {
 }
 
 module.exports = shader;
-
-});

@@ -1,4 +1,5 @@
-define(['./rbush', '../geomutils'], function(rbush, ccNetViz_geomutils){
+import rbush from './rbush';
+import ccNetViz_geomutils from '../geomutils';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -510,7 +511,7 @@ function sortByDistances(e1, e2){
 
 var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
 
-class spatialIndex{
+module.exports = class spatialIndex{
   constructor(c, nodes, lines, curves, circles, normalize){
     
     //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
@@ -661,7 +662,3 @@ class spatialIndex{
     this.rbushtree.insert(this.types[t][i] = arr);
   }
 }
-
-module.exports = spatialIndex;
-
-});

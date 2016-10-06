@@ -1,4 +1,4 @@
-define(['../quadTree'], function(ccNetViz_quadtree){
+var ccNetViz_quadtree = require( '../quadTree' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -168,5 +168,3 @@ module.exports = function(nodes, edges) {
         return true;
     };
 };
-
-});

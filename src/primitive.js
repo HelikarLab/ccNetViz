@@ -1,4 +1,5 @@
-define(['./shader', './color'], function(ccNetViz_shader,ccNetViz_color){
+var ccNetViz_shader = require( './shader' );
+var ccNetViz_color  = require( './color' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -228,4 +229,3 @@ primitive.quad = function(buffer, iV, iI) {
 primitive.maxBufferSize = 65536;
 
 module.exports = primitive;
-});

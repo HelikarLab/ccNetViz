@@ -1,21 +1,11 @@
-define([
-        './color',
-        './gl',
-        './primitive', 
-        './layout/layout',
-	'./geomutils',
-        './texts',
-        './spatialSearch/spatialSearch'
-    ], 
-    function(
-        ccNetViz_color,
-        ccNetViz_gl,
-        ccNetViz_primitive,
-        ccNetViz_layout,
-        ccNetViz_geomutils,
-        ccNetViz_texts,
-        ccNetViz_spatialSearch
-    ){
+var ccNetViz_color     = require( './color' );
+var ccNetViz_gl        = require( './gl' );
+var ccNetViz_primitive = require( './primitive' );
+var ccNetViz_layout    = require( './layout/layout' );
+var ccNetViz_geomutils = require( './geomutils' );
+var ccNetViz_texts     = require( './texts' );
+var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -26,7 +16,7 @@ define([
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-var layer = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
+module.exports = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     this.redraw = onRedraw || (() => {});
@@ -823,7 +813,3 @@ var layer = function(canvas, context, view, gl, textures, options, nodeStyle, ed
         };
     }
 }
-
-module.exports = layer;
-
-});

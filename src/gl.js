@@ -1,4 +1,3 @@
-define(function(){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -83,5 +82,3 @@ gl.ortho = function(left, right, bottom, top, near, far) {
 
 
 module.exports = gl;
-
-});

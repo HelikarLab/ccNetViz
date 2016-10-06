@@ -1,4 +1,3 @@
-define(function(){
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -50,4 +49,3 @@ module.exports = function (color) {
         this.r = this.g = this.b = 0;
     }
 };
-});

@@ -1,23 +1,12 @@
-define([
-        './layer',
-        './layout/layout',
-        './gl',
-        './color',
-        './utils',
-        './textures',
-        './interactivityBatch',
-        './spatialSearch/spatialSearch'
-    ], 
-    function(
-        ccNetViz_layer,
-        ccNetViz_layout,
-        ccNetViz_gl,
-        ccNetViz_color,
-        ccNetViz_utils,
-        ccNetViz_textures,
-        ccNetViz_interactivityBatch,
-        ccNetViz_spatialSearch
-    ){
+var ccNetViz_layer = require('./layer');
+var ccNetViz_layout = require('./layout/layout');
+var ccNetViz_gl = require('./gl');
+var ccNetViz_color = require('./color');
+var ccNetViz_utils = require('./utils');
+var ccNetViz_textures = require('./textures');
+var ccNetViz_interactivityBatch = require('./interactivityBatch');
+var ccNetViz_spatialSearch = require('./spatialSearch/spatialSearch');
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -547,6 +536,5 @@ ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
 
 
-return window.ccNetViz = module.exports = ccNetViz;
-
-});
+window.ccNetViz = ccNetViz;
+module.exports = ccNetViz;
