@@ -605,4 +605,4 @@ function swap(arr, i, j) {
     arr[j] = tmp;
 }
 
-export default rbush;
+module.exports = rbush;

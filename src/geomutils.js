@@ -10,8 +10,8 @@ class Geomutils {
   static edgeSource(e) {
     if(e.source.source){
       //source is edge
-      let s = Geomutils.edgeSource(e.source);
-      let t = Geomutils.edgeTarget(e.source);
+      let s = this.edgeSource(e.source);
+      let t = this.edgeTarget(e.source);
       
       return {
               x: (s.x+t.x)/2, 
@@ -29,8 +29,8 @@ class Geomutils {
   static edgeTarget (e) {
     if(e.target.source){
       //target is edge
-      let s = Geomutils.edgeSource(e.target);
-      let t = Geomutils.edgeTarget(e.target);
+      let s = this.edgeSource(e.target);
+      let t = this.edgeTarget(e.target);
       
       return {
               x: (s.x+t.x)/2,
@@ -52,14 +52,14 @@ class Geomutils {
         return r;
       if(e.t && e.t >= 1){	//curve or circle
         if(e.t >= 2){ //circle
-          let s = Geomutils.edgeSource(e);
+          let s = this.edgeSource(e);
           let d = s.y < 0.5 ? 1 : -1;
 
           r.cx = d * 1.25;
           r.cy = 0;
         }else{
-          let se = Geomutils.edgeSource(e);
-          let te = Geomutils.edgeTarget(e);
+          let se = this.edgeSource(e);
+          let te = this.edgeTarget(e);
 
           r.x = se.x - te.x;
           r.y = se.y - te.y;
