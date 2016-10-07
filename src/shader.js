@@ -8,42 +8,54 @@ var ccNetViz_gl = require( './gl' );
  *  Author: David Tichy
  */
 
-var shader = function(gl, vs, fs, shaderParams) {
-    var program = gl.createProgram();
+var defaultAttr = {color: 4};
 
+class Shader {
+  constructor(gl, vs, fs, shaderParams) {
+    this._gl = gl;
+    this._vs = vs;
+    this._fs = fs;
+    
+    let program = this._program = gl.createProgram();
+    
     gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.VERTEX_SHADER, vs));
     gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.FRAGMENT_SHADER, fs));
     gl.linkProgram(program);
-
+    
     this.uniforms = {};
-    var n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-    for (var i = 0; i < n; i++) {
-        var name = gl.getActiveUniform(program, i).name;
+    let n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) {
+        let name = gl.getActiveUniform(program, i).name;
         this.uniforms[name] = gl.getUniformLocation(program, name);
     }
     
-    var attrParams = (shaderParams || {}).attribute || {};
-
+    let attrParams = (shaderParams || {}).attribute || {};
 
     this.attributes = {};
     n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-    for (var i = 0; i < n; i++) {
-        var name = gl.getActiveAttrib(program, i).name;
-        this.attributes[name] = { index: i, size: attrParams[name] || shader.attribute[name] || 2 };
+    for (let i = 0; i < n; i++) {
+        let name = gl.getActiveAttrib(program, i).name;
+        this.attributes[name] = { index: i, size: attrParams[name] || Shader.attribute[name] || 2 };
     }
+    
+  }
+  
+  static get attribute(){
+    return defaultAttr;
+  }
+  
+  bind () {
+    this._gl.useProgram(this._program);
 
-    this.bind = () => {
-        gl.useProgram(program);
-        for (var i = 0; i < n; i++) gl.enableVertexAttribArray(i);
-    };
+    let n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
+    for (let i = 0; i < n; i++) this._gl.enableVertexAttribArray(i);
+  }
 
-    this.unbind = () => {
-        for (var i = 0; i < n; i++) gl.disableVertexAttribArray(i);
-    };
-}
+  unbind () {
+      let n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
+      for (let i = 0; i < n; i++) this._gl.disableVertexAttribArray(i);
+  }
+  
+};
 
-shader.attribute = {
-    color: 4
-}
-
-module.exports = shader;
+module.exports = Shader;
