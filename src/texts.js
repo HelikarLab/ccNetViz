@@ -24,8 +24,6 @@ class Texts {
     this._context.textBaseline = "top";
 
     this._rendered = this._texts = this._x = this._y = this._height = undefined;
-    var rendered, texts;
-    var x, y, height;
 
     this.texture = this._gl.createTexture();
 
@@ -47,9 +45,9 @@ class Texts {
   }
 
   get (text) {
-    var result = this._texts[text];
+    let result = this._texts[text];
     if (!result) {
-	var width = this._context.measureText(text).width;
+	let width = this._context.measureText(text).width;
 	if (this._x + width > this._size) {
 	    this._x = 0;
 	    this._y += this._height;

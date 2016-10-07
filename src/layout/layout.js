@@ -8,25 +8,29 @@ var layoutRandom = require( './random' );
  *  Author: David Tichy
  */
 
-var layout = function() {}
-layout.force = layoutForce;
-layout.random = layoutRandom;
+class Layout {
+  static get force(){
+    return layoutForce;
+  }
 
-
-layout.normalize = function(nodes, dim) {
-    var minX, minY, n = nodes.length;
+  static get random(){
+    return layoutRandom;
+  }
+  
+  static normalize (nodes, dim) {
+    let minX, minY, n = nodes.length;
     
     if (dim) {
         minX = dim.minX;
         minY = dim.minY;
     }
     else {
-        var maxX = -Infinity;
-        var maxY = -Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
         minX = minY = Infinity;
         
-        for (var i = 0; i < n; i++) {
-            var o = nodes[i];
+        for (let i = 0; i < n; i++) {
+            let o = nodes[i];
             maxX = Math.max(maxX, o.x);
             maxY = Math.max(maxY, o.y);
             minX = Math.min(minX, o.x);
@@ -41,16 +45,18 @@ layout.normalize = function(nodes, dim) {
         }
     }
 
-    var scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : ((minX -= 0.5), 1);
-    var scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : ((minY -= 0.5), 1);
+    let scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : ((minX -= 0.5), 1);
+    let scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : ((minY -= 0.5), 1);
 
-    for (var i = 0; i < n; i++) {
-        var o = nodes[i];
+    for (let i = 0; i < n; i++) {
+        let o = nodes[i];
         o.x = scX * (o.x - minX);
         o.y = scY * (o.y - minY);
     }
     
     return dim;
+  }
+  
 }
 
-module.exports = layout;
+module.exports = Layout;

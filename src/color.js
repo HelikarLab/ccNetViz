@@ -5,7 +5,9 @@
  *  This source code is licensed under the GPLv3 License.
  *  Author: David Tichy
  */
-module.exports = function (color) {
+
+class Color{
+  constructor(color){
     this.a = 1;
 
     if (arguments.length >= 3) {
@@ -15,17 +17,17 @@ module.exports = function (color) {
         arguments.length > 3 && (this.a = arguments[3]);
     }
     else if (/^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
-		color = /^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
-		var get = v => parseInt(v, 10) / 255;
+        color = /^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
+        let get = v => parseInt(v, 10) / 255;
 
-		this.r = get(color[1]);
-		this.g = get(color[2]);
-		this.b = get(color[3]);
-		this.a = get(color[4]);
-	}
+        this.r = get(color[1]);
+        this.g = get(color[2]);
+        this.b = get(color[3]);
+        this.a = get(color[4]);
+    }
     else if (/^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
         color = /^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
-        var get = v => parseInt(v, 10) / 255;
+        let get = v => parseInt(v, 10) / 255;
 
         this.r = get(color[1]);
         this.g = get(color[2]);
@@ -33,7 +35,7 @@ module.exports = function (color) {
     }
     else if (/^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.test(color)) {
         color = /^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.exec(color);
-        var get = v => parseInt(v, 10) / 100;
+        let get = v => parseInt(v, 10) / 100;
 
         this.r = get(color[1]);
         this.g = get(color[2]);
@@ -48,4 +50,7 @@ module.exports = function (color) {
     else {
         this.r = this.g = this.b = 0;
     }
+  }
 };
+
+module.exports = Color;

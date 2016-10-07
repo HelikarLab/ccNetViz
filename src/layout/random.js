@@ -6,12 +6,18 @@
  *  Author: David Tichy
  */
 
-module.exports = function(nodes) {
-    this.apply = function() {
-        for (var i = 0, n = nodes.length; i < n; i++) {
-            var o = nodes[i];
-            o.x = Math.random();
-            o.y = Math.random();
-        }
+class Random{
+  constructor(nodes){
+    this._nodes = nodes;
+  }
+  
+  apply () {
+    for (let i = 0, n = this._nodes.length; i < n; i++) {
+      let o = this._nodes[i];
+      o.x = Math.random();
+      o.y = Math.random();
     }
+  }
 };
+
+module.exports = Random; 

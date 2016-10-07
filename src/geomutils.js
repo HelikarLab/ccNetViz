@@ -6,69 +6,70 @@
  *  Author: Aleš Saska - http://alessaska.cz/
  */
 
-var geomutils = function() {};
-
-geomutils.edgeSource = function(e) {
-  if(e.source.source){
-    //source is edge
-    var s = geomutils.edgeSource(e.source);
-    var t = geomutils.edgeTarget(e.source);
-    
-    return {
-            x: (s.x+t.x)/2, 
-            y: (s.y+t.y)/2, 
-            uniqid: e.uniqid, 
-            index: e.index, 
-            is_edge: true, 
-            e: e.source
-    };
-  }
-  
-  return e.source;
-};
-
-geomutils.edgeTarget = function(e) {
-  if(e.target.source){
-    //target is edge
-    var s = geomutils.edgeSource(e.target);
-    var t = geomutils.edgeTarget(e.target);
-    
-    return {
-            x: (s.x+t.x)/2,
-            y: (s.y+t.y)/2,
-            uniqid: e.uniqid,
-            index: e.index,
-            is_edge: true,
-            e: e.target
-    };
-  }
-
-  return e.target;
-};
-
-geomutils.getCurveShift = (e ,r) => {
-    r = r || {};
-    r.x = r.y = r.cx = r.cy = 0;
-    if(!e)
-      return r;
-    if(e.t && e.t >= 1){	//curve or circle
-      if(e.t >= 2){ //circle
-        var s = geomutils.edgeSource(e);
-        var d = s.y < 0.5 ? 1 : -1;
-
-        r.cx = d * 1.25;
-        r.cy = 0;
-      }else{
-        var se = geomutils.edgeSource(e);
-        var te = geomutils.edgeTarget(e);
-
-        r.x = se.x - te.x;
-        r.y = se.y - te.y;
-      }
+class Geomutils {
+  static edgeSource(e) {
+    if(e.source.source){
+      //source is edge
+      let s = geomutils.edgeSource(e.source);
+      let t = geomutils.edgeTarget(e.source);
+      
+      return {
+              x: (s.x+t.x)/2, 
+              y: (s.y+t.y)/2, 
+              uniqid: e.uniqid, 
+              index: e.index, 
+              is_edge: true, 
+              e: e.source
+      };
     }
-    return r;
+    
+    return e.source;
+  }
+
+  static edgeTarget (e) {
+    if(e.target.source){
+      //target is edge
+      let s = geomutils.edgeSource(e.target);
+      let t = geomutils.edgeTarget(e.target);
+      
+      return {
+              x: (s.x+t.x)/2,
+              y: (s.y+t.y)/2,
+              uniqid: e.uniqid,
+              index: e.index,
+              is_edge: true,
+              e: e.target
+      };
+    }
+
+    return e.target;
+  }
+
+  static getCurveShift (e, r){
+      r = r || {};
+      r.x = r.y = r.cx = r.cy = 0;
+      if(!e)
+        return r;
+      if(e.t && e.t >= 1){	//curve or circle
+        if(e.t >= 2){ //circle
+          let s = geomutils.edgeSource(e);
+          let d = s.y < 0.5 ? 1 : -1;
+
+          r.cx = d * 1.25;
+          r.cy = 0;
+        }else{
+          let se = geomutils.edgeSource(e);
+          let te = geomutils.edgeTarget(e);
+
+          r.x = se.x - te.x;
+          r.y = se.y - te.y;
+        }
+      }
+      return r;
+  }
 };
 
 
 
-module.exports = geomutils;
+
+module.exports = Geomutils;
