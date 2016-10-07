@@ -9,7 +9,7 @@ var ccNetViz_quadtree = require( '../quadTree' );
  */
 
 module.exports = function(nodes, edges) {
-    var size = [1, 1],
+    let size = [1, 1],
         alpha,
         friction = 0.9,
         edgeDistance = 15,
@@ -23,13 +23,13 @@ module.exports = function(nodes, edges) {
         charges = [];
 
     function accumulate(quad, alpha, charges) {
-        var cx = 0, cy = 0;
+        let cx = 0, cy = 0;
         quad.charge = 0;
         if (!quad.leaf) {
-            var nodes = quad.nodes;
-            var c, n = nodes.length;
+            let nodes = quad.nodes;
+            let c, n = nodes.length;
 
-            for (var i = 0; i < n; i++) {
+            for (let i = 0; i < n; i++) {
                 c = nodes[i];
                 if (c == null) continue;
                 accumulate(c, alpha, charges);
@@ -43,7 +43,7 @@ module.exports = function(nodes, edges) {
                 quad.point.x += Math.random() - 0.5;
                 quad.point.y += Math.random() - 0.5;
             }
-            var k = alpha * charges[quad.point.index];
+            let k = alpha * charges[quad.point.index];
             quad.charge += quad.pointCharge = k;
             cx += k * quad.point.x;
             cy += k * quad.point.y;
@@ -55,14 +55,14 @@ module.exports = function(nodes, edges) {
     function repulse(node) {
         return function(quad, x1, _, x2) {
             if (quad.point !== node) {
-                var dx = quad.cx - node.x;
-                var dy = quad.cy - node.y;
-                var dw = x2 - x1;
-                var dn = dx * dx + dy * dy;
+                let dx = quad.cx - node.x;
+                let dy = quad.cy - node.y;
+                let dw = x2 - x1;
+                let dn = dx * dx + dy * dy;
 
                 if (dw * dw / theta2 < dn) {
                     if (dn < chargeDistance2) {
-                        var k = quad.charge / dn;
+                        let k = quad.charge / dn;
                         node.px -= dx * k;
                         node.py -= dy * k;
                     }
@@ -70,7 +70,7 @@ module.exports = function(nodes, edges) {
                 }
 
                 if (quad.point && dn && dn < chargeDistance2) {
-                    var k = quad.pointCharge / dn;
+                    let k = quad.pointCharge / dn;
                     node.px -= dx * k;
                     node.py -= dy * k;
                 }
@@ -85,11 +85,11 @@ module.exports = function(nodes, edges) {
             return true;
         }
 
-        var q, o, s, t, l, k, x, y;
-        var n = nodes.length;
-        var m = edges.length;
+        let q, o, s, t, l, k, x, y;
+        let n = nodes.length;
+        let m = edges.length;
 
-        for (var i = 0; i < m; i++) {
+        for (let i = 0; i < m; i++) {
             o = edges[i];
             s = o.source;
             t = o.target;
@@ -110,7 +110,7 @@ module.exports = function(nodes, edges) {
             x = size[0] / 2;
             y = size[1] / 2;
 
-            for (var i = 0; i < n; i++) {
+            for (let i = 0; i < n; i++) {
                 o = nodes[i];
                 o.x += (x - o.x) * k;
                 o.y += (y - o.y) * k;
@@ -120,13 +120,13 @@ module.exports = function(nodes, edges) {
         if (charge) {
             accumulate(q = ccNetViz_quadtree(nodes), alpha, charges);
 
-            for (var i = 0; i < n; i++) {
-                var o = nodes[i];
+            for (let i = 0; i < n; i++) {
+                let o = nodes[i];
                 !o.fixed && q.visit(repulse(o));
             }
         }
 
-        for (var i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++) {
             o = nodes[i];
             if (o.fixed) {
                 o.x = o.px;
@@ -140,12 +140,12 @@ module.exports = function(nodes, edges) {
     };
 
     this.apply = function() {
-        var n = nodes.length;
-        var d = Math.sqrt(n);
-        var s = 0.3 / d;
+        let n = nodes.length;
+        let d = Math.sqrt(n);
+        let s = 0.3 / d;
 
-        for (var i = 0; i < n; i++) {
-            var o = nodes[i];
+        for (let i = 0; i < n; i++) {
+            let o = nodes[i];
             o.weight = 0;
             o.x = o.x !== undefined ? o.x : s + (i % d) / d;
             o.y = o.y !== undefined ? o.y : s + Math.floor(i / d) / d;
@@ -154,8 +154,8 @@ module.exports = function(nodes, edges) {
             charges[i] = charge;
         }
 
-        for (var i = 0; i < edges.length; i++) {
-            var o = edges[i];
+        for (let i = 0; i < edges.length; i++) {
+            let o = edges[i];
             o.source.weight++;
             o.target.weight++;
             distances[i] = edgeDistance;
