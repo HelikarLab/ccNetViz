@@ -232,15 +232,15 @@ function checkBezierTkoef(a,d,b,e,c,f,t,q,s,r,v){
 function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
     //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
 
-    let t;
+    var t;
     
-    let tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
+    var tden = -a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r;
     if(neq(tden, 0)){
       if(neq(q-r, 0)){
-        let sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
-        let sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
+        var sq1 = 2*a*s-2*a*v-2*b*s+2*b*v-2*d*r+2*e*q-2*e*r;
+        var sq = sq1*sq1 - 4*(-a*s+a*v+d*q-d*r-q*v+r*s)*(-a*s+a*v+2*b*s-2*b*v-c*s+c*v+d*q-d*r-2*e*q+2*e*r+f*q-f*r);
         if(sq >= 0){
-          let t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
+          var t1 = a*s-a*v-b*s+b*v-d*q+d*r+e*q-e*r;
   
           t = (t1-0.5*Math.sqrt(sq))/tden;
           if(checkBezierTkoef(a,d,b,e,c,f, q,s,r,v,t))
@@ -253,7 +253,7 @@ function bezierIntersectsLine(a,d,b,e,c,f, q,s,r,v){
       }
     }
 
-    let tden = -b*s+b*v+c*s-c*v+e*q-e*r-f*q+f*r;
+    tden = -b*s+b*v+c*s-c*v+e*q-e*r-f*q+f*r;
     if(eq(d, 2*e-f) && eq(a,2*b-c) && neq(tden, 0) && neq(q*s-q*v-r*s+r*v,0)){
       t = -2*b*s+2*b*v+c*s-c*v+2*e*q-2*e*r-f*q+f*r-q*v+r*s;
       t = t/(2*tden);
