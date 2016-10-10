@@ -374,6 +374,9 @@ var ccNetViz = function(canvas, options){
 
     gl.viewport(0, 0, context.width*2, context.height*2);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    
+    var gl_lose = gl.getExtension('WEBGL_lose_context');
+    if(gl_lose) gl_lose.loseContext();
 
     canvas.removeEventListener('mousedown', onDownThis);
     canvas.removeEventListener('wheel', onWheelThis);
