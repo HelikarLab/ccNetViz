@@ -7,7 +7,7 @@
  */
 
 module.exports = function(points) {
-    var d, xs, ys, i, n, x1_, y1_, x2_, y2_;
+    let d, xs, ys, i, n, x1_, y1_, x2_, y2_;
 
     x2_ = y2_ = -(x1_ = y1_ = Infinity);
     xs = [], ys = [];
@@ -23,8 +23,8 @@ module.exports = function(points) {
         ys.push(d.y);
     }
 
-    var dx = x2_ - x1_;
-    var dy = y2_ - y1_;
+    let dx = x2_ - x1_;
+    let dy = y2_ - y1_;
     dx > dy ? y2_ = y1_ + dx : x2_ = x1_ + dy;
 
     function create() {
@@ -39,9 +39,9 @@ module.exports = function(points) {
 
     function visit(f, node, x1, y1, x2, y2) {
         if (!f(node, x1, y1, x2, y2)) {
-            var sx = (x1 + x2) * 0.5;
-            var sy = (y1 + y2) * 0.5;
-            var children = node.nodes;
+            let sx = (x1 + x2) * 0.5;
+            let sy = (y1 + y2) * 0.5;
+            let children = node.nodes;
 
             if (children[0]) visit(f, children[0], x1, y1, sx, sy);
             if (children[1]) visit(f, children[1], sx, y1, x2, sy);
@@ -52,15 +52,15 @@ module.exports = function(points) {
 
     function insert(n, d, x, y, x1, y1, x2, y2) {
         if (n.leaf) {
-            var nx = n.x;
-            var ny = n.y;
+            let nx = n.x;
+            let ny = n.y;
 
             if (nx !== null) {
                 if (nx === x && ny === y) {
                     insertChild(n, d, x, y, x1, y1, x2, y2);
                 }
                 else {
-                    var nPoint = n.point;
+                    let nPoint = n.point;
                     n.x = n.y = n.point = null;
                     insertChild(n, nPoint, nx, ny, x1, y1, x2, y2);
                     insertChild(n, d, x, y, x1, y1, x2, y2);
@@ -74,11 +74,11 @@ module.exports = function(points) {
     }
 
     function insertChild(n, d, x, y, x1, y1, x2, y2) {
-        var xm = (x1 + x2) * 0.5;
-        var ym = (y1 + y2) * 0.5;
-        var right = x >= xm;
-        var below = y >= ym;
-        var i = below << 1 | right;
+        let xm = (x1 + x2) * 0.5;
+        let ym = (y1 + y2) * 0.5;
+        let right = x >= xm;
+        let below = y >= ym;
+        let i = below << 1 | right;
 
         n.leaf = false;
         n = n.nodes[i] || (n.nodes[i] = create());
@@ -89,33 +89,33 @@ module.exports = function(points) {
     }
 
     function findNode(root, x, y, x0, y0, x3, y3) {
-        var minDistance2 = Infinity;
-        var closestPoint;
+        let minDistance2 = Infinity;
+        let closestPoint;
 
         (function find(node, x1, y1, x2, y2) {
             if (x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;
 
             if (point = node.point) {
-                var point;
-                var dx = x - node.x;
-                var dy = y - node.y;
-                var distance2 = dx * dx + dy * dy;
+                let point;
+                let dx = x - node.x;
+                let dy = y - node.y;
+                let distance2 = dx * dx + dy * dy;
 
                 if (distance2 < minDistance2) {
-                    var distance = Math.sqrt(minDistance2 = distance2);
+                    let distance = Math.sqrt(minDistance2 = distance2);
                     x0 = x - distance, y0 = y - distance;
                     x3 = x + distance, y3 = y + distance;
                     closestPoint = point;
                 }
             }
 
-            var children = node.nodes;
-            var xm = (x1 + x2) * .5;
-            var ym = (y1 + y2) * .5;
-            var right = x >= xm;
-            var below = y >= ym;
+            let children = node.nodes;
+            let xm = (x1 + x2) * .5;
+            let ym = (y1 + y2) * .5;
+            let right = x >= xm;
+            let below = y >= ym;
 
-            for (var i = below << 1 | right, j = i + 4; i < j; ++i) {
+            for (let i = below << 1 | right, j = i + 4; i < j; ++i) {
                 if (node = children[i & 3]) switch (i & 3) {
                     case 0: find(node, x1, y1, xm, ym); break;
                     case 1: find(node, xm, y1, x2, ym); break;
@@ -128,7 +128,7 @@ module.exports = function(points) {
         return closestPoint;
     }
 
-    var root = create();
+    let root = create();
     root.visit = f => visit(f, root, x1_, y1_, x2_, y2_);
     root.find = (x, y) => findNode(root, x, y, x1_, y1_, x2_, y2_);
 

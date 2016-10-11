@@ -9,18 +9,20 @@ var ccNetViz_quadtree = require( '../quadTree' );
  */
 
 module.exports = function(nodes, edges) {
-    let size = [1, 1],
-        alpha,
-        friction = 0.9,
-        edgeDistance = 15,
-        edgeStrength = 1,
-        charge = -30,
-        chargeDistance2 = Infinity,
-        gravity = 0.4,
-        theta2 = .64,
-        distances = [],
-        strengths = [],
-        charges = [];
+    const edgeDistance = 15,
+          edgeStrength = 1,
+          friction = 0.9,
+          charge = -30,
+          gravity = 0.4,
+          theta2 = .64,
+          size = [1,1],
+          chargeDistance2 = Infinity;
+
+    let   alpha,
+          distances = [],
+          strengths = [],
+          charges = [];
+
 
     function accumulate(quad, alpha, charges) {
         let cx = 0, cy = 0;

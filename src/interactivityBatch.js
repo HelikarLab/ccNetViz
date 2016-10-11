@@ -14,52 +14,58 @@ function pushUnique(arr, e){
   arr.push(e);
 }
 
-var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, checkUniqId){
-    var toAddEdges = [];
-    var toAddNodes = [];
-    var toRemoveEdges = [];
-    var toRemoveNodes = [];
-    var actualTempNodes, actualTempEdges;
-    
-    var ePos,nPos,eDirs,lastNodeIndex,lastEdgeIndex;
-    
-    
-    
-    function createSupportStructs(nodes, edges){
-      nPos = {};
-      ePos = {};
-      eDirs = {};
+class interactivityBatch{
+  constructor(layers, insertTempLayer, draw, nodes, edges, checkUniqId){
+    this._layers = layers;
+    this._insertTempLayer = insertTempLayer;
 
-      nodes.forEach((n, i) => {
-        nPos[n.uniqid] = i;
-        eDirs[n.uniqid] = {};
-      });
-      
-      edges.forEach((e, i) => {
-        var s = geomutils.edgeSource(e);
-        var t = geomutils.edgeTarget(e);
+    this._draw = draw;
+    this._nodes = nodes;
+    this._edges = edges;
+    this._checkUniqId = checkUniqId;
+    
+    this._toAddEdges = [];
+    this._toAddNodes = [];
+    this._toRemoveEdges = [];
+    this._toRemoveNodes = [];
 
-        eDirs[s.uniqid][t.uniqid] = e;
-        ePos[e.uniqid] = i;
-      });
-    };
+    //create support structures
+    this._nPos = {};
+    this._ePos = {};
+    this._eDirs = {};
 
-  function doRemoveNodes(nodes){
+    nodes.forEach((n, i) => {
+      this._nPos[n.uniqid] = i;
+      this._eDirs[n.uniqid] = {};
+    });
+    
+    edges.forEach((e, i) => {
+      let s = geomutils.edgeSource(e);
+      let t = geomutils.edgeTarget(e);
+
+      this._eDirs[s.uniqid][t.uniqid] = e;
+      this._ePos[e.uniqid] = i;
+    });
+    
+    this._actualTempNodes = [];
+    this._actualTempEdges = [];
+  }
+  _doRemoveNodes(nodes){
     nodes.forEach((n) => {
       if(n.uniqid === undefined)
         return;
       
-      if(nPos[n.uniqid] !== undefined){
+      if(this._nPos[n.uniqid] !== undefined){
         //in the normal graph
-        var pos = nPos[n.uniqid];
-        layers.main.removeNodeAtPos(pos);
-        delete nPos[n.uniqid];
+        let pos = this._nPos[n.uniqid];
+        this._layers.main.removeNodeAtPos(pos);
+        delete this._nPos[n.uniqid];
       }else{
         //try to remove from temp graph
         
-        for(var i = 0; i < actualTempNodes.length; i++){
-          if(actualTempNodes[i] === n){
-            actualTempNodes.splice(i,1);
+        for(let i = 0; i < this._actualTempNodes.length; i++){
+          if(this._actualTempNodes[i] === n){
+            this._actualTempNodes.splice(i,1);
             break;
           }
         }
@@ -69,28 +75,27 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
       delete n.uniqid;
     });
   }
-
-  function doRemoveEdges(edges){
+  _doRemoveEdges(edges){
     edges.forEach((e) => {
       if(e.uniqid === undefined)
         return;
       
-      var s = geomutils.edgeSource(e);
-      var t = geomutils.edgeTarget(e);
+      let s = geomutils.edgeSource(e);
+      let t = geomutils.edgeTarget(e);
 
-      delete (eDirs[s.uniqid] || {})[t.uniqid];
+      delete (this._eDirs[s.uniqid] || {})[t.uniqid];
       
-      if(ePos[e.uniqid] !== undefined){
+      if(this._ePos[e.uniqid] !== undefined){
         //in the normal graph
-        var pos = ePos[e.uniqid];
-        layers.main.removeEdgeAtPos(pos);
-        delete ePos[e.uniqid];
+        let pos = this._ePos[e.uniqid];
+        this._layers.main.removeEdgeAtPos(pos);
+        delete this._ePos[e.uniqid];
       }else{
         //try to remove from temp graph
         
-        for(var i = 0; i < actualTempEdges.length; i++){
-          if(actualTempEdges[i] === e){
-            actualTempEdges.splice(i,1);
+        for(let i = 0; i < this._actualTempEdges.length; i++){
+          if(this._actualTempEdges[i] === e){
+            this._actualTempEdges.splice(i,1);
             break;
           }
         }
@@ -101,14 +106,13 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
       delete e.uniqid;
     });
   }
-  
-  function doAddEdges(){
-    toAddEdges.forEach((e) => {
+  _doAddEdges(){
+    this._toAddEdges.forEach((e) => {
       //already added in main graph
       if(
-        ePos[e.uniqid] !== undefined
+        this._ePos[e.uniqid] !== undefined
       ){
-        doRemoveEdges([e]);
+        this._doRemoveEdges([e]);
       }
       
       if(e.uniqid !== undefined){
@@ -116,19 +120,18 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
         return;
       }
-      checkUniqId(e);
+      this._checkUniqId(e);
       
       //add this node into temporary chart
       
       //TODO: Not so efficient >> causes quadratic complexity of adding edges into temporary graph
-      pushUnique(actualTempEdges, e);
+      pushUnique(this._actualTempEdges, e);
     });
   }
-  
-  function doAddNodes(nodes){
-    toAddNodes.forEach((n) => {
-      if(nPos[n.uniqid] !== undefined){
-        doRemoveNodes([n]);
+  _doAddNodes(nodes){
+    this._toAddNodes.forEach((n) => {
+      if(this._nPos[n.uniqid] !== undefined){
+        this._doRemoveNodes([n]);
       }
       
       //already added
@@ -137,88 +140,78 @@ var interactivityBatch = function(layers, insertTempLayer, draw, nodes, edges, c
         console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
         return;
       }
-      checkUniqId(n);
+      this._checkUniqId(n);
       
-      eDirs[n.uniqid] = {};
+      this._eDirs[n.uniqid] = {};
 
       //TODO: Not so efficient >> causes quadratic complexity of adding nodes into temporary graph
-      pushUnique(actualTempNodes, n);
+      pushUnique(this._actualTempNodes, n);
     });
   }
-
-  this.addEdge = (e) => {
-    var s = geomutils.edgeSource(e);
-    var t = geomutils.edgeTarget(e);
+  addEdge(e){
+    let s = geomutils.edgeSource(e);
+    let t = geomutils.edgeTarget(e);
     
-    var tid = t.uniqid;
-    var sid = s.uniqid;
+    let tid = t.uniqid;
+    let sid = s.uniqid;
     
-    if((eDirs[sid] || {})[tid]){
+    if((this._eDirs[sid] || {})[tid]){
       //this edge was already added >> remove it
-      doRemoveEdges([e]);
+      this._doRemoveEdges([e]);
     }
     
-    if((eDirs[tid] || {})[sid]){
+    if((this._eDirs[tid] || {})[sid]){
       //must remove line and add two curves
       
-      toAddEdges.push(eDirs[tid][sid]);
-      doRemoveEdges([eDirs[tid][sid]]);
+      this._toAddEdges.push(this._eDirs[tid][sid]);
+      this._doRemoveEdges([this._eDirs[tid][sid]]);
 
-      toAddEdges.push(eDirs[sid][tid] = e);
+      this._toAddEdges.push(this._eDirs[sid][tid] = e);
       
       return this;
     }
 
-    toAddEdges.push(e);
+    this._toAddEdges.push(e);
     return this;
-  };
-  
-  this.addNode = (n) => {
-    toAddNodes.push(n);    
+  }
+  addNode(n){
+    this._toAddNodes.push(n);    
     return this;
-  };
-
-  this.removeNode = (n) => {
-    toRemoveNodes.push(n);    
+  }
+  removeNode(n){
+    this._toRemoveNodes.push(n);    
     return this;
-  };
-
-  this.removeEdge = (e) => {
-    toRemoveEdges.push(e);
+  }
+  removeEdge(e){
+    this._toRemoveEdges.push(e);
     return this;
-  };
-  
-  this.applyChanges = () => {
+  }
+  applyChanges(){
     
     //nothing to do
-    if(toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0)
+    if(this._toRemoveEdges.length === 0 && this._toRemoveNodes.length === 0 && this._toAddEdges.length === 0 && this._toAddNodes.length === 0)
       return this;
     
-    actualTempNodes = layers.temp ? layers.temp.nodes : [];
-    actualTempEdges = layers.temp ? layers.temp.edges : [];
+    this._actualTempNodes = this._layers.temp ? this._layers.temp.nodes : [];
+    this._actualTempEdges = this._layers.temp ? this._layers.temp.edges : [];
     
-    doRemoveEdges(toRemoveEdges);
-    doRemoveNodes(toRemoveNodes);
-    doAddNodes();
-    doAddEdges();
+    this._doRemoveEdges(this._toRemoveEdges);
+    this._doRemoveNodes(this._toRemoveNodes);
+    this._doAddNodes();
+    this._doAddEdges();
     
-    toAddEdges = [];
-    toAddNodes = [];
-    toRemoveEdges = [];
-    toRemoveNodes = [];
+    this._toAddEdges = [];
+    this._toAddNodes = [];
+    this._toRemoveEdges = [];
+    this._toRemoveNodes = [];
     
-    insertTempLayer();
-    layers.temp.set(actualTempNodes, actualTempEdges);
+    this._insertTempLayer();
+    this._layers.temp.set(this._actualTempNodes, this._actualTempEdges);
 
-    draw();
+    this._draw();
     
     return this;
-  };
-  
-  createSupportStructs(nodes, edges);
-  
-}
+  }
+};
 
 module.exports = interactivityBatch;
-
- 
