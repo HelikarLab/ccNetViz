@@ -24,51 +24,51 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     options = options || {};
     options.styles = options.styles || {};
 
-    var nodesFiller = (
+    let nodesFiller = (
       style => ({
         set: (v, e, iV, iI) => {
-            var x = e.x;
-            var y = e.y;
+            let x = e.x;
+            let y = e.y;
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
             ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
             if(v.color){
-              var c = e.color;
+              let c = e.color;
               ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
             }
             ccNetViz_primitive.quad(v.indices, iV, iI);
         }})
     );
-    var labelsFiller = (style => {
-	texts.setFont(style.font);
-	style.texture = texts.texture;
-	return {
-	    set: (v, e, iV, iI) => {
-		var x = e.x;
-		var y = e.y;
-		ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-		var t = texts.get(e.label);
-		var dx = x <= 0.5 ? 0 : -t.width;
-		var dy = y <= 0.5 ? 0 : -t.height;
-		ccNetViz_primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-		ccNetViz_primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-		ccNetViz_primitive.quad(v.indices, iV, iI);
-	    }}
-	}	
+    let labelsFiller = (style => {
+        texts.setFont(style.font);
+        style.texture = texts.texture;
+        return {
+            set: (v, e, iV, iI) => {
+                let x = e.x;
+                let y = e.y;
+                ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+                let t = texts.get(e.label);
+                let dx = x <= 0.5 ? 0 : -t.width;
+                let dy = y <= 0.5 ? 0 : -t.height;
+                ccNetViz_primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
+                ccNetViz_primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
+                ccNetViz_primitive.quad(v.indices, iV, iI);
+            }}
+        }	
     );
 
-    var normalize = (a, b) => {
-        var x = b.x - a.x;
-        var y = b.y - a.y;
-        var sc = 1 / Math.sqrt(x*x + y*y);
+    let normalize = (a, b) => {
+        let x = b.x - a.x;
+        let y = b.y - a.y;
+        let sc = 1 / Math.sqrt(x*x + y*y);
         return { x: sc * x, y: sc * y };
     };
     
-    var dx = Math.cos(0.9);
-    var dy = Math.sin(0.9);
+    let dx = Math.cos(0.9);
+    let dy = Math.sin(0.9);
     
-    var ct1 = {}, ct2 = {}, ct = {};
-    var setVerticeCurveShift = (v,iV,s,t) => {
-        var csx,csy,ctx,cty,cisx,cisy,sisy,citx,city;
+    let ct1 = {}, ct2 = {}, ct = {};
+    let setVerticeCurveShift = (v,iV,s,t) => {
+        let csx,csy,ctx,cty,cisx,cisy,sisy,citx,city;
         ccNetViz_geomutils.getCurveShift(t.e,ct1);
         ctx = ct1.x;
         cty = ct1.y;
@@ -85,14 +85,14 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
     };
     
-    var edgesFiller = {
+    let edgesFiller = {
       'lines': (style => ({
             set: (v, e, iV, iI) => {
-                var s = ccNetViz_geomutils.edgeSource(e);
-                var t = ccNetViz_geomutils.edgeTarget(e);
-                var dx = s.x-t.x;
-                var dy = s.y-t.y;
-                var d = normalize(s, t);
+                let s = ccNetViz_geomutils.edgeSource(e);
+                let t = ccNetViz_geomutils.edgeTarget(e);
+                let dx = s.x-t.x;
+                let dy = s.y-t.y;
+                let d = normalize(s, t);
 
                 setVerticeCurveShift(v,iV,s,t);
 
@@ -105,11 +105,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                     numVertices: 3,
                     numIndices: 3,
                     set: (v, e, iV, iI) => {
-                        var s = ccNetViz_geomutils.edgeSource(e);
-                        var t = ccNetViz_geomutils.edgeTarget(e);
-                        var dx = s.x-t.x;
-                        var dy = s.y-t.y;
-                        var d = normalize(s, t);
+                        let s = ccNetViz_geomutils.edgeSource(e);
+                        let t = ccNetViz_geomutils.edgeTarget(e);
+                        let dx = s.x-t.x;
+                        let dy = s.y-t.y;
+                        let d = normalize(s, t);
 
                         setVerticeCurveShift(v,iV,s,t);
 
@@ -122,17 +122,17 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 })),
        'circles': (style => ({
                     set: (v, e, iV, iI) => {
-                        var s = ccNetViz_geomutils.edgeSource(e);
-                        var d = s.y < 0.5 ? 1 : -1;
+                        let s = ccNetViz_geomutils.edgeSource(e);
+                        let d = s.y < 0.5 ? 1 : -1;
 
-                        var xdiff1 = 0;
-                        var ydiff1 = 0;
-                        var xdiff2 = 1;
-                        var ydiff2 = d;
-                        var xdiff3 = 2;
-                        var ydiff3 = 1.25*d;
-                        var xdiff4 = 3;
-                        var ydiff4 = 1.5*d;
+                        let xdiff1 = 0;
+                        let ydiff1 = 0;
+                        let xdiff2 = 1;
+                        let ydiff2 = d;
+                        let xdiff3 = 2;
+                        let ydiff3 = 1.25*d;
+                        let xdiff4 = 3;
+                        let ydiff4 = 1.5*d;
 
                         setVerticeCurveShift(v,iV,s,s);
 
@@ -145,12 +145,12 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 }))
     };
 
-    var set = (v, e, s, t, iV, iI, dx, dy) => {
-        var tx = t.x;
-        var ty = t.y;
+    let set = (v, e, s, t, iV, iI, dx, dy) => {
+        let tx = t.x;
+        let ty = t.y;
 
-        var offsetMul;
-        var ctx,cty,citx,city;
+        let offsetMul;
+        let ctx,cty,citx,city;
 
         ccNetViz_geomutils.getCurveShift(t.e,ct);
         ctx = ct.x;
@@ -174,24 +174,24 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         ccNetViz_primitive.quad(v.indices, iV, iI);
     };
             
-    var arrowFiller = {
+    let arrowFiller = {
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
-                    var s = ccNetViz_geomutils.edgeSource(e);
-                    var t = ccNetViz_geomutils.edgeTarget(e);
-                    var d = normalize(s, t);
+                    let s = ccNetViz_geomutils.edgeSource(e);
+                    let t = ccNetViz_geomutils.edgeTarget(e);
+                    let d = normalize(s, t);
                     set(v, e, s, t, iV, iI, d.x, d.y);
                 }})),
        curveArrows: (style => ({
                         set: (v, e, iV, iI) => {
-                          var s = ccNetViz_geomutils.edgeSource(e);
-                          var t = ccNetViz_geomutils.edgeTarget(e);			  
+                          let s = ccNetViz_geomutils.edgeSource(e);
+                          let t = ccNetViz_geomutils.edgeTarget(e);			  
                           return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
                         }
                     })),
        circleArrows: (style => ({
                         set: (v, e, iV, iI) => {
-                          var t = ccNetViz_geomutils.edgeTarget(e);
+                          let t = ccNetViz_geomutils.edgeTarget(e);
                           return set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
                         }
                     }))
@@ -205,10 +205,10 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     }
     
     
-    var edgeTypes;
-    var edgePoses;
+    let edgeTypes;
+    let edgePoses;
 
-    var spatialSearch = undefined;
+    let spatialSearch = undefined;
 
     this.set = function(nodes, edges, layout) {
         removedNodes = 0;
@@ -219,14 +219,14 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
 
         spatialSearch = undefined;
 
-        var lines = [], curves = [], circles = [];
+        let lines = [], curves = [], circles = [];
 
         //tanslate indexes into node objects
-        for (var i = 0; i < edges.length; i++) {
-          var e = edges[i];
+        for (let i = 0; i < edges.length; i++) {
+          let e = edges[i];
           if(typeof e.source == 'number')
             e.source = nodes[e.source];
-          var e = edges[i];
+  
           if(typeof e.target == 'number')
             e.target = nodes[e.target];
         }
@@ -239,50 +239,50 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
           return spatialSearch;
         }
         
-        var getIndex = (e) => {
+        let getIndex = (e) => {
 	    return e.uniqid || -e.index || -e.nidx;
 	}
 
-        var init = () => {
-            for (var i = 0; i < nodes.length; i++) {
+        let init = () => {
+            for (let i = 0; i < nodes.length; i++) {
                 nodes[i].index = i;
             }
 
-            for (var i = 0,j=nodes.length + 10; i < edges.length; i++, j++) {
+            for (let i = 0,j=nodes.length + 10; i < edges.length; i++, j++) {
                 edges[i].nidx = j;
             }
 
             edgeTypes = [];
             edgePoses = new Uint32Array(edges.length);
-            var dummysd  = {k:  '_',      kArrow: '_', d: []};
-            var circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
-            var linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
-            var curvesd  = {k: 'curves',  kArrow: 'curveArrows',d: curves};
+            const dummysd  = {k:  '_',      kArrow: '_', d: []};
+            const circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
+            const linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
+            const curvesd  = {k: 'curves',  kArrow: 'curveArrows',d: curves};
             
             if (extensions.OES_standard_derivatives) {
-                var map = {};
+                let map = {};
                 for (var i = 0; i < edges.length; i++) {
-                    var e = edges[i];
+                    let e = edges[i];
     
-                    var si = getIndex(e.source);
-                    var ti = getIndex(e.target);
+                    const si = getIndex(e.source);
+                    const ti = getIndex(e.target);
     
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
 
-                for (var i = 0; i < edges.length; i++) {
-                    var target, e = edges[i];
+                for (let i = 0; i < edges.length; i++) {
+                    let target, e = edges[i];
 
-                    var si = getIndex(e.source);
-                    var ti = getIndex(e.target);
+                    const si = getIndex(e.source);
+                    const ti = getIndex(e.target);
     
-                    var t = dummysd;
+                    let t = dummysd;
                     if (si === ti) {
 			e.t = 2;	//circle
                         target = circles;
                         t = circlesd;
                     }else {
-                        var m = map[ti];
+                        let m = map[ti];
                         if(m && m[si]){
 			  e.t = 1;	//curve
                           target = curves;
@@ -298,13 +298,13 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                     target.push(e);
                 }
             } else {
-                for (var i = 0; i < edges.length; i++) {
-                    var e = edges[i];
+                for (let i = 0; i < edges.length; i++) {
+                    let e = edges[i];
 
-                    var si = getIndex(e.source);
-                    var ti = getIndex(e.target);
+                    const si = getIndex(e.source);
+                    const ti = getIndex(e.target);
 
-                    var t = dummysd;
+                    let t = dummysd;
                     if(si !== ti){
                       t = linesd;
 		      e.t = 0;
@@ -372,8 +372,8 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     };
     
     this.updateEdge = ((e, i) => {
-      var t = edgeTypes[i];
-      var pos = edgePoses[i];
+      let t = edgeTypes[i];
+      let pos = edgePoses[i];
 
       t.d[pos] = this.edges[i] = e;
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
@@ -384,10 +384,10 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         spatialSearch.update(context, t.k, pos, e);
     });
     
-    var removedNodes = 0;
-    var removedEdges = 0;
+    let removedNodes = 0;
+    let removedEdges = 0;
     
-    var freenode = {x:-1,y:-1,title:""};
+    const freenode = {x:-1,y:-1,title:""};
     this.removeNodeAtPos = ((pos) => {
       if(this.nodes[pos] === freenode){
         return;
@@ -397,7 +397,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
       this.updateNode(freenode, pos);
     });
 
-    var freeedge = {source:{x:-1,y:-1},target:{x:-1,y:-1}};
+    const freeedge = {source:{x:-1,y:-1},target:{x:-1,y:-1}};
     this.removeEdgeAtPos = ((pos) => {
       if(this.edges[pos] === freeedge){
         return;
@@ -410,24 +410,24 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     
     this.getVisibleNodes = () => {
       if(removedNodes <= 0)
-	return this.nodes;
+        return this.nodes;
 
-      var r = [];
-      this.nodes.forEach((n) => {
-	if(n !== freenode)
-	  r.push(n);
+      let r = [];
+      this.nodes.forEach(n => {
+        if(n !== freenode)
+          r.push(n);
       });
       return r;
     }
 
     this.getVisibleEdges = () => {
       if(removedEdges <= 0)
-	return this.edges;
+        return this.edges;
       
-      var r = [];
+      let r = [];
       this.edges.forEach((n) => {
-	if(n !== freeedge)
-	  r.push(n);
+        if(n !== freeedge)
+          r.push(n);
       });
       return r;
     }
@@ -444,11 +444,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     this.nodes = [];
     this.edges = [];
 
-    var extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
-    var texts = new ccNetViz_texts(gl);
-    var scene = this.scene = createScene.call(this);
+    let extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
+    let texts = new ccNetViz_texts(gl);
+    let scene = this.scene = createScene.call(this);
 
-    var fsColorTexture = [
+    const fsColorTexture = [
         "precision mediump float;",
         "uniform vec4 color;",
         "uniform sampler2D texture;",
@@ -458,7 +458,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         "}"
     ];
 
-    var fsVarColorTexture = [
+    const fsVarColorTexture = [
         "precision mediump float;",
         "uniform sampler2D texture;",
         "varying vec2 tc;",
@@ -468,7 +468,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         "}"
     ];
 
-    var fsCurve = [
+    const fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
         "#ifdef GL_ES",
         "precision highp float;",
@@ -502,7 +502,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     ];
     
 
-    var getShiftFuncs = [
+    const getShiftFuncs = [
         "attribute vec2 curveShift;",
         "vec4 getShiftCurve(void) {",
         "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);",
@@ -558,11 +558,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
         ], c => {
-	    c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-	    gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-	    var size = 2.5 * c.nodeSize;
-	    c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	    gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+            let size = 2.5 * c.nodeSize;
+            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(c.shader.uniforms.type, c.style.type);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -583,7 +583,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "uniform mat4 transform;",
                 "varying vec2 v_lengthSoFar;",
                 "varying vec2 c;",
-		].concat(getShiftFuncs).concat([
+                ].concat(getShiftFuncs).concat([
                 "void main(void) {",
                 "   vec2 n = vec2(normal.x, aspect2 * normal.y);",
                 "   float length = length(screen * n);",
@@ -600,7 +600,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
                 gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-                var size = 2.5 * c.nodeSize;
+                let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
@@ -614,14 +614,14 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "attribute vec2 normal;",
                 "attribute vec2 curve;",
                 "attribute vec2 lengthSoFar;",
-		"uniform float exc;",
-		"uniform vec2 screen;",
-		"uniform float aspect2;",
+                "uniform float exc;",
+                "uniform vec2 screen;",
+                "uniform float aspect2;",
                 "uniform vec2 size;",
                 "uniform mat4 transform;",
                 "varying vec2 c;",
                 "varying vec2 v_lengthSoFar;",
-		].concat(getShiftFuncs).concat([
+                ].concat(getShiftFuncs).concat([
                 "void main(void) {",
                 "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);",
                 "   c = curve;",
@@ -631,11 +631,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "   v_lengthSoFar.y = p.y;",
                 "}"])
             , fsCurve, c => {
-		c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+                c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-                var size = 2.5 * c.nodeSize;
+                let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
@@ -645,10 +645,10 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     }
 
     if (edgeStyle.arrow) {
-        var shaderparams = {attribute:{offsetMul:1}};
+        let shaderparams = {attribute:{offsetMul:1}};
 
-        var bind = c => {
-            var size = getSize(c, getEdgesCnt(), 0.2);
+        let bind = c => {
+            let size = getSize(c, getEdgesCnt(), 0.2);
             if (!size) return true;
 
             gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
@@ -656,7 +656,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
 	    gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
             c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
 	    if(c.shader.uniforms.size){
-	      var size = 2.5 * c.nodeSize;
+	      size = 2.5 * c.nodeSize;
 	      c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	    }
             gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
@@ -751,7 +751,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "   tc = textureCoord;",
             "}"
         ], fsColorTexture, c => {
-            var size = getNodeSize(c);
+            let size = getNodeSize(c);
             gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         })
@@ -770,7 +770,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "   c = color;",
             "}"
         ], fsVarColorTexture, c => {
-            var size = getNodeSize(c);
+            let size = getNodeSize(c);
             gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
         })
     );
@@ -795,9 +795,9 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     );
 
     if (options.onLoad) {
-        var styles = options.styles;
-        for (var p in styles) {
-            var s = styles[p];
+        let styles = options.styles;
+        for (let p in styles) {
+            let s = styles[p];
             s.texture && textures.get(gl, s.texture);
             s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
         }
