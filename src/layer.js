@@ -240,8 +240,8 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         }
         
         let getIndex = (e) => {
-	    return e.uniqid || -e.index || -e.nidx;
-	}
+            return e.uniqid || -e.index || -e.nidx;
+        }
 
         let init = () => {
             for (let i = 0; i < nodes.length; i++) {
@@ -261,7 +261,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             
             if (extensions.OES_standard_derivatives) {
                 let map = {};
-                for (var i = 0; i < edges.length; i++) {
+                for (let i = 0; i < edges.length; i++) {
                     let e = edges[i];
     
                     const si = getIndex(e.source);
@@ -278,17 +278,17 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     
                     let t = dummysd;
                     if (si === ti) {
-			e.t = 2;	//circle
+                        e.t = 2;	//circle
                         target = circles;
                         t = circlesd;
                     }else {
                         let m = map[ti];
                         if(m && m[si]){
-			  e.t = 1;	//curve
+                          e.t = 1;	//curve
                           target = curves;
                           t = curvesd;
                         }else{
-			  e.t = 0;	//line
+                          e.t = 0;	//line
                           target = lines;
                           t = linesd;
                         }
@@ -378,7 +378,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
       t.d[pos] = this.edges[i] = e;
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
       if (edgeStyle.arrow)
-	scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
+        scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
       
       if(spatialSearch)
         spatialSearch.update(context, t.k, pos, e);
