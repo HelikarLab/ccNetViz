@@ -173,6 +173,15 @@
 
 	var lastUniqId = 0;
 
+	function checkUniqId(el) {
+	  if (el.__uniqid !== undefined) {
+	    el.uniqid = el.__uniqid;
+	    delete el.__uniqid;
+	  } else if (el.uniqid === undefined) {
+	    el.uniqid = ++lastUniqId;
+	  }
+	}
+
 	function mergeArrays(a, b, cmp) {
 	  var r = [];
 	  r.length = a.length + b.length;
@@ -194,6 +203,8 @@
 
 	var ccNetViz = function ccNetViz(canvas, options) {
 	  var _this = this;
+
+	  var self = this;
 
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
 	  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
@@ -230,28 +241,27 @@
 	  }
 
 	  if (edgeStyle.arrow) {
-	    var s = edgeStyle.arrow;
-	    s.minSize = s.minSize != null ? s.minSize : 6;
-	    s.maxSize = s.maxSize || 12;
-	    s.aspect = 1;
+	    var _s = edgeStyle.arrow;
+	    _s.minSize = _s.minSize != null ? _s.minSize : 6;
+	    _s.maxSize = _s.maxSize || 12;
+	    _s.aspect = 1;
 	  }
-
-	  var checkUniqId = function checkUniqId(el) {
-	    if (el.__uniqid !== undefined) {
-	      el.uniqid = el.__uniqid;
-	      delete el.__uniqid;
-	    } else if (el.uniqid === undefined) {
-	      el.uniqid = ++lastUniqId;
-	    }
-	  };
 
 	  function getContext() {
 	    var attributes = { depth: false, antialias: false };
-	    return canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+	    var gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+
+	    //      let gl_lose = gl.getExtension('WEBGL_lose_context');
+	    //      if(gl_lose) gl_lose.restoreContext();
+
+	    return gl;
 	  }
 
 	  var layers = {};
-	  var vizLayout, view, gl, drawFunc;
+	  var view = void 0,
+	      gl = void 0,
+	      drawFunc = void 0;
+	  var context = {};
 
 	  this.cntShownNodes = function () {
 	    var n = layers.main.cntShownNodes();
@@ -267,7 +277,6 @@
 	  };
 	  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
-	  var self = this;
 	  var onRedraw = ccNetViz_utils.debounce(function () {
 	    self.draw.call(self);
 	    return false;
@@ -281,7 +290,8 @@
 	    return false;
 	  }
 
-	  var nodes, edges;
+	  var nodes = void 0,
+	      edges = void 0;
 
 	  function insertTempLayer() {
 	    if (layers.temp) return;
@@ -533,7 +543,8 @@
 	    return findMerge('findArea', arguments);
 	  };
 
-	  var onDownThis, onWheelThis;
+	  var onDownThis = void 0,
+	      onWheelThis = void 0;
 	  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
 	  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
 
@@ -577,7 +588,8 @@
 	    var dx = view.x + sx / width;
 	    var dy = sy / height - view.y;
 	    var od = options.onDrag;
-	    var dragged, custom;
+	    var dragged = void 0,
+	        custom = void 0;
 
 	    var drag = function drag(e) {
 	      if (dragged) {
@@ -669,7 +681,6 @@
 	    return _this.setViewport({ size: 1, x: 0, y: 0 });
 	  };
 
-	  var self = this;
 	  //expose these methods from layer into this class
 	  ['update'].forEach(function (method) {
 	    (function (method, self) {
@@ -691,8 +702,7 @@
 	  gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
 	  gl.enable(gl.BLEND);
 
-	  var view = { size: 1, x: 0, y: 0 };
-	  var context = {};
+	  view = { size: 1, x: 0, y: 0 };
 
 	  this.resize();
 
@@ -791,7 +801,15 @@
 	        ct2 = {},
 	        ct = {};
 	    var setVerticeCurveShift = function setVerticeCurveShift(v, iV, s, t) {
-	        var csx, csy, ctx, cty, cisx, cisy, sisy, citx, city;
+	        var csx = void 0,
+	            csy = void 0,
+	            ctx = void 0,
+	            cty = void 0,
+	            cisx = void 0,
+	            cisy = void 0,
+	            sisy = void 0,
+	            citx = void 0,
+	            city = void 0;
 	        ccNetViz_geomutils.getCurveShift(t.e, ct1);
 	        ctx = ct1.x;
 	        cty = ct1.y;
@@ -878,8 +896,11 @@
 	        var tx = t.x;
 	        var ty = t.y;
 
-	        var offsetMul;
-	        var ctx, cty, citx, city;
+	        var offsetMul = void 0;
+	        var ctx = void 0,
+	            cty = void 0,
+	            citx = void 0,
+	            city = void 0;
 
 	        ccNetViz_geomutils.getCurveShift(t.e, ct);
 	        ctx = ct.x;
@@ -927,6 +948,7 @@
 	            return {
 	                set: function set(v, e, iV, iI) {
 	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var s = t;
 	                    return _set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
 	                }
 	            };
@@ -940,8 +962,8 @@
 	        return spatialSearch;
 	    };
 
-	    var edgeTypes;
-	    var edgePoses;
+	    var edgeTypes = void 0;
+	    var edgePoses = void 0;
 
 	    var spatialSearch = undefined;
 
@@ -962,7 +984,7 @@
 	        for (var i = 0; i < edges.length; i++) {
 	            var e = edges[i];
 	            if (typeof e.source == 'number') e.source = nodes[e.source];
-	            var e = edges[i];
+
 	            if (typeof e.target == 'number') e.target = nodes[e.target];
 	        }
 
@@ -978,12 +1000,12 @@
 	        };
 
 	        var init = function init() {
-	            for (var i = 0; i < nodes.length; i++) {
-	                nodes[i].index = i;
+	            for (var _i = 0; _i < nodes.length; _i++) {
+	                nodes[_i].index = _i;
 	            }
 
-	            for (var i = 0, j = nodes.length + 10; i < edges.length; i++, j++) {
-	                edges[i].nidx = j;
+	            for (var _i2 = 0, j = nodes.length + 10; _i2 < edges.length; _i2++, j++) {
+	                edges[_i2].nidx = j;
 	            }
 
 	            edgeTypes = [];
@@ -995,58 +1017,58 @@
 
 	            if (extensions.OES_standard_derivatives) {
 	                var map = {};
-	                for (var i = 0; i < edges.length; i++) {
-	                    var e = edges[i];
+	                for (var _i3 = 0; _i3 < edges.length; _i3++) {
+	                    var _e = edges[_i3];
 
-	                    var si = getIndex(e.source);
-	                    var ti = getIndex(e.target);
+	                    var si = getIndex(_e.source);
+	                    var ti = getIndex(_e.target);
 
 	                    (map[si] || (map[si] = {}))[ti] = true;
 	                }
 
-	                for (var i = 0; i < edges.length; i++) {
-	                    var target,
-	                        e = edges[i];
+	                for (var _i4 = 0; _i4 < edges.length; _i4++) {
+	                    var target = void 0,
+	                        _e2 = edges[_i4];
 
-	                    var si = getIndex(e.source);
-	                    var ti = getIndex(e.target);
+	                    var _si = getIndex(_e2.source);
+	                    var _ti = getIndex(_e2.target);
 
 	                    var t = dummysd;
-	                    if (si === ti) {
-	                        e.t = 2; //circle
+	                    if (_si === _ti) {
+	                        _e2.t = 2; //circle
 	                        target = circles;
 	                        t = circlesd;
 	                    } else {
-	                        var m = map[ti];
-	                        if (m && m[si]) {
-	                            e.t = 1; //curve
+	                        var m = map[_ti];
+	                        if (m && m[_si]) {
+	                            _e2.t = 1; //curve
 	                            target = curves;
 	                            t = curvesd;
 	                        } else {
-	                            e.t = 0; //line
+	                            _e2.t = 0; //line
 	                            target = lines;
 	                            t = linesd;
 	                        }
 	                    }
 	                    edgeTypes.push(t);
-	                    edgePoses[i] = t.d.length;
-	                    target.push(e);
+	                    edgePoses[_i4] = t.d.length;
+	                    target.push(_e2);
 	                }
 	            } else {
-	                for (var i = 0; i < edges.length; i++) {
-	                    var e = edges[i];
+	                for (var _i5 = 0; _i5 < edges.length; _i5++) {
+	                    var _e3 = edges[_i5];
 
-	                    var si = getIndex(e.source);
-	                    var ti = getIndex(e.target);
+	                    var _si2 = getIndex(_e3.source);
+	                    var _ti2 = getIndex(_e3.target);
 
-	                    var t = dummysd;
-	                    if (si !== ti) {
-	                        t = linesd;
-	                        e.t = 0;
-	                        lines.push(e);
+	                    var _t = dummysd;
+	                    if (_si2 !== _ti2) {
+	                        _t = linesd;
+	                        _e3.t = 0;
+	                        lines.push(_e3);
 	                    }
-	                    edgeTypes.push(t);
-	                    edgePoses[i] = t.d.length;
+	                    edgeTypes.push(_t);
+	                    edgePoses[_i5] = _t.d.length;
 	                }
 	            }
 	        };
@@ -1241,7 +1263,7 @@
 	            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
 	            if (c.shader.uniforms.size) {
-	                var size = 2.5 * c.nodeSize;
+	                size = 2.5 * c.nodeSize;
 	                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	            }
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
@@ -1476,6 +1498,10 @@
 
 	'use strict';
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	var ccNetViz_shader = __webpack_require__(6);
 	var ccNetViz_color = __webpack_require__(3);
 
@@ -1487,241 +1513,257 @@
 	 *  Author: David Tichy
 	 */
 
-	var primitive = function primitive(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
-	    var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
-	    var buffers = [];
-	    var sections = [];
+	var primitive = function () {
+	    function primitive(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
+	        _classCallCheck(this, primitive);
 
-	    var sectionsByStyle = {};
+	        var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
+	        var buffers = [];
+	        var sections = [];
 
-	    var e = {};
-	    var iV,
-	        iI,
-	        iS = 0,
-	        iB = 0;
+	        var sectionsByStyle = {};
 
-	    var init = function init(filler, n) {
-	        iV = iI = 0;
-	        var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
-	        var nV = Math.min(max, n - (iB - iS) * max);
-	        var nI = nV * filler.numIndices;
+	        var e = {};
+	        var iV = void 0,
+	            iI = void 0,
+	            iS = 0,
+	            iB = 0;
 
-	        if (!e.indices || e.indices.length !== nI) {
-	            e.indices = new Uint16Array(nI);
-	            nV *= filler.numVertices;
-	            for (var a in shader.attributes) {
-	                e[a] = new Float32Array(shader.attributes[a].size * nV);
-	            }
-	        }
-	    };
+	        var init = function init(filler, n) {
+	            iV = iI = 0;
+	            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
+	            var nV = Math.min(max, n - (iB - iS) * max);
+	            var nI = nV * filler.numIndices;
 
-	    this.set = function (gl, styles, textures, data, get) {
-	        var parts = {};
-
-	        var pN = {};
-	        for (var i = 0; i < data.length; i++) {
-	            var el = data[i];
-	            var part = parts[el.style] = parts[el.style] || [];
-
-	            el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style] + 1;
-
-	            part.push(el);
-	        }
-
-	        iS = 0;
-	        iB = 0;
-
-	        var store = function store(section) {
-	            var b = buffers[iB];
-	            if (!b) {
-	                buffers[iB] = b = {};
-	                for (var a in e) {
-	                    b[a] = gl.createBuffer();
+	            if (!e.indices || e.indices.length !== nI) {
+	                e.indices = new Uint16Array(nI);
+	                nV *= filler.numVertices;
+	                for (var a in shader.attributes) {
+	                    e[a] = new Float32Array(shader.attributes[a].size * nV);
 	                }
 	            }
-	            for (var a in shader.attributes) {
-	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-	                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
-	            }
-	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-	            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
-	            b.numIndices = iI;
-	            b.numVertices = iV;
-	            section.buffers.push(b);
-	            iB++;
 	        };
 
-	        var createStyle = function createStyle(style) {
-	            var result = {};
+	        this.set = function (gl, styles, textures, data, get) {
+	            var parts = {};
 
-	            var copy = function copy(s) {
-	                if (s) for (var p in s) {
-	                    result[p] = s[p];
+	            var pN = {};
+	            for (var i = 0; i < data.length; i++) {
+	                var el = data[i];
+	                var part = parts[el.style] = parts[el.style] || [];
+
+	                el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style] + 1;
+
+	                part.push(el);
+	            }
+
+	            iS = 0;
+	            iB = 0;
+
+	            var store = function store(section) {
+	                var b = buffers[iB];
+	                if (!b) {
+	                    buffers[iB] = b = {};
+	                    for (var a in e) {
+	                        b[a] = gl.createBuffer();
+	                    }
 	                }
+	                for (var _a in shader.attributes) {
+	                    gl.bindBuffer(gl.ARRAY_BUFFER, b[_a]);
+	                    gl.bufferData(gl.ARRAY_BUFFER, e[_a], gl.STATIC_DRAW);
+	                }
+	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+	                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
+	                b.numIndices = iI;
+	                b.numVertices = iV;
+	                section.buffers.push(b);
+	                iB++;
 	            };
 
-	            copy(baseStyle);
-	            copy(style);
+	            var createStyle = function createStyle(style) {
+	                var result = {};
 
-	            if (styleProperty) {
-	                copy(baseStyle[styleProperty]);
-	                style && copy(style[styleProperty]);
+	                var copy = function copy(s) {
+	                    if (s) for (var p in s) {
+	                        result[p] = s[p];
+	                    }
+	                };
+
+	                copy(baseStyle);
+	                copy(style);
+
+	                if (styleProperty) {
+	                    copy(baseStyle[styleProperty]);
+	                    style && copy(style[styleProperty]);
+	                }
+	                result.color = result.color && new ccNetViz_color(result.color);
+	                return result;
+	            };
+
+	            sections = [];
+	            for (var p in parts) {
+	                var add = function add() {
+	                    sections.push(this);
+	                    sectionsByStyle[this.styleName] = this;
+	                };
+
+	                iS = iB;
+
+	                var section = {
+	                    style: createStyle(styles[p]),
+	                    buffers: [],
+	                    styleName: p
+	                };
+
+	                var _filler = get(section.style);
+	                _filler.numVertices = _filler.numVertices || 4;
+	                _filler.numIndices = _filler.numIndices || 6;
+
+	                var _part = parts[p];
+	                init(_filler, _part.length);
+	                var max = primitive.maxBufferSize - _filler.numVertices;
+	                for (var _i = 0; _i < _part.length; _i++, iV += _filler.numVertices, iI += _filler.numIndices) {
+	                    if (iV > max) {
+	                        store(section);
+	                        init(_filler, _part.length);
+	                    }
+	                    _filler.set(e, _part[_i], iV, iI);
+	                }
+	                store(section);
+
+	                var addSection = add.bind(section);
+
+	                typeof section.style.texture === 'string' ? section.style.texture = textures.get(gl, section.style.texture, addSection) : addSection();
 	            }
-	            result.color = result.color && new ccNetViz_color(result.color);
-	            return result;
 	        };
 
-	        sections = [];
-	        for (var p in parts) {
-	            var add = function add() {
-	                sections.push(this);
-	                sectionsByStyle[this.styleName] = this;
+	        var fb = void 0;
+	        this.update = function (gl, attribute, data, get) {
+	            var i = 0,
+	                size = shader.attributes[attribute].size;
+	            sections.forEach(function (section) {
+	                var filler = get(section.style);
+	                filler.numVertices = filler.numVertices || 4;
+
+	                section.buffers.forEach(function (e) {
+	                    (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
+	                    for (var _iV = 0; _iV < e.numVertices; _iV += filler.numVertices) {
+	                        filler.set(fb, data[i++], _iV);
+	                    }gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
+	                    gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
+	                });
+	            });
+	        };
+
+	        this.updateEl = function (gl, el, pos, get) {
+	            var storeToPos = function storeToPos(b, i) {
+	                for (var a in shader.attributes) {
+	                    gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
+	                    gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size * filler.numVertices * e[a].BYTES_PER_ELEMENT * i, e[a]);
+	                }
+	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+	                gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices * e.indices.BYTES_PER_ELEMENT, e.indices);
 	            };
 
-	            iS = iB;
-
-	            var section = {
-	                style: createStyle(styles[p]),
-	                buffers: [],
-	                styleName: p
-	            };
+	            var section = sectionsByStyle[el.style];
 
 	            var filler = get(section.style);
 	            filler.numVertices = filler.numVertices || 4;
 	            filler.numIndices = filler.numIndices || 6;
 
-	            var part = parts[p];
-	            init(filler, part.length);
-	            var max = primitive.maxBufferSize - filler.numVertices;
-	            for (var i = 0; i < part.length; i++, iV += filler.numVertices, iI += filler.numIndices) {
-	                if (iV > max) {
-	                    store(section);
-	                    init(filler, part.length);
-	                }
-	                filler.set(e, part[i], iV, iI);
-	            }
-	            store(section);
+	            var index = el.sI;
 
-	            var addSection = add.bind(section);
+	            var elsPerBuff = Math.floor(primitive.maxBufferSize / filler.numVertices);
 
-	            typeof section.style.texture === 'string' ? section.style.texture = textures.get(gl, section.style.texture, addSection) : addSection();
-	        }
-	    };
+	            var buffer = section.buffers[Math.floor(pos / elsPerBuff)];
 
-	    var fb;
-	    this.update = function (gl, attribute, data, get) {
-	        var i = 0,
-	            size = shader.attributes[attribute].size;
-	        sections.forEach(function (section) {
-	            var filler = get(section.style);
-	            filler.numVertices = filler.numVertices || 4;
+	            iB = iS = 0;
+	            init(filler, 1);
 
-	            section.buffers.forEach(function (e) {
-	                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-	                for (var iV = 0; iV < e.numVertices; iV += filler.numVertices) {
-	                    filler.set(fb, data[i++], iV);
-	                }gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
-	                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
-	            });
-	        });
-	    };
+	            filler.set(e, el, 0, 0);
 
-	    this.updateEl = function (gl, el, pos, get) {
-	        var storeToPos = function storeToPos(b, i) {
-	            for (var a in shader.attributes) {
-	                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-	                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size * filler.numVertices * e[a].BYTES_PER_ELEMENT * i, e[a]);
-	            }
-	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-	            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices * e.indices.BYTES_PER_ELEMENT, e.indices);
+	            storeToPos(buffer, pos);
 	        };
 
-	        var section = sectionsByStyle[el.style];
+	        this.draw = function (context) {
+	            context.shader = shader;
+	            shader.bind();
 
-	        var filler = get(section.style);
-	        filler.numVertices = filler.numVertices || 4;
-	        filler.numIndices = filler.numIndices || 6;
+	            gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
 
-	        var index = el.sI;
-
-	        var elsPerBuff = Math.floor(primitive.maxBufferSize / filler.numVertices);
-
-	        var buffer = section.buffers[Math.floor(pos / elsPerBuff)];
-
-	        iB = iS = 0;
-	        init(filler, 1);
-
-	        filler.set(e, el, 0, 0);
-
-	        storeToPos(buffer, pos);
-	    };
-
-	    this.draw = function (context) {
-	        context.shader = shader;
-	        shader.bind();
-
-	        gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
-
-	        sections.forEach(function (section) {
-	            if (section.style.texture) {
-	                gl.activeTexture(gl.TEXTURE0);
-	                gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
-	                gl.uniform1i(shader.uniforms.texture, 0);
-	            }
-
-	            context.style = section.style;
-	            if (bind(context)) return;
-
-	            section.buffers.forEach(function (e) {
-	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, e.indices);
-
-	                for (var a in shader.attributes) {
-	                    var attribute = shader.attributes[a];
-	                    gl.bindBuffer(gl.ARRAY_BUFFER, e[a]);
-	                    gl.vertexAttribPointer(attribute.index, attribute.size, gl.FLOAT, false, 0, 0);
+	            sections.forEach(function (section) {
+	                if (section.style.texture) {
+	                    gl.activeTexture(gl.TEXTURE0);
+	                    gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
+	                    gl.uniform1i(shader.uniforms.texture, 0);
 	                }
 
-	                gl.drawElements(gl.TRIANGLES, e.numIndices, gl.UNSIGNED_SHORT, 0);
+	                context.style = section.style;
+	                if (bind(context)) return;
+
+	                section.buffers.forEach(function (e) {
+	                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, e.indices);
+
+	                    for (var a in shader.attributes) {
+	                        var attribute = shader.attributes[a];
+	                        gl.bindBuffer(gl.ARRAY_BUFFER, e[a]);
+	                        gl.vertexAttribPointer(attribute.index, attribute.size, gl.FLOAT, false, 0, 0);
+	                    }
+
+	                    gl.drawElements(gl.TRIANGLES, e.numIndices, gl.UNSIGNED_SHORT, 0);
+	                });
 	            });
-	        });
 
-	        shader.unbind();
-	    };
-	};
-
-	primitive.vertices = function (buffer, iV) {
-	    for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) {
-	        buffer[j] = arguments[i];
+	            shader.unbind();
+	        };
 	    }
-	};
 
-	primitive.singles = function (buffer, iV) {
-	    for (var i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) {
-	        buffer[j] = arguments[i];
-	    }
-	};
+	    _createClass(primitive, null, [{
+	        key: 'vertices',
+	        value: function vertices(buffer, iV) {
+	            for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) {
+	                buffer[j] = arguments[i];
+	            }
+	        }
+	    }, {
+	        key: 'singles',
+	        value: function singles(buffer, iV) {
+	            for (var i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) {
+	                buffer[j] = arguments[i];
+	            }
+	        }
+	    }, {
+	        key: 'colors',
+	        value: function colors(buffer, iV) {
+	            for (var i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
+	                var c = arguments[i];
+	                buffer[j++] = c.r;
+	                buffer[j++] = c.g;
+	                buffer[j++] = c.b;
+	                buffer[j++] = c.a;
+	            }
+	        }
+	    }, {
+	        key: 'indices',
+	        value: function indices(buffer, iV, iI) {
+	            for (var i = 3, j = iI, n = arguments.length; i < n; i++, j++) {
+	                buffer[j] = iV + arguments[i];
+	            }
+	        }
+	    }, {
+	        key: 'quad',
+	        value: function quad(buffer, iV, iI) {
+	            primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
+	        }
+	    }, {
+	        key: 'maxBufferSize',
+	        get: function get() {
+	            return 65536;
+	        }
+	    }]);
 
-	primitive.colors = function (buffer, iV) {
-	    for (var i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
-	        var c = arguments[i];
-	        buffer[j++] = c.r;
-	        buffer[j++] = c.g;
-	        buffer[j++] = c.b;
-	        buffer[j++] = c.a;
-	    }
-	};
-
-	primitive.indices = function (buffer, iV, iI) {
-	    for (var i = 3, j = iI, n = arguments.length; i < n; i++, j++) {
-	        buffer[j] = iV + arguments[i];
-	    }
-	};
-
-	primitive.quad = function (buffer, iV, iI) {
-	    primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
-	};
-
-	primitive.maxBufferSize = 65536;
+	    return primitive;
+	}();
 
 	module.exports = primitive;
 
@@ -1911,15 +1953,16 @@
 	 */
 
 	module.exports = function (nodes, edges) {
-	    var size = [1, 1],
-	        alpha = void 0,
-	        friction = 0.9,
-	        edgeDistance = 15,
+	    var edgeDistance = 15,
 	        edgeStrength = 1,
+	        friction = 0.9,
 	        charge = -30,
-	        chargeDistance2 = Infinity,
 	        gravity = 0.4,
 	        theta2 = .64,
+	        size = [1, 1],
+	        chargeDistance2 = Infinity;
+
+	    var alpha = void 0,
 	        distances = [],
 	        strengths = [],
 	        charges = [];
@@ -2094,7 +2137,15 @@
 	 */
 
 	module.exports = function (points) {
-	    var d, xs, ys, i, n, x1_, y1_, x2_, y2_;
+	    var d = void 0,
+	        xs = void 0,
+	        ys = void 0,
+	        i = void 0,
+	        n = void 0,
+	        x1_ = void 0,
+	        y1_ = void 0,
+	        x2_ = void 0,
+	        y2_ = void 0;
 
 	    x2_ = y2_ = -(x1_ = y1_ = Infinity);
 	    xs = [], ys = [];
@@ -2176,22 +2227,22 @@
 
 	    function findNode(root, x, y, x0, y0, x3, y3) {
 	        var minDistance2 = Infinity;
-	        var closestPoint;
+	        var closestPoint = void 0;
 
 	        (function find(node, x1, y1, x2, y2) {
 	            if (x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;
 
 	            if (point = node.point) {
-	                var point;
-	                var dx = x - node.x;
-	                var dy = y - node.y;
-	                var distance2 = dx * dx + dy * dy;
+	                var _point = void 0;
+	                var _dx = x - node.x;
+	                var _dy = y - node.y;
+	                var distance2 = _dx * _dx + _dy * _dy;
 
 	                if (distance2 < minDistance2) {
 	                    var distance = Math.sqrt(minDistance2 = distance2);
 	                    x0 = x - distance, y0 = y - distance;
 	                    x3 = x + distance, y3 = y + distance;
-	                    closestPoint = point;
+	                    closestPoint = _point;
 	                }
 	            }
 
@@ -2201,8 +2252,8 @@
 	            var right = x >= xm;
 	            var below = y >= ym;
 
-	            for (var i = below << 1 | right, j = i + 4; i < j; ++i) {
-	                if (node = children[i & 3]) switch (i & 3) {
+	            for (var _i = below << 1 | right, j = _i + 4; _i < j; ++_i) {
+	                if (node = children[_i & 3]) switch (_i & 3) {
 	                    case 0:
 	                        find(node, x1, y1, xm, ym);break;
 	                    case 1:
@@ -3952,6 +4003,10 @@
 
 	"use strict";
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	var geomutils = __webpack_require__(11);
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -3966,203 +4021,235 @@
 	  arr.push(e);
 	}
 
-	var interactivityBatch = function interactivityBatch(layers, insertTempLayer, draw, nodes, edges, checkUniqId) {
-	  var _this = this;
+	var interactivityBatch = function () {
+	  function interactivityBatch(layers, insertTempLayer, draw, nodes, edges, checkUniqId) {
+	    var _this = this;
 
-	  var toAddEdges = [];
-	  var toAddNodes = [];
-	  var toRemoveEdges = [];
-	  var toRemoveNodes = [];
-	  var actualTempNodes, actualTempEdges;
+	    _classCallCheck(this, interactivityBatch);
 
-	  var ePos, nPos, eDirs, lastNodeIndex, lastEdgeIndex;
+	    this._layers = layers;
+	    this._insertTempLayer = insertTempLayer;
 
-	  function createSupportStructs(nodes, edges) {
-	    nPos = {};
-	    ePos = {};
-	    eDirs = {};
+	    this._draw = draw;
+	    this._nodes = nodes;
+	    this._edges = edges;
+	    this._checkUniqId = checkUniqId;
+
+	    this._toAddEdges = [];
+	    this._toAddNodes = [];
+	    this._toRemoveEdges = [];
+	    this._toRemoveNodes = [];
+
+	    //create support structures
+	    this._nPos = {};
+	    this._ePos = {};
+	    this._eDirs = {};
 
 	    nodes.forEach(function (n, i) {
-	      nPos[n.uniqid] = i;
-	      eDirs[n.uniqid] = {};
+	      _this._nPos[n.uniqid] = i;
+	      _this._eDirs[n.uniqid] = {};
 	    });
 
 	    edges.forEach(function (e, i) {
 	      var s = geomutils.edgeSource(e);
 	      var t = geomutils.edgeTarget(e);
 
-	      eDirs[s.uniqid][t.uniqid] = e;
-	      ePos[e.uniqid] = i;
+	      _this._eDirs[s.uniqid][t.uniqid] = e;
+	      _this._ePos[e.uniqid] = i;
 	    });
-	  };
 
-	  function doRemoveNodes(nodes) {
-	    nodes.forEach(function (n) {
-	      if (n.uniqid === undefined) return;
-
-	      if (nPos[n.uniqid] !== undefined) {
-	        //in the normal graph
-	        var pos = nPos[n.uniqid];
-	        layers.main.removeNodeAtPos(pos);
-	        delete nPos[n.uniqid];
-	      } else {
-	        //try to remove from temp graph
-
-	        for (var i = 0; i < actualTempNodes.length; i++) {
-	          if (actualTempNodes[i] === n) {
-	            actualTempNodes.splice(i, 1);
-	            break;
-	          }
-	        }
-	      }
-
-	      n.__uniqid = n.uniqid;
-	      delete n.uniqid;
-	    });
+	    this._actualTempNodes = [];
+	    this._actualTempEdges = [];
 	  }
 
-	  function doRemoveEdges(edges) {
-	    edges.forEach(function (e) {
-	      if (e.uniqid === undefined) return;
+	  _createClass(interactivityBatch, [{
+	    key: "_doRemoveNodes",
+	    value: function _doRemoveNodes(nodes) {
+	      var _this2 = this;
 
+	      nodes.forEach(function (n) {
+	        if (n.uniqid === undefined) return;
+
+	        if (_this2._nPos[n.uniqid] !== undefined) {
+	          //in the normal graph
+	          var pos = _this2._nPos[n.uniqid];
+	          _this2._layers.main.removeNodeAtPos(pos);
+	          delete _this2._nPos[n.uniqid];
+	        } else {
+	          //try to remove from temp graph
+
+	          for (var i = 0; i < _this2._actualTempNodes.length; i++) {
+	            if (_this2._actualTempNodes[i] === n) {
+	              _this2._actualTempNodes.splice(i, 1);
+	              break;
+	            }
+	          }
+	        }
+
+	        n.__uniqid = n.uniqid;
+	        delete n.uniqid;
+	      });
+	    }
+	  }, {
+	    key: "_doRemoveEdges",
+	    value: function _doRemoveEdges(edges) {
+	      var _this3 = this;
+
+	      edges.forEach(function (e) {
+	        if (e.uniqid === undefined) return;
+
+	        var s = geomutils.edgeSource(e);
+	        var t = geomutils.edgeTarget(e);
+
+	        delete (_this3._eDirs[s.uniqid] || {})[t.uniqid];
+
+	        if (_this3._ePos[e.uniqid] !== undefined) {
+	          //in the normal graph
+	          var pos = _this3._ePos[e.uniqid];
+	          _this3._layers.main.removeEdgeAtPos(pos);
+	          delete _this3._ePos[e.uniqid];
+	        } else {
+	          //try to remove from temp graph
+
+	          for (var i = 0; i < _this3._actualTempEdges.length; i++) {
+	            if (_this3._actualTempEdges[i] === e) {
+	              _this3._actualTempEdges.splice(i, 1);
+	              break;
+	            }
+	          }
+	        }
+
+	        e.__uniqid = e.uniqid;
+	        delete e.uniqid;
+	      });
+	    }
+	  }, {
+	    key: "_doAddEdges",
+	    value: function _doAddEdges() {
+	      var _this4 = this;
+
+	      this._toAddEdges.forEach(function (e) {
+	        //already added in main graph
+	        if (_this4._ePos[e.uniqid] !== undefined) {
+	          _this4._doRemoveEdges([e]);
+	        }
+
+	        if (e.uniqid !== undefined) {
+	          console.error(e);
+	          console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
+	          return;
+	        }
+	        _this4._checkUniqId(e);
+
+	        //add this node into temporary chart
+
+	        //TODO: Not so efficient >> causes quadratic complexity of adding edges into temporary graph
+	        pushUnique(_this4._actualTempEdges, e);
+	      });
+	    }
+	  }, {
+	    key: "_doAddNodes",
+	    value: function _doAddNodes(nodes) {
+	      var _this5 = this;
+
+	      this._toAddNodes.forEach(function (n) {
+	        if (_this5._nPos[n.uniqid] !== undefined) {
+	          _this5._doRemoveNodes([n]);
+	        }
+
+	        //already added
+	        if (n.uniqid !== undefined) {
+	          console.error(n);
+	          console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
+	          return;
+	        }
+	        _this5._checkUniqId(n);
+
+	        _this5._eDirs[n.uniqid] = {};
+
+	        //TODO: Not so efficient >> causes quadratic complexity of adding nodes into temporary graph
+	        pushUnique(_this5._actualTempNodes, n);
+	      });
+	    }
+	  }, {
+	    key: "addEdge",
+	    value: function addEdge(e) {
 	      var s = geomutils.edgeSource(e);
 	      var t = geomutils.edgeTarget(e);
 
-	      delete (eDirs[s.uniqid] || {})[t.uniqid];
+	      var tid = t.uniqid;
+	      var sid = s.uniqid;
 
-	      if (ePos[e.uniqid] !== undefined) {
-	        //in the normal graph
-	        var pos = ePos[e.uniqid];
-	        layers.main.removeEdgeAtPos(pos);
-	        delete ePos[e.uniqid];
-	      } else {
-	        //try to remove from temp graph
-
-	        for (var i = 0; i < actualTempEdges.length; i++) {
-	          if (actualTempEdges[i] === e) {
-	            actualTempEdges.splice(i, 1);
-	            break;
-	          }
-	        }
+	      if ((this._eDirs[sid] || {})[tid]) {
+	        //this edge was already added >> remove it
+	        this._doRemoveEdges([e]);
 	      }
 
-	      e.__uniqid = e.uniqid;
-	      delete e.uniqid;
-	    });
-	  }
+	      if ((this._eDirs[tid] || {})[sid]) {
+	        //must remove line and add two curves
 
-	  function doAddEdges() {
-	    toAddEdges.forEach(function (e) {
-	      //already added in main graph
-	      if (ePos[e.uniqid] !== undefined) {
-	        doRemoveEdges([e]);
+	        this._toAddEdges.push(this._eDirs[tid][sid]);
+	        this._doRemoveEdges([this._eDirs[tid][sid]]);
+
+	        this._toAddEdges.push(this._eDirs[sid][tid] = e);
+
+	        return this;
 	      }
 
-	      if (e.uniqid !== undefined) {
-	        console.error(e);
-	        console.error("This edge has been already added, if you want to add same edge twice, create new object with same properties");
-	        return;
-	      }
-	      checkUniqId(e);
-
-	      //add this node into temporary chart
-
-	      //TODO: Not so efficient >> causes quadratic complexity of adding edges into temporary graph
-	      pushUnique(actualTempEdges, e);
-	    });
-	  }
-
-	  function doAddNodes(nodes) {
-	    toAddNodes.forEach(function (n) {
-	      if (nPos[n.uniqid] !== undefined) {
-	        doRemoveNodes([n]);
-	      }
-
-	      //already added
-	      if (n.uniqid !== undefined) {
-	        console.error(n);
-	        console.error("This node has been already added, if you want to add same node twice, create new object with same properties");
-	        return;
-	      }
-	      checkUniqId(n);
-
-	      eDirs[n.uniqid] = {};
-
-	      //TODO: Not so efficient >> causes quadratic complexity of adding nodes into temporary graph
-	      pushUnique(actualTempNodes, n);
-	    });
-	  }
-
-	  this.addEdge = function (e) {
-	    var s = geomutils.edgeSource(e);
-	    var t = geomutils.edgeTarget(e);
-
-	    var tid = t.uniqid;
-	    var sid = s.uniqid;
-
-	    if ((eDirs[sid] || {})[tid]) {
-	      //this edge was already added >> remove it
-	      doRemoveEdges([e]);
+	      this._toAddEdges.push(e);
+	      return this;
 	    }
-
-	    if ((eDirs[tid] || {})[sid]) {
-	      //must remove line and add two curves
-
-	      toAddEdges.push(eDirs[tid][sid]);
-	      doRemoveEdges([eDirs[tid][sid]]);
-
-	      toAddEdges.push(eDirs[sid][tid] = e);
-
-	      return _this;
+	  }, {
+	    key: "addNode",
+	    value: function addNode(n) {
+	      this._toAddNodes.push(n);
+	      return this;
 	    }
+	  }, {
+	    key: "removeNode",
+	    value: function removeNode(n) {
+	      this._toRemoveNodes.push(n);
+	      return this;
+	    }
+	  }, {
+	    key: "removeEdge",
+	    value: function removeEdge(e) {
+	      this._toRemoveEdges.push(e);
+	      return this;
+	    }
+	  }, {
+	    key: "applyChanges",
+	    value: function applyChanges() {
 
-	    toAddEdges.push(e);
-	    return _this;
-	  };
+	      //nothing to do
+	      if (this._toRemoveEdges.length === 0 && this._toRemoveNodes.length === 0 && this._toAddEdges.length === 0 && this._toAddNodes.length === 0) return this;
 
-	  this.addNode = function (n) {
-	    toAddNodes.push(n);
-	    return _this;
-	  };
+	      this._actualTempNodes = this._layers.temp ? this._layers.temp.nodes : [];
+	      this._actualTempEdges = this._layers.temp ? this._layers.temp.edges : [];
 
-	  this.removeNode = function (n) {
-	    toRemoveNodes.push(n);
-	    return _this;
-	  };
+	      this._doRemoveEdges(this._toRemoveEdges);
+	      this._doRemoveNodes(this._toRemoveNodes);
+	      this._doAddNodes();
+	      this._doAddEdges();
 
-	  this.removeEdge = function (e) {
-	    toRemoveEdges.push(e);
-	    return _this;
-	  };
+	      this._toAddEdges = [];
+	      this._toAddNodes = [];
+	      this._toRemoveEdges = [];
+	      this._toRemoveNodes = [];
 
-	  this.applyChanges = function () {
+	      this._insertTempLayer();
+	      this._layers.temp.set(this._actualTempNodes, this._actualTempEdges);
 
-	    //nothing to do
-	    if (toRemoveEdges.length === 0 && toRemoveNodes.length === 0 && toAddEdges.length === 0 && toAddNodes.length === 0) return _this;
+	      this._draw();
 
-	    actualTempNodes = layers.temp ? layers.temp.nodes : [];
-	    actualTempEdges = layers.temp ? layers.temp.edges : [];
+	      return this;
+	    }
+	  }]);
 
-	    doRemoveEdges(toRemoveEdges);
-	    doRemoveNodes(toRemoveNodes);
-	    doAddNodes();
-	    doAddEdges();
+	  return interactivityBatch;
+	}();
 
-	    toAddEdges = [];
-	    toAddNodes = [];
-	    toRemoveEdges = [];
-	    toRemoveNodes = [];
-
-	    insertTempLayer();
-	    layers.temp.set(actualTempNodes, actualTempEdges);
-
-	    draw();
-
-	    return _this;
-	  };
-
-	  createSupportStructs(nodes, edges);
-	};
+	;
 
 	module.exports = interactivityBatch;
 
