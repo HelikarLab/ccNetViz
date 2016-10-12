@@ -706,7 +706,11 @@
 
 	  this.resize();
 
-	  var textures = new ccNetViz_textures(options.onLoad || this.draw);
+	  var onLoad = options.onLoad || function () {
+	    if (removed) return;
+	    _this.draw();
+	  };
+	  var textures = new ccNetViz_textures(onLoad);
 	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
 	};
 
