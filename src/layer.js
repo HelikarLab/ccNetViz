@@ -192,6 +192,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
        circleArrows: (style => ({
                         set: (v, e, iV, iI) => {
                           let t = ccNetViz_geomutils.edgeTarget(e);
+                          let s = t;
                           return set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
                         }
                     }))
