@@ -445,6 +445,25 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
       var s = Math.max(c.width, c.height)/250;
       return s*s;
     };
+    
+      
+    let stylesTransl = {
+      'line': 0,
+      'dashed'  : 1,
+      'chain-dotted': 2,
+      'dotted': 3
+    }
+    let getEdgeType = (t) => {
+      if(t !== undefined){
+        t = stylesTransl[t];
+      }
+    
+      if(t === undefined || typeof t !== 'number'){
+        t = 0;
+      }
+      
+      return t;
+    };
 
     
     this.nodes = [];
@@ -573,7 +592,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
             gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
-            gl.uniform1f(c.shader.uniforms.type, c.style.type);
+            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         })
     );
@@ -614,7 +633,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-                gl.uniform1f(c.shader.uniforms.type, c.style.type);
+                gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
                 c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
                 ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
@@ -644,7 +663,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             , fsCurve, c => {
                 c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
                 gl.uniform1f(c.shader.uniforms.width, c.style.width);
-                gl.uniform1f(c.shader.uniforms.type, c.style.type);
+                gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);

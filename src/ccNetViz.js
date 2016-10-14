@@ -76,20 +76,6 @@ var ccNetViz = function(canvas, options){
   let edgeStyle = options.styles.edge = options.styles.edge || {};
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
-  
-  let stylesTransl = {
-    'line': 0,
-    'dashed'  : 1,
-    'chain-dotted': 2,
-    'dotted': 3
-  }
-  if(stylesTransl[edgeStyle.type] !== undefined){
-    edgeStyle.type = stylesTransl[edgeStyle.type];
-  }
-  
-  if(edgeStyle.type === undefined || typeof edgeStyle.type !== 'number'){
-    edgeStyle.type = 0;
-  }
 
 
   if (edgeStyle.arrow) {
