@@ -464,6 +464,7 @@
 	    context.width = 0.5 * width;
 	    context.height = 0.5 * height;
 	    context.aspect2 = aspect * aspect;
+	    context.aspect = aspect;
 	    context.count = getNodesCnt();
 
 	    //bad hack because we use different size for curveExc and for nodeSize :(
@@ -1198,6 +1199,11 @@
 	        return _this.edges.length - removedEdges;
 	    };
 
+	    var getEdgeStyleSize = function getEdgeStyleSize(c) {
+	        var s = Math.max(c.width, c.height) / 250;
+	        return s * s;
+	    };
+
 	    this.nodes = [];
 	    this.edges = [];
 
@@ -1216,7 +1222,7 @@
 
 	    var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 
-	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar.x = p.x;", "   v_lengthSoFar.y = p.y;", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*15.0));", "   if(type >= 2.5){", //3.0 dotted
+	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));", "   if(type >= 2.5){", //3.0 dotted
 	    "      part = fract(part*5.0);", "      if(part < 0.5) discard;", "   }else if(type >= 1.5){", //2.0 - chain dotted
 	    "      if(part < 0.15) discard;", "      if(part > 0.25 && part < 0.40) discard;", "   }else if(type >= 0.5){", //1.0 - dashed
 	    "      if(part < 0.2) discard;", "   }", "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"], function (c) {
@@ -1224,33 +1230,39 @@
 	        gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	        var size = 2.5 * c.nodeSize;
 	        c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	        gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
 	        gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+	        gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
 	        gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
 	        gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	    }));
 
 	    if (extensions.OES_standard_derivatives) {
-	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar.x = p.x;", "   v_lengthSoFar.y = p.y;", "}"]), fsCurve, function (c) {
+	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y);", "}"]), fsCurve, function (c) {
 	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	            var size = 2.5 * c.nodeSize;
 	            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
 	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+	            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
 	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
-	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
+	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        }));
-	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar.x = p.x;", "   v_lengthSoFar.y = p.y;", "}"]), fsCurve, function (c) {
+	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y);", "}"]), fsCurve, function (c) {
 	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	            var size = 2.5 * c.nodeSize;
 	            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
 	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
+	            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
+	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5 / 3);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        }));
 	    }
