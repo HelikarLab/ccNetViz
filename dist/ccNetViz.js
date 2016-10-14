@@ -226,20 +226,6 @@
 	  edgeStyle.width = edgeStyle.width || 1;
 	  edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
-	  var stylesTransl = {
-	    'line': 0,
-	    'dashed': 1,
-	    'chain-dotted': 2,
-	    'dotted': 3
-	  };
-	  if (stylesTransl[edgeStyle.type] !== undefined) {
-	    edgeStyle.type = stylesTransl[edgeStyle.type];
-	  }
-
-	  if (edgeStyle.type === undefined || typeof edgeStyle.type !== 'number') {
-	    edgeStyle.type = 0;
-	  }
-
 	  if (edgeStyle.arrow) {
 	    var _s = edgeStyle.arrow;
 	    _s.minSize = _s.minSize != null ? _s.minSize : 6;
@@ -1204,6 +1190,24 @@
 	        return s * s;
 	    };
 
+	    var stylesTransl = {
+	        'line': 0,
+	        'dashed': 1,
+	        'chain-dotted': 2,
+	        'dotted': 3
+	    };
+	    var getEdgeType = function getEdgeType(t) {
+	        if (t !== undefined) {
+	            t = stylesTransl[t];
+	        }
+
+	        if (t === undefined || typeof t !== 'number') {
+	            t = 0;
+	        }
+
+	        return t;
+	    };
+
 	    this.nodes = [];
 	    this.edges = [];
 
@@ -1234,7 +1238,7 @@
 	        gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	        gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
 	        gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
-	        gl.uniform1f(c.shader.uniforms.type, c.style.type);
+	        gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
 	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	    }));
 
@@ -1248,14 +1252,14 @@
 	            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
 	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
 	            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
+	            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
 	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        }));
 	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y);", "}"]), fsCurve, function (c) {
 	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
-	            gl.uniform1f(c.shader.uniforms.type, c.style.type);
+	            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
 	            var size = 2.5 * c.nodeSize;
 	            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
