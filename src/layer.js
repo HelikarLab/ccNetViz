@@ -440,6 +440,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     this.cntShownEdges = (() => {
       return this.edges.length - removedEdges;
     });
+    
+    let getEdgeStyleSize = (c) => {
+      var s = Math.max(c.width, c.height)/250;
+      return s*s;
+    };
 
     
     this.nodes = [];
@@ -521,21 +526,21 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "attribute vec2 position;",
             "attribute vec2 normal;",
             "attribute vec2 lengthSoFar;",
-	    "uniform float exc;",
-	    "uniform vec2 size;",
-	    "uniform vec2 screen;",
-	    "uniform float aspect2;",
+            "uniform float exc;",
+            "uniform vec2 size;",
+            "uniform vec2 screen;",
+            "uniform float aspect2;",
+            "uniform float aspect;",
             "uniform vec2 width;",
             "uniform mat4 transform;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;"
-	    ].concat(getShiftFuncs).concat([
+            ].concat(getShiftFuncs).concat([
             "void main(void) {",
             "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
 
             "   vec4 p = transform*vec4(lengthSoFar,0,0);",
-            "   v_lengthSoFar.x = p.x;",
-            "   v_lengthSoFar.y = p.y;",
+            "   v_lengthSoFar = vec2(p.x*aspect, p.y/aspect);",
 
             "   n = normal;",
             "}"
@@ -545,8 +550,9 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "uniform vec4 color;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;",
+	    "uniform float lineSize;",
             "void main(void) {",
-            "   float part = abs(fract(length(v_lengthSoFar)*15.0));",
+            "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));",
             "   if(type >= 2.5){",        //3.0 dotted
             "      part = fract(part*5.0);",
             "      if(part < 0.5) discard;",
@@ -563,7 +569,9 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
             let size = 2.5 * c.nodeSize;
             c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
             gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
             gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(c.shader.uniforms.type, c.style.type);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -581,6 +589,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "uniform float exc;",
                 "uniform vec2 screen;",
                 "uniform float aspect2;",
+                "uniform float aspect;",
                 "uniform mat4 transform;",
                 "varying vec2 v_lengthSoFar;",
                 "varying vec2 c;",
@@ -593,8 +602,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "   c = curve;",
 
                 "   vec4 p = transform*vec4(lengthSoFar,0,0);",
-                "   v_lengthSoFar.x = p.x;",
-                "   v_lengthSoFar.y = p.y;",
+                "   v_lengthSoFar = vec2(p.x*aspect, p.y);",
 
                 "}"
             ]), fsCurve, c => {
@@ -603,9 +611,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+                gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
+                gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
                 gl.uniform1f(c.shader.uniforms.type, c.style.type);
-                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 15);
+                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
                 ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
@@ -618,6 +628,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "uniform float exc;",
                 "uniform vec2 screen;",
                 "uniform float aspect2;",
+                "uniform float aspect;",
                 "uniform vec2 size;",
                 "uniform mat4 transform;",
                 "varying vec2 c;",
@@ -628,8 +639,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "   c = curve;",
 
                 "   vec4 p = transform*vec4(size * lengthSoFar,0,0);",
-                "   v_lengthSoFar.x = p.x;",
-                "   v_lengthSoFar.y = p.y;",
+                "   v_lengthSoFar = vec2(p.x*aspect, p.y);",
                 "}"])
             , fsCurve, c => {
                 c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
@@ -638,8 +648,10 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+                gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
+                gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
+                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5/3);
                 ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
             })
         );
@@ -654,12 +666,12 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
 
             gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(c.shader.uniforms.arrowsize, size, c.style.aspect * size);
-	    gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
+            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
             c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
-	    if(c.shader.uniforms.size){
-	      size = 2.5 * c.nodeSize;
-	      c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	    }
+            if(c.shader.uniforms.size){
+              size = 2.5 * c.nodeSize;
+              c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+            }
             gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
             gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -669,16 +681,16 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "attribute vec2 position;",
                 "attribute vec2 direction;",
                 "attribute vec2 textureCoord;",
-		"attribute float offsetMul;",		    
+                "attribute float offsetMul;",		    
                 "uniform float offset;",
-		"uniform vec2 arrowsize;",
+                "uniform vec2 arrowsize;",
                 "uniform vec2 size;",
                 "uniform vec2 screen;",
-		"uniform float exc;",
+                "uniform float exc;",
                 "uniform float aspect2;",
                 "uniform mat4 transform;",
                 "varying vec2 tc;",
-		].concat(getShiftFuncs).concat([
+                ].concat(getShiftFuncs).concat([
                 "void main(void) {",
                 "   vec2 u = direction / length(screen * direction);",
                 "   vec2 v = vec2(u.y, -aspect2 * u.x);",
@@ -704,7 +716,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                     "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
-		    ].concat(getShiftFuncs).concat([
+                    ].concat(getShiftFuncs).concat([
                     "void main(void) {",
                     "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));",
                     "   u = normalize(direction - cexc * u / length(screen * u));",
@@ -729,7 +741,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                     "uniform float aspect2;",
                     "uniform mat4 transform;",
                     "varying vec2 tc;",
-		    ].concat(getShiftFuncs).concat([
+                    ].concat(getShiftFuncs).concat([
                     "void main(void) {",
                     "   vec2 u = direction;",
                     "   vec2 v = vec2(direction.y, -direction.x);",

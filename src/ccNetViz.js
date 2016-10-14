@@ -293,6 +293,7 @@ var ccNetViz = function(canvas, options){
     context.width     = 0.5 * width;
     context.height    = 0.5 * height;
     context.aspect2   = aspect * aspect;
+    context.aspect    = aspect;
     context.count     = getNodesCnt();
 
     //bad hack because we use different size for curveExc and for nodeSize :(
