@@ -3,7 +3,8 @@ var ccNetViz_layout = require('./layout/layout');
 var ccNetViz_gl = require('./gl');
 var ccNetViz_color = require('./color');
 var ccNetViz_utils = require('./utils');
-var ccNetViz_textures = require('./textures');
+var ccNetViz_textures = require('./dataSources/textures');
+var ccNetViz_files = require('./dataSources/files');
 var ccNetViz_interactivityBatch = require('./interactivityBatch');
 var ccNetViz_spatialSearch = require('./spatialSearch/spatialSearch');
 
@@ -38,7 +39,7 @@ function mergeArrays(a, b, cmp){
   
   while (i < a.length && j < b.length)
   {
-    if (cmp(a[i],b[j]) < 0)       
+    if (cmp(a[i],b[j]) < 0)
       r[k++] = a[i++];
     else        
       r[k++] = b[j++];               
@@ -61,6 +62,7 @@ var ccNetViz = function(canvas, options){
   let backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
   
   let removed = false;
+  let setted  = false;
   
   let nodeStyle = options.styles.node = options.styles.node || {};
   nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
@@ -77,6 +79,14 @@ var ccNetViz = function(canvas, options){
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
+  let onLoad = (
+                options.onLoad
+                  ||
+                (() => {
+                if(removed || !setted) return;
+                 this.draw();
+                })
+              );  
 
   if (edgeStyle.arrow) {
       let s = edgeStyle.arrow;
@@ -101,17 +111,17 @@ var ccNetViz = function(canvas, options){
   let context = {};
   
   this.cntShownNodes = () => {
-    let n = layers.main.cntShownNodes();
-    if(layers.temp)
-      n+=layers.temp.cntShownNodes();
+    let n = 0;
+    for(var k in layers)
+      n += layers[k].cntShownNodes();
     return n;
   }
   let getNodesCnt = options.getNodesCnt || this.cntShownNodes;
   
   this.cntShownEdges = () => {
-    let e = layers.main.cntShownEdges();
-    if(layers.temp)
-      e+=layers.temp.cntShownEdges();
+    let e = 0;
+    for(var k in layers)
+      e += layers[k].cntShownEdges();
     return e;
   }
   let getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
@@ -134,7 +144,7 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
   let batch = undefined;
@@ -159,6 +169,7 @@ var ccNetViz = function(canvas, options){
     
     //reset batch
     batch = undefined;
+    setted = true;
     return this;
   };
   
@@ -520,16 +531,9 @@ var ccNetViz = function(canvas, options){
 
   this.resize();
 
-  let onLoad = (
-                options.onLoad
-                  ||
-                (() => {
-                if(removed) return;
-                 this.draw();
-                })
-              );
   let textures = new ccNetViz_textures(onLoad);
-  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+  let files = new ccNetViz_files(onLoad);
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 };
 
 

@@ -3,7 +3,8 @@ var ccNetViz_gl        = require( './gl' );
 var ccNetViz_primitive = require( './primitive' );
 var ccNetViz_layout    = require( './layout/layout' );
 var ccNetViz_geomutils = require( './geomutils' );
-var ccNetViz_texts     = require( './texts' );
+var ccNetViz_texts     = require( './texts/texts' );
+var ccNetViz_utils     = require( './utils' );
 var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
 
 /**
@@ -16,9 +17,10 @@ var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-module.exports = function(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
+module.exports = function(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
+    
     this.redraw = onRedraw || (() => {});
   
     options = options || {};
@@ -39,22 +41,43 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         }})
     );
     let labelsFiller = (style => {
-        texts.setFont(style.font);
-        style.texture = texts.texture;
-        return {
-            set: (v, e, iV, iI) => {
-                let x = e.x;
-                let y = e.y;
-                ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                let t = texts.get(e.label);
-                let dx = x <= 0.5 ? 0 : -t.width;
-                let dy = y <= 0.5 ? 0 : -t.height;
-                ccNetViz_primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-                ccNetViz_primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-                ccNetViz_primitive.quad(v.indices, iV, iI);
-            }}
-        }	
-    );
+        return (function(style){
+          let textEngine = texts.getEngine(style.font);
+      
+          textEngine.setFont(style.font, files, textures, gl);
+
+	  var r = {
+              set: (v, e, iV, iI) => {
+                var x = e.x;
+                var y = e.y;
+
+                var parts = textEngine.get(e.label, x, y);
+                for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
+                  let c = parts[i];
+                  let chr = c.cCoord;
+
+                  if(v.color){
+                    let c = e.color;
+                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
+                  }                        
+
+                  ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+                  ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
+                  ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
+                  ccNetViz_primitive.quad(v.indices, iV, iI);
+                }
+              }
+            };
+
+          if(textEngine.isSDF){
+            r.size = (v,e) => {
+                return e.label.length;
+            }; 
+          }
+          
+          return r;
+        })(style);
+    });
 
     let normalize = (a, b) => {
         let x = b.x - a.x;
@@ -321,32 +344,44 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
 
         layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
 
-        scene.nodes.set(gl, options.styles, textures, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-        scene.nodesColored.set(gl, options.styles, textures, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+        let defaultAdder = (section, addSection) => {
+          if(typeof section.style.texture === 'string')
+              section.style.texture = textures.get(gl, section.style.texture, addSection);
+            else
+              addSection();
+        }
+        let labelAdder = (section, addSection) => {
+          var slf = (section.style.label || {}).font || {};
+          let textEngine = texts.getEngine(slf);
+          section.style.texture = textEngine.getTexture(slf, textures, files, gl, addSection);
+        }
+
+        scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
+        scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
 
         if (nodeStyle.label) {
             texts.clear();
-            scene.labels.set(gl, options.styles, textures, nodes, labelsFiller);
+            scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
             texts.bind();
         }
 
-        scene.lines.set(gl, options.styles, textures, lines, edgesFiller.lines);
+        scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
 
         if (extensions.OES_standard_derivatives) {
-            scene.curves.set(gl, options.styles, textures, curves, edgesFiller.curves);
-            scene.circles.set(gl, options.styles, textures, circles, edgesFiller.circles);
+            scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
+            scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
         }
 
         if (edgeStyle.arrow) {
-            scene.lineArrows.set(gl, options.styles, textures, lines, arrowFiller.lineArrows);
+            scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
 
             if (extensions.OES_standard_derivatives) {
-                scene.curveArrows.set(gl, options.styles, textures, curves, arrowFiller.curveArrows);
+                scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
 
-                scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
+                scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
             }
         }
-    }
+    };
     
     this.update = function(element, attribute, data) {
         scene[element].update(gl, attribute, data, function(style)  {return {
@@ -441,10 +476,13 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
       return this.edges.length - removedEdges;
     });
     
-    let getEdgeStyleSize = (c) => {
-      var s = Math.max(c.width, c.height)/250;
-      return s*s;
-    };
+    let getEdgeStyleSize = ((c) => {
+      return c.width/(200);
+/*      let avsize = (c.width + c.height)/2;
+      let koef = (Math.min(Math.max((avsize - 150)/150, 0),1)+1)*1.3;
+      //koef 1 for 150 size and 1.4 for 300 size
+      return c.width/(130*koef);
+*/    });
     
       
     let stylesTransl = {
@@ -472,6 +510,12 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
     let extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
     let texts = new ccNetViz_texts(gl);
     let scene = this.scene = createScene.call(this);
+    
+    let getLabelType = (f) => {
+      if(texts.isSDF(f))
+        return 1;
+      return 0;
+    };
 
     const fsColorTexture = [
         "precision mediump float;",
@@ -483,6 +527,27 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         "}"
     ];
 
+    const fsLabelTexture = [
+        "precision mediump float;",
+        "uniform lowp sampler2D texture;",
+        "uniform mediump vec4 color;",
+        "uniform mediump float height_font;",
+        "uniform float type;",
+        "float u_buffer = 192.0 / 256.0;",
+        "float u_gamma = 4.0 * 1.4142 / height_font;",
+        "varying mediump vec2 tc;",
+        "void main() {",
+        "  if(type > 0.5){",
+        "    float tx=texture2D(texture, tc).r;",
+        "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);",
+        "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
+        "    gl_FragColor=vec4(color.rgb, a * color.a);",
+        "  }else{",
+        "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
+        "  }",
+        "}"
+    ];
+    
     const fsVarColorTexture = [
         "precision mediump float;",
         "uniform sampler2D texture;",
@@ -502,10 +567,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         "uniform vec4 color;",
         "uniform float type;",
         "uniform float lineStepSize;",
+        "uniform float lineSize;",
         "varying vec2 c;",
         "varying vec2 v_lengthSoFar;",
         "void main(void) {",
-        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));",
+        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));",
         "   if(type >= 2.5){",        //3.0 dotted
         "      part = fract(part*5.0);",
         "      if(part < 0.5) discard;",
@@ -559,7 +625,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
 
             "   vec4 p = transform*vec4(lengthSoFar,0,0);",
-            "   v_lengthSoFar = vec2(p.x*aspect, p.y/aspect);",
+            "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
 
             "   n = normal;",
             "}"
@@ -569,7 +635,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "uniform vec4 color;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;",
-	    "uniform float lineSize;",
+            "uniform float lineSize;",
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));",
             "   if(type >= 2.5){",        //3.0 dotted
@@ -621,7 +687,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "   c = curve;",
 
                 "   vec4 p = transform*vec4(lengthSoFar,0,0);",
-                "   v_lengthSoFar = vec2(p.x*aspect, p.y);",
+                "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
 
                 "}"
             ]), fsCurve, c => {
@@ -630,7 +696,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
                 c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-                gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
+		gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
                 gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
                 gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
                 gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
@@ -658,7 +724,7 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
                 "   c = curve;",
 
                 "   vec4 p = transform*vec4(size * lengthSoFar,0,0);",
-                "   v_lengthSoFar = vec2(p.x*aspect, p.y);",
+                "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
                 "}"])
             , fsCurve, c => {
                 c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
@@ -818,9 +884,12 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
             "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);",
             "   tc = textureCoord;",
             "}"
-        ], fsColorTexture, c => {
+        ], fsLabelTexture, c => {
             if (!getNodeSize(c)) return true;
-            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
+	    gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
+	    if(c.style.label.font && c.style.label.font.height)
+	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height * 2);
+	    gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         })
@@ -830,7 +899,11 @@ module.exports = function(canvas, context, view, gl, textures, options, nodeStyl
         let styles = options.styles;
         for (let p in styles) {
             let s = styles[p];
-            s.texture && textures.get(gl, s.texture);
+
+//            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
+//            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
+
+            s.texture && textures.get(gl, s.texture, onLoad);
             s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
         }
     }

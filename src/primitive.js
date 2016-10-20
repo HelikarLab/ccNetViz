@@ -1,5 +1,6 @@
 var ccNetViz_shader = require( './shader' );
 var ccNetViz_color  = require( './color' );
+var ccNetViz_utils  = require( './utils' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -20,6 +21,19 @@ class primitive{
     let e = {};
     let iV, iI, iS = 0, iB = 0;
 
+    let partLength = (filler, part) => {
+        if(filler.size){
+          let n = 0;
+          part.forEach( p => {
+            n+=filler.size(e,p);
+          });
+          return n;
+        }else{
+          return part.length;
+        }
+        return;
+    };
+    
     let init = (filler, n) => {
         iV = iI = 0;
         let max = Math.floor(primitive.maxBufferSize / filler.numVertices);
@@ -32,8 +46,9 @@ class primitive{
             for (let a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
         }
     };
-    
-    this.set = (gl, styles, textures, data, get) => {
+
+//    this.set = (gl, styles, textures, data, get) => {
+    this.set = (gl, styles, adder, data, get) => {
         let parts = {};
         
         let pN = {};
@@ -101,14 +116,19 @@ class primitive{
             filler.numIndices = filler.numIndices || 6;
 
             let part = parts[p];
-            init(filler, part.length);
+            let pL = partLength(filler, part);
+            init(filler, pL);
             let max = primitive.maxBufferSize - filler.numVertices;
-            for (let i = 0; i < part.length; i++, iV += filler.numVertices, iI += filler.numIndices) {
+            for (let i = 0; i < part.length; i++) {
                 if (iV > max) {
                     store(section);
-                    init(filler, part.length);
+                    init(filler, pL);
                 }
                 filler.set(e, part[i], iV, iI);
+
+                let s = filler.size ? filler.size(e, part[i]) : 1;
+                iI += s * filler.numIndices;
+                iV += s * filler.numVertices;
             }
             store(section);
 
@@ -118,7 +138,7 @@ class primitive{
             }
             let addSection = add.bind(section);
 
-            typeof section.style.texture === 'string' ? section.style.texture = textures.get(gl, section.style.texture, addSection) : addSection();
+            adder ? adder(section, addSection) : addSection();
         }
     }
 
@@ -131,7 +151,7 @@ class primitive{
 
             section.buffers.forEach(function(e)  {
                 (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-                for (let iV = 0; iV < e.numVertices; iV += filler.numVertices) filler.set(fb, data[i++], iV);
+                for (let iV = 0; iV < e.numVertices; iV += (filler.size ? filler.size(e, data[i]) : 1) * filler.numVertices) filler.set(fb, data[i++], iV);
                 gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
                 gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
             });

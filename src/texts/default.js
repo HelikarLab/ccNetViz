@@ -6,7 +6,7 @@
  *  Authors: David Tichy, Aleš Saska
  */
 
-class Texts {
+class DefaultTexts {
   constructor(gl){
     this._gl = gl;
     this._size = 1024;
@@ -26,7 +26,6 @@ class Texts {
     this._rendered = this._texts = this._x = this._y = this._height = undefined;
 
     this.texture = this._gl.createTexture();
-
     
   }
 
@@ -43,27 +42,45 @@ class Texts {
     this._y += this._height;
     this._height = +/(\d+)px/.exec(font)[1] + 1;
   }
+  
+  getTexture (style, textures, files, gl, onLoad){
+    onLoad();
+    return this.texture;
+  }
 
-  get (text) {
+  _getText (text) {
     let result = this._texts[text];
     if (!result) {
-	let width = this._context.measureText(text).width;
-	if (this._x + width > this._size) {
-	    this._x = 0;
-	    this._y += this._height;
-	}
-	this._context.fillText(text, this._x, this._y);
-	this._texts[text] = result = {
-	    width: width,
-	    height: this._height,
-	    left: this._x / this._size,
-	    right: (this._x + width) / this._size,
-	    top: this._y / this._size,
-	    bottom: (this._y + this._height) / this._size
-	};
-	this._x += width;
+        let width = this._context.measureText(text).width;
+        if (this._x + width > this._size) {
+            this._x = 0;
+            this._y += this._height;
+        }
+        this._context.fillText(text, this._x, this._y);
+        this._texts[text] = result = {
+            width: width,
+            height: this._height,
+            left: this._x / this._size,
+            right: (this._x + width) / this._size,
+            top: this._y / this._size,
+            bottom: (this._y + this._height) / this._size
+        };
+        this._x += width;
     }
     return result;
+  }
+  
+  get (text, x, y) {
+    let c = this._getText(text);
+    
+    let dx = x <= 0.5 ? 0 : -c.width ;
+    let dy = y <= 0.5 ? c.height / 2 : -c.height; 
+    
+    return [{
+	cCoord: c,
+	dx: dx,
+	dy: dy
+      }];
   }
 
   bind () {
@@ -77,4 +94,4 @@ class Texts {
 
 };
 
-module.exports = Texts;
+module.exports = DefaultTexts;

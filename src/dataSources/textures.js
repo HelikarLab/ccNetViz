@@ -1,5 +1,5 @@
-var ccNetViz_utils = require( './utils' );
-var ccNetViz_gl = require( './gl' );
+var ccNetViz_utils = require( '../utils' );
+var ccNetViz_gl = require( '../gl' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -17,7 +17,7 @@ class Textures {
     this._n = 0;
   }
 
-  get(gl, img, action) {
+  get(gl, img, action, options) {
       var p = this._pending[img];
       var t = this._textures[img];
 
@@ -34,7 +34,7 @@ class Textures {
               p.forEach(a => a && a());
               delete this._pending[img];
               --this._n || this._load();
-          });
+          }, options);
       }
       return t;
   }
