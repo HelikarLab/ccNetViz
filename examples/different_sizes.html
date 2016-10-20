@@ -10,17 +10,23 @@
     }
 
     #container2 {
-      width: 500px;
-      height: 250px;
+      width: 550px;
+      height: 200px;
       border: 1px solid black;
     }
     
     #container3 {
-      width: 250px;
-      height: 500px;
+      width: 200px;
+      height: 550px;
       border: 1px solid black;
     }    
 
+    #container4 {
+      width: 250px;
+      height: 250px;
+      border: 1px solid black;
+    }    
+    
     #body {
       display: inline-block;
     }
@@ -36,6 +42,8 @@
     <h2>1:1 aspect</h2>
     <canvas id="container"></canvas>
     <br />
+    <canvas id="container4"></canvas>
+    <br />
     <h2>non 1:1 aspect</h2>
     <canvas id="container2"></canvas>
     <br />
@@ -47,7 +55,7 @@
     var data = {};
 
     function init(){
-	$.ajax({url: 'data/graph-10-3.json', dataType: 'json'}).done(dataLoaded);
+	$.ajax({url: 'data/graph-10-2.json', dataType: 'json'}).done(dataLoaded);
     };
 
     function dataLoaded(d){
@@ -84,16 +92,34 @@
 			      texture: "images/arrow.png",
 			      hideSize: 1
 			  },
-			  type: "chain-dotted"
+			  type: "dashed"
+			},
+			edgeDotted: {
+			  width: 1,
+			  color: "rgb(204, 204, 204)",
+			  arrow: {
+			      minSize: 6,
+			      maxSize: 16,
+			      aspect: 1,
+			      texture: "images/arrow.png",
+			      hideSize: 1
+			  },
+			  type: "dotted"
 			}
 		    }
 		  };
 
+      var n = data.nodes[0];
+      data.edges.push({source: n, target: n, style: 'edgeDotted'});
+      for(var i = 0; i < data.edges.length / 2; i++){
+	data.edges[i].style = 'edgeDotted';
+      }
+		  
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
       graph.set(data.nodes, data.edges, "force");
       graph.draw();
-
+      
       for(var i = 2; ; i++){
 	var el2 = document.getElementById('container'+i);
 	if(!el2)
