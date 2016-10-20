@@ -56,7 +56,8 @@ var webpackinst = Webpack({
         presets: ['es2015']
 //      compact: false
       },
-      loader: 'babel-loader' // 'babel-loader' is also a legal name to reference
+//      loader: 'babel-loader' // 'babel-loader' is also a legal name to reference
+      loader: 'babel' // 'babel-loader' is also a legal name to reference
     }
   ]
   }
