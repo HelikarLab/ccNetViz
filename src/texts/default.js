@@ -82,6 +82,10 @@ class DefaultTexts {
 	dy: dy
       }];
   }
+  
+  steps (text) {
+    return 1;
+  }
 
   bind () {
     this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);

@@ -46,7 +46,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
       
           textEngine.setFont(style.font, files, textures, gl);
 
-	  var r = {
+          return {
               set: (v, e, iV, iI) => {
                 var x = e.x;
                 var y = e.y;
@@ -66,16 +66,11 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                   ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
+              },
+              size: (v,e) => {
+                return textEngine.steps(e.label);
               }
             };
-
-          if(textEngine.isSDF){
-            r.size = (v,e) => {
-                return e.label.length;
-            }; 
-          }
-          
-          return r;
         })(style);
     });
 
@@ -353,7 +348,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
         let labelAdder = (section, addSection) => {
           var slf = (section.style.label || {}).font || {};
           let textEngine = texts.getEngine(slf);
-          section.style.texture = textEngine.getTexture(slf, textures, files, gl, addSection);
+          section.style.texture = textEngine.getTexture(slf, files, textures, gl, addSection);
         }
 
         scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
@@ -381,7 +376,21 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                 scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
             }
         }
+        
+        //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
+        (() => {
+          let enableLazyRedraw = false;
+          let reset = (p) => {
+            if(enableLazyRedraw)
+              this.set(this.nodes, this.edges);
+          };
+          files.onLoad(reset)
+          textures.onLoad(reset)
+          enableLazyRedraw = true;
+        })();
     };
+    
+    
     
     this.update = function(element, attribute, data) {
         scene[element].update(gl, attribute, data, function(style)  {return {
@@ -888,7 +897,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             if (!getNodeSize(c)) return true;
 	    gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
 	    if(c.style.label.font && c.style.label.font.height)
-	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height * 2);
+	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
 	    gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);

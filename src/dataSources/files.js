@@ -11,7 +11,7 @@ var ccNetViz_gl = require( '../gl' );
 
 class Files {
   constructor(onLoad){
-    this._load = ccNetViz_utils.debounce(onLoad || (() => {}), 5);
+    this._load = [ccNetViz_utils.debounce(onLoad || (() => {}), 5)];
     this._files = {};
     this._pending = {};
     this._n = 0;
@@ -53,9 +53,21 @@ class Files {
         this._files[url] = this._transformFile(data,dataType);
         p.forEach(a => a && a(this._files[url]));
         delete this._pending[url];
-        --this._n || this._load();
+        --this._n || this._load.forEach(l => l());
       });
     }
+    return f;
+  }
+  
+  onLoad (action) {
+    if(this.allLoaded())
+      action();
+    else
+      this._load.push(action);
+  }
+  
+  allLoaded(){
+    return ccNetViz_utils.emptyObject(this._pending);
   }
   
 }

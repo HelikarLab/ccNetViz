@@ -52,6 +52,15 @@ class Utils {
     return obj === Object(obj);
   }
   
+  static emptyObject(obj) {
+    if(!Utils.isObject(obj))
+      return false;
+
+    for(var k in obj)
+      return false;
+    return true;
+  }
+  
   static ajax(url, callback){
     var xmlhttp;
     // compatible with IE7+, Firefox, Chrome, Opera, Safari

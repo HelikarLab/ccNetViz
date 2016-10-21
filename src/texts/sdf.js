@@ -24,14 +24,12 @@ class SDFTexts{
     var font = style.font;
     this._rendered[font] = this._texts = this._rendered[font] || {};
     
-    this.texture = this.getTexture(style, textures, files, gl, onLoad);
-
+    this.texture = this.getTexture(style, files, textures, gl, onLoad);
     this._files      = files;
-    this._SDFmetrics = style.SDFmetrics;
-//    this._SDFmetrics = files.get(style.SDFmetrics);
+    this._SDFmetrics = files.get(style.SDFmetrics);
   }
 
-  getTexture (style, textures, files, gl, onLoad){
+  getTexture (style, files, textures, gl, onLoad){
     
     //handler to wait until both atlas (texture) and metrics (json file) are loaded
     let onL = (() => {
@@ -40,13 +38,13 @@ class SDFTexts{
       return (k) => {
         loaded[k] = true;
 
-//        if(loaded.SDFmetrics && loaded.SDFatlas){
+        if(loaded.SDFmetrics && loaded.SDFatlas){
           onLoad && onLoad();
-//        }
+        }
       }
     })();
     
-//    files.load(style.SDFmetrics, () => {onL('SDFmetrics');}, 'json');
+    files.load(style.SDFmetrics, () => {onL('SDFmetrics');}, 'json');
     return textures.get(gl, style.SDFatlas, () => {onL('SDFatlas');}, {sdf: true});
   }
   
@@ -140,6 +138,10 @@ class SDFTexts{
     return ret;
   }
 
+  steps (text) {
+    return text.length;
+  }
+  
   bind (){
   }
 };
