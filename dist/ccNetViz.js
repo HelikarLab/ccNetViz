@@ -153,13 +153,14 @@
 	'use strict';
 
 	var ccNetViz_layer = __webpack_require__(2);
-	var ccNetViz_layout = __webpack_require__(7);
+	var ccNetViz_layout = __webpack_require__(8);
 	var ccNetViz_gl = __webpack_require__(4);
 	var ccNetViz_color = __webpack_require__(3);
-	var ccNetViz_utils = __webpack_require__(15);
-	var ccNetViz_textures = __webpack_require__(16);
-	var ccNetViz_interactivityBatch = __webpack_require__(17);
-	var ccNetViz_spatialSearch = __webpack_require__(13);
+	var ccNetViz_utils = __webpack_require__(7);
+	var ccNetViz_textures = __webpack_require__(18);
+	var ccNetViz_files = __webpack_require__(19);
+	var ccNetViz_interactivityBatch = __webpack_require__(20);
+	var ccNetViz_spatialSearch = __webpack_require__(16);
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -210,6 +211,7 @@
 	  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
 
 	  var removed = false;
+	  var setted = false;
 
 	  var nodeStyle = options.styles.node = options.styles.node || {};
 	  nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
@@ -225,6 +227,11 @@
 	  var edgeStyle = options.styles.edge = options.styles.edge || {};
 	  edgeStyle.width = edgeStyle.width || 1;
 	  edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+
+	  var onLoad = options.onLoad || function () {
+	    if (removed || !setted) return;
+	    _this.draw();
+	  };
 
 	  if (edgeStyle.arrow) {
 	    var _s = edgeStyle.arrow;
@@ -250,16 +257,18 @@
 	  var context = {};
 
 	  this.cntShownNodes = function () {
-	    var n = layers.main.cntShownNodes();
-	    if (layers.temp) n += layers.temp.cntShownNodes();
-	    return n;
+	    var n = 0;
+	    for (var k in layers) {
+	      n += layers[k].cntShownNodes();
+	    }return n;
 	  };
 	  var getNodesCnt = options.getNodesCnt || this.cntShownNodes;
 
 	  this.cntShownEdges = function () {
-	    var e = layers.main.cntShownEdges();
-	    if (layers.temp) e += layers.temp.cntShownEdges();
-	    return e;
+	    var e = 0;
+	    for (var k in layers) {
+	      e += layers[k].cntShownEdges();
+	    }return e;
 	  };
 	  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
@@ -281,7 +290,7 @@
 
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 
 	  var batch = undefined;
@@ -304,6 +313,7 @@
 
 	    //reset batch
 	    batch = undefined;
+	    setted = true;
 	    return _this;
 	  };
 
@@ -693,12 +703,9 @@
 
 	  this.resize();
 
-	  var onLoad = options.onLoad || function () {
-	    if (removed) return;
-	    _this.draw();
-	  };
 	  var textures = new ccNetViz_textures(onLoad);
-	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw);
+	  var files = new ccNetViz_files(onLoad);
+	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	};
 
 	ccNetViz.color = ccNetViz_color;
@@ -718,10 +725,11 @@
 	var ccNetViz_color = __webpack_require__(3);
 	var ccNetViz_gl = __webpack_require__(4);
 	var ccNetViz_primitive = __webpack_require__(5);
-	var ccNetViz_layout = __webpack_require__(7);
-	var ccNetViz_geomutils = __webpack_require__(11);
-	var ccNetViz_texts = __webpack_require__(12);
-	var ccNetViz_spatialSearch = __webpack_require__(13);
+	var ccNetViz_layout = __webpack_require__(8);
+	var ccNetViz_geomutils = __webpack_require__(12);
+	var ccNetViz_texts = __webpack_require__(13);
+	var ccNetViz_utils = __webpack_require__(7);
+	var ccNetViz_spatialSearch = __webpack_require__(16);
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -733,7 +741,7 @@
 	 * 	Aleš Saska - http://alessaska.cz/
 	 */
 
-	module.exports = function (canvas, context, view, gl, textures, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw) {
+	module.exports = function (canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 
 	    getNodesCnt = getNodesCnt || function () {
@@ -742,6 +750,7 @@
 	    getEdgesCnt = getEdgesCnt || function () {
 	        return _this.edges.length;
 	    };
+
 	    this.redraw = onRedraw || function () {};
 
 	    options = options || {};
@@ -762,20 +771,37 @@
 	            } };
 	    };
 	    var labelsFiller = function labelsFiller(style) {
-	        texts.setFont(style.font);
-	        style.texture = texts.texture;
-	        return {
-	            set: function set(v, e, iV, iI) {
-	                var x = e.x;
-	                var y = e.y;
-	                ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                var t = texts.get(e.label);
-	                var dx = x <= 0.5 ? 0 : -t.width;
-	                var dy = y <= 0.5 ? 0 : -t.height;
-	                ccNetViz_primitive.vertices(v.relative, iV, dx, dy, t.width + dx, dy, t.width + dx, t.height + dy, dx, t.height + dy);
-	                ccNetViz_primitive.vertices(v.textureCoord, iV, t.left, t.bottom, t.right, t.bottom, t.right, t.top, t.left, t.top);
-	                ccNetViz_primitive.quad(v.indices, iV, iI);
-	            } };
+	        return function (style) {
+	            var textEngine = texts.getEngine(style.font);
+
+	            textEngine.setFont(style.font, files, textures, gl);
+
+	            return {
+	                set: function set(v, e, iV, iI) {
+	                    var x = e.x;
+	                    var y = e.y;
+
+	                    var parts = textEngine.get(e.label, x, y);
+	                    for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
+	                        var c = parts[i];
+	                        var chr = c.cCoord;
+
+	                        if (v.color) {
+	                            var _c = e.color;
+	                            ccNetViz_primitive.colors(v.color, iV, _c, _c, _c, _c);
+	                        }
+
+	                        ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+	                        ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
+	                        ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
+	                        ccNetViz_primitive.quad(v.indices, iV, iI);
+	                    }
+	                },
+	                size: function size(v, e) {
+	                    return textEngine.steps(e.label);
+	                }
+	            };
+	        }(style);
 	    };
 
 	    var normalize = function normalize(a, b) {
@@ -959,6 +985,8 @@
 	    var spatialSearch = undefined;
 
 	    this.set = function (nodes, edges, layout) {
+	        var _this2 = this;
+
 	        removedNodes = 0;
 	        removedEdges = 0;
 
@@ -1068,31 +1096,51 @@
 
 	        layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
 
-	        scene.nodes.set(gl, options.styles, textures, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-	        scene.nodesColored.set(gl, options.styles, textures, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+	        var defaultAdder = function defaultAdder(section, addSection) {
+	            if (typeof section.style.texture === 'string') section.style.texture = textures.get(gl, section.style.texture, addSection);else addSection();
+	        };
+	        var labelAdder = function labelAdder(section, addSection) {
+	            var slf = (section.style.label || {}).font || {};
+	            var textEngine = texts.getEngine(slf);
+	            section.style.texture = textEngine.getTexture(slf, files, textures, gl, addSection);
+	        };
+
+	        scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
+	        scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
 
 	        if (nodeStyle.label) {
 	            texts.clear();
-	            scene.labels.set(gl, options.styles, textures, nodes, labelsFiller);
+	            scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
 	            texts.bind();
 	        }
 
-	        scene.lines.set(gl, options.styles, textures, lines, edgesFiller.lines);
+	        scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
 
 	        if (extensions.OES_standard_derivatives) {
-	            scene.curves.set(gl, options.styles, textures, curves, edgesFiller.curves);
-	            scene.circles.set(gl, options.styles, textures, circles, edgesFiller.circles);
+	            scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
+	            scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
 	        }
 
 	        if (edgeStyle.arrow) {
-	            scene.lineArrows.set(gl, options.styles, textures, lines, arrowFiller.lineArrows);
+	            scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
 
 	            if (extensions.OES_standard_derivatives) {
-	                scene.curveArrows.set(gl, options.styles, textures, curves, arrowFiller.curveArrows);
+	                scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
 
-	                scene.circleArrows.set(gl, options.styles, textures, circles, arrowFiller.circleArrows);
+	                scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
 	            }
 	        }
+
+	        //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
+	        (function () {
+	            var enableLazyRedraw = false;
+	            var reset = function reset(p) {
+	                if (enableLazyRedraw) _this2.set(_this2.nodes, _this2.edges);
+	            };
+	            files.onLoad(reset);
+	            textures.onLoad(reset);
+	            enableLazyRedraw = true;
+	        })();
 	    };
 
 	    this.update = function (element, attribute, data) {
@@ -1186,8 +1234,12 @@
 	    };
 
 	    var getEdgeStyleSize = function getEdgeStyleSize(c) {
-	        var s = Math.max(c.width, c.height) / 250;
-	        return s * s;
+	        return c.width / 200;
+	        /*      let avsize = (c.width + c.height)/2;
+	              let koef = (Math.min(Math.max((avsize - 150)/150, 0),1)+1)*1.3;
+	              //koef 1 for 150 size and 1.4 for 300 size
+	              return c.width/(130*koef);
+	        */
 	    };
 
 	    var stylesTransl = {
@@ -1215,18 +1267,25 @@
 	    var texts = new ccNetViz_texts(gl);
 	    var scene = this.scene = createScene.call(this);
 
+	    var getLabelType = function getLabelType(f) {
+	        if (texts.isSDF(f)) return 1;
+	        return 0;
+	    };
+
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
+
+	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "float u_buffer = 192.0 / 256.0;", "float u_gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 
-	    var fsCurve = ["#extension GL_OES_standard_derivatives : enable", "#ifdef GL_ES", "precision highp float;", "#endif", "uniform float width;", "uniform vec4 color;", "uniform float type;", "uniform float lineStepSize;", "varying vec2 c;", "varying vec2 v_lengthSoFar;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize));", "   if(type >= 2.5){", //3.0 dotted
+	    var fsCurve = ["#extension GL_OES_standard_derivatives : enable", "#ifdef GL_ES", "precision highp float;", "#endif", "uniform float width;", "uniform vec4 color;", "uniform float type;", "uniform float lineStepSize;", "uniform float lineSize;", "varying vec2 c;", "varying vec2 v_lengthSoFar;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));", "   if(type >= 2.5){", //3.0 dotted
 	    "      part = fract(part*5.0);", "      if(part < 0.5) discard;", "   }else if(type >= 1.5){", //2.0 - chain dotted
 	    "      if(part < 0.15) discard;", "      if(part > 0.25 && part < 0.40) discard;", "   }else if(type >= 0.5){", //1.0 - dashed
 	    "      if(part < 0.2) discard;", "   }", "   vec2 px = dFdx(c);", "   vec2 py = dFdy(c);", "   float fx = 2.0 * c.x * px.x - px.y;", "   float fy = 2.0 * c.y * py.x - py.y;", "   float sd = (c.x * c.x - c.y) / sqrt(fx * fx + fy * fy);", "   float alpha = 1.0 - abs(sd) / width;", "   if (alpha < 0.0) discard;", "   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));", "}"];
 
 	    var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 
-	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));", "   if(type >= 2.5){", //3.0 dotted
+	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));", "   if(type >= 2.5){", //3.0 dotted
 	    "      part = fract(part*5.0);", "      if(part < 0.5) discard;", "   }else if(type >= 1.5){", //2.0 - chain dotted
 	    "      if(part < 0.15) discard;", "      if(part > 0.25 && part < 0.40) discard;", "   }else if(type >= 0.5){", //1.0 - dashed
 	    "      if(part < 0.2) discard;", "   }", "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"], function (c) {
@@ -1243,7 +1302,7 @@
 	    }));
 
 	    if (extensions.OES_standard_derivatives) {
-	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y);", "}"]), fsCurve, function (c) {
+	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
 	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
@@ -1256,7 +1315,7 @@
 	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
 	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
 	        }));
-	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x*aspect, p.y);", "}"]), fsCurve, function (c) {
+	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
 	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
 	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
 	            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
@@ -1308,8 +1367,10 @@
 	        var size = getNodeSize(c);
 	        gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
 	    }));
-	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsColorTexture, function (c) {
+	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsLabelTexture, function (c) {
 	        if (!getNodeSize(c)) return true;
+	        gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
+	        if (c.style.label.font && c.style.label.font.height) gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height * 2);
 	        gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
 	        gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
 	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -1319,7 +1380,11 @@
 	        var styles = options.styles;
 	        for (var p in styles) {
 	            var s = styles[p];
-	            s.texture && textures.get(gl, s.texture);
+
+	            //            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
+	            //            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
+
+	            s.texture && textures.get(gl, s.texture, onLoad);
 	            s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
 	        }
 	    }
@@ -1452,24 +1517,37 @@
 	        }
 	    }, {
 	        key: "createTexture",
-	        value: function createTexture(gl, img, onLoad) {
+	        value: function createTexture(gl, img, onLoad, options) {
 	            var result = gl.createTexture();
 
+	            var image = new Image();
 	            function load() {
 	                image.onload = null;
 	                gl.bindTexture(gl.TEXTURE_2D, result);
-	                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+	                if ((options || {}).sdf) {
+	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	                } else {
+	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                }
+
 	                gl.bindTexture(gl.TEXTURE_2D, null);
 	                onLoad && onLoad();
 	            }
 
-	            var image = new Image();
 	            image.onload = load;
 	            image.src = img;
 	            image.naturalWidth && image.naturalHeight && load();
+
+	            result.image = image;
 	            return result;
 	        }
 	    }, {
@@ -1524,6 +1602,7 @@
 
 	var ccNetViz_shader = __webpack_require__(6);
 	var ccNetViz_color = __webpack_require__(3);
+	var ccNetViz_utils = __webpack_require__(7);
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1549,6 +1628,19 @@
 	            iS = 0,
 	            iB = 0;
 
+	        var partLength = function partLength(filler, part) {
+	            if (filler.size) {
+	                var n = 0;
+	                part.forEach(function (p) {
+	                    n += filler.size(e, p);
+	                });
+	                return n;
+	            } else {
+	                return part.length;
+	            }
+	            return;
+	        };
+
 	        var init = function init(filler, n) {
 	            iV = iI = 0;
 	            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
@@ -1564,7 +1656,8 @@
 	            }
 	        };
 
-	        this.set = function (gl, styles, textures, data, get) {
+	        //    this.set = (gl, styles, textures, data, get) => {
+	        this.set = function (gl, styles, adder, data, get) {
 	            var parts = {};
 
 	            var pN = {};
@@ -1640,20 +1733,25 @@
 	                _filler.numIndices = _filler.numIndices || 6;
 
 	                var _part = parts[p];
-	                init(_filler, _part.length);
+	                var pL = partLength(_filler, _part);
+	                init(_filler, pL);
 	                var max = primitive.maxBufferSize - _filler.numVertices;
-	                for (var _i = 0; _i < _part.length; _i++, iV += _filler.numVertices, iI += _filler.numIndices) {
+	                for (var _i = 0; _i < _part.length; _i++) {
 	                    if (iV > max) {
 	                        store(section);
-	                        init(_filler, _part.length);
+	                        init(_filler, pL);
 	                    }
 	                    _filler.set(e, _part[_i], iV, iI);
+
+	                    var s = _filler.size ? _filler.size(e, _part[_i]) : 1;
+	                    iI += s * _filler.numIndices;
+	                    iV += s * _filler.numVertices;
 	                }
 	                store(section);
 
 	                var addSection = add.bind(section);
 
-	                typeof section.style.texture === 'string' ? section.style.texture = textures.get(gl, section.style.texture, addSection) : addSection();
+	                adder ? adder(section, addSection) : addSection();
 	            }
 	        };
 
@@ -1667,7 +1765,7 @@
 
 	                section.buffers.forEach(function (e) {
 	                    (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-	                    for (var _iV = 0; _iV < e.numVertices; _iV += filler.numVertices) {
+	                    for (var _iV = 0; _iV < e.numVertices; _iV += (filler.size ? filler.size(e, data[i]) : 1) * filler.numVertices) {
 	                        filler.set(fb, data[i++], _iV);
 	                    }gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
 	                    gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
@@ -1874,6 +1972,112 @@
 
 /***/ },
 /* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: David Tichy, Aleš Saska
+	 */
+
+	var Utils = function () {
+	  function Utils() {
+	    _classCallCheck(this, Utils);
+	  }
+
+	  _createClass(Utils, null, [{
+	    key: "debounce",
+	    value: function debounce(func, wait, immediate) {
+	      var _this = this,
+	          _arguments = arguments;
+
+	      var timeout, args, context, timestamp, result;
+
+	      var later = function later() {
+	        var last = Date.now - timestamp;
+
+	        if (last < wait && last > 0) {
+	          timeout = setTimeout(later, wait - last);
+	        } else {
+	          timeout = null;
+	          if (!immediate) {
+	            result = func.apply(context, args);
+	            if (!timeout) context = args = null;
+	          }
+	        }
+	      };
+
+	      return function () {
+	        context = _this;
+	        args = _arguments;
+	        timestamp = Date.now;
+	        var callNow = immediate && !timeout;
+	        if (!timeout) timeout = setTimeout(later, wait);
+	        if (callNow) {
+	          result = func.apply(context, args);
+	          context = args = null;
+	        }
+
+	        return result;
+	      };
+	    }
+	  }, {
+	    key: "extend",
+	    value: function extend(from) {
+	      for (var i = 1; i < arguments.length; i++) {
+	        for (var k in arguments[i]) {
+	          from[k] = arguments[i][k];
+	        }
+	      }
+	      return from;
+	    }
+	  }, {
+	    key: "isObject",
+	    value: function isObject(obj) {
+	      return obj === Object(obj);
+	    }
+	  }, {
+	    key: "emptyObject",
+	    value: function emptyObject(obj) {
+	      if (!Utils.isObject(obj)) return false;
+
+	      for (var k in obj) {
+	        return false;
+	      }return true;
+	    }
+	  }, {
+	    key: "ajax",
+	    value: function ajax(url, callback) {
+	      var xmlhttp;
+	      // compatible with IE7+, Firefox, Chrome, Opera, Safari
+	      xmlhttp = new XMLHttpRequest();
+	      xmlhttp.onreadystatechange = function () {
+	        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	          callback(xmlhttp.responseText);
+	        }
+	      };
+	      xmlhttp.open("GET", url, true);
+	      xmlhttp.send();
+	    }
+	  }]);
+
+	  return Utils;
+	}();
+
+	;
+
+	module.exports = Utils;
+
+/***/ },
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1882,8 +2086,8 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var layoutForce = __webpack_require__(8);
-	var layoutRandom = __webpack_require__(10);
+	var layoutForce = __webpack_require__(9);
+	var layoutRandom = __webpack_require__(11);
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -1957,12 +2161,12 @@
 	module.exports = Layout;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ccNetViz_quadtree = __webpack_require__(9);
+	var ccNetViz_quadtree = __webpack_require__(10);
 
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2143,7 +2347,7 @@
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2307,7 +2511,7 @@
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2350,7 +2554,7 @@
 	module.exports = Random;
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2447,7 +2651,82 @@
 	module.exports = Geomutils;
 
 /***/ },
-/* 12 */
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: David Tichy, Aleš Saska
+	 */
+
+	var ccNetViz_defaultTexts = __webpack_require__(14);
+	var ccNetViz_sdfTexts = __webpack_require__(15);
+	var ccNetViz_utils = __webpack_require__(7);
+
+	var Texts = function () {
+	  function Texts(gl) {
+	    _classCallCheck(this, Texts);
+
+	    this._gl = gl;
+
+	    this._modules = {
+	      'default': new ccNetViz_defaultTexts(gl),
+	      'sdf': new ccNetViz_sdfTexts(gl)
+	    };
+	  }
+
+	  _createClass(Texts, [{
+	    key: 'clear',
+	    value: function clear() {
+	      for (var k in this._modules) {
+	        this._modules[k].clear();
+	      }
+	    }
+	  }, {
+	    key: 'isSDF',
+	    value: function isSDF(font) {
+	      if (ccNetViz_utils.isObject(font)) {
+	        if (font.SDFatlas && font.SDFmetrics) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	  }, {
+	    key: 'getEngine',
+	    value: function getEngine(font) {
+	      if (this.isSDF(font)) {
+	        return this._modules.sdf;
+	      }
+	      return this._modules.default;
+	    }
+	  }, {
+	    key: 'bind',
+	    value: function bind() {
+	      for (var k in this._modules) {
+	        this._modules[k].bind();
+	      }
+	    }
+	  }]);
+
+	  return Texts;
+	}();
+
+	;
+
+	module.exports = Texts;
+
+/***/ },
+/* 14 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2464,9 +2743,9 @@
 	 *  Authors: David Tichy, Aleš Saska
 	 */
 
-	var Texts = function () {
-	  function Texts(gl) {
-	    _classCallCheck(this, Texts);
+	var DefaultTexts = function () {
+	  function DefaultTexts(gl) {
+	    _classCallCheck(this, DefaultTexts);
 
 	    this._gl = gl;
 	    this._size = 1024;
@@ -2487,7 +2766,7 @@
 	    this.texture = this._gl.createTexture();
 	  }
 
-	  _createClass(Texts, [{
+	  _createClass(DefaultTexts, [{
 	    key: "clear",
 	    value: function clear() {
 	      this._rendered = {};
@@ -2504,8 +2783,14 @@
 	      this._height = +/(\d+)px/.exec(font)[1] + 1;
 	    }
 	  }, {
-	    key: "get",
-	    value: function get(text) {
+	    key: "getTexture",
+	    value: function getTexture(style, textures, files, gl, onLoad) {
+	      onLoad();
+	      return this.texture;
+	    }
+	  }, {
+	    key: "_getText",
+	    value: function _getText(text) {
 	      var result = this._texts[text];
 	      if (!result) {
 	        var width = this._context.measureText(text).width;
@@ -2527,6 +2812,25 @@
 	      return result;
 	    }
 	  }, {
+	    key: "get",
+	    value: function get(text, x, y) {
+	      var c = this._getText(text);
+
+	      var dx = x <= 0.5 ? 0 : -c.width;
+	      var dy = y <= 0.5 ? c.height / 2 : -c.height;
+
+	      return [{
+	        cCoord: c,
+	        dx: dx,
+	        dy: dy
+	      }];
+	    }
+	  }, {
+	    key: "steps",
+	    value: function steps(text) {
+	      return 1;
+	    }
+	  }, {
 	    key: "bind",
 	    value: function bind() {
 	      this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);
@@ -2538,26 +2842,204 @@
 	    }
 	  }]);
 
-	  return Texts;
+	  return DefaultTexts;
 	}();
 
 	;
 
-	module.exports = Texts;
+	module.exports = DefaultTexts;
 
 /***/ },
-/* 13 */
+/* 15 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: Aleš Saska
+	 */
+
+	var SDFTexts = function () {
+	  function SDFTexts() {
+	    _classCallCheck(this, SDFTexts);
+
+	    this._rendered = {};
+	    this._texts;
+	  }
+
+	  _createClass(SDFTexts, [{
+	    key: 'clear',
+	    value: function clear() {
+	      this._rendered = {};
+	    }
+	  }, {
+	    key: 'setFont',
+	    value: function setFont(style, files, textures, gl, onLoad) {
+	      var font = style.font;
+	      this._rendered[font] = this._texts = this._rendered[font] || {};
+
+	      this.texture = this.getTexture(style, files, textures, gl, onLoad);
+	      this._files = files;
+	      this._SDFmetrics = files.get(style.SDFmetrics);
+	    }
+	  }, {
+	    key: 'getTexture',
+	    value: function getTexture(style, files, textures, gl, onLoad) {
+
+	      //handler to wait until both atlas (texture) and metrics (json file) are loaded
+	      var onL = function () {
+	        var loaded = {};
+
+	        return function (k) {
+	          loaded[k] = true;
+
+	          if (loaded.SDFmetrics && loaded.SDFatlas) {
+	            onLoad && onLoad();
+	          }
+	        };
+	      }();
+
+	      files.load(style.SDFmetrics, function () {
+	        onL('SDFmetrics');
+	      }, 'json');
+	      return textures.get(gl, style.SDFatlas, function () {
+	        onL('SDFatlas');
+	      }, { sdf: true });
+	    }
+	  }, {
+	    key: '_getChar',
+	    value: function _getChar(text) {
+	      var result = this._texts[text];
+	      var metrics = this._SDFmetrics;
+	      if (!metrics) return {};
+
+	      if (!result) {
+	        var canvas = this.texture.image;
+
+	        var buffer = metrics.buffer;
+
+	        var char = metrics.chars[text];
+	        var width = char[0] + buffer * 2;
+	        var height = char[1] + buffer * 2;
+	        var horiBearingX = char[2];
+	        var horiBearingY = char[3];
+	        var horiAdvance = char[4];
+	        var posX = char[5];
+	        var posY = char[6];
+	        this._texts[text] = result = {
+	          horiAdvance: horiAdvance,
+	          horiBearingX: horiBearingX,
+	          horiBearingY: horiBearingY,
+	          width: width,
+	          height: height,
+	          left: posX / canvas.width,
+	          right: (posX + width) / canvas.width,
+	          top: posY / canvas.height,
+	          bottom: (posY + height) / canvas.height
+	        };
+	      }
+	      return result;
+	    }
+	  }, {
+	    key: 'get',
+	    value: function get(text, x, y) {
+	      var width = 0;
+	      var height = 0;
+
+	      for (var i = 0; i < text.length; i++) {
+	        var char = this._getChar(text[i]);
+	        height = Math.max(height, char.height);
+	        if (char.horiAdvance) {
+	          /*
+	            We prepare for the atlas coordinates, which generate in our library ccNetViz
+	            */
+	          width += char.horiAdvance + char.horiBearingX;
+	        } else {
+	          /*
+	            We prepare the coordinates for the atlas, which is created on the server
+	            */
+	          width += char.width;
+	        }
+	      }
+
+	      var dx = x <= 0.5 ? 0 : -width;
+	      var dy = y <= 0.5 ? height / 2 : -height;
+
+	      var ret = [];
+	      for (var _i = 0; _i < text.length; _i++) {
+	        var _char = this._getChar(text[_i]);
+
+	        var horiAdvance = void 0;
+	        var temp_dy = dy;
+	        if (_char.horiAdvance) {
+	          /*
+	            We prepare for the atlas coordinates, which generate in our library ccNetViz
+	            */
+	          var horiBearingX = _char.horiBearingX;
+	          var horiBearingY = _char.horiBearingY;
+	          horiAdvance = _char.horiAdvance;
+	          dy -= _char.height - horiBearingY;
+	          dx += horiBearingX;
+	        }
+
+	        ret.push({
+	          cCoord: _char,
+	          dx: dx,
+	          dy: dy
+	        });
+
+	        dy = temp_dy;
+	        if (_char.horiAdvance) {
+	          dx += horiAdvance;
+	        } else {
+	          dx += _char.width;
+	        }
+	      }
+	      return ret;
+	    }
+	  }, {
+	    key: 'steps',
+	    value: function steps(text) {
+	      return text.length;
+	    }
+	  }, {
+	    key: 'bind',
+	    value: function bind() {}
+	  }, {
+	    key: 'isSDF',
+	    get: function get() {
+	      return true;
+	    }
+	  }]);
+
+	  return SDFTexts;
+	}();
+
+	;
+
+	module.exports = SDFTexts;
+
+/***/ },
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _rbush = __webpack_require__(14);
+	var _rbush = __webpack_require__(17);
 
 	var _rbush2 = _interopRequireDefault(_rbush);
 
-	var _geomutils = __webpack_require__(11);
+	var _geomutils = __webpack_require__(12);
 
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 
@@ -3247,7 +3729,7 @@
 	}();
 
 /***/ },
-/* 14 */
+/* 17 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3877,85 +4359,7 @@
 	module.exports = rbush;
 
 /***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: David Tichy, Aleš Saska
-	 */
-
-	var Utils = function () {
-	    function Utils() {
-	        _classCallCheck(this, Utils);
-	    }
-
-	    _createClass(Utils, null, [{
-	        key: "debounce",
-	        value: function debounce(func, wait, immediate) {
-	            var _this = this,
-	                _arguments = arguments;
-
-	            var timeout, args, context, timestamp, result;
-
-	            var later = function later() {
-	                var last = Date.now - timestamp;
-
-	                if (last < wait && last > 0) {
-	                    timeout = setTimeout(later, wait - last);
-	                } else {
-	                    timeout = null;
-	                    if (!immediate) {
-	                        result = func.apply(context, args);
-	                        if (!timeout) context = args = null;
-	                    }
-	                }
-	            };
-
-	            return function () {
-	                context = _this;
-	                args = _arguments;
-	                timestamp = Date.now;
-	                var callNow = immediate && !timeout;
-	                if (!timeout) timeout = setTimeout(later, wait);
-	                if (callNow) {
-	                    result = func.apply(context, args);
-	                    context = args = null;
-	                }
-
-	                return result;
-	            };
-	        }
-	    }, {
-	        key: "extend",
-	        value: function extend(from) {
-	            for (var i = 1; i < arguments.length; i++) {
-	                for (var k in arguments[i]) {
-	                    from[k] = arguments[i][k];
-	                }
-	            }
-	            return from;
-	        }
-	    }]);
-
-	    return Utils;
-	}();
-
-	;
-
-	module.exports = Utils;
-
-/***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3964,7 +4368,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var ccNetViz_utils = __webpack_require__(15);
+	var ccNetViz_utils = __webpack_require__(7);
 	var ccNetViz_gl = __webpack_require__(4);
 
 	/**
@@ -3979,7 +4383,7 @@
 	    function Textures(onLoad) {
 	        _classCallCheck(this, Textures);
 
-	        this._load = ccNetViz_utils.debounce(onLoad, 5);
+	        this._load = [ccNetViz_utils.debounce(onLoad, 5)];
 	        this._textures = {};
 	        this._pending = {};
 	        this._n = 0;
@@ -3987,7 +4391,7 @@
 
 	    _createClass(Textures, [{
 	        key: 'get',
-	        value: function get(gl, img, action) {
+	        value: function get(gl, img, action, options) {
 	            var _this = this;
 
 	            var p = this._pending[img];
@@ -4001,14 +4405,27 @@
 	                p = this._pending[img] = [action];
 	                this._n++;
 	                this._textures[img] = t = ccNetViz_gl.createTexture(gl, img, function () {
+	                    console.log('Onload texture ' + img);
 	                    p.forEach(function (a) {
 	                        return a && a();
 	                    });
 	                    delete _this._pending[img];
-	                    --_this._n || _this._load();
-	                });
+	                    --_this._n || _this._load.forEach(function (l) {
+	                        return l();
+	                    });
+	                }, options);
 	            }
 	            return t;
+	        }
+	    }, {
+	        key: 'onLoad',
+	        value: function onLoad(action) {
+	            if (this.allLoaded()) action();else this._load.push(action);
+	        }
+	    }, {
+	        key: 'allLoaded',
+	        value: function allLoaded() {
+	            return ccNetViz_utils.emptyObject(this._pending);
 	        }
 	    }]);
 
@@ -4018,7 +4435,105 @@
 	module.exports = Textures;
 
 /***/ },
-/* 17 */
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ccNetViz_utils = __webpack_require__(7);
+	var ccNetViz_gl = __webpack_require__(4);
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: David Tichy, Aleš Saska
+	 */
+
+	var Files = function () {
+	  function Files(onLoad) {
+	    _classCallCheck(this, Files);
+
+	    this._load = [ccNetViz_utils.debounce(onLoad || function () {}, 5)];
+	    this._files = {};
+	    this._pending = {};
+	    this._n = 0;
+	  }
+
+	  _createClass(Files, [{
+	    key: '_transformFile',
+	    value: function _transformFile(data, dataType) {
+	      if (dataType === 'json') return JSON.parse(data);
+	      return data;
+	    }
+	  }, {
+	    key: 'get',
+	    value: function get(url) {
+	      return this._files[url];
+	    }
+
+	    /*
+	     * @param type {
+	     *   url: 'url of file',
+	     *   success: callback
+	     *   dataType "text" || "json"
+	     * }
+	     */
+
+	  }, {
+	    key: 'load',
+	    value: function load(url, action, dataType) {
+	      var _this = this;
+
+	      var p = this._pending[url];
+	      var f = this._files[url];
+
+	      if (p) {
+	        p.push(action);
+	      } else if (f) {
+	        action && action();
+	      } else {
+	        p = this._pending[url] = [action];
+	        this._n++;
+
+	        ccNetViz_utils.ajax(url, function (data) {
+	          console.log("LOAD FILE " + url);
+	          _this._files[url] = _this._transformFile(data, dataType);
+	          p.forEach(function (a) {
+	            return a && a(_this._files[url]);
+	          });
+	          delete _this._pending[url];
+	          --_this._n || _this._load.forEach(function (l) {
+	            return l();
+	          });
+	        });
+	      }
+	      return f;
+	    }
+	  }, {
+	    key: 'onLoad',
+	    value: function onLoad(action) {
+	      if (this.allLoaded()) action();else this._load.push(action);
+	    }
+	  }, {
+	    key: 'allLoaded',
+	    value: function allLoaded() {
+	      return ccNetViz_utils.emptyObject(this._pending);
+	    }
+	  }]);
+
+	  return Files;
+	}();
+
+	module.exports = Files;
+
+/***/ },
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4027,7 +4542,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var geomutils = __webpack_require__(11);
+	var geomutils = __webpack_require__(12);
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
