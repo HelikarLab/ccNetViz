@@ -29,7 +29,7 @@ class Texts {
   isSDF(font){
     if(ccNetViz_utils.isObject(font)){
       if(font.SDFatlas && font.SDFmetrics){
-	return true;
+        return true;
       }
     }
     return false;

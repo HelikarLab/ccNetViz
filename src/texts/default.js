@@ -77,9 +77,9 @@ class DefaultTexts {
     let dy = y <= 0.5 ? c.height / 2 : -c.height; 
     
     return [{
-	cCoord: c,
-	dx: dx,
-	dy: dy
+        cCoord: c,
+        dx: dx,
+        dy: dy
       }];
   }
   

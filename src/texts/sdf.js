@@ -90,15 +90,15 @@ class SDFTexts{
       let char           = this._getChar(text[i]);
       height             = Math.max(height, char.height);
       if(char.horiAdvance) {
-	  /*
-	    We prepare for the atlas coordinates, which generate in our library ccNetViz
-	    */
-	  width         += char.horiAdvance + char.horiBearingX;
+        /*
+            We prepare for the atlas coordinates, which generate in our library ccNetViz
+            */
+          width         += char.horiAdvance + char.horiBearingX;
       } else {
-	  /*
-	    We prepare the coordinates for the atlas, which is created on the server
-	    */
-	  width         += char.width;
+          /*
+            We prepare the coordinates for the atlas, which is created on the server
+            */
+          width         += char.width;
       }
     }
 
@@ -112,27 +112,27 @@ class SDFTexts{
       let horiAdvance;
       let temp_dy = dy;
       if(char.horiAdvance) {
-	  /*
-	    We prepare for the atlas coordinates, which generate in our library ccNetViz
-	    */
-	  let horiBearingX = char.horiBearingX;
-	  let horiBearingY = char.horiBearingY;
-	  horiAdvance = char.horiAdvance;
-	  dy -= (char.height - horiBearingY);
-	  dx += horiBearingX;
+          /*
+            We prepare for the atlas coordinates, which generate in our library ccNetViz
+            */
+          let horiBearingX = char.horiBearingX;
+          let horiBearingY = char.horiBearingY;
+          horiAdvance = char.horiAdvance;
+          dy -= (char.height - horiBearingY);
+          dx += horiBearingX;
       }
 
       ret.push({
-	cCoord: char,
-	dx: dx,
-	dy: dy
+        cCoord: char,
+        dx: dx,
+        dy: dy
       });
       
       dy = temp_dy;
       if(char.horiAdvance) {
-	  dx += horiAdvance; 
+          dx += horiAdvance; 
       } else {
-	  dx += char.width;
+          dx += char.width;
       }
     }
     return ret;
