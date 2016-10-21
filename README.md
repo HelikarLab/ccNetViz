@@ -53,6 +53,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 * Mouse events on move - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
 * Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/multi_level.html)
 * Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
+* Using SDF fonts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/sdf.html)
 * User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
 * Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
 
@@ -102,6 +103,16 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
       label: {
         color: "rgb(0, 0, 255)",
         font: "11px Arial, Helvetica, sans-serif"
+      }
+    },
+    nodeWithSDFFont: {   //custom style with rendering SDF fonts
+      label: {
+        color: "rgb(0, 0, 255)",
+        font: {
+          SDFatlas: "fonts/OpenSans-Regular.png",
+          SDFmetrics: "fonts/OpenSans-Regular.json",
+          height: 15
+        }
       }
     },
     edgeWideYellow: {   //custom style
