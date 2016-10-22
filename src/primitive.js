@@ -55,6 +55,9 @@ class primitive{
         for (let i = 0; i < data.length; i++) {
             let el = data[i];
             let part = parts[el.style] = parts[el.style] || [];
+            if(part.idx === undefined)
+              part.idx = [];
+	    part.idx.push(i); 
 
             el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
             
@@ -64,6 +67,11 @@ class primitive{
         iS = 0;
         iB = 0;
 
+        this._iIs = new Uint32Array(data.length);
+        this._iVs = new Uint32Array(data.length);
+        this._iBs = new Uint8Array(data.length);
+        this._sizes = new Uint8Array(data.length);
+	
 
         let store = (section) => {
             let b = buffers[iB];
@@ -116,6 +124,7 @@ class primitive{
             filler.numIndices = filler.numIndices || 6;
 
             let part = parts[p];
+
             let pL = partLength(filler, part);
             init(filler, pL);
             let max = primitive.maxBufferSize - filler.numVertices;
@@ -124,9 +133,17 @@ class primitive{
                     store(section);
                     init(filler, pL);
                 }
+      
                 filler.set(e, part[i], iV, iI);
 
                 let s = filler.size ? filler.size(e, part[i]) : 1;
+
+                let idx = part.idx[i];
+                this._iIs[idx] = iI;
+                this._iVs[idx] = iV;
+                this._iBs[idx] = iB;
+                this._sizes[idx] = s;
+
                 iI += s * filler.numIndices;
                 iV += s * filler.numVertices;
             }
@@ -157,15 +174,36 @@ class primitive{
             });
         });
    }
+   
+   let zerofiller =  {
+     set: (v, iV, iI, numVertices, numIndices) => {
+       let indicesarr = [v.indices, iV, iI];
+       for(let i = 0; i < numIndices; i++)
+         indicesarr.push(0);
 
+       let verticesarr = [undefined, iV, iI];
+       for(let i = 0; i < numVertices; i++)
+         verticesarr.push(0);
+
+       for(var k in v){
+         if(k === 'indices'){
+           primitive.indices.apply(this, indicesarr);
+         }else{
+           verticesarr[0] = v[k];
+           primitive.vertices.apply(this, verticesarr);
+         }
+       }
+     }
+   }
+   
    this.updateEl = (gl, el, pos, get) => {
-        let storeToPos = (b, i) => {
+        let storeToPos = (b, iV, iI) => {
             for (let a in shader.attributes) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*filler.numVertices*e[a].BYTES_PER_ELEMENT*i, e[a]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*iV*e[a].BYTES_PER_ELEMENT, e[a]);
             }
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices*e.indices.BYTES_PER_ELEMENT, e.indices);
+            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, iI*e.indices.BYTES_PER_ELEMENT, e.indices);
         };
 
         let section = sectionsByStyle[el.style];
@@ -173,19 +211,28 @@ class primitive{
         let filler = get(section.style);
         filler.numVertices = filler.numVertices || 4;
         filler.numIndices = filler.numIndices || 6;
-        
-        let index = el.sI;
-        
-        let elsPerBuff = Math.floor(primitive.maxBufferSize/filler.numVertices);
-        
-        let buffer = section.buffers[Math.floor(pos / elsPerBuff)];
-
+             
         iB=iS=0;
-        init(filler, 1);
 
+        let buffer = section.buffers[this._iBs[pos]];
+        let s = filler.size ? filler.size(buffer, el) : 1;
+        let olds = this._sizes[pos];
+        if(s > olds){
+          console.error('Cannot set primitive to new value which has greater size ('+s+" > "+olds+") - no enough empty space to fill in GL buffer");
+          return;
+        }
+
+        init(filler, olds);
         filler.set(e, el, 0, 0);
 
-        storeToPos(buffer, pos);
+        for(;s < olds; s++){
+          //zero empty spaces
+          zerofiller.set(e, s*filler.numVertices, s*filler.numIndices, filler.numVertices, filler.numIndices);
+        }
+
+        let iV = this._iVs[pos];
+        let iI = this._iIs[pos];
+        storeToPos(buffer, iV, iI);
     };
 
     this.draw = (context) => {

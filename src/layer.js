@@ -51,7 +51,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                 var x = e.x;
                 var y = e.y;
 
-                var parts = textEngine.get(e.label, x, y);
+                var parts = textEngine.get(e.label || "", x, y);
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   let c = parts[i];
                   let chr = c.cCoord;
@@ -68,7 +68,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                 }
               },
               size: (v,e) => {
-                return textEngine.steps(e.label);
+                return textEngine.steps(e.label || "");
               }
             };
         })(style);
@@ -546,12 +546,12 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
         "float u_gamma = 4.0 * 1.4142 / height_font;",
         "varying mediump vec2 tc;",
         "void main() {",
-        "  if(type > 0.5){",
+        "  if(type > 0.5){",	//SDF
         "    float tx=texture2D(texture, tc).r;",
         "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);",
         "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
         "    gl_FragColor=vec4(color.rgb, a * color.a);",
-        "  }else{",
+        "  }else{",	//NORMAL FONT
         "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
         "  }",
         "}"
@@ -895,10 +895,11 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             "}"
         ], fsLabelTexture, c => {
             if (!getNodeSize(c)) return true;
-	    gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
-	    if(c.style.label.font && c.style.label.font.height)
-	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
-	    gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
+            gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
+//	    if(c.style.label.font && c.style.label.font.height)
+//	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
+            gl.uniform1f(c.shader.uniforms.height_font, 25);
+            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
             ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
         })
