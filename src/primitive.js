@@ -47,7 +47,6 @@ class primitive{
         }
     };
 
-//    this.set = (gl, styles, textures, data, get) => {
     this.set = (gl, styles, adder, data, get) => {
         let parts = {};
         
@@ -57,7 +56,7 @@ class primitive{
             let part = parts[el.style] = parts[el.style] || [];
             if(part.idx === undefined)
               part.idx = [];
-	    part.idx.push(i); 
+            part.idx.push(i); 
 
             el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
             
@@ -71,7 +70,7 @@ class primitive{
         this._iVs = new Uint32Array(data.length);
         this._iBs = new Uint8Array(data.length);
         this._sizes = new Uint8Array(data.length);
-	
+
 
         let store = (section) => {
             let b = buffers[iB];
