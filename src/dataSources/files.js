@@ -49,7 +49,6 @@ class Files {
       this._n++;
 
       ccNetViz_utils.ajax(url, (data) => {
-	console.log("LOAD FILE "+url);
         this._files[url] = this._transformFile(data,dataType);
         p.forEach(a => a && a(this._files[url]));
         delete this._pending[url];

@@ -31,7 +31,6 @@ class Textures {
           p = this._pending[img] = [action];
           this._n++;
           this._textures[img] = t = ccNetViz_gl.createTexture(gl, img, () => {
-	      console.log('Onload texture '+img);
               p.forEach(a => a && a());
               delete this._pending[img];
               --this._n || this._load.forEach(l => l());
