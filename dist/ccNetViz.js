@@ -781,7 +781,7 @@
 	                    var x = e.x;
 	                    var y = e.y;
 
-	                    var parts = textEngine.get(e.label, x, y);
+	                    var parts = textEngine.get(e.label || "", x, y);
 	                    for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
 	                        var c = parts[i];
 	                        var chr = c.cCoord;
@@ -798,7 +798,7 @@
 	                    }
 	                },
 	                size: function size(v, e) {
-	                    return textEngine.steps(e.label);
+	                    return textEngine.steps(e.label || "");
 	                }
 	            };
 	        }(style);
@@ -1274,7 +1274,9 @@
 
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 
-	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "float u_buffer = 192.0 / 256.0;", "float u_gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
+	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "float u_buffer = 192.0 / 256.0;", "float u_gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", //SDF
+	    "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", //NORMAL FONT
+	    "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 
@@ -1370,7 +1372,9 @@
 	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsLabelTexture, function (c) {
 	        if (!getNodeSize(c)) return true;
 	        gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
-	        if (c.style.label.font && c.style.label.font.height) gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height * 2);
+	        //	    if(c.style.label.font && c.style.label.font.height)
+	        //	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
+	        gl.uniform1f(c.shader.uniforms.height_font, 25);
 	        gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
 	        gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
 	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
@@ -1614,6 +1618,8 @@
 
 	var primitive = function () {
 	    function primitive(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
+	        var _this = this;
+
 	        _classCallCheck(this, primitive);
 
 	        var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
@@ -1656,7 +1662,6 @@
 	            }
 	        };
 
-	        //    this.set = (gl, styles, textures, data, get) => {
 	        this.set = function (gl, styles, adder, data, get) {
 	            var parts = {};
 
@@ -1664,6 +1669,8 @@
 	            for (var i = 0; i < data.length; i++) {
 	                var el = data[i];
 	                var part = parts[el.style] = parts[el.style] || [];
+	                if (part.idx === undefined) part.idx = [];
+	                part.idx.push(i);
 
 	                el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style] + 1;
 
@@ -1672,6 +1679,11 @@
 
 	            iS = 0;
 	            iB = 0;
+
+	            _this._iIs = new Uint32Array(data.length);
+	            _this._iVs = new Uint32Array(data.length);
+	            _this._iBs = new Uint8Array(data.length);
+	            _this._sizes = new Uint8Array(data.length);
 
 	            var store = function store(section) {
 	                var b = buffers[iB];
@@ -1728,24 +1740,33 @@
 	                    styleName: p
 	                };
 
-	                var _filler = get(section.style);
-	                _filler.numVertices = _filler.numVertices || 4;
-	                _filler.numIndices = _filler.numIndices || 6;
+	                var filler = get(section.style);
+	                filler.numVertices = filler.numVertices || 4;
+	                filler.numIndices = filler.numIndices || 6;
 
 	                var _part = parts[p];
-	                var pL = partLength(_filler, _part);
-	                init(_filler, pL);
-	                var max = primitive.maxBufferSize - _filler.numVertices;
+
+	                var pL = partLength(filler, _part);
+	                init(filler, pL);
+	                var max = primitive.maxBufferSize - filler.numVertices;
 	                for (var _i = 0; _i < _part.length; _i++) {
 	                    if (iV > max) {
 	                        store(section);
-	                        init(_filler, pL);
+	                        init(filler, pL);
 	                    }
-	                    _filler.set(e, _part[_i], iV, iI);
 
-	                    var s = _filler.size ? _filler.size(e, _part[_i]) : 1;
-	                    iI += s * _filler.numIndices;
-	                    iV += s * _filler.numVertices;
+	                    filler.set(e, _part[_i], iV, iI);
+
+	                    var s = filler.size ? filler.size(e, _part[_i]) : 1;
+
+	                    var idx = _part.idx[_i];
+	                    _this._iIs[idx] = iI;
+	                    _this._iVs[idx] = iV;
+	                    _this._iBs[idx] = iB;
+	                    _this._sizes[idx] = s;
+
+	                    iI += s * filler.numIndices;
+	                    iV += s * filler.numVertices;
 	                }
 	                store(section);
 
@@ -1773,14 +1794,33 @@
 	            });
 	        };
 
+	        var zerofiller = {
+	            set: function set(v, iV, iI, numVertices, numIndices) {
+	                var indicesarr = [v.indices, iV, iI];
+	                for (var i = 0; i < numIndices; i++) {
+	                    indicesarr.push(0);
+	                }var verticesarr = [undefined, iV, iI];
+	                for (var _i2 = 0; _i2 < numVertices; _i2++) {
+	                    verticesarr.push(0);
+	                }for (var k in v) {
+	                    if (k === 'indices') {
+	                        primitive.indices.apply(_this, indicesarr);
+	                    } else {
+	                        verticesarr[0] = v[k];
+	                        primitive.vertices.apply(_this, verticesarr);
+	                    }
+	                }
+	            }
+	        };
+
 	        this.updateEl = function (gl, el, pos, get) {
-	            var storeToPos = function storeToPos(b, i) {
+	            var storeToPos = function storeToPos(b, iV, iI) {
 	                for (var a in shader.attributes) {
 	                    gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-	                    gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size * filler.numVertices * e[a].BYTES_PER_ELEMENT * i, e[a]);
+	                    gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size * iV * e[a].BYTES_PER_ELEMENT, e[a]);
 	                }
 	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-	                gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, i * filler.numIndices * e.indices.BYTES_PER_ELEMENT, e.indices);
+	                gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, iI * e.indices.BYTES_PER_ELEMENT, e.indices);
 	            };
 
 	            var section = sectionsByStyle[el.style];
@@ -1789,18 +1829,27 @@
 	            filler.numVertices = filler.numVertices || 4;
 	            filler.numIndices = filler.numIndices || 6;
 
-	            var index = el.sI;
-
-	            var elsPerBuff = Math.floor(primitive.maxBufferSize / filler.numVertices);
-
-	            var buffer = section.buffers[Math.floor(pos / elsPerBuff)];
-
 	            iB = iS = 0;
-	            init(filler, 1);
 
+	            var buffer = section.buffers[_this._iBs[pos]];
+	            var s = filler.size ? filler.size(buffer, el) : 1;
+	            var olds = _this._sizes[pos];
+	            if (s > olds) {
+	                console.error('Cannot set primitive to new value which has greater size (' + s + " > " + olds + ") - no enough empty space to fill in GL buffer");
+	                return;
+	            }
+
+	            init(filler, olds);
 	            filler.set(e, el, 0, 0);
 
-	            storeToPos(buffer, pos);
+	            for (; s < olds; s++) {
+	                //zero empty spaces
+	                zerofiller.set(e, s * filler.numVertices, s * filler.numIndices, filler.numVertices, filler.numIndices);
+	            }
+
+	            var iV = _this._iVs[pos];
+	            var iI = _this._iIs[pos];
+	            storeToPos(buffer, iV, iI);
 	        };
 
 	        this.draw = function (context) {
@@ -2959,8 +3008,8 @@
 	        height = Math.max(height, char.height);
 	        if (char.horiAdvance) {
 	          /*
-	            We prepare for the atlas coordinates, which generate in our library ccNetViz
-	            */
+	              We prepare for the atlas coordinates, which generate in our library ccNetViz
+	              */
 	          width += char.horiAdvance + char.horiBearingX;
 	        } else {
 	          /*
