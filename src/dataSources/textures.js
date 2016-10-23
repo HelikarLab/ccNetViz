@@ -10,8 +10,8 @@ var ccNetViz_gl = require( '../gl' );
  */
 
 class Textures {
-  constructor(onLoad){
-    this._load = [ccNetViz_utils.debounce(onLoad, 5)];
+  constructor(events, onLoad){
+    this._load = [events.debounce(onLoad, 5)];
     this._textures = {};
     this._pending = {};
     this._n = 0;

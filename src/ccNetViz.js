@@ -5,6 +5,7 @@ var ccNetViz_color = require('./color');
 var ccNetViz_utils = require('./utils');
 var ccNetViz_textures = require('./dataSources/textures');
 var ccNetViz_files = require('./dataSources/files');
+var ccNetViz_lazyEvents = require('./lazyEvents');
 var ccNetViz_interactivityBatch = require('./interactivityBatch');
 var ccNetViz_spatialSearch = require('./spatialSearch/spatialSearch');
 
@@ -106,6 +107,7 @@ var ccNetViz = function(canvas, options){
       return gl;
   }
   
+  let events = new ccNetViz_lazyEvents();
   let layers = {};
   let view,gl,drawFunc;
   let context = {};
@@ -126,7 +128,7 @@ var ccNetViz = function(canvas, options){
   }
   let getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
-  let onRedraw = ccNetViz_utils.debounce(() => {
+  let onRedraw = events.debounce(() => {
     self.draw.call(self);
     return false;
   }, 5);
@@ -144,7 +146,7 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
   let batch = undefined;
@@ -385,6 +387,8 @@ var ccNetViz = function(canvas, options){
 
     canvas.removeEventListener('mousedown', onDownThis);
     canvas.removeEventListener('wheel', onWheelThis);
+    
+    events.disable();
 
     removed = true;
   }
@@ -531,9 +535,9 @@ var ccNetViz = function(canvas, options){
 
   this.resize();
 
-  let textures = new ccNetViz_textures(onLoad);
-  let files = new ccNetViz_files(onLoad);
-  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  let textures = new ccNetViz_textures(events, onLoad);
+  let files = new ccNetViz_files(events, onLoad);
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 };
 
 

@@ -17,7 +17,7 @@ var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-module.exports = function(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+module.exports = function(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     
