@@ -156,8 +156,10 @@ class primitive{
                 if (niV >= max) {
                     store(section);
                     init(filler, pL);
+                    niV = iV;
+                    niI = iI;
                 }
-      
+
 
                 filler.set(e, part[i], iV, iI);
 
