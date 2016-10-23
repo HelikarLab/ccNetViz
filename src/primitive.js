@@ -47,6 +47,27 @@ class primitive{
         }
     };
 
+    let zerofiller =  {
+      set: (v, iV, iI, numVertices, numIndices) => {
+	let indicesarr = [v.indices, iV, iI];
+	for(let i = 0; i < numIndices; i++)
+	  indicesarr.push(0);
+
+	let verticesarr = [undefined, iV, iI];
+	for(let i = 0; i < numVertices; i++)
+	  verticesarr.push(0);
+
+	for(var k in v){
+	  if(k === 'indices'){
+	    primitive.indices.apply(this, indicesarr);
+	  }else{
+	    verticesarr[0] = v[k];
+	    primitive.vertices.apply(this, verticesarr);
+	  }
+	}
+      }
+    }
+    
     this.set = (gl, styles, adder, data, get) => {
         let parts = {};
         
@@ -126,16 +147,20 @@ class primitive{
 
             let pL = partLength(filler, part);
             init(filler, pL);
-            let max = primitive.maxBufferSize - filler.numVertices;
+            let max = primitive.maxBufferSize;
             for (let i = 0; i < part.length; i++) {
-                if (iV > max) {
+                let s = filler.size ? filler.size(e, part[i]) : 1;
+                let niV = iV + s * filler.numVertices;
+                let niI = iI + s * filler.numIndices;
+
+                if (niV >= max) {
                     store(section);
                     init(filler, pL);
                 }
       
+
                 filler.set(e, part[i], iV, iI);
 
-                let s = filler.size ? filler.size(e, part[i]) : 1;
 
                 let idx = part.idx[i];
                 this._iIs[idx] = iI;
@@ -143,8 +168,8 @@ class primitive{
                 this._iBs[idx] = iB;
                 this._sizes[idx] = s;
 
-                iI += s * filler.numIndices;
-                iV += s * filler.numVertices;
+                iI = niI;
+                iV = niV;
             }
             store(section);
 
@@ -173,28 +198,7 @@ class primitive{
             });
         });
    }
-   
-   let zerofiller =  {
-     set: (v, iV, iI, numVertices, numIndices) => {
-       let indicesarr = [v.indices, iV, iI];
-       for(let i = 0; i < numIndices; i++)
-         indicesarr.push(0);
 
-       let verticesarr = [undefined, iV, iI];
-       for(let i = 0; i < numVertices; i++)
-         verticesarr.push(0);
-
-       for(var k in v){
-         if(k === 'indices'){
-           primitive.indices.apply(this, indicesarr);
-         }else{
-           verticesarr[0] = v[k];
-           primitive.vertices.apply(this, verticesarr);
-         }
-       }
-     }
-   }
-   
    this.updateEl = (gl, el, pos, get) => {
         let storeToPos = (b, iV, iI) => {
             for (let a in shader.attributes) {
@@ -225,7 +229,7 @@ class primitive{
         filler.set(e, el, 0, 0);
 
         for(;s < olds; s++){
-          //zero empty spaces
+          //zero fill empty spaces
           zerofiller.set(e, s*filler.numVertices, s*filler.numIndices, filler.numVertices, filler.numIndices);
         }
 
