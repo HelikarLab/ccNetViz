@@ -159,7 +159,8 @@
 	var ccNetViz_utils = __webpack_require__(7);
 	var ccNetViz_textures = __webpack_require__(18);
 	var ccNetViz_files = __webpack_require__(19);
-	var ccNetViz_interactivityBatch = __webpack_require__(20);
+	var ccNetViz_lazyEvents = __webpack_require__(20);
+	var ccNetViz_interactivityBatch = __webpack_require__(21);
 	var ccNetViz_spatialSearch = __webpack_require__(16);
 
 	/**
@@ -250,6 +251,7 @@
 	    return gl;
 	  }
 
+	  var events = new ccNetViz_lazyEvents();
 	  var layers = {};
 	  var view = void 0,
 	      gl = void 0,
@@ -272,7 +274,7 @@
 	  };
 	  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
-	  var onRedraw = ccNetViz_utils.debounce(function () {
+	  var onRedraw = events.debounce(function () {
 	    self.draw.call(self);
 	    return false;
 	  }, 5);
@@ -290,7 +292,7 @@
 
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 
 	  var batch = undefined;
@@ -557,6 +559,8 @@
 	    canvas.removeEventListener('mousedown', onDownThis);
 	    canvas.removeEventListener('wheel', onWheelThis);
 
+	    events.disable();
+
 	    removed = true;
 	  };
 
@@ -703,9 +707,9 @@
 
 	  this.resize();
 
-	  var textures = new ccNetViz_textures(onLoad);
-	  var files = new ccNetViz_files(onLoad);
-	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  var textures = new ccNetViz_textures(events, onLoad);
+	  var files = new ccNetViz_files(events, onLoad);
+	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	};
 
 	ccNetViz.color = ccNetViz_color;
@@ -741,7 +745,7 @@
 	 * 	Aleš Saska - http://alessaska.cz/
 	 */
 
-	module.exports = function (canvas, context, view, gl, textures, files, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	module.exports = function (canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 
 	    getNodesCnt = getNodesCnt || function () {
@@ -1793,6 +1797,8 @@
 	                    if (niV >= max) {
 	                        store(section);
 	                        init(filler, pL);
+	                        niV = iV;
+	                        niI = iI;
 	                    }
 
 	                    filler.set(e, _part[_i2], iV, iI);
@@ -2062,42 +2068,6 @@
 	  }
 
 	  _createClass(Utils, null, [{
-	    key: "debounce",
-	    value: function debounce(func, wait, immediate) {
-	      var _this = this,
-	          _arguments = arguments;
-
-	      var timeout, args, context, timestamp, result;
-
-	      var later = function later() {
-	        var last = Date.now - timestamp;
-
-	        if (last < wait && last > 0) {
-	          timeout = setTimeout(later, wait - last);
-	        } else {
-	          timeout = null;
-	          if (!immediate) {
-	            result = func.apply(context, args);
-	            if (!timeout) context = args = null;
-	          }
-	        }
-	      };
-
-	      return function () {
-	        context = _this;
-	        args = _arguments;
-	        timestamp = Date.now;
-	        var callNow = immediate && !timeout;
-	        if (!timeout) timeout = setTimeout(later, wait);
-	        if (callNow) {
-	          result = func.apply(context, args);
-	          context = args = null;
-	        }
-
-	        return result;
-	      };
-	    }
-	  }, {
 	    key: "extend",
 	    value: function extend(from) {
 	      for (var i = 1; i < arguments.length; i++) {
@@ -4459,10 +4429,10 @@
 	 */
 
 	var Textures = function () {
-	    function Textures(onLoad) {
+	    function Textures(events, onLoad) {
 	        _classCallCheck(this, Textures);
 
-	        this._load = [ccNetViz_utils.debounce(onLoad, 5)];
+	        this._load = [events.debounce(onLoad, 5)];
 	        this._textures = {};
 	        this._pending = {};
 	        this._n = 0;
@@ -4534,10 +4504,10 @@
 	 */
 
 	var Files = function () {
-	  function Files(onLoad) {
+	  function Files(events, onLoad) {
 	    _classCallCheck(this, Files);
 
-	    this._load = [ccNetViz_utils.debounce(onLoad || function () {}, 5)];
+	    this._load = [events.debounce(onLoad || function () {}, 5)];
 	    this._files = {};
 	    this._pending = {};
 	    this._n = 0;
@@ -4611,6 +4581,89 @@
 
 /***/ },
 /* 20 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: David Tichy, Aleš Saska
+	 */
+
+	var LazyEvents = function () {
+	    function LazyEvents() {
+	        _classCallCheck(this, LazyEvents);
+
+	        this._enable = true;
+	    }
+
+	    _createClass(LazyEvents, [{
+	        key: "debounce",
+	        value: function debounce(func, wait, immediate) {
+	            var _this = this,
+	                _arguments = arguments;
+
+	            var timeout = void 0,
+	                args = void 0,
+	                context = void 0,
+	                timestamp = void 0,
+	                result = void 0;
+
+	            var later = function later() {
+	                var last = Date.now - timestamp;
+
+	                if (last < wait && last > 0) {
+	                    timeout = setTimeout(later, wait - last);
+	                } else {
+	                    timeout = null;
+	                    if (!immediate) {
+	                        if (_this._enable) {
+	                            result = func.apply(context, args);
+	                        }
+	                        if (!timeout) context = args = null;
+	                    }
+	                }
+	            };
+
+	            return function () {
+	                context = _this;
+	                args = _arguments;
+	                timestamp = Date.now;
+	                var callNow = immediate && !timeout;
+	                if (!timeout) timeout = setTimeout(later, wait);
+	                if (callNow) {
+	                    if (_this._enable) {
+	                        result = func.apply(context, args);
+	                    }
+	                    context = args = null;
+	                }
+
+	                return result;
+	            };
+	        }
+	    }, {
+	        key: "disable",
+	        value: function disable() {
+	            this._enable = false;
+	        }
+	    }]);
+
+	    return LazyEvents;
+	}();
+
+	;
+
+	module.exports = LazyEvents;
+
+/***/ },
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
