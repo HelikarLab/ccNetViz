@@ -774,7 +774,7 @@
 	        return function (style) {
 	            var textEngine = texts.getEngine(style.font);
 
-	            textEngine.setFont(style.font, files, textures, gl);
+	            textEngine.setFont(style.font, files, textures);
 
 	            return {
 	                set: function set(v, e, iV, iI) {
@@ -1102,7 +1102,7 @@
 	        var labelAdder = function labelAdder(section, addSection) {
 	            var slf = (section.style.label || {}).font || {};
 	            var textEngine = texts.getEngine(slf);
-	            section.style.texture = textEngine.getTexture(slf, files, textures, gl, addSection);
+	            section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
 	        };
 
 	        scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
@@ -1291,44 +1291,47 @@
 	    "      part = fract(part*5.0);", "      if(part < 0.5) discard;", "   }else if(type >= 1.5){", //2.0 - chain dotted
 	    "      if(part < 0.15) discard;", "      if(part > 0.25 && part < 0.40) discard;", "   }else if(type >= 0.5){", //1.0 - dashed
 	    "      if(part < 0.2) discard;", "   }", "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"], function (c) {
-	        c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-	        gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+	        var uniforms = c.shader.uniforms;
+	        uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+	        gl.uniform2f(uniforms.screen, c.width, c.height);
 	        var size = 2.5 * c.nodeSize;
-	        c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	        gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-	        gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	        gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-	        gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
-	        gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	        uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+	        gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+	        gl.uniform1f(uniforms.aspect2, c.aspect2);
+	        gl.uniform1f(uniforms.aspect, c.aspect);
+	        gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
+	        gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	    }));
 
 	    if (extensions.OES_standard_derivatives) {
 	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
-	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
-	            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+	            var uniforms = c.shader.uniforms;
+	            gl.uniform1f(uniforms.width, c.style.width);
+	            gl.uniform1f(uniforms.exc, c.curveExc);
+	            gl.uniform2f(uniforms.screen, c.width, c.height);
 	            var size = 2.5 * c.nodeSize;
-	            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-	            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
-	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+	            gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+	            gl.uniform1f(uniforms.aspect2, c.aspect2);
+	            gl.uniform1f(uniforms.aspect, c.aspect);
+	            gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+	            uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5);
+	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	        }));
 	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
-	            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-	            gl.uniform1f(c.shader.uniforms.width, c.style.width);
-	            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+	            var uniforms = c.shader.uniforms;
+	            uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+	            gl.uniform1f(uniforms.width, c.style.width);
+	            gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+	            gl.uniform2f(uniforms.screen, c.width, c.height);
 	            var size = 2.5 * c.nodeSize;
-	            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-	            c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5 / 3);
-	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+	            gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+	            gl.uniform1f(uniforms.aspect2, c.aspect2);
+	            gl.uniform1f(uniforms.aspect, c.aspect);
+	            uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5 / 3);
+	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	        }));
 	    }
 
@@ -1339,17 +1342,18 @@
 	            var size = getSize(c, getEdgesCnt(), 0.2);
 	            if (!size) return true;
 
-	            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-	            gl.uniform2f(c.shader.uniforms.arrowsize, size, c.style.aspect * size);
-	            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-	            c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
-	            if (c.shader.uniforms.size) {
+	            var uniforms = c.shader.uniforms;
+	            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+	            gl.uniform2f(uniforms.arrowsize, size, c.style.aspect * size);
+	            gl.uniform1f(uniforms.exc, c.curveExc);
+	            uniforms.cexc && gl.uniform1f(uniforms.cexc, 0.5 * view.size * c.curveExc);
+	            if (uniforms.size) {
 	                size = 2.5 * c.nodeSize;
-	                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	                uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
 	            }
-	            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-	            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-	            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	            gl.uniform2f(uniforms.screen, c.width, c.height);
+	            gl.uniform1f(uniforms.aspect2, c.aspect2);
+	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	        };
 
 	        scene.add("lineArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float exc;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = direction / length(screen * direction);", "   vec2 v = vec2(u.y, -aspect2 * u.x);", "   v = v / length(screen * v);", "   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
@@ -1362,22 +1366,35 @@
 
 	    scene.add("nodes", new ccNetViz_primitive(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsColorTexture, function (c) {
 	        var size = getNodeSize(c);
-	        gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	        var uniforms = c.shader.uniforms;
+	        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	    }));
 	    scene.add("nodesColored", new ccNetViz_primitive(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "attribute vec4 color;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "   c = color;", "}"], fsVarColorTexture, function (c) {
 	        var size = getNodeSize(c);
-	        gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+	        var uniforms = c.shader.uniforms;
+	        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
 	    }));
-	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsLabelTexture, function (c) {
+	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform float fontScale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsLabelTexture, function (c) {
 	        if (!getNodeSize(c)) return true;
-	        gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
-	        //	    if(c.style.label.font && c.style.label.font.height)
-	        //	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
-	        gl.uniform1f(c.shader.uniforms.height_font, 25);
-	        gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-	        gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
-	        ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+	        var f = c.style.label.font;
+	        var uniforms = c.shader.uniforms;
+
+	        gl.uniform1f(uniforms.type, getLabelType(f));
+
+	        var textEngine = texts.getEngine(f);
+	        textEngine.setFont(f, files, textures);
+
+	        var fontScale = 1.0;
+	        var sdfSize = textEngine.fontSize;
+	        var wantedSize = (f || {}).size || sdfSize;
+	        if (wantedSize && sdfSize) fontScale = wantedSize / sdfSize;
+
+	        gl.uniform1f(uniforms.fontScale, fontScale);
+	        gl.uniform1f(uniforms.height_font, sdfSize);
+	        gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+	        gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 	    }));
 
 	    if (options.onLoad) {
@@ -1662,6 +1679,25 @@
 	            }
 	        };
 
+	        var zerofiller = {
+	            set: function set(v, iV, iI, numVertices, numIndices) {
+	                var indicesarr = [v.indices, iV, iI];
+	                for (var i = 0; i < numIndices; i++) {
+	                    indicesarr.push(0);
+	                }var verticesarr = [undefined, iV, iI];
+	                for (var _i = 0; _i < numVertices; _i++) {
+	                    verticesarr.push(0);
+	                }for (var k in v) {
+	                    if (k === 'indices') {
+	                        primitive.indices.apply(_this, indicesarr);
+	                    } else {
+	                        verticesarr[0] = v[k];
+	                        primitive.vertices.apply(_this, verticesarr);
+	                    }
+	                }
+	            }
+	        };
+
 	        this.set = function (gl, styles, adder, data, get) {
 	            var parts = {};
 
@@ -1748,25 +1784,27 @@
 
 	                var pL = partLength(filler, _part);
 	                init(filler, pL);
-	                var max = primitive.maxBufferSize - filler.numVertices;
-	                for (var _i = 0; _i < _part.length; _i++) {
-	                    if (iV > max) {
+	                var max = primitive.maxBufferSize;
+	                for (var _i2 = 0; _i2 < _part.length; _i2++) {
+	                    var s = filler.size ? filler.size(e, _part[_i2]) : 1;
+	                    var niV = iV + s * filler.numVertices;
+	                    var niI = iI + s * filler.numIndices;
+
+	                    if (niV >= max) {
 	                        store(section);
 	                        init(filler, pL);
 	                    }
 
-	                    filler.set(e, _part[_i], iV, iI);
+	                    filler.set(e, _part[_i2], iV, iI);
 
-	                    var s = filler.size ? filler.size(e, _part[_i]) : 1;
-
-	                    var idx = _part.idx[_i];
+	                    var idx = _part.idx[_i2];
 	                    _this._iIs[idx] = iI;
 	                    _this._iVs[idx] = iV;
 	                    _this._iBs[idx] = iB;
 	                    _this._sizes[idx] = s;
 
-	                    iI += s * filler.numIndices;
-	                    iV += s * filler.numVertices;
+	                    iI = niI;
+	                    iV = niV;
 	                }
 	                store(section);
 
@@ -1792,25 +1830,6 @@
 	                    gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
 	                });
 	            });
-	        };
-
-	        var zerofiller = {
-	            set: function set(v, iV, iI, numVertices, numIndices) {
-	                var indicesarr = [v.indices, iV, iI];
-	                for (var i = 0; i < numIndices; i++) {
-	                    indicesarr.push(0);
-	                }var verticesarr = [undefined, iV, iI];
-	                for (var _i2 = 0; _i2 < numVertices; _i2++) {
-	                    verticesarr.push(0);
-	                }for (var k in v) {
-	                    if (k === 'indices') {
-	                        primitive.indices.apply(_this, indicesarr);
-	                    } else {
-	                        verticesarr[0] = v[k];
-	                        primitive.vertices.apply(_this, verticesarr);
-	                    }
-	                }
-	            }
 	        };
 
 	        this.updateEl = function (gl, el, pos, get) {
@@ -1843,7 +1862,7 @@
 	            filler.set(e, el, 0, 0);
 
 	            for (; s < olds; s++) {
-	                //zero empty spaces
+	                //zero fill empty spaces
 	                zerofiller.set(e, s * filler.numVertices, s * filler.numIndices, filler.numVertices, filler.numIndices);
 	            }
 
@@ -2833,7 +2852,7 @@
 	    }
 	  }, {
 	    key: "getTexture",
-	    value: function getTexture(style, textures, files, gl, onLoad) {
+	    value: function getTexture(style, textures, files, onLoad) {
 	      onLoad();
 	      return this.texture;
 	    }
@@ -2889,6 +2908,11 @@
 	      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
 	      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
 	    }
+	  }, {
+	    key: "fontSize",
+	    get: function get() {
+	      return this._height;
+	    }
 	  }]);
 
 	  return DefaultTexts;
@@ -2917,11 +2941,12 @@
 	 */
 
 	var SDFTexts = function () {
-	  function SDFTexts() {
+	  function SDFTexts(gl) {
 	    _classCallCheck(this, SDFTexts);
 
 	    this._rendered = {};
 	    this._texts;
+	    this._gl = gl;
 	  }
 
 	  _createClass(SDFTexts, [{
@@ -2931,17 +2956,17 @@
 	    }
 	  }, {
 	    key: 'setFont',
-	    value: function setFont(style, files, textures, gl, onLoad) {
+	    value: function setFont(style, files, textures, onLoad) {
 	      var font = style.font;
 	      this._rendered[font] = this._texts = this._rendered[font] || {};
 
-	      this.texture = this.getTexture(style, files, textures, gl, onLoad);
+	      this.texture = this.getTexture(style, files, textures, onLoad);
 	      this._files = files;
 	      this._SDFmetrics = files.get(style.SDFmetrics);
 	    }
 	  }, {
 	    key: 'getTexture',
-	    value: function getTexture(style, files, textures, gl, onLoad) {
+	    value: function getTexture(style, files, textures, onLoad) {
 
 	      //handler to wait until both atlas (texture) and metrics (json file) are loaded
 	      var onL = function () {
@@ -2959,7 +2984,7 @@
 	      files.load(style.SDFmetrics, function () {
 	        onL('SDFmetrics');
 	      }, 'json');
-	      return textures.get(gl, style.SDFatlas, function () {
+	      return textures.get(this._gl, style.SDFatlas, function () {
 	        onL('SDFatlas');
 	      }, { sdf: true });
 	    }
@@ -3066,6 +3091,11 @@
 	    key: 'isSDF',
 	    get: function get() {
 	      return true;
+	    }
+	  }, {
+	    key: 'fontSize',
+	    get: function get() {
+	      return (this._SDFmetrics || {}).size;
 	    }
 	  }]);
 
@@ -4454,7 +4484,6 @@
 	                p = this._pending[img] = [action];
 	                this._n++;
 	                this._textures[img] = t = ccNetViz_gl.createTexture(gl, img, function () {
-	                    console.log('Onload texture ' + img);
 	                    p.forEach(function (a) {
 	                        return a && a();
 	                    });
@@ -4551,7 +4580,6 @@
 	        this._n++;
 
 	        ccNetViz_utils.ajax(url, function (data) {
-	          console.log("LOAD FILE " + url);
 	          _this._files[url] = _this._transformFile(data, dataType);
 	          p.forEach(function (a) {
 	            return a && a(_this._files[url]);
