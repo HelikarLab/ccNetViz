@@ -43,7 +43,11 @@ class DefaultTexts {
     this._height = +/(\d+)px/.exec(font)[1] + 1;
   }
   
-  getTexture (style, textures, files, gl, onLoad){
+  get fontSize(){
+    return this._height;
+  }
+  
+  getTexture (style, textures, files, onLoad){
     onLoad();
     return this.texture;
   }

@@ -44,7 +44,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
         return (function(style){
           let textEngine = texts.getEngine(style.font);
       
-          textEngine.setFont(style.font, files, textures, gl);
+          textEngine.setFont(style.font, files, textures);
 
           return {
               set: (v, e, iV, iI) => {
@@ -59,8 +59,8 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                   if(v.color){
                     let c = e.color;
                     ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-                  }                        
-
+                  }
+                  
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
                   ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
                   ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
@@ -348,7 +348,7 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
         let labelAdder = (section, addSection) => {
           var slf = (section.style.label || {}).font || {};
           let textEngine = texts.getEngine(slf);
-          section.style.texture = textEngine.getTexture(slf, files, textures, gl, addSection);
+          section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
         }
 
         scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
@@ -887,21 +887,34 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             "attribute vec2 textureCoord;",
             "uniform float offset;",
             "uniform vec2 scale;",
+            "uniform float fontScale;",
             "uniform mat4 transform;",
             "varying vec2 tc;",
             "void main(void) {",
-            "   gl_Position = vec4(scale * (relative + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);",
+            "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);",
             "   tc = textureCoord;",
             "}"
         ], fsLabelTexture, c => {
             if (!getNodeSize(c)) return true;
-            gl.uniform1f(c.shader.uniforms.type, getLabelType(c.style.label.font));
-//	    if(c.style.label.font && c.style.label.font.height)
-//	      gl.uniform1f(c.shader.uniforms.height_font, c.style.label.font.height*2);
-            gl.uniform1f(c.shader.uniforms.height_font, 25);
-            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-            gl.uniform2f(c.shader.uniforms.scale, 1 / c.width, 1 / c.height);
-            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+            let f = c.style.label.font;
+            let uniforms = c.shader.uniforms;
+
+            gl.uniform1f(uniforms.type, getLabelType(f));
+
+            let textEngine = texts.getEngine(f);      
+            textEngine.setFont(f, files, textures);
+
+            let fontScale = 1.0;
+            let sdfSize = textEngine.fontSize;
+            let wantedSize = (f || {}).size || sdfSize;
+            if(wantedSize && sdfSize)
+              fontScale = wantedSize / sdfSize;
+
+            gl.uniform1f(uniforms.fontScale, fontScale);
+            gl.uniform1f(uniforms.height_font, sdfSize);
+            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+            gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
         })
     );
 

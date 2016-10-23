@@ -7,9 +7,10 @@
  */
 
 class SDFTexts{
-  constructor() {
+  constructor(gl) {
     this._rendered = {};
     this._texts;
+    this._gl = gl;
   }
   
   get isSDF(){
@@ -20,16 +21,20 @@ class SDFTexts{
     this._rendered = {};
   }
 
-  setFont (style, files, textures, gl, onLoad) {
+  setFont (style, files, textures, onLoad) {
     var font = style.font;
     this._rendered[font] = this._texts = this._rendered[font] || {};
     
-    this.texture = this.getTexture(style, files, textures, gl, onLoad);
+    this.texture = this.getTexture(style, files, textures, onLoad);
     this._files      = files;
     this._SDFmetrics = files.get(style.SDFmetrics);
   }
 
-  getTexture (style, files, textures, gl, onLoad){
+  get fontSize(){
+    return (this._SDFmetrics || {}).size;
+  }
+    
+  getTexture (style, files, textures, onLoad){
     
     //handler to wait until both atlas (texture) and metrics (json file) are loaded
     let onL = (() => {
@@ -45,7 +50,7 @@ class SDFTexts{
     })();
     
     files.load(style.SDFmetrics, () => {onL('SDFmetrics');}, 'json');
-    return textures.get(gl, style.SDFatlas, () => {onL('SDFatlas');}, {sdf: true});
+    return textures.get(this._gl, style.SDFatlas, () => {onL('SDFatlas');}, {sdf: true});
   }
   
   _getChar(text){
