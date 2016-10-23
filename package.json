@@ -1,6 +1,6 @@
 {
-  "name": "ccNetViz",
-  "version": "1.0.2",
+  "name": "ccnetviz",
+  "version": "1.0.4",
   "main": "dist/ccNetViz.js",
   "devDependencies": {
     "babel-cli": "^6.16.0",
@@ -12,6 +12,10 @@
     "jshint": "^2.9.3",
     "path": "^0.12.7",
     "webpack": "^1.13.2"
+  },
+  "licence":{
+    "type": "Apache-2.0",
+    "url": "http://opensource.org/licenses/apache2.0.php"
   },
   "repository": {
     "type": "git",
