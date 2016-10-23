@@ -659,16 +659,17 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
         ], c => {
-            c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+            let uniforms = c.shader.uniforms;
+            uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+            gl.uniform2f(uniforms.screen, c.width, c.height);
             let size = 2.5 * c.nodeSize;
-            c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-            gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-            gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-            gl.uniform2f(c.shader.uniforms.width, c.style.width / c.width, c.style.width / c.height);
-            gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+            uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+            gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+            gl.uniform1f(uniforms.aspect2, c.aspect2);
+            gl.uniform1f(uniforms.aspect, c.aspect);
+            gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
+            gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
         })
     );
 
@@ -700,17 +701,18 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
 
                 "}"
             ]), fsCurve, c => {
-                gl.uniform1f(c.shader.uniforms.width, c.style.width);
-                gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+                let uniforms = c.shader.uniforms;
+                gl.uniform1f(uniforms.width, c.style.width);
+                gl.uniform1f(uniforms.exc, c.curveExc);
+                gl.uniform2f(uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
-                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-		gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-                gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-                gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5);
-                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+                uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+		gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+                gl.uniform1f(uniforms.aspect2, c.aspect2);
+                gl.uniform1f(uniforms.aspect, c.aspect);
+                gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+                uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5);
+                ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
             })
         );
         scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, [
@@ -736,17 +738,18 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
                 "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
                 "}"])
             , fsCurve, c => {
-                c.shader.uniforms.exc && gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-                gl.uniform1f(c.shader.uniforms.width, c.style.width);
-                gl.uniform1f(c.shader.uniforms.type, getEdgeType(c.style.type));
-                gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
+                let uniforms = c.shader.uniforms;
+                uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+                gl.uniform1f(uniforms.width, c.style.width);
+                gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+                gl.uniform2f(uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
-                c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-                gl.uniform1f(c.shader.uniforms.lineSize, getEdgeStyleSize(c));
-                gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-                gl.uniform1f(c.shader.uniforms.aspect, c.aspect);
-                c.shader.uniforms.lineStepSize && gl.uniform1f(c.shader.uniforms.lineStepSize, 5/3);
-                ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+                uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+                gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+                gl.uniform1f(uniforms.aspect2, c.aspect2);
+                gl.uniform1f(uniforms.aspect, c.aspect);
+                uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5/3);
+                ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
             })
         );
     }
@@ -758,17 +761,18 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             let size = getSize(c, getEdgesCnt(), 0.2);
             if (!size) return true;
 
-            gl.uniform1f(c.shader.uniforms.offset, 0.5 * c.nodeSize);
-            gl.uniform2f(c.shader.uniforms.arrowsize, size, c.style.aspect * size);
-            gl.uniform1f(c.shader.uniforms.exc, c.curveExc);
-            c.shader.uniforms.cexc && gl.uniform1f(c.shader.uniforms.cexc, 0.5 * view.size * c.curveExc);
-            if(c.shader.uniforms.size){
+            let uniforms = c.shader.uniforms;
+            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+            gl.uniform2f(uniforms.arrowsize, size, c.style.aspect * size);
+            gl.uniform1f(uniforms.exc, c.curveExc);
+            uniforms.cexc && gl.uniform1f(uniforms.cexc, 0.5 * view.size * c.curveExc);
+            if(uniforms.size){
               size = 2.5 * c.nodeSize;
-              c.shader.uniforms.size && gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+              uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
             }
-            gl.uniform2f(c.shader.uniforms.screen, c.width, c.height);
-            gl.uniform1f(c.shader.uniforms.aspect2, c.aspect2);
-            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+            gl.uniform2f(uniforms.screen, c.width, c.height);
+            gl.uniform1f(uniforms.aspect2, c.aspect2);
+            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
         };
       
         scene.add("lineArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
@@ -859,8 +863,9 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             "}"
         ], fsColorTexture, c => {
             let size = getNodeSize(c);
-            gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
-            ccNetViz_gl.uniformColor(gl, c.shader.uniforms.color, c.style.color);
+            let uniforms = c.shader.uniforms;
+            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
         })
     );
     scene.add("nodesColored", new ccNetViz_primitive(gl, nodeStyle, null, [
@@ -878,7 +883,8 @@ module.exports = function(canvas, context, view, gl, textures, files, options, n
             "}"
         ], fsVarColorTexture, c => {
             let size = getNodeSize(c);
-            gl.uniform2f(c.shader.uniforms.size, size / c.width, size / c.height);
+            let uniforms = c.shader.uniforms;
+            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
         })
     );
     nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", [
