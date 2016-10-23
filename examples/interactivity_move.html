@@ -30,7 +30,17 @@
     function dataLoaded(d){
       graph = new ccNetViz(el, {
 	styles: {
-	  node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+	  node: { 
+	    texture: "images/node_bw.png", 
+	    label: { 
+	      hideSize: 16,
+	      font: {
+		SDFatlas: "fonts/OpenSans-Regular.png",
+		SDFmetrics: "fonts/OpenSans-Regular.json", // "null" - if the image to be generated
+		size: 12
+	      }
+	    } 
+	  },
 	  edge: { arrow: { texture: "images/arrow.png" } },
 	  edgeHover: {
 	    color: "rgb(0, 0, 255)"
