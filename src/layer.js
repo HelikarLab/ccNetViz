@@ -486,7 +486,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     });
     
     let getEdgeStyleSize = ((c) => {
-      return c.width/(200);
+      return c.width/(100);
 /*      let avsize = (c.width + c.height)/2;
       let koef = (Math.min(Math.max((avsize - 150)/150, 0),1)+1)*1.3;
       //koef 1 for 150 size and 1.4 for 300 size
@@ -567,6 +567,17 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         "}"
     ];
 
+    const lineTypes = [
+        "   if(type >= 2.5){",        //3.0 dotted
+        "      part = fract(part*3.0);",
+        "      if(part < 0.5) discard;",
+        "   }else if(type >= 1.5){",        //2.0 - chain dotted
+        "      if(part < 0.15) discard;",
+        "      if(part > 0.25 && part < 0.4) discard;",
+        "   }else if(type >= 0.5){",        //1.0 - dashed
+        "      if(part < 0.5) discard;",
+        "   }"
+    ];
     const fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
         "#ifdef GL_ES",
@@ -580,16 +591,8 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         "varying vec2 c;",
         "varying vec2 v_lengthSoFar;",
         "void main(void) {",
-        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));",
-        "   if(type >= 2.5){",        //3.0 dotted
-        "      part = fract(part*5.0);",
-        "      if(part < 0.5) discard;",
-        "   }else if(type >= 1.5){",        //2.0 - chain dotted
-        "      if(part < 0.15) discard;",
-        "      if(part > 0.25 && part < 0.40) discard;",
-        "   }else if(type >= 0.5){",        //1.0 - dashed
-        "      if(part < 0.2) discard;",
-        "   }",
+        "   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));"
+        ].concat(lineTypes).concat([
         "   vec2 px = dFdx(c);",
         "   vec2 py = dFdy(c);",
         "   float fx = 2.0 * c.x * px.x - px.y;",
@@ -599,7 +602,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         "   if (alpha < 0.0) discard;",
         "   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));",
         "}"
-    ];
+    ]);
     
 
     const getShiftFuncs = [
@@ -646,19 +649,11 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             "varying vec2 v_lengthSoFar;",
             "uniform float lineSize;",
             "void main(void) {",
-            "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));",
-            "   if(type >= 2.5){",        //3.0 dotted
-            "      part = fract(part*5.0);",
-            "      if(part < 0.5) discard;",
-            "   }else if(type >= 1.5){",        //2.0 - chain dotted
-            "      if(part < 0.15) discard;",
-            "      if(part > 0.25 && part < 0.40) discard;",
-            "   }else if(type >= 0.5){",        //1.0 - dashed
-            "      if(part < 0.2) discard;",
-            "   }",
+            "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
+	    ].concat(lineTypes).concat([
             "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
-        ], c => {
+        ]), c => {
             let uniforms = c.shader.uniforms;
             uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
             gl.uniform2f(uniforms.screen, c.width, c.height);
