@@ -13,10 +13,7 @@
     "path": "^0.12.7",
     "webpack": "^1.13.2"
   },
-  "licence":{
-    "type": "Apache-2.0",
-    "url": "http://opensource.org/licenses/apache2.0.php"
-  },
+  "licence": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/HelikarLab/ccNetViz.git"
