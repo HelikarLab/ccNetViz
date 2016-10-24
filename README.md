@@ -111,7 +111,7 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
         font: {
           SDFatlas: "fonts/OpenSans-Regular.png",
           SDFmetrics: "fonts/OpenSans-Regular.json",
-          height: 15
+          size: 15
         }
       }
     },
