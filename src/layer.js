@@ -486,7 +486,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     });
     
     let getEdgeStyleSize = ((c) => {
-      return c.width/(100);
+      return c.width/(120);
 /*      let avsize = (c.width + c.height)/2;
       let koef = (Math.min(Math.max((avsize - 150)/150, 0),1)+1)*1.3;
       //koef 1 for 150 size and 1.4 for 300 size
@@ -573,7 +573,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         "      if(part < 0.5) discard;",
         "   }else if(type >= 1.5){",        //2.0 - chain dotted
         "      if(part < 0.15) discard;",
-        "      if(part > 0.25 && part < 0.4) discard;",
+        "      if(part > 0.30 && part < 0.45) discard;",
         "   }else if(type >= 0.5){",        //1.0 - dashed
         "      if(part < 0.5) discard;",
         "   }"
