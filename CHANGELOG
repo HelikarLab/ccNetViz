@@ -12,3 +12,7 @@ Added find function for searching inside circular area (x,y, radius)
 Added support for interactivity
 Added findArea function for searching inside rectangular area (x1,y1,x2,y2,radius)
 Added support for edge target and source at another edge
+
+-------------------- ver. 1.0.5 -----------------------------
+Better edge styling
+Support for SDF (Signed distance) fonts
