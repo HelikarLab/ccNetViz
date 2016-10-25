@@ -2731,7 +2731,7 @@
 	    key: 'isSDF',
 	    value: function isSDF(font) {
 	      if (ccNetViz_utils.isObject(font)) {
-	        if (font.SDFatlas && font.SDFmetrics) {
+	        if (font.texture && font.metrics) {
 	          return true;
 	        }
 	      }
@@ -2930,7 +2930,7 @@
 
 	      this.texture = this.getTexture(style, files, textures, onLoad);
 	      this._files = files;
-	      this._SDFmetrics = files.get(style.SDFmetrics);
+	      this._SDFmetrics = files.get(style.metrics);
 	    }
 	  }, {
 	    key: 'getTexture',
@@ -2943,17 +2943,17 @@
 	        return function (k) {
 	          loaded[k] = true;
 
-	          if (loaded.SDFmetrics && loaded.SDFatlas) {
+	          if (loaded.SDFmetrics && loaded.SDFtexture) {
 	            onLoad && onLoad();
 	          }
 	        };
 	      }();
 
-	      files.load(style.SDFmetrics, function () {
+	      files.load(style.metrics, function () {
 	        onL('SDFmetrics');
 	      }, 'json');
-	      return textures.get(this._gl, style.SDFatlas, function () {
-	        onL('SDFatlas');
+	      return textures.get(this._gl, style.texture, function () {
+	        onL('SDFtexture');
 	      }, { sdf: true });
 	    }
 	  }, {
