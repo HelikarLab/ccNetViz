@@ -109,8 +109,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
       label: {
         color: "rgb(0, 0, 255)",
         font: {
-          SDFatlas: "fonts/OpenSans-Regular.png",
-          SDFmetrics: "fonts/OpenSans-Regular.json",
+          texture: "fonts/OpenSans-Regular.png",    //SDF (Signed distance field) texture
+          metrics: "fonts/OpenSans-Regular.json",   //SDF metrics
           size: 15
         }
       }

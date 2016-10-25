@@ -28,7 +28,7 @@ class Texts {
   
   isSDF(font){
     if(ccNetViz_utils.isObject(font)){
-      if(font.SDFatlas && font.SDFmetrics){
+      if(font.texture && font.metrics){
         return true;
       }
     }

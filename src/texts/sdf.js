@@ -27,7 +27,7 @@ class SDFTexts{
     
     this.texture = this.getTexture(style, files, textures, onLoad);
     this._files      = files;
-    this._SDFmetrics = files.get(style.SDFmetrics);
+    this._SDFmetrics = files.get(style.metrics);
   }
 
   get fontSize(){
@@ -43,14 +43,14 @@ class SDFTexts{
       return (k) => {
         loaded[k] = true;
 
-        if(loaded.SDFmetrics && loaded.SDFatlas){
+        if(loaded.SDFmetrics && loaded.SDFtexture){
           onLoad && onLoad();
         }
       }
     })();
     
-    files.load(style.SDFmetrics, () => {onL('SDFmetrics');}, 'json');
-    return textures.get(this._gl, style.SDFatlas, () => {onL('SDFatlas');}, {sdf: true});
+    files.load(style.metrics, () => {onL('SDFmetrics');}, 'json');
+    return textures.get(this._gl, style.texture, () => {onL('SDFtexture');}, {sdf: true});
   }
   
   _getChar(text){
