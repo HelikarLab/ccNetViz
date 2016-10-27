@@ -73,7 +73,7 @@ var ccNetViz = function(canvas, options){
   if (nodeStyle.label) {
       let s = nodeStyle.label;
       s.color = s.color || "rgb(120, 120, 120)";
-      s.font = s.font || "11px Arial, Helvetica, sans-serif";
+      s.font = s.font || {type:"Arial, Helvetica, sans-serif", size: 13};
   }
 
   let edgeStyle = options.styles.edge = options.styles.edge || {};

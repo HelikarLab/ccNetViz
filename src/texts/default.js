@@ -36,11 +36,13 @@ class DefaultTexts {
   }
 
   setFont (font) {
-    this._rendered [font] = this._texts = this._rendered [font] || {};
-    this._context.font = font;
+    var fontstr = font.size+"px "+font.type;
+    
+    this._rendered [fontstr] = this._texts = this._rendered [fontstr] || {};
+    this._context.font = fontstr;
     this._x = 0;
     this._y += this._height;
-    this._height = +/(\d+)px/.exec(font)[1] + 1;
+    this._height = font.size + 1;
   }
   
   get fontSize(){

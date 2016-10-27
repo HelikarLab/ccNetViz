@@ -78,7 +78,10 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
       label: {
         hideSize: 16,   //minimum size (height) for the label to be displayed
         color: "rgb(120, 0, 0)",  //label color, default: "rgb(120, 120, 120)"
-        font: "15px Arial, Helvetica, sans-serif" //label font, default: "11px Arial, Helvetica, sans-serif"
+        font: { //label font
+          type: "Arial, Helvetica, sans-serif",
+          size: 15
+        }
       }
     },
     edge: {   //predefined style
@@ -102,13 +105,17 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
     nodeWithSmallBlueLabel: {   //custom style
       label: {
         color: "rgb(0, 0, 255)",
-        font: "11px Arial, Helvetica, sans-serif"
+        font: { //label font
+          type: "Arial, Helvetica, sans-serif",
+          size: 11
+        }
       }
     },
     nodeWithSDFFont: {   //custom style with rendering SDF fonts
       label: {
         color: "rgb(0, 0, 255)",
         font: {
+          type: "sdf",
           texture: "fonts/OpenSans-Regular.png",    //SDF (Signed distance field) texture
           metrics: "fonts/OpenSans-Regular.json",   //SDF metrics
           size: 15
