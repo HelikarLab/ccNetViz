@@ -292,7 +292,7 @@
 
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 
 	  var batch = undefined;
@@ -709,7 +709,7 @@
 
 	  var textures = new ccNetViz_textures(events, onLoad);
 	  var files = new ccNetViz_files(events, onLoad);
-	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	};
 
 	ccNetViz.color = ccNetViz_color;
@@ -745,7 +745,7 @@
 	 * 	Aleš Saska - http://alessaska.cz/
 	 */
 
-	module.exports = function (canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	module.exports = function (canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 
 	    getNodesCnt = getNodesCnt || function () {
@@ -790,10 +790,10 @@
 	                        var c = parts[i];
 	                        var chr = c.cCoord;
 
-	                        if (v.color) {
-	                            var _c = e.color;
-	                            ccNetViz_primitive.colors(v.color, iV, _c, _c, _c, _c);
-	                        }
+	                        //                  if(v.color){
+	                        //                    let c = e.color;
+	                        //                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
+	                        //                  }
 
 	                        ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
 	                        ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
@@ -1114,6 +1114,7 @@
 
 	        if (nodeStyle.label) {
 	            texts.clear();
+	            scene.labelsShadow.set(gl, options.styles, labelAdder, nodes, labelsFiller);
 	            scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
 	            texts.bind();
 	        }
@@ -1278,8 +1279,8 @@
 
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 
-	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "float u_buffer = 192.0 / 256.0;", "float u_gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", //SDF
-	    "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);", "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", //NORMAL FONT
+	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform mediump float discardAll;", "float gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(discardAll > 0.5) discard; ", "  if(type > 0.5){", //SDF
+	    "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", //NORMAL FONT
 	    "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
@@ -1377,27 +1378,36 @@
 	        var uniforms = c.shader.uniforms;
 	        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
 	    }));
-	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform float fontScale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsLabelTexture, function (c) {
-	        if (!getNodeSize(c)) return true;
-	        var f = c.style.label.font;
-	        var uniforms = c.shader.uniforms;
 
-	        gl.uniform1f(uniforms.type, getLabelType(f));
+	    var vsLabelsShader = ["attribute vec2 position;", "attribute vec2 relative;", "attribute vec2 textureCoord;", "uniform float offset;", "uniform vec2 scale;", "uniform float fontScale;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"];
+	    var bindLabels = function bindLabels(is_shadow) {
+	        return function (c) {
+	            if (!getNodeSize(c)) return true;
+	            var f = c.style.label.font;
+	            var uniforms = c.shader.uniforms;
 
-	        var textEngine = texts.getEngine(f);
-	        textEngine.setFont(f, files, textures);
+	            gl.uniform1f(uniforms.type, getLabelType(f));
 
-	        var fontScale = 1.0;
-	        var sdfSize = textEngine.fontSize;
-	        var wantedSize = (f || {}).size || sdfSize;
-	        if (wantedSize && sdfSize) fontScale = wantedSize / sdfSize;
+	            var textEngine = texts.getEngine(f);
+	            textEngine.setFont(f, files, textures);
 
-	        gl.uniform1f(uniforms.fontScale, fontScale);
-	        gl.uniform1f(uniforms.height_font, sdfSize);
-	        gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
-	        gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
-	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-	    }));
+	            var fontScale = 1.0;
+	            var sdfSize = textEngine.fontSize;
+	            var wantedSize = (f || {}).size || sdfSize;
+	            if (wantedSize && sdfSize) fontScale = wantedSize / sdfSize;
+
+	            gl.uniform1f(uniforms.discardAll, is_shadow && !textEngine.isSDF ? 1.0 : 0.0);
+
+	            gl.uniform1f(uniforms.buffer, is_shadow ? 0.3 : 192.0 / 256.0);
+	            gl.uniform1f(uniforms.fontScale, fontScale);
+	            gl.uniform1f(uniforms.height_font, sdfSize);
+	            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+	            gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+	            ccNetViz_gl.uniformColor(gl, uniforms.color, is_shadow ? backgroundColor : c.style.color);
+	        };
+	    };
+	    nodeStyle.label && scene.add("labelsShadow", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)));
+	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(false)));
 
 	    if (options.onLoad) {
 	        var styles = options.styles;
