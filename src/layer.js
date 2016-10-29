@@ -17,7 +17,7 @@ var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-module.exports = function(canvas, context, view, gl, textures, files, events, options, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+module.exports = function(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     
@@ -56,10 +56,10 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
                   let c = parts[i];
                   let chr = c.cCoord;
 
-                  if(v.color){
-                    let c = e.color;
-                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-                  }
+//                  if(v.color){
+//                    let c = e.color;
+//                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
+//                  }
                   
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
                   ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
@@ -326,7 +326,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
                     let t = dummysd;
                     if(si !== ti){
                       t = linesd;
-		      e.t = 0;
+                      e.t = 0;
                       lines.push(e);
                     }
                     edgeTypes.push(t);
@@ -356,6 +356,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
 
         if (nodeStyle.label) {
             texts.clear();
+            scene.labelsShadow.set(gl, options.styles, labelAdder, nodes, labelsFiller);
             scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
             texts.bind();
         }
@@ -542,14 +543,15 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         "uniform mediump vec4 color;",
         "uniform mediump float height_font;",
         "uniform float type;",
-        "float u_buffer = 192.0 / 256.0;",
-        "float u_gamma = 4.0 * 1.4142 / height_font;",
+        "uniform float buffer;",
+        "uniform mediump float discardAll;",
+        "float gamma = 4.0 * 1.4142 / height_font;",
         "varying mediump vec2 tc;",
         "void main() {",
+        "  if(discardAll > 0.5) discard; ",
         "  if(type > 0.5){",	//SDF
         "    float tx=texture2D(texture, tc).r;",
-        "    float a= smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, tx);",
-        "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
+        "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);",
         "    gl_FragColor=vec4(color.rgb, a * color.a);",
         "  }else{",	//NORMAL FONT
         "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
@@ -702,7 +704,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
                 gl.uniform2f(uniforms.screen, c.width, c.height);
                 let size = 2.5 * c.nodeSize;
                 uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-		gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+                gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
                 gl.uniform1f(uniforms.aspect2, c.aspect2);
                 gl.uniform1f(uniforms.aspect, c.aspect);
                 gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
@@ -882,7 +884,8 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             gl.uniform2f(uniforms.size, size / c.width, size / c.height);
         })
     );
-    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", [
+    
+    var vsLabelsShader = [
             "attribute vec2 position;",
             "attribute vec2 relative;",
             "attribute vec2 textureCoord;",
@@ -895,7 +898,9 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);",
             "   tc = textureCoord;",
             "}"
-        ], fsLabelTexture, c => {
+        ];
+    let bindLabels = (is_shadow) => {
+      return c => {
             if (!getNodeSize(c)) return true;
             let f = c.style.label.font;
             let uniforms = c.shader.uniforms;
@@ -910,14 +915,20 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             let wantedSize = (f || {}).size || sdfSize;
             if(wantedSize && sdfSize)
               fontScale = wantedSize / sdfSize;
+            
+            gl.uniform1f(uniforms.discardAll, is_shadow && !textEngine.isSDF ? 1.0 : 0.0);
 
+
+            gl.uniform1f(uniforms.buffer, is_shadow ? 0.3 : 192.0 / 256.0);
             gl.uniform1f(uniforms.fontScale, fontScale);
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
-            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-        })
-    );
+            ccNetViz_gl.uniformColor(gl, uniforms.color, is_shadow ? backgroundColor : c.style.color);
+        };
+    };
+    nodeStyle.label && scene.add("labelsShadow", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)) );
+    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(false)) );
 
     if (options.onLoad) {
         let styles = options.styles;
