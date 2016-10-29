@@ -411,8 +411,8 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
       this.nodes[i] = n;
 
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
-      scene.labels.updateEl(gl, n, i, labelsFiller);
-      scene.labelsShadow.updateEl(gl, n, i, labelsFiller);
+      scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
+      scene.labelsShadow && scene.labelsShadow.updateEl(gl, n, i, labelsFiller);
       
       if(spatialSearch)
         spatialSearch.update(context, 'nodes', i, n);
