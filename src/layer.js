@@ -919,7 +919,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             gl.uniform1f(uniforms.discardAll, is_shadow && !textEngine.isSDF ? 1.0 : 0.0);
 
 
-            gl.uniform1f(uniforms.buffer, is_shadow ? 0.3 : 192.0 / 256.0);
+            gl.uniform1f(uniforms.buffer, is_shadow ? 0.25 : 192.0 / 256.0);
             gl.uniform1f(uniforms.fontScale, fontScale);
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
