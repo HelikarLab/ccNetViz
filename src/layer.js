@@ -886,7 +886,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         })
     );
     
-    var vsLabelsShader = [
+    let vsLabelsShader = [
             "attribute vec2 position;",
             "attribute vec2 relative;",
             "attribute vec2 textureCoord;",
