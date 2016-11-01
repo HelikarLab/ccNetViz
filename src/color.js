@@ -10,7 +10,13 @@ class Color{
   constructor(color){
     this.a = 1;
 
-    if (arguments.length >= 3) {
+    if (color instanceof Color){
+        this.r = color.r;
+        this.g = color.g;
+        this.b = color.b;
+        this.a = color.a;
+    }
+    else if (arguments.length >= 3) {
         this.r = arguments[0];
         this.g = arguments[1];
         this.b = arguments[2];

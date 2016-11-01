@@ -908,7 +908,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
 
             gl.uniform1f(uniforms.type, getLabelType(f));
 
-            let textEngine = texts.getEngine(f);      
+            let textEngine = texts.getEngine(f);
             textEngine.setFont(f, files, textures);
 
             let fontScale = 1.0;
@@ -925,7 +925,13 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
-            ccNetViz_gl.uniformColor(gl, uniforms.color, is_shadow ? backgroundColor : c.style.color);
+
+            let color;
+            if(is_shadow)
+                color = new ccNetViz_color(f.outlineColor || backgroundColor);
+            else
+                color = c.style.color;
+            ccNetViz_gl.uniformColor(gl, uniforms.color, color);
         };
     };
     nodeStyle.label && scene.add("labelsShadow", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)) );
