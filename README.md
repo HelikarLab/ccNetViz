@@ -118,7 +118,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
           type: "sdf",
           texture: "fonts/OpenSans-Regular.png",    //SDF (Signed distance field) texture
           metrics: "fonts/OpenSans-Regular.json",   //SDF metrics
-          size: 15
+          size: 15,
+          outlineColor: "rgb(0,255,255)"            //color of outline - optional ( if it is not setted - background color would be used )
         }
       }
     },
