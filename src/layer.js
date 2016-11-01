@@ -356,7 +356,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
 
         if (nodeStyle.label) {
             texts.clear();
-            scene.labelsShadow.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+            scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
             scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
             texts.bind();
         }
@@ -412,7 +412,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
 
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
       scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
-      scene.labelsShadow && scene.labelsShadow.updateEl(gl, n, i, labelsFiller);
+      scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
       
       if(spatialSearch)
         spatialSearch.update(context, 'nodes', i, n);
@@ -900,7 +900,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             "   tc = textureCoord;",
             "}"
         ];
-    let bindLabels = (is_shadow) => {
+    let bindLabels = (is_outline) => {
       return c => {
             if (!getNodeSize(c)) return true;
             let f = c.style.label.font;
@@ -917,24 +917,24 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
             if(wantedSize && sdfSize)
               fontScale = wantedSize / sdfSize;
             
-            gl.uniform1f(uniforms.discardAll, is_shadow && !textEngine.isSDF ? 1.0 : 0.0);
+            gl.uniform1f(uniforms.discardAll, is_outline && !textEngine.isSDF ? 1.0 : 0.0);
 
 
-            gl.uniform1f(uniforms.buffer, is_shadow ? 0.25 : 192.0 / 256.0);
+            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : 192.0 / 256.0);
             gl.uniform1f(uniforms.fontScale, fontScale);
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
 
             let color;
-            if(is_shadow)
+            if(is_outline)
                 color = new ccNetViz_color(f.outlineColor || backgroundColor);
             else
                 color = c.style.color;
             ccNetViz_gl.uniformColor(gl, uniforms.color, color);
         };
     };
-    nodeStyle.label && scene.add("labelsShadow", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)) );
+    nodeStyle.label && scene.add("labelsOutline", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)) );
     nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(false)) );
 
     if (options.onLoad) {
