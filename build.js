@@ -46,6 +46,11 @@ var webpackinst = Webpack({
     path: path.join(__dirname, 'dist'),
     filename: 'ccNetViz.js',
   },
+//  resolve: {
+//    extensions: ['', '.js', '.jsx']
+//  },
+  devtool: 'source-map',
+  debug:true,
   module:{
   loaders: [
     {
