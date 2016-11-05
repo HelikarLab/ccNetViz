@@ -1,5 +1,5 @@
-import rbush from './rbush';
-import ccNetViz_geomutils from '../geomutils';
+var rbush = require( './rbush' );
+var ccNetViz_geomutils = require( '../geomutils' );
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
