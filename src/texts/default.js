@@ -42,7 +42,8 @@ class DefaultTexts {
     this._context.font = fontstr;
     this._x = 0;
     this._y += this._height;
-    this._height = font.size + 1;
+//    this._height = font.size + 1;
+    this._height = font.size;
   }
   
   get fontSize(){
