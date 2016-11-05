@@ -222,7 +222,7 @@
 	  if (nodeStyle.label) {
 	    var s = nodeStyle.label;
 	    s.color = s.color || "rgb(120, 120, 120)";
-	    s.font = s.font || { type: "Arial, Helvetica, sans-serif", size: 13 };
+	    s.font = s.font || { type: "Arial, Helvetica, sans-serif", size: 11 };
 	  }
 	
 	  var edgeStyle = options.styles.edge = options.styles.edge || {};
@@ -2837,8 +2837,7 @@
 	      this._context.font = fontstr;
 	      this._x = 0;
 	      this._y += this._height;
-	      //    this._height = font.size + 1;
-	      this._height = font.size;
+	      this._height = font.size + 1;
 	    }
 	  }, {
 	    key: "getTexture",
@@ -2901,7 +2900,7 @@
 	  }, {
 	    key: "fontSize",
 	    get: function get() {
-	      return this._height;
+	      return this._height - 1;
 	    }
 	  }]);
 	
