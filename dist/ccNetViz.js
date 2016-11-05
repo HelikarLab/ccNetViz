@@ -2837,7 +2837,8 @@
 	      this._context.font = fontstr;
 	      this._x = 0;
 	      this._y += this._height;
-	      this._height = font.size + 1;
+	      //    this._height = font.size + 1;
+	      this._height = font.size;
 	    }
 	  }, {
 	    key: "getTexture",
@@ -3103,17 +3104,10 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(17);
-	
-	var _rbush2 = _interopRequireDefault(_rbush);
-	
-	var _geomutils = __webpack_require__(12);
-	
-	var _geomutils2 = _interopRequireDefault(_geomutils);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var rbush = __webpack_require__(17);
+	var ccNetViz_geomutils = __webpack_require__(12);
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -3389,7 +3383,7 @@
 	
 	var ct = {};
 	function getEdgeShift(context, screensize, e, ct) {
-	  _geomutils2.default.getCurveShift(e, ct); //get shift because of edge-to-edge functionality
+	  ccNetViz_geomutils.getCurveShift(e, ct); //get shift because of edge-to-edge functionality
 	
 	
 	  //compute all transformations made in the vertex shader
@@ -3465,8 +3459,8 @@
 	          x2 = void 0,
 	          y2 = void 0;
 	
-	      var s = _geomutils2.default.edgeSource(this.e);
-	      var t = _geomutils2.default.edgeTarget(this.e);
+	      var s = ccNetViz_geomutils.edgeSource(this.e);
+	      var t = ccNetViz_geomutils.edgeTarget(this.e);
 	
 	      x1 = s.x;
 	      y1 = s.y;
@@ -3522,7 +3516,7 @@
 	      var x1 = void 0,
 	          y1 = void 0,
 	          s = void 0;
-	      s = _geomutils2.default.edgeSource(this.e);
+	      s = ccNetViz_geomutils.edgeSource(this.e);
 	      x1 = s.x;
 	      y1 = s.y;
 	
@@ -3582,8 +3576,8 @@
 	          x2 = void 0,
 	          y1 = void 0,
 	          y2 = void 0;
-	      var s = _geomutils2.default.edgeSource(this.e);
-	      var t = _geomutils2.default.edgeTarget(this.e);
+	      var s = ccNetViz_geomutils.edgeSource(this.e);
+	      var t = ccNetViz_geomutils.edgeTarget(this.e);
 	
 	      x1 = s.x;
 	      y1 = s.y;
@@ -3651,7 +3645,7 @@
 	    this.normalize = normalize;
 	
 	    //tree initialization
-	    this.rbushtree = (0, _rbush2.default)();
+	    this.rbushtree = rbush();
 	
 	    this.types = { nodes: [], lines: [], circles: [], curves: [] };
 	
