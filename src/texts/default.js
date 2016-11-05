@@ -42,12 +42,11 @@ class DefaultTexts {
     this._context.font = fontstr;
     this._x = 0;
     this._y += this._height;
-//    this._height = font.size + 1;
-    this._height = font.size;
+    this._height = font.size + 1;
   }
   
   get fontSize(){
-    return this._height;
+    return this._height - 1;
   }
   
   getTexture (style, textures, files, onLoad){
