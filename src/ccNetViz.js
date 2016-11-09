@@ -409,11 +409,11 @@ var ccNetViz = function(canvas, options){
     }
   }
 
-  function onMouseDown(e) {
+  function onMouseDown(downe) {
     let width = canvas.width / view.size;
     let height = canvas.height / view.size;
-    let sx = e.clientX;
-    let sy = e.clientY;
+    let sx = downe.clientX;
+    let sy = downe.clientY;
     let dx = view.x + sx / width;
     let dy = sy / height - view.y;
     let od = options.onDrag;
@@ -437,7 +437,7 @@ var ccNetViz = function(canvas, options){
 
           if (mx * mx + my * my > 8) {
               dragged = true;
-              custom = od && od.start({ clientX: sx, clientY: sy });
+              custom = od && od.start(downe);
               custom && od.drag && od.drag(e);
           }
       }
