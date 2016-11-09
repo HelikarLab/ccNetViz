@@ -579,13 +579,13 @@
 	    }
 	  }
 	
-	  function onMouseDown(e) {
+	  function onMouseDown(downe) {
 	    var _this2 = this;
 	
 	    var width = canvas.width / view.size;
 	    var height = canvas.height / view.size;
-	    var sx = e.clientX;
-	    var sy = e.clientY;
+	    var sx = downe.clientX;
+	    var sy = downe.clientY;
 	    var dx = view.x + sx / width;
 	    var dy = sy / height - view.y;
 	    var od = options.onDrag;
@@ -608,7 +608,7 @@
 	
 	        if (mx * mx + my * my > 8) {
 	          dragged = true;
-	          custom = od && od.start({ clientX: sx, clientY: sy });
+	          custom = od && od.start(downe);
 	          custom && od.drag && od.drag(e);
 	        }
 	      }
