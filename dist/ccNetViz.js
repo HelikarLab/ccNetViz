@@ -255,7 +255,9 @@
 	  var layers = {};
 	  var view = void 0,
 	      gl = void 0,
-	      drawFunc = void 0;
+	      drawFunc = void 0,
+	      textures = void 0,
+	      files = void 0;
 	  var context = {};
 	
 	  this.cntShownNodes = function () {
@@ -550,6 +552,10 @@
 	  this.remove = function () {
 	    if (checkRemoved()) return;
 	
+	    for (var k in layers) {
+	      layers[k].remove();
+	    }
+	
 	    gl.viewport(0, 0, context.width * 2, context.height * 2);
 	    gl.clear(gl.COLOR_BUFFER_BIT);
 	
@@ -707,8 +713,8 @@
 	
 	  this.resize();
 	
-	  var textures = new ccNetViz_textures(events, onLoad);
-	  var files = new ccNetViz_files(events, onLoad);
+	  textures = new ccNetViz_textures(events, onLoad);
+	  files = new ccNetViz_files(events, onLoad);
 	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	};
 	
@@ -981,6 +987,10 @@
 	            spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], normalize);
 	        }
 	        return spatialSearch;
+	    };
+	
+	    this.remove = function () {
+	        texts.remove();
 	    };
 	
 	    var edgeTypes = void 0;
@@ -2771,6 +2781,13 @@
 	        this._modules[k].bind();
 	      }
 	    }
+	  }, {
+	    key: 'remove',
+	    value: function remove() {
+	      for (var k in this._modules) {
+	        this._modules[k].remove && this._modules[k].remove();
+	      }
+	    }
 	  }]);
 	
 	  return Texts;
@@ -2809,7 +2826,7 @@
 	    this._canvas.width = this._canvas.height = this._size;
 	    this._canvas.style.width = this._canvas.style.height = this._size + 'px';
 	    this._canvas.style.display = "none";
-	    document.body.appendChild(this._canvas);
+	    this._el = document.body.appendChild(this._canvas);
 	
 	    this._context = this._canvas.getContext('2d');
 	    this._context.fillStyle = "white";
@@ -2896,6 +2913,11 @@
 	      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
 	      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
 	      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+	    }
+	  }, {
+	    key: "remove",
+	    value: function remove() {
+	      this._context && this._el.parentNode.removeChild(this._el);
 	    }
 	  }, {
 	    key: "fontSize",
