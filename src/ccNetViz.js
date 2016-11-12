@@ -109,7 +109,7 @@ var ccNetViz = function(canvas, options){
   
   let events = new ccNetViz_lazyEvents();
   let layers = {};
-  let view,gl,drawFunc;
+  let view,gl,drawFunc,textures,files;
   let context = {};
   
   this.cntShownNodes = () => {
@@ -378,6 +378,8 @@ var ccNetViz = function(canvas, options){
 
   this.remove = () => {
     if(checkRemoved()) return;
+    
+    for(var k in layers){layers[k].remove();}
 
     gl.viewport(0, 0, context.width*2, context.height*2);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -535,8 +537,8 @@ var ccNetViz = function(canvas, options){
 
   this.resize();
 
-  let textures = new ccNetViz_textures(events, onLoad);
-  let files = new ccNetViz_files(events, onLoad);
+  textures = new ccNetViz_textures(events, onLoad);
+  files = new ccNetViz_files(events, onLoad);
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 };
 

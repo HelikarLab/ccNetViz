@@ -16,7 +16,7 @@ class DefaultTexts {
     this._canvas.width = this._canvas.height = this._size;
     this._canvas.style.width = this._canvas.style.height = this._size + 'px';
     this._canvas.style.display = "none";
-    document.body.appendChild(this._canvas);
+    this._el = document.body.appendChild(this._canvas);
 
     this._context = this._canvas.getContext('2d');
     this._context.fillStyle = "white";
@@ -100,6 +100,10 @@ class DefaultTexts {
     this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
     this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
     this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+  }
+  
+  remove () {
+    this._context && this._el.parentNode.removeChild(this._el);
   }
 
 };

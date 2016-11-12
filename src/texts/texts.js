@@ -47,6 +47,12 @@ class Texts {
       this._modules[k].bind();
     }
   }
+  
+  remove () {
+    for(let k in this._modules){
+      this._modules[k].remove && this._modules[k].remove();
+    }
+  }
 
 };
 

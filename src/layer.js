@@ -223,6 +223,10 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
       return spatialSearch;
     }
     
+    this.remove = () => {
+      texts.remove();
+    }
+    
     
     let edgeTypes;
     let edgePoses;
