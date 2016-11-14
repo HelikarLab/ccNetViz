@@ -107,8 +107,8 @@ class SDFTexts{
       }
     }
 
-    let dx = x <= 0.5 ? 0 : -width ;
-    let dy = y <= 0.5 ? height / 2 : -height; 
+    let dx = x <= 0.5 ? 0 : -width;
+    let dy = y <= 0.5 ? 0 : -height;
     
     let ret = [];
     for(let i = 0; i < text.length; i++) {

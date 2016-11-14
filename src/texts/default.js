@@ -80,7 +80,7 @@ class DefaultTexts {
     let c = this._getText(text);
     
     let dx = x <= 0.5 ? 0 : -c.width ;
-    let dy = y <= 0.5 ? c.height / 2 : -c.height; 
+    let dy = y <= 0.5 ? 0 : -c.height;
     
     return [{
         cCoord: c,
