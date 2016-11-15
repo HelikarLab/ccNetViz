@@ -2891,7 +2891,7 @@
 	      var c = this._getText(text);
 	
 	      var dx = x <= 0.5 ? 0 : -c.width;
-	      var dy = y <= 0.5 ? c.height / 2 : -c.height;
+	      var dy = y <= 0.5 ? 0 : -c.height;
 	
 	      return [{
 	        cCoord: c,
@@ -3056,7 +3056,7 @@
 	      }
 	
 	      var dx = x <= 0.5 ? 0 : -width;
-	      var dy = y <= 0.5 ? height / 2 : -height;
+	      var dy = y <= 0.5 ? height / 4 : -height;
 	
 	      var ret = [];
 	      for (var _i = 0; _i < text.length; _i++) {
