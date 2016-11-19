@@ -224,7 +224,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     }
     
     this.remove = () => {
-      texts.remove();
+      texts && texts.remove();
     }
     
     
@@ -342,6 +342,8 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
         init();
 
         layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
+        
+        if(!gl) return;
 
         let defaultAdder = (section, addSection) => {
           if(typeof section.style.texture === 'string')
@@ -398,6 +400,7 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     
     
     this.update = function(element, attribute, data) {
+        if(!gl) return;
         scene[element].update(gl, attribute, data, function(style)  {return {
             set: function(v, e, iV)  {return ccNetViz_primitive.colors(v, iV, e, e, e, e);}
         };});
@@ -414,12 +417,15 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     this.updateNode = (n, i) => {
       this.nodes[i] = n;
 
+      if(spatialSearch)
+        spatialSearch.update(context, 'nodes', i, n);
+      
+      if(!gl) return;
+      
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
       scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
       scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
       
-      if(spatialSearch)
-        spatialSearch.update(context, 'nodes', i, n);
     };
     
     this.updateEdge = ((e, i) => {
@@ -427,12 +433,15 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
       let pos = edgePoses[i];
 
       t.d[pos] = this.edges[i] = e;
+
+      if(spatialSearch)
+        spatialSearch.update(context, t.k, pos, e);
+      
+      if(!gl) return;
+                       
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
       if (edgeStyle.arrow)
         scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
-      
-      if(spatialSearch)
-        spatialSearch.update(context, t.k, pos, e);
     });
     
     let removedNodes = 0;
@@ -521,10 +530,11 @@ module.exports = function(canvas, context, view, gl, textures, files, events, op
     
     this.nodes = [];
     this.edges = [];
-
-    let extensions = ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives");
-    let texts = new ccNetViz_texts(gl);
+    
+    let extensions = gl ? ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives") : {};
     let scene = this.scene = createScene.call(this);
+    if(!gl) return this;
+    let texts = new ccNetViz_texts(gl);
     
     let getLabelType = (f) => {
       if(texts.isSDF(f))

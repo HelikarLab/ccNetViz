@@ -151,8 +151,6 @@ var ccNetViz = function(canvas, options){
 
   let batch = undefined;
   function getBatch(){
-    if(!gl)
-      return null;
     if(!batch)
       batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
     return batch;
@@ -168,7 +166,7 @@ var ccNetViz = function(canvas, options){
     edges.forEach(checkUniqId);
     
     layers.temp && layers.temp.set([], [], layout);
-    layers.main && layers.main.set(nodes, edges, layout);
+    layers.main.set(nodes, edges, layout);
     
     //reset batch
     batch = undefined;
@@ -180,31 +178,26 @@ var ccNetViz = function(canvas, options){
   this.reflow = () => {
     if(checkRemoved()) return;
 
-    let b = getBatch();
-    b && b.applyChanges();
+    getBatch().applyChanges();
     
-    let n = [], e = [];
+    //nodes and edges in dynamic chart are actual
+    let n = layers.main.getVisibleNodes();
+    if(layers.temp)  n = n.concat(layers.temp.getVisibleNodes());
     
-    if(layers.main){
-      //nodes and edges in dynamic chart are actual
-      n = layers.main.getVisibleNodes();
-      if(layers.temp)  n = n.concat(layers.temp.getVisibleNodes());
-      
-      e = layers.main.getVisibleEdges();
-      if(layers.temp) e = e.concat(layers.temp.getVisibleEdges());
-    }    
+    let e = layers.main.getVisibleEdges();
+    if(layers.temp) e = e.concat(layers.temp.getVisibleEdges());
     
     this.set(n,e);
     this.draw();
   };
   
-  this.removeNode = (n) => { if(checkRemoved()){return this;} let b; (b = getBatch()) && b.removeNode(n); return this; };
-  this.removeEdge = (e) => { if(checkRemoved()){return this;} let b; (b = getBatch()) && b.removeEdge(e); return this; };
-  this.addEdge = (e) => { if(checkRemoved()){return this;} let b; (b = getBatch()) && b.addEdge(e); return this;};
-  this.addNode = (n) => { if(checkRemoved()){return this;} let b; (b = getBatch()) && b.addNode(n); return this;};
-  this.updateNode = (n) => { if(checkRemoved()){return this;} this.removeNode(n); this.addNode(n); return this; };
-  this.updateEdge = (e) => { if(checkRemoved()){return this;} this.removeEdge(e); this.addEdge(e); return this; };
-  this.applyChanges = () => { if(checkRemoved()){return this;} let b; (b = getBatch()) && b.applyChanges(); return this; };
+  this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
+  this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
+  this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
+  this.addNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this;};
+  this.updateNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this; };
+  this.updateEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this; };
+  this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
 
   this.addEdges = (edges) => {
     if(checkRemoved()) return this;
@@ -309,11 +302,9 @@ var ccNetViz = function(canvas, options){
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    if(layers.main){
-      for(let i = 0; i < layers.main.scene.elements.length; i++){
-        layers.main.scene.elements[i].draw(context);
-        layers.temp && layers.temp.scene.elements[i].draw(context);
-      }
+    for(let i = 0; i < layers.main.scene.elements.length; i++){
+      layers.main.scene.elements[i].draw(context);
+      layers.temp && layers.temp.scene.elements[i].draw(context);
     }
   };
   drawFunc = this.draw.bind(this);
@@ -356,7 +347,7 @@ var ccNetViz = function(canvas, options){
   let findMerge = function(funcname, args){
     if(checkRemoved()) return;
 
-    let f1 = layers.main ? layers.main[funcname].apply(layers.main, args) : {};
+    let f1 = layers.main[funcname].apply(layers.main, args);
 
     if(!layers.temp)
       return f1;
@@ -546,7 +537,7 @@ var ccNetViz = function(canvas, options){
 
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
-  gl && (layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad));
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)
     console.warn("Cannot initialize WebGL context");
