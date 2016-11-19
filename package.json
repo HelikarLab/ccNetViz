@@ -29,7 +29,6 @@
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "react-scripts start",
     "build": "node build.js",
-    "compiled": "node build.js compile",
-    "create-version": "node create_version.js"
+    "compiled": "node build.js compile"
   }
 }
