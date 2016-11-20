@@ -4843,7 +4843,9 @@
 	      var s = geomutils.edgeSource(e);
 	      var t = geomutils.edgeTarget(e);
 	
-	      _this._eDirs[s.uniqid || s.__uniqid][t.uniqid || t.__uniqid] = e;
+	      var si = s.uniqid || s.__uniqid;
+	      var ti = t.uniqid || t.__uniqid;
+	      (_this._eDirs[si] || (_this._eDirs[si] = {}))[ti] = e;
 	      _this._ePos[e.uniqid] = i;
 	    });
 	
