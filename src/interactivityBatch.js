@@ -43,7 +43,9 @@ class interactivityBatch{
       let s = geomutils.edgeSource(e);
       let t = geomutils.edgeTarget(e);
 
-      this._eDirs[s.uniqid || s.__uniqid][t.uniqid || t.__uniqid] = e;
+      let si = s.uniqid || s.__uniqid;
+      let ti = t.uniqid || t.__uniqid;
+      (this._eDirs[si] || (this._eDirs[si] = {}))[ti] = e;
       this._ePos[e.uniqid] = i;
     });
     
