@@ -6,9 +6,9 @@
  *  Authors: David Tichy, Aleš Saska
  */
 
-var ccNetViz_defaultTexts  = require('./default');
-var ccNetViz_sdfTexts      = require('./sdf');
-var ccNetViz_utils         = require('../utils');
+import ccNetViz_defaultTexts  from './default';
+import ccNetViz_sdfTexts      from './sdf';
+import ccNetViz_utils         from '../utils';
 
 class Texts {
   constructor(gl){

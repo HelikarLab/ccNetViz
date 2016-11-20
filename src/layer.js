@@ -1,11 +1,11 @@
-var ccNetViz_color     = require( './color' );
-var ccNetViz_gl        = require( './gl' );
-var ccNetViz_primitive = require( './primitive' );
-var ccNetViz_layout    = require( './layout/layout' );
-var ccNetViz_geomutils = require( './geomutils' );
-var ccNetViz_texts     = require( './texts/texts' );
-var ccNetViz_utils     = require( './utils' );
-var ccNetViz_spatialSearch = require( './spatialSearch/spatialSearch' );
+import ccNetViz_color     from './color' ;
+import ccNetViz_gl        from './gl' ;
+import ccNetViz_primitive from './primitive' ;
+import ccNetViz_layout    from './layout/layout' ;
+import ccNetViz_geomutils from './geomutils' ;
+import ccNetViz_texts     from './texts/texts' ;
+import ccNetViz_utils     from './utils' ;
+import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

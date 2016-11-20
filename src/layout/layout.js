@@ -1,5 +1,5 @@
-var layoutForce = require( './force' );
-var layoutRandom = require( './random' );
+import layoutForce from './force' ;
+import layoutRandom from './random' ;
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.

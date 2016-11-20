@@ -1,4 +1,4 @@
-var ccNetViz_gl = require( './gl' );
+import ccNetViz_gl from './gl' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

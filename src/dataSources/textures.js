@@ -1,5 +1,5 @@
-var ccNetViz_utils = require( '../utils' );
-var ccNetViz_gl = require( '../gl' );
+import ccNetViz_utils from '../utils' ;
+import ccNetViz_gl from '../gl' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

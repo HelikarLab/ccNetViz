@@ -1,4 +1,4 @@
-var ccNetViz_quadtree = require( '../quadTree' );
+import ccNetViz_quadtree from '../quadTree' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

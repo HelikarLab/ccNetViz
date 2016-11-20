@@ -1,6 +1,6 @@
-var ccNetViz_shader = require( './shader' );
-var ccNetViz_color  = require( './color' );
-var ccNetViz_utils  = require( './utils' );
+import ccNetViz_shader from './shader' ;
+import ccNetViz_color  from './color' ;
+import ccNetViz_utils  from './utils' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

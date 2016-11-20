@@ -1,13 +1,13 @@
-var ccNetViz_layer = require('./layer');
-var ccNetViz_layout = require('./layout/layout');
-var ccNetViz_gl = require('./gl');
-var ccNetViz_color = require('./color');
-var ccNetViz_utils = require('./utils');
-var ccNetViz_textures = require('./dataSources/textures');
-var ccNetViz_files = require('./dataSources/files');
-var ccNetViz_lazyEvents = require('./lazyEvents');
-var ccNetViz_interactivityBatch = require('./interactivityBatch');
-var ccNetViz_spatialSearch = require('./spatialSearch/spatialSearch');
+import ccNetViz_layer         from './layer';
+import ccNetViz_layout        from './layout/layout';
+import ccNetViz_gl            from'./gl';
+import ccNetViz_color         from './color';
+import ccNetViz_utils         from './utils';
+import ccNetViz_textures      from './dataSources/textures';
+import ccNetViz_files         from './dataSources/files';
+import ccNetViz_lazyEvents    from './lazyEvents';
+import ccNetViz_interactivityBatch from './interactivityBatch';
+import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

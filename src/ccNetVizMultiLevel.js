@@ -1,4 +1,4 @@
-﻿var ccNetViz = require('./ccNetViz');
+﻿import ccNetViz from './ccNetViz';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

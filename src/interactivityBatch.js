@@ -1,4 +1,4 @@
-var geomutils = require('./geomutils');
+import geomutils from './geomutils';
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
