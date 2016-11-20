@@ -368,9 +368,27 @@ var ccNetViz = function(canvas, options){
   this.findArea = function(){return findMerge('findArea', arguments); };
 
 
-  let onDownThis, onWheelThis;
-  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
-  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
+  let onDownThis = onMouseDown.bind(this), onWheelThis = onWheel.bind(this);
+  
+  
+  let addWindowEvts = (evts) => {
+    for(var k in (evts || {})){
+      window.addEventListener(k, evts[k]);
+    }
+  }
+  
+  let removeWindowEvts = (evts) => {
+    for(var k in (evts || {})){
+      window.removeEventListener(k, evts[k]);
+    }
+  }
+
+  let zoomevts;
+  addWindowEvts(zoomevts = {
+    'mousedown': onDownThis,
+    'touchstart': onDownThis,
+    'wheel': onWheelThis
+  })
 
   this.remove = () => {
     if(checkRemoved()) return;
@@ -385,8 +403,7 @@ var ccNetViz = function(canvas, options){
       gl_lose && gl_lose.loseContext();
     }
 
-    canvas.removeEventListener('mousedown', onDownThis);
-    canvas.removeEventListener('wheel', onWheelThis);
+    removeWindowEvts(zoomevts);
     
     events.disable();
 
@@ -409,7 +426,22 @@ var ccNetViz = function(canvas, options){
     }
   }
 
+  
   function onMouseDown(downe) {
+    let parseTouchEvts = (e) => {
+      if(!e.touches) return e;
+      
+      let x = 0,y = 0;
+      for(let i = 0; i < e.touches.length; i++){ x += e.touches[i].clientX; y += e.touches[i].clientY; }
+      e.clientX = x / e.touches.length;
+      e.clientY = y / e.touches.length;
+      
+      return e;
+    }
+    
+    downe = parseTouchEvts(downe);
+    
+    
     let width = canvas.width / view.size;
     let height = canvas.height / view.size;
     let sx = downe.clientX;
@@ -418,17 +450,25 @@ var ccNetViz = function(canvas, options){
     let dy = sy / height - view.y;
     let od = options.onDrag;
     let dragged, custom;
+    let panning = true;
+    let evts;
 
     let drag = e => {
+      e = parseTouchEvts(e);
+      
+      if(e.touches && e.touches.length != 1)  panning = false;
+      
       if (dragged) {
-          if (custom) {
-              od.drag && od.drag(e);
-          }
-          else {
-              view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-              view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-              checkChangeViewport();
-              this.draw();
+          if(panning){
+              if (custom) {
+                  od.drag && od.drag(e);
+              }
+              else {
+                  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+                  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+                  checkChangeViewport();
+                  this.draw();
+              }
           }
       }
       else {
@@ -445,14 +485,21 @@ var ccNetViz = function(canvas, options){
     };
 
     let up = e => {
+        e = parseTouchEvts(e);
+
         custom && od.stop && od.stop(e);
         !dragged && options.onClick && options.onClick(e);
 
-        window.removeEventListener('mouseup', up);
-        window.removeEventListener('mousemove', drag);
+        removeWindowEvts(evts);
     };
-    window.addEventListener('mouseup', up);
-    window.addEventListener('mousemove', drag);
+    
+    addWindowEvts(evts = {
+      'mouseup': up,
+      'touchend': up,
+      'touchcancel': up,
+      'mousemove': drag,
+      'touchmove': drag
+    });
   }
 
   function onWheel(e) {
