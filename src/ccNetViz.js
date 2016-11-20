@@ -15,8 +15,8 @@ var ccNetViz_spatialSearch = require('./spatialSearch/spatialSearch');
  *
  *  This source code is licensed under the GPLv3 License.
  *  Authors: 
- * 	David Tichy
- *  	Aleš Saska - http://alessaska.cz/
+ *  David Tichy
+ *    Aleš Saska - http://alessaska.cz/
  */
 
 
@@ -415,8 +415,8 @@ var ccNetViz = function(canvas, options){
     let is_change = false;
     if(last_view){
       for(let k in view){
-	if(last_view[k] !== view[k]) 
-	  is_change = true;
+  if(last_view[k] !== view[k]) 
+    is_change = true;
       }
     }
     ccNetViz_utils.extend(last_view, view);
@@ -427,80 +427,6 @@ var ccNetViz = function(canvas, options){
   }
 
   
-  function onMouseDown(downe) {
-    let parseTouchEvts = (e) => {
-      if(!e.touches) return e;
-      
-      let x = 0,y = 0;
-      for(let i = 0; i < e.touches.length; i++){ x += e.touches[i].clientX; y += e.touches[i].clientY; }
-      e.clientX = x / e.touches.length;
-      e.clientY = y / e.touches.length;
-      
-      return e;
-    }
-    
-    downe = parseTouchEvts(downe);
-    
-    
-    let width = canvas.width / view.size;
-    let height = canvas.height / view.size;
-    let sx = downe.clientX;
-    let sy = downe.clientY;
-    let dx = view.x + sx / width;
-    let dy = sy / height - view.y;
-    let od = options.onDrag;
-    let dragged, custom;
-    let panning = true;
-    let evts;
-
-    let drag = e => {
-      e = parseTouchEvts(e);
-      
-      if(e.touches && e.touches.length != 1)  panning = false;
-      
-      if (dragged) {
-          if(panning){
-              if (custom) {
-                  od.drag && od.drag(e);
-              }
-              else {
-                  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-                  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-                  checkChangeViewport();
-                  this.draw();
-              }
-          }
-      }
-      else {
-          let mx = e.clientX - sx;
-          let my = e.clientY - sy;
-
-          if (mx * mx + my * my > 8) {
-              dragged = true;
-              custom = od && od.start(downe);
-              custom && od.drag && od.drag(e);
-          }
-      }
-      e.preventDefault();
-    };
-
-    let up = e => {
-        e = parseTouchEvts(e);
-
-        custom && od.stop && od.stop(e);
-        !dragged && options.onClick && options.onClick(e);
-
-        removeWindowEvts(evts);
-    };
-    
-    addWindowEvts(evts = {
-      'mouseup': up,
-      'touchend': up,
-      'touchcancel': up,
-      'mousemove': drag,
-      'touchmove': drag
-    });
-  }
 
   function onWheel(e) {
       let rect = canvas.getBoundingClientRect();
@@ -527,8 +453,109 @@ var ccNetViz = function(canvas, options){
       
       checkChangeViewport();
       
-      this.draw();
+      this.draw();      
+  }  
+  
+  function onMouseDown(downe) {
+    let parseTouchEvts = (e) => {
+      if(!e.touches) return e;
+      
+      let x = 0,y = 0;
+      for(let i = 0; i < e.touches.length; i++){ x += e.touches[i].clientX; y += e.touches[i].clientY; }
+      e.clientX = x / e.touches.length;
+      e.clientY = y / e.touches.length;
+      
+      return e;
+    }
+    
+    
+    downe = parseTouchEvts(downe);
+    
+    
+    let width = canvas.width / view.size;
+    let height = canvas.height / view.size;
+    let sx = downe.clientX;
+    let sy = downe.clientY;
+    let dx = view.x + sx / width;
+    let dy = sy / height - view.y;
+    let od = options.onDrag;
+    let dragged, custom;
+    let panning = true;
+    let zooming = false;
+    let evts;
+    
+    let origdist;
+    if((downe.touches || []).length === 2){
+      let mx = downe.touches[0].clientX - downe.touches[1].clientX, my = downe.touches[0].clientY - downe.touches[1].clientY;
+      origdist = Math.sqrt( mx * mx + my * my );
+      zooming = true;
+    }
+    
+
+    let drag = e => {
+      e = parseTouchEvts(e);
+      
+      if(e.touches && e.touches.length != 1)  panning = false;
+      
+      if (dragged) {
+          if(panning){
+              if (custom) {
+                  od.drag && od.drag(e);
+              }
+              else {
+                  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+                  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+                  checkChangeViewport();
+                  this.draw();
+              }
+          }
+      }
+      else {
+          let x,y;
+          if(e.touches && e.touches.length > 0){ x = e.touches[0].clientX; y = e.touches[0].clientY; } else { x = e.clientX; y = e.clientY; }
+          
+          let mx = x - sx;
+          let my = y - sy;
+
+          if (mx * mx + my * my > 8) {
+              dragged = true;
+              custom = od && od.start(downe);
+              custom && od.drag && od.drag(e);
+          }
+      }
+      e.preventDefault();
+    };
+
+    let up = e => {
+        e = parseTouchEvts(e);
+
+        custom && od.stop && od.stop(e);
+        !dragged && options.onClick && options.onClick(e);
+
+        removeWindowEvts(evts);
+    };
+    
+    let zoom = e => {
+        e = parseTouchEvts(e);
+
+        if(e.touches && e.touches.length == 2){
+            let mx = e.touches[0].clientX - e.touches[1].clientX, my = e.touches[0].clientY - e.touches[1].clientY;
+            let dist = Math.sqrt(mx * mx + my * my);
+            e.deltaY = -(dist - origdist)*5;
+            onWheelThis(e);
+            origdist = dist;
+        }
+    };
+    
+    addWindowEvts(evts = {
+      'mouseup': up,
+      'touchend': up,
+      'touchcancel': up,
+      'mousemove': zooming ? zoom : drag,
+      'touchmove': zooming ? zoom : drag
+    });
   }
+
 
   this.image = function() {
     if(checkRemoved()) return;
