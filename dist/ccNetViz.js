@@ -4843,7 +4843,7 @@
 	      var s = geomutils.edgeSource(e);
 	      var t = geomutils.edgeTarget(e);
 	
-	      _this._eDirs[s.uniqid][t.uniqid] = e;
+	      _this._eDirs[s.uniqid || s.__uniqid][t.uniqid || t.__uniqid] = e;
 	      _this._ePos[e.uniqid] = i;
 	    });
 	
@@ -4890,7 +4890,7 @@
 	        var s = geomutils.edgeSource(e);
 	        var t = geomutils.edgeTarget(e);
 	
-	        delete (_this3._eDirs[s.uniqid] || {})[t.uniqid];
+	        delete (_this3._eDirs[s.uniqid || s.__uniqid] || {})[t.uniqid || t.__uniqid];
 	
 	        if (_this3._ePos[e.uniqid] !== undefined) {
 	          //in the normal graph
@@ -4966,8 +4966,8 @@
 	      var s = geomutils.edgeSource(e);
 	      var t = geomutils.edgeTarget(e);
 	
-	      var tid = t.uniqid;
-	      var sid = s.uniqid;
+	      var tid = t.uniqid || t.__uniqid;
+	      var sid = s.uniqid || s.__uniqid;
 	
 	      if ((this._eDirs[sid] || {})[tid]) {
 	        //this edge was already added >> remove it
