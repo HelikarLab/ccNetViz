@@ -43,7 +43,7 @@ class interactivityBatch{
       let s = geomutils.edgeSource(e);
       let t = geomutils.edgeTarget(e);
 
-      this._eDirs[s.uniqid][t.uniqid] = e;
+      this._eDirs[s.uniqid || s.__uniqid][t.uniqid || t.__uniqid] = e;
       this._ePos[e.uniqid] = i;
     });
     
@@ -83,7 +83,7 @@ class interactivityBatch{
       let s = geomutils.edgeSource(e);
       let t = geomutils.edgeTarget(e);
 
-      delete (this._eDirs[s.uniqid] || {})[t.uniqid];
+      delete (this._eDirs[s.uniqid || s.__uniqid] || {})[t.uniqid || t.__uniqid];
       
       if(this._ePos[e.uniqid] !== undefined){
         //in the normal graph
@@ -152,8 +152,8 @@ class interactivityBatch{
     let s = geomutils.edgeSource(e);
     let t = geomutils.edgeTarget(e);
     
-    let tid = t.uniqid;
-    let sid = s.uniqid;
+    let tid = t.uniqid || t.__uniqid;
+    let sid = s.uniqid || s.__uniqid;
     
     if((this._eDirs[sid] || {})[tid]){
       //this edge was already added >> remove it
