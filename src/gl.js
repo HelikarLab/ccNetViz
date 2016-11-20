@@ -6,7 +6,7 @@
  *  Author: David Tichy
  */
 
-class Gl {
+export default class {
   static initExtensions(gl) {
       let extensions = gl.getSupportedExtensions();
       let result = {};
@@ -92,5 +92,3 @@ class Gl {
       return result;
   }
 };
-
-module.exports = Gl;

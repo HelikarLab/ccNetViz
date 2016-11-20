@@ -6,7 +6,7 @@
  *  Authors: David Tichy, Aleš Saska
  */
 
-class LazyEvents {
+export default class {
   constructor(){
     this._enable = true;
   }
@@ -51,6 +51,3 @@ class LazyEvents {
     this._enable = false;
   }
 };
-
-
-module.exports = LazyEvents; 

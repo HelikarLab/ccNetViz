@@ -6,7 +6,7 @@
  *  Authors: Aleš Saska
  */
 
-class SDFTexts{
+export default class {
   constructor(gl) {
     this._rendered = {};
     this._texts;
@@ -150,5 +150,3 @@ class SDFTexts{
   bind (){
   }
 };
-
-module.exports = SDFTexts;

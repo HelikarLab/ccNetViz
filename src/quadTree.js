@@ -6,7 +6,7 @@
  *  Author: David Tichy
  */
 
-module.exports = function(points) {
+export default function(points) {
     let d, xs, ys, i, n, x1_, y1_, x2_, y2_;
 
     x2_ = y2_ = -(x1_ = y1_ = Infinity);

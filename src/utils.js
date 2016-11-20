@@ -6,7 +6,7 @@
  *  Authors: David Tichy, Aleš Saska
  */
 
-class Utils {
+export default class Utils {
   static extend(from){
     for(var i = 1; i < arguments.length; i++){
       for(var k in arguments[i]){
@@ -43,6 +43,3 @@ class Utils {
   }
 
 };
-
-
-module.exports = Utils;

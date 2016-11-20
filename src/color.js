@@ -6,7 +6,7 @@
  *  Author: David Tichy
  */
 
-class Color{
+export default class Color{
   constructor(color){
     this.a = 1;
 
@@ -58,5 +58,3 @@ class Color{
     }
   }
 };
-
-module.exports = Color;

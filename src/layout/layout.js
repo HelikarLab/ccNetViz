@@ -8,7 +8,7 @@ import layoutRandom from './random' ;
  *  Author: David Tichy
  */
 
-class Layout {
+export default class {
   static get force(){
     return layoutForce;
   }
@@ -58,5 +58,3 @@ class Layout {
   }
   
 }
-
-module.exports = Layout;

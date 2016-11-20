@@ -6,7 +6,7 @@
  *  Author: Aleš Saska - http://alessaska.cz/
  */
 
-class Geomutils {
+export default class {
   static edgeSource(e) {
     if(e.source.source){
       //source is edge
@@ -68,8 +68,3 @@ class Geomutils {
       return r;
   }
 };
-
-
-
-
-module.exports = Geomutils;

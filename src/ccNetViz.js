@@ -625,4 +625,4 @@ ccNetViz.color = ccNetViz_color;
 
 
 window.ccNetViz = ccNetViz;
-module.exports = ccNetViz;
+export default ccNetViz;

@@ -10,7 +10,7 @@ import ccNetViz_utils  from './utils' ;
  *  Author: David Tichy
  */
 
-class primitive{
+export default class primitive{
   constructor(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
     let shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
     let buffers = [];
@@ -303,5 +303,3 @@ class primitive{
     return 65536;
   } 
 }
-
-module.exports = primitive;

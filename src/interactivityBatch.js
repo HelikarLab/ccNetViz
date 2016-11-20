@@ -14,7 +14,7 @@ function pushUnique(arr, e){
   arr.push(e);
 }
 
-class interactivityBatch{
+export default class {
   constructor(layers, insertTempLayer, draw, nodes, edges, checkUniqId){
     this._layers = layers;
     this._insertTempLayer = insertTempLayer;
@@ -215,5 +215,3 @@ class interactivityBatch{
     return this;
   }
 };
-
-module.exports = interactivityBatch;

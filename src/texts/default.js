@@ -6,7 +6,7 @@
  *  Authors: David Tichy, Aleš Saska
  */
 
-class DefaultTexts {
+export default class {
   constructor(gl){
     this._gl = gl;
     this._size = 1024;
@@ -107,5 +107,3 @@ class DefaultTexts {
   }
 
 };
-
-module.exports = DefaultTexts;

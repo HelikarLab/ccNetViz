@@ -10,7 +10,7 @@ import ccNetViz_defaultTexts  from './default';
 import ccNetViz_sdfTexts      from './sdf';
 import ccNetViz_utils         from '../utils';
 
-class Texts {
+export default class {
   constructor(gl){
     this._gl = gl;
 
@@ -55,5 +55,3 @@ class Texts {
   }
 
 };
-
-module.exports = Texts;

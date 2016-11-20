@@ -100,4 +100,4 @@ var ccNetVizMultiLevel = function(canvas, options){
 
 window.ccNetVizMultiLevel = ccNetVizMultiLevel;
 
-module.exports = ccNetVizMultiLevel;
+export default ccNetVizMultiLevel;

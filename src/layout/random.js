@@ -6,7 +6,7 @@
  *  Author: David Tichy
  */
 
-class Random{
+export default class {
   constructor(nodes){
     this._nodes = nodes;
   }
@@ -19,5 +19,3 @@ class Random{
     }
   }
 };
-
-module.exports = Random; 

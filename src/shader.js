@@ -10,7 +10,7 @@ import ccNetViz_gl from './gl' ;
 
 var defaultAttr = {color: 4};
 
-class Shader {
+export default class Shader {
   constructor(gl, vs, fs, shaderParams) {
     this._gl = gl;
     this._vs = vs;
@@ -57,5 +57,3 @@ class Shader {
   }
   
 };
-
-module.exports = Shader;

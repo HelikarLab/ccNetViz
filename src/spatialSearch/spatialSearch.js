@@ -511,7 +511,7 @@ function sortByDistances(e1, e2){
 
 var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
 
-module.exports = class spatialIndex{
+export default class spatialIndex{
   constructor(c, nodes, lines, curves, circles, normalize){
     
     //init all elements into rbush tree with size 1 (the biggest possible - the worst case)

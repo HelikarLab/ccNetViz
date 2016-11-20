@@ -9,7 +9,7 @@ import ccNetViz_gl from '../gl' ;
  *  Authors: David Tichy, Aleš Saska
  */
 
-class Files {
+export default class {
   constructor(events, onLoad){
     this._load = [events.debounce(onLoad || (() => {}), 5)];
     this._files = {};
@@ -70,5 +70,3 @@ class Files {
   }
   
 }
-
-module.exports = Files; 
