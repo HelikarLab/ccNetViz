@@ -169,8 +169,8 @@
 	 *
 	 *  This source code is licensed under the GPLv3 License.
 	 *  Authors: 
-	 * 	David Tichy
-	 *  	Aleš Saska - http://alessaska.cz/
+	 *  David Tichy
+	 *    Aleš Saska - http://alessaska.cz/
 	 */
 	
 	var lastUniqId = 0;
@@ -544,10 +544,27 @@
 	    return findMerge('findArea', arguments);
 	  };
 	
-	  var onDownThis = void 0,
-	      onWheelThis = void 0;
-	  canvas.addEventListener("mousedown", onDownThis = onMouseDown.bind(this));
-	  canvas.addEventListener("wheel", onWheelThis = onWheel.bind(this));
+	  var onDownThis = onMouseDown.bind(this),
+	      onWheelThis = onWheel.bind(this);
+	
+	  var addWindowEvts = function addWindowEvts(evts) {
+	    for (var k in evts || {}) {
+	      window.addEventListener(k, evts[k]);
+	    }
+	  };
+	
+	  var removeWindowEvts = function removeWindowEvts(evts) {
+	    for (var k in evts || {}) {
+	      window.removeEventListener(k, evts[k]);
+	    }
+	  };
+	
+	  var zoomevts = void 0;
+	  addWindowEvts(zoomevts = {
+	    'mousedown': onDownThis,
+	    'touchstart': onDownThis,
+	    'wheel': onWheelThis
+	  });
 	
 	  this.remove = function () {
 	    if (checkRemoved()) return;
@@ -564,8 +581,7 @@
 	      gl_lose && gl_lose.loseContext();
 	    }
 	
-	    canvas.removeEventListener('mousedown', onDownThis);
-	    canvas.removeEventListener('wheel', onWheelThis);
+	    removeWindowEvts(zoomevts);
 	
 	    events.disable();
 	
@@ -585,53 +601,6 @@
 	    if (is_change) {
 	      options.onChangeViewport && options.onChangeViewport(view);
 	    }
-	  }
-	
-	  function onMouseDown(downe) {
-	    var _this2 = this;
-	
-	    var width = canvas.width / view.size;
-	    var height = canvas.height / view.size;
-	    var sx = downe.clientX;
-	    var sy = downe.clientY;
-	    var dx = view.x + sx / width;
-	    var dy = sy / height - view.y;
-	    var od = options.onDrag;
-	    var dragged = void 0,
-	        custom = void 0;
-	
-	    var drag = function drag(e) {
-	      if (dragged) {
-	        if (custom) {
-	          od.drag && od.drag(e);
-	        } else {
-	          view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-	          view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-	          checkChangeViewport();
-	          _this2.draw();
-	        }
-	      } else {
-	        var mx = e.clientX - sx;
-	        var my = e.clientY - sy;
-	
-	        if (mx * mx + my * my > 8) {
-	          dragged = true;
-	          custom = od && od.start(downe);
-	          custom && od.drag && od.drag(e);
-	        }
-	      }
-	      e.preventDefault();
-	    };
-	
-	    var up = function up(e) {
-	      custom && od.stop && od.stop(e);
-	      !dragged && options.onClick && options.onClick(e);
-	
-	      window.removeEventListener('mouseup', up);
-	      window.removeEventListener('mousemove', drag);
-	    };
-	    window.addEventListener('mouseup', up);
-	    window.addEventListener('mousemove', drag);
 	  }
 	
 	  function onWheel(e) {
@@ -659,6 +628,114 @@
 	    checkChangeViewport();
 	
 	    this.draw();
+	  }
+	
+	  function onMouseDown(downe) {
+	    var _this2 = this;
+	
+	    var parseTouchEvts = function parseTouchEvts(e) {
+	      if (!e.touches) return e;
+	
+	      var x = 0,
+	          y = 0;
+	      for (var i = 0; i < e.touches.length; i++) {
+	        x += e.touches[i].clientX;y += e.touches[i].clientY;
+	      }
+	      e.clientX = x / e.touches.length;
+	      e.clientY = y / e.touches.length;
+	
+	      return e;
+	    };
+	
+	    downe = parseTouchEvts(downe);
+	
+	    var width = canvas.width / view.size;
+	    var height = canvas.height / view.size;
+	    var sx = downe.clientX;
+	    var sy = downe.clientY;
+	    var dx = view.x + sx / width;
+	    var dy = sy / height - view.y;
+	    var od = options.onDrag;
+	    var dragged = void 0,
+	        custom = void 0;
+	    var panning = true;
+	    var zooming = false;
+	    var evts = void 0;
+	
+	    var origdist = void 0;
+	    if ((downe.touches || []).length === 2) {
+	      var mx = downe.touches[0].clientX - downe.touches[1].clientX,
+	          my = downe.touches[0].clientY - downe.touches[1].clientY;
+	      origdist = Math.sqrt(mx * mx + my * my);
+	      zooming = true;
+	    }
+	
+	    var drag = function drag(e) {
+	      e = parseTouchEvts(e);
+	
+	      if (e.touches && e.touches.length != 1) panning = false;
+	
+	      if (dragged) {
+	        if (panning) {
+	          if (custom) {
+	            od.drag && od.drag(e);
+	          } else {
+	            view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+	            view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+	            checkChangeViewport();
+	            _this2.draw();
+	          }
+	        }
+	      } else {
+	        var x = void 0,
+	            y = void 0;
+	        if (e.touches && e.touches.length > 0) {
+	          x = e.touches[0].clientX;y = e.touches[0].clientY;
+	        } else {
+	          x = e.clientX;y = e.clientY;
+	        }
+	
+	        var _mx = x - sx;
+	        var _my = y - sy;
+	
+	        if (_mx * _mx + _my * _my > 8) {
+	          dragged = true;
+	          custom = od && od.start(downe);
+	          custom && od.drag && od.drag(e);
+	        }
+	      }
+	      e.preventDefault();
+	    };
+	
+	    var up = function up(e) {
+	      e = parseTouchEvts(e);
+	
+	      custom && od.stop && od.stop(e);
+	      !dragged && options.onClick && options.onClick(e);
+	
+	      removeWindowEvts(evts);
+	    };
+	
+	    var zoom = function zoom(e) {
+	      e = parseTouchEvts(e);
+	
+	      if (e.touches && e.touches.length == 2) {
+	        var _mx2 = e.touches[0].clientX - e.touches[1].clientX,
+	            _my2 = e.touches[0].clientY - e.touches[1].clientY;
+	        var dist = Math.sqrt(_mx2 * _mx2 + _my2 * _my2);
+	        e.deltaY = -(dist - origdist) * 5;
+	        onWheelThis(e);
+	        origdist = dist;
+	      }
+	    };
+	
+	    addWindowEvts(evts = {
+	      'mouseup': up,
+	      'touchend': up,
+	      'touchcancel': up,
+	      'mousemove': zooming ? zoom : drag,
+	      'touchmove': zooming ? zoom : drag
+	    });
 	  }
 	
 	  this.image = function () {
