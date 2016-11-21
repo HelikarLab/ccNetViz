@@ -46,7 +46,15 @@
 
 	'use strict';
 	
-	var ccNetViz = __webpack_require__(1);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _ccNetViz = __webpack_require__(1);
+	
+	var _ccNetViz2 = _interopRequireDefault(_ccNetViz);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -57,7 +65,7 @@
 	 */
 	
 	var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
-	  var vizScreen = new ccNetViz(canvas, options);
+	  var vizScreen = new _ccNetViz2.default(canvas, options);
 	  var vizLayout;
 	
 	  var history = [];
@@ -144,7 +152,7 @@
 	
 	window.ccNetVizMultiLevel = ccNetVizMultiLevel;
 	
-	module.exports = ccNetVizMultiLevel;
+	exports.default = ccNetVizMultiLevel;
 
 /***/ },
 /* 1 */
@@ -152,16 +160,51 @@
 
 	'use strict';
 	
-	var ccNetViz_layer = __webpack_require__(2);
-	var ccNetViz_layout = __webpack_require__(8);
-	var ccNetViz_gl = __webpack_require__(4);
-	var ccNetViz_color = __webpack_require__(3);
-	var ccNetViz_utils = __webpack_require__(7);
-	var ccNetViz_textures = __webpack_require__(18);
-	var ccNetViz_files = __webpack_require__(19);
-	var ccNetViz_lazyEvents = __webpack_require__(20);
-	var ccNetViz_interactivityBatch = __webpack_require__(21);
-	var ccNetViz_spatialSearch = __webpack_require__(16);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _layer = __webpack_require__(2);
+	
+	var _layer2 = _interopRequireDefault(_layer);
+	
+	var _layout = __webpack_require__(8);
+	
+	var _layout2 = _interopRequireDefault(_layout);
+	
+	var _gl = __webpack_require__(4);
+	
+	var _gl2 = _interopRequireDefault(_gl);
+	
+	var _color = __webpack_require__(3);
+	
+	var _color2 = _interopRequireDefault(_color);
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _textures = __webpack_require__(18);
+	
+	var _textures2 = _interopRequireDefault(_textures);
+	
+	var _files = __webpack_require__(19);
+	
+	var _files2 = _interopRequireDefault(_files);
+	
+	var _lazyEvents = __webpack_require__(20);
+	
+	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
+	
+	var _interactivityBatch = __webpack_require__(21);
+	
+	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
+	
+	var _spatialSearch = __webpack_require__(16);
+	
+	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -209,7 +252,7 @@
 	  var self = this;
 	
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
-	  var backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
+	  var backgroundColor = new _color2.default(backgroundStyle.color || "rgb(255, 255, 255)");
 	
 	  var removed = false;
 	  var setted = false;
@@ -251,7 +294,7 @@
 	    return gl;
 	  }
 	
-	  var events = new ccNetViz_lazyEvents();
+	  var events = new _lazyEvents2.default();
 	  var layers = {};
 	  var view = void 0,
 	      gl = void 0,
@@ -294,12 +337,12 @@
 	
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 	
 	  var batch = undefined;
 	  function getBatch() {
-	    if (!batch) batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
+	    if (!batch) batch = new _interactivityBatch2.default(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
 	    return batch;
 	  };
 	
@@ -458,7 +501,7 @@
 	    var ox = o / width;
 	    var oy = o / height;
 	
-	    context.transform = ccNetViz_gl.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
+	    context.transform = _gl2.default.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
 	    context.offsetX = ox;
 	    context.offsetY = oy;
 	    context.width = 0.5 * width;
@@ -596,7 +639,7 @@
 	        if (last_view[k] !== view[k]) is_change = true;
 	      }
 	    }
-	    ccNetViz_utils.extend(last_view, view);
+	    _utils2.default.extend(last_view, view);
 	
 	    if (is_change) {
 	      options.onChangeViewport && options.onChangeViewport(view);
@@ -758,7 +801,7 @@
 	  this.setViewport = function (v) {
 	    if (checkRemoved()) return;
 	
-	    ccNetViz_utils.extend(view, v);
+	    _utils2.default.extend(view, v);
 	
 	    checkChangeViewport();
 	  };
@@ -792,20 +835,20 @@
 	
 	  this.resize();
 	
-	  textures = new ccNetViz_textures(events, onLoad);
-	  files = new ccNetViz_files(events, onLoad);
-	  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  textures = new _textures2.default(events, onLoad);
+	  files = new _files2.default(events, onLoad);
+	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (!gl) console.warn("Cannot initialize WebGL context");
 	};
 	
-	ccNetViz.color = ccNetViz_color;
-	ccNetViz.spatialSearch = ccNetViz_spatialSearch;
-	ccNetViz.layout = ccNetViz_layout;
-	ccNetViz.color = ccNetViz_color;
+	ccNetViz.color = _color2.default;
+	ccNetViz.spatialSearch = _spatialSearch2.default;
+	ccNetViz.layout = _layout2.default;
+	ccNetViz.color = _color2.default;
 	
 	window.ccNetViz = ccNetViz;
-	module.exports = ccNetViz;
+	exports.default = ccNetViz;
 
 /***/ },
 /* 2 */
@@ -813,26 +856,11 @@
 
 	'use strict';
 	
-	var ccNetViz_color = __webpack_require__(3);
-	var ccNetViz_gl = __webpack_require__(4);
-	var ccNetViz_primitive = __webpack_require__(5);
-	var ccNetViz_layout = __webpack_require__(8);
-	var ccNetViz_geomutils = __webpack_require__(12);
-	var ccNetViz_texts = __webpack_require__(13);
-	var ccNetViz_utils = __webpack_require__(7);
-	var ccNetViz_spatialSearch = __webpack_require__(16);
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: 
-	 * 	David Tichy
-	 * 	Aleš Saska - http://alessaska.cz/
-	 */
-	
-	module.exports = function (canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	exports.default = function (canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 	
 	    getNodesCnt = getNodesCnt || function () {
@@ -852,13 +880,13 @@
 	            set: function set(v, e, iV, iI) {
 	                var x = e.x;
 	                var y = e.y;
-	                ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	                _primitive2.default.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+	                _primitive2.default.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
 	                if (v.color) {
 	                    var c = e.color;
-	                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
+	                    _primitive2.default.colors(v.color, iV, c, c, c, c);
 	                }
-	                ccNetViz_primitive.quad(v.indices, iV, iI);
+	                _primitive2.default.quad(v.indices, iV, iI);
 	            } };
 	    };
 	    var labelsFiller = function labelsFiller(style) {
@@ -882,10 +910,10 @@
 	                        //                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
 	                        //                  }
 	
-	                        ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                        ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
-	                        ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
-	                        ccNetViz_primitive.quad(v.indices, iV, iI);
+	                        _primitive2.default.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+	                        _primitive2.default.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
+	                        _primitive2.default.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
+	                        _primitive2.default.quad(v.indices, iV, iI);
 	                    }
 	                },
 	                size: function size(v, e) {
@@ -918,38 +946,38 @@
 	            sisy = void 0,
 	            citx = void 0,
 	            city = void 0;
-	        ccNetViz_geomutils.getCurveShift(t.e, ct1);
+	        _geomutils2.default.getCurveShift(t.e, ct1);
 	        ctx = ct1.x;
 	        cty = ct1.y;
 	        citx = ct1.cx;
 	        city = ct1.cy;
 	
-	        ccNetViz_geomutils.getCurveShift(s.e, ct2);
+	        _geomutils2.default.getCurveShift(s.e, ct2);
 	        csx = ct2.x;
 	        csy = ct2.y;
 	        cisx = ct2.cx;
 	        cisy = ct2.cy;
 	
-	        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
-	        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
+	        v.curveShift && _primitive2.default.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
+	        v.circleShift && _primitive2.default.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
 	    };
 	
 	    var edgesFiller = {
 	        'lines': function lines(style) {
 	            return {
 	                set: function set(v, e, iV, iI) {
-	                    var s = ccNetViz_geomutils.edgeSource(e);
-	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var s = _geomutils2.default.edgeSource(e);
+	                    var t = _geomutils2.default.edgeTarget(e);
 	                    var dx = s.x - t.x;
 	                    var dy = s.y - t.y;
 	                    var d = normalize(s, t);
 	
 	                    setVerticeCurveShift(v, iV, s, t);
 	
-	                    ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
-	                    ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0, 0, 0, dx, dy, dx, dy);
-	                    ccNetViz_primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
-	                    ccNetViz_primitive.quad(v.indices, iV, iI);
+	                    _primitive2.default.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
+	                    _primitive2.default.vertices(v.lengthSoFar, iV, 0, 0, 0, 0, dx, dy, dx, dy);
+	                    _primitive2.default.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
+	                    _primitive2.default.quad(v.indices, iV, iI);
 	                } };
 	        },
 	        'curves': function curves(style) {
@@ -957,26 +985,26 @@
 	                numVertices: 3,
 	                numIndices: 3,
 	                set: function set(v, e, iV, iI) {
-	                    var s = ccNetViz_geomutils.edgeSource(e);
-	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var s = _geomutils2.default.edgeSource(e);
+	                    var t = _geomutils2.default.edgeTarget(e);
 	                    var dx = s.x - t.x;
 	                    var dy = s.y - t.y;
 	                    var d = normalize(s, t);
 	
 	                    setVerticeCurveShift(v, iV, s, t);
 	
-	                    ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
-	                    ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0, dx / 2, dy / 2, dx, dy);
-	                    ccNetViz_primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
-	                    ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
-	                    ccNetViz_primitive.indices(v.indices, iV, iI, 0, 1, 2);
+	                    _primitive2.default.vertices(v.position, iV, s.x, s.y, 0.5 * (t.x + s.x), 0.5 * (t.y + s.y), t.x, t.y);
+	                    _primitive2.default.vertices(v.lengthSoFar, iV, 0, 0, dx / 2, dy / 2, dx, dy);
+	                    _primitive2.default.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
+	                    _primitive2.default.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
+	                    _primitive2.default.indices(v.indices, iV, iI, 0, 1, 2);
 	                }
 	            };
 	        },
 	        'circles': function circles(style) {
 	            return {
 	                set: function set(v, e, iV, iI) {
-	                    var s = ccNetViz_geomutils.edgeSource(e);
+	                    var s = _geomutils2.default.edgeSource(e);
 	                    var d = s.y < 0.5 ? 1 : -1;
 	
 	                    var xdiff1 = 0;
@@ -990,11 +1018,11 @@
 	
 	                    setVerticeCurveShift(v, iV, s, s);
 	
-	                    ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
-	                    ccNetViz_primitive.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
-	                    ccNetViz_primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
-	                    ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
-	                    ccNetViz_primitive.quad(v.indices, iV, iI);
+	                    _primitive2.default.vertices(v.position, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+	                    _primitive2.default.vertices(v.lengthSoFar, iV, xdiff1, ydiff1, xdiff2, ydiff2, xdiff3, ydiff3, xdiff4, ydiff4);
+	                    _primitive2.default.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
+	                    _primitive2.default.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
+	                    _primitive2.default.quad(v.indices, iV, iI);
 	                }
 	            };
 	        }
@@ -1010,7 +1038,7 @@
 	            citx = void 0,
 	            city = void 0;
 	
-	        ccNetViz_geomutils.getCurveShift(t.e, ct);
+	        _geomutils2.default.getCurveShift(t.e, ct);
 	        ctx = ct.x;
 	        cty = ct.y;
 	        citx = ct.cx;
@@ -1023,22 +1051,22 @@
 	        } else {
 	            offsetMul = 1;
 	        }
-	        v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -cty, ctx, -cty, ctx, -cty, ctx, -cty, ctx);
-	        v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -city, citx, -city, citx, -city, citx, -city, citx);
+	        v.curveShift && _primitive2.default.vertices(v.curveShift, iV, -cty, ctx, -cty, ctx, -cty, ctx, -cty, ctx);
+	        v.circleShift && _primitive2.default.vertices(v.circleShift, iV, -city, citx, -city, citx, -city, citx, -city, citx);
 	
-	        ccNetViz_primitive.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
-	        ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
-	        ccNetViz_primitive.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
-	        ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-	        ccNetViz_primitive.quad(v.indices, iV, iI);
+	        _primitive2.default.singles(v.offsetMul, iV, offsetMul, offsetMul, offsetMul, offsetMul);
+	        _primitive2.default.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
+	        _primitive2.default.vertices(v.direction, iV, dx, dy, dx, dy, dx, dy, dx, dy);
+	        _primitive2.default.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+	        _primitive2.default.quad(v.indices, iV, iI);
 	    };
 	
 	    var arrowFiller = {
 	        lineArrows: function lineArrows(style) {
 	            return {
 	                set: function set(v, e, iV, iI) {
-	                    var s = ccNetViz_geomutils.edgeSource(e);
-	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var s = _geomutils2.default.edgeSource(e);
+	                    var t = _geomutils2.default.edgeTarget(e);
 	                    var d = normalize(s, t);
 	                    _set(v, e, s, t, iV, iI, d.x, d.y);
 	                } };
@@ -1046,8 +1074,8 @@
 	        curveArrows: function curveArrows(style) {
 	            return {
 	                set: function set(v, e, iV, iI) {
-	                    var s = ccNetViz_geomutils.edgeSource(e);
-	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var s = _geomutils2.default.edgeSource(e);
+	                    var t = _geomutils2.default.edgeTarget(e);
 	                    return _set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
 	                }
 	            };
@@ -1055,7 +1083,7 @@
 	        circleArrows: function circleArrows(style) {
 	            return {
 	                set: function set(v, e, iV, iI) {
-	                    var t = ccNetViz_geomutils.edgeTarget(e);
+	                    var t = _geomutils2.default.edgeTarget(e);
 	                    var s = t;
 	                    return _set(v, e, s, t, iV, iI, t.x < 0.5 ? dx : -dx, t.y < 0.5 ? -dy : dy);
 	                }
@@ -1065,7 +1093,7 @@
 	
 	    this.getCurrentSpatialSearch = function (context) {
 	        if (spatialSearch === undefined) {
-	            spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], normalize);
+	            spatialSearch = new _spatialSearch2.default(context, [], [], [], [], normalize);
 	        }
 	        return spatialSearch;
 	    };
@@ -1104,7 +1132,7 @@
 	
 	        this.getCurrentSpatialSearch = function (context) {
 	            if (spatialSearch === undefined) {
-	                spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
+	                spatialSearch = new _spatialSearch2.default(context, nodes, lines, curves, circles, normalize);
 	            }
 	            return spatialSearch;
 	        };
@@ -1189,7 +1217,7 @@
 	
 	        init();
 	
-	        layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
+	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
 	
@@ -1246,7 +1274,7 @@
 	        scene[element].update(gl, attribute, data, function (style) {
 	            return {
 	                set: function set(v, e, iV) {
-	                    return ccNetViz_primitive.colors(v, iV, e, e, e, e);
+	                    return _primitive2.default.colors(v, iV, e, e, e, e);
 	                }
 	            };
 	        });
@@ -1368,10 +1396,10 @@
 	    this.nodes = [];
 	    this.edges = [];
 	
-	    var extensions = gl ? ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives") : {};
+	    var extensions = gl ? _gl2.default.initExtensions(gl, "OES_standard_derivatives") : {};
 	    var scene = this.scene = createScene.call(this);
 	    if (!gl) return this;
-	    var texts = new ccNetViz_texts(gl);
+	    var texts = new _texts2.default(gl);
 	
 	    var getLabelType = function getLabelType(f) {
 	        if (texts.isSDF(f)) return 1;
@@ -1394,7 +1422,7 @@
 	
 	    var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 	
-	    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"].concat(lineTypes).concat(["   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"]), function (c) {
+	    scene.add("lines", new _primitive2.default(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"].concat(lineTypes).concat(["   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"]), function (c) {
 	        var uniforms = c.shader.uniforms;
 	        uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
 	        gl.uniform2f(uniforms.screen, c.width, c.height);
@@ -1405,11 +1433,11 @@
 	        gl.uniform1f(uniforms.aspect, c.aspect);
 	        gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
 	        gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+	        _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
 	    }));
 	
 	    if (extensions.OES_standard_derivatives) {
-	        scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
+	        scene.add("curves", new _primitive2.default(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform vec2 size;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform mat4 transform;", "varying vec2 v_lengthSoFar;", "varying vec2 c;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 n = vec2(normal.x, aspect2 * normal.y);", "   float length = length(screen * n);", "   n = length == 0.0 ? vec2(0, 0) : n / length;", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
 	            var uniforms = c.shader.uniforms;
 	            gl.uniform1f(uniforms.width, c.style.width);
 	            gl.uniform1f(uniforms.exc, c.curveExc);
@@ -1421,9 +1449,9 @@
 	            gl.uniform1f(uniforms.aspect, c.aspect);
 	            gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
 	            uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5);
-	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+	            _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
 	        }));
-	        scene.add("circles", new ccNetViz_primitive(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
+	        scene.add("circles", new _primitive2.default(gl, edgeStyle, null, ["precision highp float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 curve;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 c;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);", "   c = curve;", "   vec4 p = transform*vec4(size * lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "}"]), fsCurve, function (c) {
 	            var uniforms = c.shader.uniforms;
 	            uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
 	            gl.uniform1f(uniforms.width, c.style.width);
@@ -1435,7 +1463,7 @@
 	            gl.uniform1f(uniforms.aspect2, c.aspect2);
 	            gl.uniform1f(uniforms.aspect, c.aspect);
 	            uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5 / 3);
-	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+	            _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
 	        }));
 	    }
 	
@@ -1457,24 +1485,24 @@
 	            }
 	            gl.uniform2f(uniforms.screen, c.width, c.height);
 	            gl.uniform1f(uniforms.aspect2, c.aspect2);
-	            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+	            _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
 	        };
 	
-	        scene.add("lineArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float exc;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = direction / length(screen * direction);", "   vec2 v = vec2(u.y, -aspect2 * u.x);", "   v = v / length(screen * v);", "   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
+	        scene.add("lineArrows", new _primitive2.default(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float exc;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = direction / length(screen * direction);", "   vec2 v = vec2(u.y, -aspect2 * u.x);", "   v = v / length(screen * v);", "   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
 	
 	        if (extensions.OES_standard_derivatives) {
-	            scene.add("curveArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform float exc;", "uniform float cexc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));", "   u = normalize(direction - cexc * u / length(screen * u));", "   u = u / length(screen * u);", "   vec2 v = vec2(u.y, -aspect2 * u.x);", "   v = v / length(screen * v);", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
-	            scene.add("circleArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float exc;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = direction;", "   vec2 v = vec2(direction.y, -direction.x);", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
+	            scene.add("curveArrows", new _primitive2.default(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform float exc;", "uniform float cexc;", "uniform vec2 screen;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));", "   u = normalize(direction - cexc * u / length(screen * u));", "   u = u / length(screen * u);", "   vec2 v = vec2(u.y, -aspect2 * u.x);", "   v = v / length(screen * v);", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
+	            scene.add("circleArrows", new _primitive2.default(gl, edgeStyle, "arrow", ["attribute vec2 position;", "attribute vec2 direction;", "attribute vec2 textureCoord;", "attribute float offsetMul;", "uniform float offset;", "uniform vec2 arrowsize;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float exc;", "uniform float aspect2;", "uniform mat4 transform;", "varying vec2 tc;"].concat(getShiftFuncs).concat(["void main(void) {", "   vec2 u = direction;", "   vec2 v = vec2(direction.y, -direction.x);", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"]), fsColorTexture, bind, shaderparams));
 	        }
 	    }
 	
-	    scene.add("nodes", new ccNetViz_primitive(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsColorTexture, function (c) {
+	    scene.add("nodes", new _primitive2.default(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "}"], fsColorTexture, function (c) {
 	        var size = getNodeSize(c);
 	        var uniforms = c.shader.uniforms;
 	        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-	        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+	        _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
 	    }));
-	    scene.add("nodesColored", new ccNetViz_primitive(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "attribute vec4 color;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "   c = color;", "}"], fsVarColorTexture, function (c) {
+	    scene.add("nodesColored", new _primitive2.default(gl, nodeStyle, null, ["attribute vec2 position;", "attribute vec2 textureCoord;", "attribute vec4 color;", "uniform vec2 size;", "uniform mat4 transform;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);", "   tc = textureCoord;", "   c = color;", "}"], fsVarColorTexture, function (c) {
 	        var size = getNodeSize(c);
 	        var uniforms = c.shader.uniforms;
 	        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
@@ -1506,12 +1534,12 @@
 	            gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
 	
 	            var color = void 0;
-	            if (is_outline) color = new ccNetViz_color(f.outlineColor || backgroundColor);else color = c.style.color;
-	            ccNetViz_gl.uniformColor(gl, uniforms.color, color);
+	            if (is_outline) color = new _color2.default(f.outlineColor || backgroundColor);else color = c.style.color;
+	            _gl2.default.uniformColor(gl, uniforms.color, color);
 	        };
 	    };
-	    nodeStyle.label && scene.add("labelsOutline", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)));
-	    nodeStyle.label && scene.add("labels", new ccNetViz_primitive(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(false)));
+	    nodeStyle.label && scene.add("labelsOutline", new _primitive2.default(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(true)));
+	    nodeStyle.label && scene.add("labels", new _primitive2.default(gl, nodeStyle, "label", vsLabelsShader, fsLabelTexture, bindLabels(false)));
 	
 	    if (options.onLoad) {
 	        var styles = options.styles;
@@ -1536,12 +1564,50 @@
 	        };
 	    }
 	};
+	
+	var _color = __webpack_require__(3);
+	
+	var _color2 = _interopRequireDefault(_color);
+	
+	var _gl = __webpack_require__(4);
+	
+	var _gl2 = _interopRequireDefault(_gl);
+	
+	var _primitive = __webpack_require__(5);
+	
+	var _primitive2 = _interopRequireDefault(_primitive);
+	
+	var _layout = __webpack_require__(8);
+	
+	var _layout2 = _interopRequireDefault(_layout);
+	
+	var _geomutils = __webpack_require__(12);
+	
+	var _geomutils2 = _interopRequireDefault(_geomutils);
+	
+	var _texts = __webpack_require__(13);
+	
+	var _texts2 = _interopRequireDefault(_texts);
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _spatialSearch = __webpack_require__(16);
+	
+	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ },
 /* 3 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1606,15 +1672,18 @@
 	    }
 	};
 	
+	exports.default = Color;
 	;
-	
-	module.exports = Color;
 
 /***/ },
 /* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -1628,12 +1697,12 @@
 	 *  Author: David Tichy
 	 */
 	
-	var Gl = function () {
-	    function Gl() {
-	        _classCallCheck(this, Gl);
+	var _class = function () {
+	    function _class() {
+	        _classCallCheck(this, _class);
 	    }
 	
-	    _createClass(Gl, null, [{
+	    _createClass(_class, null, [{
 	        key: "initExtensions",
 	        value: function initExtensions(gl) {
 	            var extensions = gl.getSupportedExtensions();
@@ -1725,12 +1794,11 @@
 	        }
 	    }]);
 	
-	    return Gl;
+	    return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = Gl;
 
 /***/ },
 /* 5 */
@@ -1738,13 +1806,27 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var _shader = __webpack_require__(6);
 	
-	var ccNetViz_shader = __webpack_require__(6);
-	var ccNetViz_color = __webpack_require__(3);
-	var ccNetViz_utils = __webpack_require__(7);
+	var _shader2 = _interopRequireDefault(_shader);
+	
+	var _color = __webpack_require__(3);
+	
+	var _color2 = _interopRequireDefault(_color);
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -1760,7 +1842,7 @@
 	
 	        _classCallCheck(this, primitive);
 	
-	        var shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
+	        var shader = new _shader2.default(gl, vs.join('\n'), fs.join('\n'), shaderParams);
 	        var buffers = [];
 	        var sections = [];
 	
@@ -1878,7 +1960,7 @@
 	                    copy(baseStyle[styleProperty]);
 	                    style && copy(style[styleProperty]);
 	                }
-	                result.color = result.color && new ccNetViz_color(result.color);
+	                result.color = result.color && new _color2.default(result.color);
 	                return result;
 	            };
 	
@@ -2074,7 +2156,7 @@
 	    return primitive;
 	}();
 	
-	module.exports = primitive;
+	exports.default = primitive;
 
 /***/ },
 /* 6 */
@@ -2082,11 +2164,19 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var _gl = __webpack_require__(4);
 	
-	var ccNetViz_gl = __webpack_require__(4);
+	var _gl2 = _interopRequireDefault(_gl);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2108,8 +2198,8 @@
 	
 	    var program = this._program = gl.createProgram();
 	
-	    gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.VERTEX_SHADER, vs));
-	    gl.attachShader(program, ccNetViz_gl.createShader(gl, gl.FRAGMENT_SHADER, fs));
+	    gl.attachShader(program, _gl2.default.createShader(gl, gl.VERTEX_SHADER, vs));
+	    gl.attachShader(program, _gl2.default.createShader(gl, gl.FRAGMENT_SHADER, fs));
 	    gl.linkProgram(program);
 	
 	    this.uniforms = {};
@@ -2157,15 +2247,18 @@
 	  return Shader;
 	}();
 	
+	exports.default = Shader;
 	;
-	
-	module.exports = Shader;
 
 /***/ },
 /* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -2227,9 +2320,8 @@
 	  return Utils;
 	}();
 	
+	exports.default = Utils;
 	;
-	
-	module.exports = Utils;
 
 /***/ },
 /* 8 */
@@ -2237,12 +2329,24 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _force = __webpack_require__(9);
+	
+	var _force2 = _interopRequireDefault(_force);
+	
+	var _random = __webpack_require__(11);
+	
+	var _random2 = _interopRequireDefault(_random);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var layoutForce = __webpack_require__(9);
-	var layoutRandom = __webpack_require__(11);
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -2251,12 +2355,12 @@
 	 *  Author: David Tichy
 	 */
 	
-	var Layout = function () {
-	    function Layout() {
-	        _classCallCheck(this, Layout);
+	var _class = function () {
+	    function _class() {
+	        _classCallCheck(this, _class);
 	    }
 	
-	    _createClass(Layout, null, [{
+	    _createClass(_class, null, [{
 	        key: 'normalize',
 	        value: function normalize(nodes, dim) {
 	            var minX = void 0,
@@ -2301,19 +2405,19 @@
 	    }, {
 	        key: 'force',
 	        get: function get() {
-	            return layoutForce;
+	            return _force2.default;
 	        }
 	    }, {
 	        key: 'random',
 	        get: function get() {
-	            return layoutRandom;
+	            return _random2.default;
 	        }
 	    }]);
-	
-	    return Layout;
+
+	    return _class;
 	}();
-	
-	module.exports = Layout;
+
+	exports.default = _class;
 
 /***/ },
 /* 9 */
@@ -2321,17 +2425,11 @@
 
 	'use strict';
 	
-	var ccNetViz_quadtree = __webpack_require__(10);
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
-	 */
-	
-	module.exports = function (nodes, edges) {
+	exports.default = function (nodes, edges) {
 	    var edgeDistance = 15,
 	        edgeStrength = 1,
 	        friction = 0.9,
@@ -2451,7 +2549,7 @@
 	        }
 	
 	        if (charge) {
-	            accumulate(q = ccNetViz_quadtree(nodes), alpha, charges);
+	            accumulate(q = (0, _quadTree2.default)(nodes), alpha, charges);
 	
 	            for (var _i2 = 0; _i2 < n; _i2++) {
 	                var _o = nodes[_i2];
@@ -2500,12 +2598,14 @@
 	        return true;
 	    };
 	};
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	"use strict";
+	
+	var _quadTree = __webpack_require__(10);
+	
+	var _quadTree2 = _interopRequireDefault(_quadTree);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	;
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -2514,8 +2614,18 @@
 	 *  This source code is licensed under the GPLv3 License.
 	 *  Author: David Tichy
 	 */
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
 	
-	module.exports = function (points) {
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	exports.default = function (points) {
 	    var d = void 0,
 	        xs = void 0,
 	        ys = void 0,
@@ -2664,12 +2774,24 @@
 	
 	    return root;
 	};
+	
+	; /**
+	   *  Copyright (c) 2016, Helikar Lab.
+	   *  All rights reserved.
+	   *
+	   *  This source code is licensed under the GPLv3 License.
+	   *  Author: David Tichy
+	   */
 
 /***/ },
 /* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -2683,14 +2805,14 @@
 	 *  Author: David Tichy
 	 */
 	
-	var Random = function () {
-	  function Random(nodes) {
-	    _classCallCheck(this, Random);
+	var _class = function () {
+	  function _class(nodes) {
+	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
 	  }
 	
-	  _createClass(Random, [{
+	  _createClass(_class, [{
 	    key: "apply",
 	    value: function apply() {
 	      for (var i = 0, n = this._nodes.length; i < n; i++) {
@@ -2701,18 +2823,21 @@
 	    }
 	  }]);
 	
-	  return Random;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = Random;
 
 /***/ },
 /* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -2726,12 +2851,12 @@
 	 *  Author: Aleš Saska - http://alessaska.cz/
 	 */
 	
-	var Geomutils = function () {
-	  function Geomutils() {
-	    _classCallCheck(this, Geomutils);
+	var _class = function () {
+	  function _class() {
+	    _classCallCheck(this, _class);
 	  }
 	
-	  _createClass(Geomutils, null, [{
+	  _createClass(_class, null, [{
 	    key: "edgeSource",
 	    value: function edgeSource(e) {
 	      if (e.source.source) {
@@ -2798,12 +2923,11 @@
 	    }
 	  }]);
 	
-	  return Geomutils;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = Geomutils;
 
 /***/ },
 /* 13 */
@@ -2811,35 +2935,47 @@
 
 	'use strict';
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2016, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _default = __webpack_require__(14);
+	
+	var _default2 = _interopRequireDefault(_default);
+	
+	var _sdf = __webpack_require__(15);
+	
+	var _sdf2 = _interopRequireDefault(_sdf);
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: David Tichy, Aleš Saska
-	 */
-	
-	var ccNetViz_defaultTexts = __webpack_require__(14);
-	var ccNetViz_sdfTexts = __webpack_require__(15);
-	var ccNetViz_utils = __webpack_require__(7);
-	
-	var Texts = function () {
-	  function Texts(gl) {
-	    _classCallCheck(this, Texts);
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
 	
 	    this._gl = gl;
 	
 	    this._modules = {
-	      'default': new ccNetViz_defaultTexts(gl),
-	      'sdf': new ccNetViz_sdfTexts(gl)
+	      'default': new _default2.default(gl),
+	      'sdf': new _sdf2.default(gl)
 	    };
 	  }
 	
-	  _createClass(Texts, [{
+	  _createClass(_class, [{
 	    key: 'clear',
 	    value: function clear() {
 	      for (var k in this._modules) {
@@ -2849,7 +2985,7 @@
 	  }, {
 	    key: 'isSDF',
 	    value: function isSDF(font) {
-	      if (ccNetViz_utils.isObject(font)) {
+	      if (_utils2.default.isObject(font)) {
 	        if (font.texture && font.metrics && font.type === 'sdf') {
 	          return true;
 	        }
@@ -2880,18 +3016,21 @@
 	    }
 	  }]);
 	
-	  return Texts;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = Texts;
 
 /***/ },
 /* 14 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -2905,9 +3044,9 @@
 	 *  Authors: David Tichy, Aleš Saska
 	 */
 	
-	var DefaultTexts = function () {
-	  function DefaultTexts(gl) {
-	    _classCallCheck(this, DefaultTexts);
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
 	
 	    this._gl = gl;
 	    this._size = 1024;
@@ -2928,7 +3067,7 @@
 	    this.texture = this._gl.createTexture();
 	  }
 	
-	  _createClass(DefaultTexts, [{
+	  _createClass(_class, [{
 	    key: "clear",
 	    value: function clear() {
 	      this._rendered = {};
@@ -3016,18 +3155,21 @@
 	    }
 	  }]);
 	
-	  return DefaultTexts;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = DefaultTexts;
 
 /***/ },
 /* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -3041,16 +3183,16 @@
 	 *  Authors: Aleš Saska
 	 */
 	
-	var SDFTexts = function () {
-	  function SDFTexts(gl) {
-	    _classCallCheck(this, SDFTexts);
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
 	
 	    this._rendered = {};
 	    this._texts;
 	    this._gl = gl;
 	  }
 	
-	  _createClass(SDFTexts, [{
+	  _createClass(_class, [{
 	    key: 'clear',
 	    value: function clear() {
 	      this._rendered = {};
@@ -3200,12 +3342,11 @@
 	    }
 	  }]);
 	
-	  return SDFTexts;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = SDFTexts;
 
 /***/ },
 /* 16 */
@@ -3213,12 +3354,23 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var _rbush = __webpack_require__(17);
 	
-	var rbush = __webpack_require__(17);
-	var ccNetViz_geomutils = __webpack_require__(12);
+	var _rbush2 = _interopRequireDefault(_rbush);
+	
+	var _geomutils = __webpack_require__(12);
+	
+	var _geomutils2 = _interopRequireDefault(_geomutils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -3494,7 +3646,7 @@
 	
 	var ct = {};
 	function getEdgeShift(context, screensize, e, ct) {
-	  ccNetViz_geomutils.getCurveShift(e, ct); //get shift because of edge-to-edge functionality
+	  _geomutils2.default.getCurveShift(e, ct); //get shift because of edge-to-edge functionality
 	
 	
 	  //compute all transformations made in the vertex shader
@@ -3570,8 +3722,8 @@
 	          x2 = void 0,
 	          y2 = void 0;
 	
-	      var s = ccNetViz_geomutils.edgeSource(this.e);
-	      var t = ccNetViz_geomutils.edgeTarget(this.e);
+	      var s = _geomutils2.default.edgeSource(this.e);
+	      var t = _geomutils2.default.edgeTarget(this.e);
 	
 	      x1 = s.x;
 	      y1 = s.y;
@@ -3627,7 +3779,7 @@
 	      var x1 = void 0,
 	          y1 = void 0,
 	          s = void 0;
-	      s = ccNetViz_geomutils.edgeSource(this.e);
+	      s = _geomutils2.default.edgeSource(this.e);
 	      x1 = s.x;
 	      y1 = s.y;
 	
@@ -3687,8 +3839,8 @@
 	          x2 = void 0,
 	          y1 = void 0,
 	          y2 = void 0;
-	      var s = ccNetViz_geomutils.edgeSource(this.e);
-	      var t = ccNetViz_geomutils.edgeTarget(this.e);
+	      var s = _geomutils2.default.edgeSource(this.e);
+	      var t = _geomutils2.default.edgeTarget(this.e);
 	
 	      x1 = s.x;
 	      y1 = s.y;
@@ -3746,7 +3898,7 @@
 	
 	var tConst = { nodes: Node, lines: Line, circles: Circle, curves: Curve };
 	
-	module.exports = function () {
+	var spatialIndex = function () {
 	  function spatialIndex(c, nodes, lines, curves, circles, normalize) {
 	    _classCallCheck(this, spatialIndex);
 	
@@ -3756,7 +3908,7 @@
 	    this.normalize = normalize;
 	
 	    //tree initialization
-	    this.rbushtree = rbush();
+	    this.rbushtree = (0, _rbush2.default)();
 	
 	    this.types = { nodes: [], lines: [], circles: [], curves: [] };
 	
@@ -3900,6 +4052,8 @@
 	
 	  return spatialIndex;
 	}();
+	
+	exports.default = spatialIndex;
 
 /***/ },
 /* 17 */
@@ -3907,6 +4061,9 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	/*
 	 (c) 2015, Vladimir Agafonkin
 	 RBush, a JavaScript library for high-performance 2D spatial indexing of points and rectangles.
@@ -4529,7 +4686,7 @@
 	    arr[j] = tmp;
 	}
 	
-	module.exports = rbush;
+	exports.default = rbush;
 
 /***/ },
 /* 18 */
@@ -4537,12 +4694,23 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var _utils = __webpack_require__(7);
 	
-	var ccNetViz_utils = __webpack_require__(7);
-	var ccNetViz_gl = __webpack_require__(4);
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _gl = __webpack_require__(4);
+	
+	var _gl2 = _interopRequireDefault(_gl);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -4552,9 +4720,9 @@
 	 *  Authors: David Tichy, Aleš Saska
 	 */
 	
-	var Textures = function () {
-	    function Textures(events, onLoad) {
-	        _classCallCheck(this, Textures);
+	var _class = function () {
+	    function _class(events, onLoad) {
+	        _classCallCheck(this, _class);
 	
 	        this._load = [events.debounce(onLoad, 5)];
 	        this._textures = {};
@@ -4562,7 +4730,7 @@
 	        this._n = 0;
 	    }
 	
-	    _createClass(Textures, [{
+	    _createClass(_class, [{
 	        key: 'get',
 	        value: function get(gl, img, action, options) {
 	            var _this = this;
@@ -4577,7 +4745,7 @@
 	            } else {
 	                p = this._pending[img] = [action];
 	                this._n++;
-	                this._textures[img] = t = ccNetViz_gl.createTexture(gl, img, function () {
+	                this._textures[img] = t = _gl2.default.createTexture(gl, img, function () {
 	                    p.forEach(function (a) {
 	                        return a && a();
 	                    });
@@ -4597,14 +4765,14 @@
 	    }, {
 	        key: 'allLoaded',
 	        value: function allLoaded() {
-	            return ccNetViz_utils.emptyObject(this._pending);
+	            return _utils2.default.emptyObject(this._pending);
 	        }
 	    }]);
-	
-	    return Textures;
+
+	    return _class;
 	}();
-	
-	module.exports = Textures;
+
+	exports.default = _class;
 
 /***/ },
 /* 19 */
@@ -4612,12 +4780,23 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var _utils = __webpack_require__(7);
 	
-	var ccNetViz_utils = __webpack_require__(7);
-	var ccNetViz_gl = __webpack_require__(4);
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _gl = __webpack_require__(4);
+	
+	var _gl2 = _interopRequireDefault(_gl);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
@@ -4627,9 +4806,9 @@
 	 *  Authors: David Tichy, Aleš Saska
 	 */
 	
-	var Files = function () {
-	  function Files(events, onLoad) {
-	    _classCallCheck(this, Files);
+	var _class = function () {
+	  function _class(events, onLoad) {
+	    _classCallCheck(this, _class);
 	
 	    this._load = [events.debounce(onLoad || function () {}, 5)];
 	    this._files = {};
@@ -4637,7 +4816,7 @@
 	    this._n = 0;
 	  }
 	
-	  _createClass(Files, [{
+	  _createClass(_class, [{
 	    key: '_transformFile',
 	    value: function _transformFile(data, dataType) {
 	      if (dataType === 'json') return JSON.parse(data);
@@ -4673,7 +4852,7 @@
 	        p = this._pending[url] = [action];
 	        this._n++;
 	
-	        ccNetViz_utils.ajax(url, function (data) {
+	        _utils2.default.ajax(url, function (data) {
 	          _this._files[url] = _this._transformFile(data, dataType);
 	          p.forEach(function (a) {
 	            return a && a(_this._files[url]);
@@ -4694,20 +4873,24 @@
 	  }, {
 	    key: 'allLoaded',
 	    value: function allLoaded() {
-	      return ccNetViz_utils.emptyObject(this._pending);
+	      return _utils2.default.emptyObject(this._pending);
 	    }
 	  }]);
-	
-	  return Files;
+
+	  return _class;
 	}();
-	
-	module.exports = Files;
+
+	exports.default = _class;
 
 /***/ },
 /* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -4721,14 +4904,14 @@
 	 *  Authors: David Tichy, Aleš Saska
 	 */
 	
-	var LazyEvents = function () {
-	    function LazyEvents() {
-	        _classCallCheck(this, LazyEvents);
+	var _class = function () {
+	    function _class() {
+	        _classCallCheck(this, _class);
 	
 	        this._enable = true;
 	    }
 	
-	    _createClass(LazyEvents, [{
+	    _createClass(_class, [{
 	        key: "debounce",
 	        value: function debounce(func, wait, immediate) {
 	            var _this = this,
@@ -4779,12 +4962,11 @@
 	        }
 	    }]);
 	
-	    return LazyEvents;
+	    return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = LazyEvents;
 
 /***/ },
 /* 21 */
@@ -4792,11 +4974,20 @@
 
 	"use strict";
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _geomutils = __webpack_require__(12);
+	
+	var _geomutils2 = _interopRequireDefault(_geomutils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var geomutils = __webpack_require__(12);
 	/**
 	 *  Copyright (c) 2016, Helikar Lab.
 	 *  All rights reserved.
@@ -4810,11 +5001,11 @@
 	  arr.push(e);
 	}
 	
-	var interactivityBatch = function () {
-	  function interactivityBatch(layers, insertTempLayer, draw, nodes, edges, checkUniqId) {
+	var _class = function () {
+	  function _class(layers, insertTempLayer, draw, nodes, edges, checkUniqId) {
 	    var _this = this;
 	
-	    _classCallCheck(this, interactivityBatch);
+	    _classCallCheck(this, _class);
 	
 	    this._layers = layers;
 	    this._insertTempLayer = insertTempLayer;
@@ -4840,8 +5031,8 @@
 	    });
 	
 	    edges.forEach(function (e, i) {
-	      var s = geomutils.edgeSource(e);
-	      var t = geomutils.edgeTarget(e);
+	      var s = _geomutils2.default.edgeSource(e);
+	      var t = _geomutils2.default.edgeTarget(e);
 	
 	      var si = s.uniqid || s.__uniqid;
 	      var ti = t.uniqid || t.__uniqid;
@@ -4853,7 +5044,7 @@
 	    this._actualTempEdges = [];
 	  }
 	
-	  _createClass(interactivityBatch, [{
+	  _createClass(_class, [{
 	    key: "_doRemoveNodes",
 	    value: function _doRemoveNodes(nodes) {
 	      var _this2 = this;
@@ -4889,8 +5080,8 @@
 	      edges.forEach(function (e) {
 	        if (e.uniqid === undefined) return;
 	
-	        var s = geomutils.edgeSource(e);
-	        var t = geomutils.edgeTarget(e);
+	        var s = _geomutils2.default.edgeSource(e);
+	        var t = _geomutils2.default.edgeTarget(e);
 	
 	        delete (_this3._eDirs[s.uniqid || s.__uniqid] || {})[t.uniqid || t.__uniqid];
 	
@@ -4965,8 +5156,8 @@
 	  }, {
 	    key: "addEdge",
 	    value: function addEdge(e) {
-	      var s = geomutils.edgeSource(e);
-	      var t = geomutils.edgeTarget(e);
+	      var s = _geomutils2.default.edgeSource(e);
+	      var t = _geomutils2.default.edgeTarget(e);
 	
 	      var tid = t.uniqid || t.__uniqid;
 	      var sid = s.uniqid || s.__uniqid;
@@ -5037,12 +5228,11 @@
 	    }
 	  }]);
 	
-	  return interactivityBatch;
+	  return _class;
 	}();
 	
+	exports.default = _class;
 	;
-	
-	module.exports = interactivityBatch;
 
 /***/ }
 /******/ ]);
