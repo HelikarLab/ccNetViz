@@ -36,13 +36,13 @@ export default class {
   }
 
   setFont (font) {
-    var fontstr = font.size+"px "+font.type;
+    var fontstr = font ? font.size+"px "+font.type : undefined;
     
     this._rendered [fontstr] = this._texts = this._rendered [fontstr] || {};
     this._context.font = fontstr;
     this._x = 0;
     this._y += this._height;
-    this._height = font.size + 1;
+    this._height = font ? font.size + 1 : NaN;
   }
   
   get fontSize(){
