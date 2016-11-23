@@ -590,20 +590,20 @@
 	  var onDownThis = onMouseDown.bind(this),
 	      onWheelThis = onWheel.bind(this);
 	
-	  var addWindowEvts = function addWindowEvts(evts) {
+	  var addEvts = function addEvts(el, evts) {
 	    for (var k in evts || {}) {
-	      window.addEventListener(k, evts[k]);
+	      el.addEventListener(k, evts[k]);
 	    }
 	  };
 	
-	  var removeWindowEvts = function removeWindowEvts(evts) {
+	  var removeEvts = function removeEvts(el, evts) {
 	    for (var k in evts || {}) {
-	      window.removeEventListener(k, evts[k]);
+	      el.removeEventListener(k, evts[k]);
 	    }
 	  };
 	
 	  var zoomevts = void 0;
-	  addWindowEvts(zoomevts = {
+	  addEvts(canvas, zoomevts = {
 	    'mousedown': onDownThis,
 	    'touchstart': onDownThis,
 	    'wheel': onWheelThis
@@ -624,7 +624,7 @@
 	      gl_lose && gl_lose.loseContext();
 	    }
 	
-	    removeWindowEvts(zoomevts);
+	    removeEvts(canvas, zoomevts);
 	
 	    events.disable();
 	
@@ -756,7 +756,7 @@
 	      custom && od.stop && od.stop(e);
 	      !dragged && options.onClick && options.onClick(e);
 	
-	      removeWindowEvts(evts);
+	      removeEvts(window, evts);
 	    };
 	
 	    var zoom = function zoom(e) {
@@ -772,7 +772,7 @@
 	      }
 	    };
 	
-	    addWindowEvts(evts = {
+	    addEvts(window, evts = {
 	      'mouseup': up,
 	      'touchend': up,
 	      'touchcancel': up,
