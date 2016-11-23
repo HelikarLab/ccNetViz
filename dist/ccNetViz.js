@@ -404,12 +404,12 @@
 	  this.updateNode = function (n) {
 	    if (checkRemoved()) {
 	      return _this;
-	    }getBatch().addNode(n);return _this;
+	    }return _this.removeNode(n).addNode(n);
 	  };
 	  this.updateEdge = function (e) {
 	    if (checkRemoved()) {
 	      return _this;
-	    }getBatch().addEdge(e);return _this;
+	    }return _this.removeEdge(e).addEdge(e);
 	  };
 	  this.applyChanges = function () {
 	    if (checkRemoved()) {
@@ -1534,7 +1534,7 @@
 	            gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
 	
 	            var color = void 0;
-	            if (is_outline) color = new _color2.default(f.outlineColor || backgroundColor);else color = c.style.color;
+	            if (is_outline && f) color = new _color2.default(f.outlineColor || backgroundColor);else color = c.style.color;
 	            _gl2.default.uniformColor(gl, uniforms.color, color);
 	        };
 	    };
@@ -3077,13 +3077,13 @@
 	  }, {
 	    key: "setFont",
 	    value: function setFont(font) {
-	      var fontstr = font.size + "px " + font.type;
+	      var fontstr = font ? font.size + "px " + font.type : undefined;
 	
 	      this._rendered[fontstr] = this._texts = this._rendered[fontstr] || {};
 	      this._context.font = fontstr;
 	      this._x = 0;
 	      this._y += this._height;
-	      this._height = font.size + 1;
+	      this._height = font ? font.size + 1 : NaN;
 	    }
 	  }, {
 	    key: "getTexture",
