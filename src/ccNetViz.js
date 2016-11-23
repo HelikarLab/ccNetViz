@@ -195,8 +195,8 @@ var ccNetViz = function(canvas, options){
   this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
   this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
   this.addNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this;};
-  this.updateNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this; };
-  this.updateEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this; };
+  this.updateNode = (n) => { if(checkRemoved()){return this;} return this.removeNode(n).addNode(n); };
+  this.updateEdge = (e) => { if(checkRemoved()){return this;} return this.removeEdge(e).addEdge(e); };
   this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
 
   this.addEdges = (edges) => {
