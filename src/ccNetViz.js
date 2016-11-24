@@ -195,8 +195,8 @@ var ccNetViz = function(canvas, options){
   this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
   this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
   this.addNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this;};
-  this.updateNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this; };
-  this.updateEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this; };
+  this.updateNode = (n) => { if(checkRemoved()){return this;} return this.removeNode(n).addNode(n); };
+  this.updateEdge = (e) => { if(checkRemoved()){return this;} return this.removeEdge(e).addEdge(e); };
   this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
 
   this.addEdges = (edges) => {
@@ -371,20 +371,20 @@ var ccNetViz = function(canvas, options){
   let onDownThis = onMouseDown.bind(this), onWheelThis = onWheel.bind(this);
   
   
-  let addWindowEvts = (evts) => {
+  let addEvts = (el, evts) => {
     for(var k in (evts || {})){
-      window.addEventListener(k, evts[k]);
+      el.addEventListener(k, evts[k]);
     }
   }
   
-  let removeWindowEvts = (evts) => {
+  let removeEvts = (el, evts) => {
     for(var k in (evts || {})){
-      window.removeEventListener(k, evts[k]);
+      el.removeEventListener(k, evts[k]);
     }
   }
 
   let zoomevts;
-  addWindowEvts(zoomevts = {
+  addEvts(canvas, zoomevts = {
     'mousedown': onDownThis,
     'touchstart': onDownThis,
     'wheel': onWheelThis
@@ -403,7 +403,7 @@ var ccNetViz = function(canvas, options){
       gl_lose && gl_lose.loseContext();
     }
 
-    removeWindowEvts(zoomevts);
+    removeEvts(canvas, zoomevts);
     
     events.disable();
 
@@ -532,7 +532,7 @@ var ccNetViz = function(canvas, options){
         custom && od.stop && od.stop(e);
         !dragged && options.onClick && options.onClick(e);
 
-        removeWindowEvts(evts);
+        removeEvts(window, evts);
     };
     
     let zoom = e => {
@@ -547,7 +547,7 @@ var ccNetViz = function(canvas, options){
         }
     };
     
-    addWindowEvts(evts = {
+    addEvts(window, evts = {
       'mouseup': up,
       'touchend': up,
       'touchcancel': up,
