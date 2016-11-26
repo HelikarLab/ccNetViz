@@ -941,7 +941,7 @@ export default function(canvas, context, view, gl, textures, files, events, opti
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
 
             let color;
-            if(is_outline)
+            if(is_outline && f)
                 color = new ccNetViz_color(f.outlineColor || backgroundColor);
             else
                 color = c.style.color;
