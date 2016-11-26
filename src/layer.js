@@ -533,7 +533,9 @@ export default function(canvas, context, view, gl, textures, files, events, opti
     
     let extensions = gl ? ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives") : {};
     let scene = this.scene = createScene.call(this);
-    if(!gl) return this;
+    
+    let loadCalled = false;
+    if(!gl) { options.onLoad && !loadCalled && (loadCalled = true) && options.onLoad(); return this };
     let texts = new ccNetViz_texts(gl);
     
     let getLabelType = (f) => {

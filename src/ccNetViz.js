@@ -604,6 +604,9 @@ var ccNetViz = function(canvas, options){
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
     gl.enable(gl.BLEND);
   }
+  
+  
+  this.hasWebGLInitErr = () => !gl;
 
   view = {size:1,x:0,y:0};
 
@@ -613,7 +616,7 @@ var ccNetViz = function(canvas, options){
   files = new ccNetViz_files(events, onLoad);
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
-  if(!gl)
+  if(this.hasWebGLInitErr())
     console.warn("Cannot initialize WebGL context");
 };
 

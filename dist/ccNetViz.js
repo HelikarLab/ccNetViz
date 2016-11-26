@@ -139,7 +139,7 @@
 	    vizScreen.set.apply(vizScreen, arguments);
 	  };
 	
-	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
+	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView', 'hasWebGLInitErr'];
 	  var self = this;
 	  exposeMethods.forEach(function (method) {
 	    (function (method, self) {
@@ -831,6 +831,10 @@
 	    gl.enable(gl.BLEND);
 	  }
 	
+	  this.hasWebGLInitErr = function () {
+	    return !gl;
+	  };
+	
 	  view = { size: 1, x: 0, y: 0 };
 	
 	  this.resize();
@@ -839,7 +843,7 @@
 	  files = new _files2.default(events, onLoad);
 	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
-	  if (!gl) console.warn("Cannot initialize WebGL context");
+	  if (this.hasWebGLInitErr()) console.warn("Cannot initialize WebGL context");
 	};
 	
 	ccNetViz.color = _color2.default;
@@ -1398,7 +1402,11 @@
 	
 	    var extensions = gl ? _gl2.default.initExtensions(gl, "OES_standard_derivatives") : {};
 	    var scene = this.scene = createScene.call(this);
-	    if (!gl) return this;
+	
+	    var loadCalled = false;
+	    if (!gl) {
+	        options.onLoad && !loadCalled && (loadCalled = true) && options.onLoad();return this;
+	    };
 	    var texts = new _texts2.default(gl);
 	
 	    var getLabelType = function getLabelType(f) {
