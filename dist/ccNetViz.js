@@ -139,7 +139,7 @@
 	    vizScreen.set.apply(vizScreen, arguments);
 	  };
 	
-	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView', 'hasWebGLInitErr'];
+	  var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
 	  var self = this;
 	  exposeMethods.forEach(function (method) {
 	    (function (method, self) {
@@ -216,6 +216,14 @@
 	 *    Aleš Saska - http://alessaska.cz/
 	 */
 	
+	var sCanvas = document.createElement("canvas");
+	function getContext(canvas) {
+	  var attributes = { depth: false, antialias: false };
+	  var gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+	
+	  return gl;
+	}
+	
 	var lastUniqId = 0;
 	
 	function checkUniqId(el) {
@@ -250,6 +258,7 @@
 	  var _this = this;
 	
 	  var self = this;
+	  canvas = canvas || sCanvas;
 	
 	  var backgroundStyle = options.styles.background = options.styles.background || {};
 	  var backgroundColor = new _color2.default(backgroundStyle.color || "rgb(255, 255, 255)");
@@ -282,16 +291,6 @@
 	    _s.minSize = _s.minSize != null ? _s.minSize : 6;
 	    _s.maxSize = _s.maxSize || 12;
 	    _s.aspect = 1;
-	  }
-	
-	  function getContext() {
-	    var attributes = { depth: false, antialias: false };
-	    var gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
-	
-	    //      let gl_lose = gl.getExtension('WEBGL_lose_context');
-	    //      if(gl_lose) gl_lose.restoreContext();
-	
-	    return gl;
 	  }
 	
 	  var events = new _lazyEvents2.default();
@@ -824,7 +823,7 @@
 	    })(method, self);
 	  });
 	
-	  if (gl = getContext()) {
+	  if (gl = getContext(canvas)) {
 	    gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 	    gl.blendEquation(gl.FUNC_ADD);
 	    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
@@ -844,6 +843,10 @@
 	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (this.hasWebGLInitErr()) console.warn("Cannot initialize WebGL context");
+	};
+	
+	ccNetViz.isWebGLSupported = function () {
+	  return !!getContext(sCanvas);
 	};
 	
 	ccNetViz.color = _color2.default;

@@ -19,6 +19,14 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
  *    Aleš Saska - http://alessaska.cz/
  */
 
+let sCanvas = document.createElement("canvas");
+function getContext(canvas){
+    let attributes = { depth: false, antialias: false };
+    let gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+
+    return gl;
+}
+
 
 var lastUniqId = 0;
 
@@ -58,6 +66,7 @@ function mergeArrays(a, b, cmp){
 
 var ccNetViz = function(canvas, options){
   let self = this;
+  canvas = canvas || sCanvas;
   
   let backgroundStyle = options.styles.background = options.styles.background || {};
   let backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
@@ -97,16 +106,6 @@ var ccNetViz = function(canvas, options){
   }
   
 
-  function getContext(){
-      let attributes = { depth: false, antialias: false };
-      let gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
-
-//      let gl_lose = gl.getExtension('WEBGL_lose_context');
-//      if(gl_lose) gl_lose.restoreContext();
-      
-      return gl;
-  }
-  
   let events = new ccNetViz_lazyEvents();
   let layers = {};
   let view,gl,drawFunc,textures,files;
@@ -598,7 +597,7 @@ var ccNetViz = function(canvas, options){
     })(method, self);
   });
 
-  if(gl = getContext()){
+  if(gl = getContext(canvas)){
     gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
     gl.blendEquation(gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
@@ -619,6 +618,8 @@ var ccNetViz = function(canvas, options){
   if(this.hasWebGLInitErr())
     console.warn("Cannot initialize WebGL context");
 };
+
+ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
 
 
 ccNetViz.color = ccNetViz_color;
