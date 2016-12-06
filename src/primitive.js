@@ -49,26 +49,28 @@ export default class primitive{
 
     let zerofiller =  {
       set: (v, iV, iI, numVertices, numIndices) => {
-	let indicesarr = [v.indices, iV, iI];
-	for(let i = 0; i < numIndices; i++)
-	  indicesarr.push(0);
+        let indicesarr = [v.indices, iV, iI];
+        for(let i = 0; i < numIndices; i++)
+          indicesarr.push(0);
 
-	let verticesarr = [undefined, iV, iI];
-	for(let i = 0; i < numVertices; i++)
-	  verticesarr.push(0);
+        let verticesarr = [undefined, iV, iI];
+        for(let i = 0; i < numVertices; i++)
+          verticesarr.push(0);
 
-	for(var k in v){
-	  if(k === 'indices'){
-	    primitive.indices.apply(this, indicesarr);
-	  }else{
-	    verticesarr[0] = v[k];
-	    primitive.vertices.apply(this, verticesarr);
-	  }
-	}
+        for(var k in v){
+          if(k === 'indices'){
+            primitive.indices.apply(this, indicesarr);
+          }else{
+            verticesarr[0] = v[k];
+            primitive.vertices.apply(this, verticesarr);
+          }
+        }
       }
     }
     
     this.set = (gl, styles, adder, data, get) => {
+        var isDirty = false;
+      
         let parts = {};
         
         let pN = {};
@@ -161,7 +163,8 @@ export default class primitive{
                 }
 
 
-                filler.set(e, part[i], iV, iI);
+                if(filler.set(e, part[i], iV, iI))
+                  isDirty = true;
 
 
                 let idx = part.idx[i];
@@ -183,6 +186,8 @@ export default class primitive{
 
             adder ? adder(section, addSection) : addSection();
         }
+        
+        return isDirty;
     }
 
     let fb;
@@ -248,6 +253,7 @@ export default class primitive{
 
         sections.forEach(section => {
             if (section.style.texture) {
+                section.style.texture.update && section.style.texture.update();
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
                 gl.uniform1i(shader.uniforms.texture, 0);

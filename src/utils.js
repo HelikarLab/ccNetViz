@@ -29,15 +29,18 @@ export default class Utils {
     return true;
   }
   
-  static ajax(url, callback){
+  static ajax(url, callback, type){
     var xmlhttp;
     // compatible with IE7+, Firefox, Chrome, Opera, Safari
     xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function(){
-      if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-        callback(xmlhttp.responseText);
+    if(type) xmlhttp.responseType=type;
+    xmlhttp.onreadystatechange = (function(cbk){
+      return function(){
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+          cbk(type == 'arraybuffer' ? xmlhttp.response : xmlhttp.responseText);
+        }
       }
-    }
+    })(callback);
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }

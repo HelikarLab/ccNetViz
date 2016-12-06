@@ -51,21 +51,19 @@ export default function(canvas, context, view, gl, textures, files, events, opti
                 var x = e.x;
                 var y = e.y;
 
-                var parts = textEngine.get(e.label || "", x, y);
+                var ret = false;
+                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   let c = parts[i];
                   let chr = c.cCoord;
 
-//                  if(v.color){
-//                    let c = e.color;
-//                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-//                  }
-                  
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
                   ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
                   ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
+                
+                return ret;
               },
               size: (v,e) => {
                 return textEngine.steps(e.label || "");
@@ -234,6 +232,14 @@ export default function(canvas, context, view, gl, textures, files, events, opti
     let spatialSearch = undefined;
 
     this.set = function(nodes, edges, layout) {
+
+        this.getCurrentSpatialSearch = (context) => {
+          if(spatialSearch === undefined){
+            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
+          }
+          return spatialSearch;
+        }
+      
         removedNodes = 0;
         removedEdges = 0;
       
@@ -255,13 +261,6 @@ export default function(canvas, context, view, gl, textures, files, events, opti
         }
 
 
-        this.getCurrentSpatialSearch = (context) => {
-          if(spatialSearch === undefined){
-            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
-          }
-          return spatialSearch;
-        }
-        
         let getIndex = (e) => {
             return e.uniqid || -e.index || -e.nidx;
         }
@@ -343,46 +342,54 @@ export default function(canvas, context, view, gl, textures, files, events, opti
 
         layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
         
-        if(!gl) return;
+        if(!gl) return isDirty;
 
-        let defaultAdder = (section, addSection) => {
-          if(typeof section.style.texture === 'string')
-              section.style.texture = textures.get(gl, section.style.texture, addSection);
-            else
-              addSection();
-        }
-        let labelAdder = (section, addSection) => {
-          var slf = (section.style.label || {}).font || {};
-          let textEngine = texts.getEngine(slf);
-          section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
-        }
+        let tryInitPrimitives = () => {
+            var isDirty = false;
 
-        scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-        scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+            let defaultAdder = (section, addSection) => {
+              if(typeof section.style.texture === 'string')
+                  section.style.texture = textures.get(gl, section.style.texture, addSection);
+                else
+                  addSection();
+            }
+            let labelAdder = (section, addSection) => {
+              var slf = (section.style.label || {}).font || {};
+              let textEngine = texts.getEngine(slf);
+              section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
+            }
 
-        if (nodeStyle.label) {
-            texts.clear();
-            scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-            scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-            texts.bind();
-        }
+            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
+            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
 
-        scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
+            if (nodeStyle.label) {
+                texts.clear();
+                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+                texts.bind();
+            }
 
-        if (extensions.OES_standard_derivatives) {
-            scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
-            scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
-        }
-
-        if (edgeStyle.arrow) {
-            scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
 
             if (extensions.OES_standard_derivatives) {
-                scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
-
-                scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
+                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
             }
-        }
+
+            if (edgeStyle.arrow) {
+                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+
+                if (extensions.OES_standard_derivatives) {
+                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
+
+                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+                }
+            }
+
+            return isDirty;
+        };
+        
+        while(tryInitPrimitives()); //loop until they are not dirty
         
         //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
         (() => {
@@ -566,16 +573,16 @@ export default function(canvas, context, view, gl, textures, files, events, opti
         "varying mediump vec2 tc;",
         "void main() {",
         "  if(discardAll > 0.5) discard; ",
-        "  if(type > 0.5){",	//SDF
-        "    float tx=texture2D(texture, tc).r;",
+        "  if(type > 0.5){",  //SDF
+        "    float tx=texture2D(texture, tc).a;",
         "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);",
-        "    gl_FragColor=vec4(color.rgb, a * color.a);",
-        "  }else{",	//NORMAL FONT
+        "    gl_FragColor=vec4(color.rgb, a*color.a);",
+        "  }else{", //NORMAL FONT
         "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));",
         "  }",
         "}"
     ];
-    
+
     const fsVarColorTexture = [
         "precision mediump float;",
         "uniform sampler2D texture;",
@@ -958,8 +965,8 @@ export default function(canvas, context, view, gl, textures, files, events, opti
         for (let p in styles) {
             let s = styles[p];
 
-//            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
-//            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
+            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
+            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
 
             s.texture && textures.get(gl, s.texture, onLoad);
             s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);

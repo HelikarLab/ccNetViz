@@ -53,7 +53,7 @@ export default class {
         p.forEach(a => a && a(this._files[url]));
         delete this._pending[url];
         --this._n || this._load.forEach(l => l());
-      });
+      }, dataType=='arraybuffer'?dataType:undefined);
     }
     return f;
   }

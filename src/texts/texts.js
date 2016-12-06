@@ -8,6 +8,7 @@
 
 import ccNetViz_defaultTexts  from './default';
 import ccNetViz_sdfTexts      from './sdf';
+import ccNetViz_oldSdfTexts   from './sdf_old';
 import ccNetViz_utils         from '../utils';
 
 export default class {
@@ -17,6 +18,7 @@ export default class {
     this._modules = {
       'default': new ccNetViz_defaultTexts(gl),
       'sdf': new ccNetViz_sdfTexts(gl),
+      'oldSdf': new ccNetViz_oldSdfTexts(gl),
     };
   }
 
@@ -28,7 +30,7 @@ export default class {
   
   isSDF(font){
     if(ccNetViz_utils.isObject(font)){
-      if(font.texture && font.metrics && font.type === 'sdf'){
+      if(font.type === 'sdf'){
         return true;
       }
     }
@@ -37,7 +39,10 @@ export default class {
   
   getEngine(font) {
     if(this.isSDF(font)){
-      return this._modules.sdf;
+      if(font.texture && font.metrics && font.type === 'sdf')
+        return this._modules.oldSdf;
+      else
+        return this._modules.sdf;
     }
     return this._modules.default;
   }

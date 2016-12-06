@@ -605,8 +605,6 @@ var ccNetViz = function(canvas, options){
   }
   
   
-  this.hasWebGLInitErr = () => !gl;
-
   view = {size:1,x:0,y:0};
 
   this.resize();
@@ -615,7 +613,7 @@ var ccNetViz = function(canvas, options){
   files = new ccNetViz_files(events, onLoad);
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
-  if(this.hasWebGLInitErr())
+  if(!gl)
     console.warn("Cannot initialize WebGL context");
 };
 
