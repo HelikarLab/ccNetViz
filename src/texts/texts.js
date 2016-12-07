@@ -18,7 +18,6 @@ export default class {
     this._modules = {
       'default': new ccNetViz_defaultTexts(gl),
       'sdf': new ccNetViz_sdfTexts(gl),
-      'oldSdf': new ccNetViz_oldSdfTexts(gl),
     };
   }
 
@@ -30,7 +29,7 @@ export default class {
   
   isSDF(font){
     if(ccNetViz_utils.isObject(font)){
-      if(font.type === 'sdf'){
+      if(font.type === 'sdf' && font.pbf){
         return true;
       }
     }
@@ -39,10 +38,7 @@ export default class {
   
   getEngine(font) {
     if(this.isSDF(font)){
-      if(font.texture && font.metrics && font.type === 'sdf')
-        return this._modules.oldSdf;
-      else
-        return this._modules.sdf;
+      return this._modules.sdf;
     }
     return this._modules.default;
   }
