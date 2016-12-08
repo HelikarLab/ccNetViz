@@ -184,23 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(18);
+	var _textures = __webpack_require__(15);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(19);
+	var _files = __webpack_require__(16);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _lazyEvents = __webpack_require__(20);
+	var _texts = __webpack_require__(17);
+	
+	var _texts2 = _interopRequireDefault(_texts);
+	
+	var _lazyEvents = __webpack_require__(25);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(21);
+	var _interactivityBatch = __webpack_require__(26);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(16);
+	var _spatialSearch = __webpack_require__(13);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -299,7 +303,8 @@
 	      gl = void 0,
 	      drawFunc = void 0,
 	      textures = void 0,
-	      files = void 0;
+	      files = void 0,
+	      texts = void 0;
 	  var context = {};
 	
 	  this.cntShownNodes = function () {
@@ -336,7 +341,7 @@
 	
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 	
 	  var batch = undefined;
@@ -626,6 +631,7 @@
 	    removeEvts(canvas, zoomevts);
 	
 	    events.disable();
+	    texts && texts.remove();
 	
 	    removed = true;
 	  };
@@ -830,19 +836,16 @@
 	    gl.enable(gl.BLEND);
 	  }
 	
-	  this.hasWebGLInitErr = function () {
-	    return !gl;
-	  };
-	
 	  view = { size: 1, x: 0, y: 0 };
 	
 	  this.resize();
 	
 	  textures = new _textures2.default(events, onLoad);
 	  files = new _files2.default(events, onLoad);
-	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  texts = new _texts2.default(gl);
+	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
-	  if (this.hasWebGLInitErr()) console.warn("Cannot initialize WebGL context");
+	  if (!gl) console.warn("Cannot initialize WebGL context");
 	};
 	
 	ccNetViz.isWebGLSupported = function () {
@@ -867,7 +870,7 @@
 	    value: true
 	});
 	
-	exports.default = function (canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	exports.default = function (canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 	
 	    getNodesCnt = getNodesCnt || function () {
@@ -907,21 +910,21 @@
 	                    var x = e.x;
 	                    var y = e.y;
 	
-	                    var parts = textEngine.get(e.label || "", x, y);
+	                    var ret = false;
+	                    var parts = textEngine.get(e.label || "", x, y, function () {
+	                        ret = true;
+	                    });
 	                    for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
 	                        var c = parts[i];
 	                        var chr = c.cCoord;
-	
-	                        //                  if(v.color){
-	                        //                    let c = e.color;
-	                        //                    ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-	                        //                  }
 	
 	                        _primitive2.default.vertices(v.position, iV, x, y, x, y, x, y, x, y);
 	                        _primitive2.default.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
 	                        _primitive2.default.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
 	                        _primitive2.default.quad(v.indices, iV, iI);
 	                    }
+	
+	                    return ret;
 	                },
 	                size: function size(v, e) {
 	                    return textEngine.steps(e.label || "");
@@ -1105,9 +1108,7 @@
 	        return spatialSearch;
 	    };
 	
-	    this.remove = function () {
-	        texts && texts.remove();
-	    };
+	    this.remove = function () {};
 	
 	    var edgeTypes = void 0;
 	    var edgePoses = void 0;
@@ -1116,6 +1117,13 @@
 	
 	    this.set = function (nodes, edges, layout) {
 	        var _this2 = this;
+	
+	        this.getCurrentSpatialSearch = function (context) {
+	            if (spatialSearch === undefined) {
+	                spatialSearch = new _spatialSearch2.default(context, nodes, lines, curves, circles, normalize);
+	            }
+	            return spatialSearch;
+	        };
 	
 	        removedNodes = 0;
 	        removedEdges = 0;
@@ -1136,13 +1144,6 @@
 	
 	            if (typeof e.target == 'number') e.target = nodes[e.target];
 	        }
-	
-	        this.getCurrentSpatialSearch = function (context) {
-	            if (spatialSearch === undefined) {
-	                spatialSearch = new _spatialSearch2.default(context, nodes, lines, curves, circles, normalize);
-	            }
-	            return spatialSearch;
-	        };
 	
 	        var getIndex = function getIndex(e) {
 	            return e.uniqid || -e.index || -e.nidx;
@@ -1226,43 +1227,51 @@
 	
 	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
-	        if (!gl) return;
+	        if (!gl) return isDirty;
 	
-	        var defaultAdder = function defaultAdder(section, addSection) {
-	            if (typeof section.style.texture === 'string') section.style.texture = textures.get(gl, section.style.texture, addSection);else addSection();
-	        };
-	        var labelAdder = function labelAdder(section, addSection) {
-	            var slf = (section.style.label || {}).font || {};
-	            var textEngine = texts.getEngine(slf);
-	            section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
-	        };
+	        var tryInitPrimitives = function tryInitPrimitives() {
+	            var isDirty = false;
 	
-	        scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-	        scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+	            var defaultAdder = function defaultAdder(section, addSection) {
+	                if (typeof section.style.texture === 'string') section.style.texture = textures.get(gl, section.style.texture, addSection);else addSection();
+	            };
+	            var labelAdder = function labelAdder(section, addSection) {
+	                var slf = (section.style.label || {}).font || {};
+	                var textEngine = texts.getEngine(slf);
+	                section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
+	            };
 	
-	        if (nodeStyle.label) {
-	            texts.clear();
-	            scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-	            scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-	            texts.bind();
-	        }
+	            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
+	            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
 	
-	        scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
+	            if (nodeStyle.label) {
+	                texts.clear();
+	                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+	                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+	                texts.bind();
+	            }
 	
-	        if (extensions.OES_standard_derivatives) {
-	            scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
-	            scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
-	        }
-	
-	        if (edgeStyle.arrow) {
-	            scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+	            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
 	
 	            if (extensions.OES_standard_derivatives) {
-	                scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
-	
-	                scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+	                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
+	                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
 	            }
-	        }
+	
+	            if (edgeStyle.arrow) {
+	                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+	
+	                if (extensions.OES_standard_derivatives) {
+	                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
+	
+	                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+	                }
+	            }
+	
+	            return isDirty;
+	        };
+	
+	        while (tryInitPrimitives()) {} //loop until they are not dirty
 	
 	        //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
 	        (function () {
@@ -1410,7 +1419,6 @@
 	    if (!gl) {
 	        options.onLoad && !loadCalled && (loadCalled = true) && options.onLoad();return this;
 	    };
-	    var texts = new _texts2.default(gl);
 	
 	    var getLabelType = function getLabelType(f) {
 	        if (texts.isSDF(f)) return 1;
@@ -1420,7 +1428,7 @@
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 	
 	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform mediump float discardAll;", "float gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(discardAll > 0.5) discard; ", "  if(type > 0.5){", //SDF
-	    "    float tx=texture2D(texture, tc).r;", "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);", "    gl_FragColor=vec4(color.rgb, a * color.a);", "  }else{", //NORMAL FONT
+	    "    float tx=texture2D(texture, tc).a;", "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);", "    gl_FragColor=vec4(color.rgb, a*color.a);", "  }else{", //NORMAL FONT
 	    "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 	
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
@@ -1596,15 +1604,11 @@
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
-	var _texts = __webpack_require__(13);
-	
-	var _texts2 = _interopRequireDefault(_texts);
-	
 	var _utils = __webpack_require__(7);
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _spatialSearch = __webpack_require__(16);
+	var _spatialSearch = __webpack_require__(13);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -1743,27 +1747,30 @@
 	            var result = gl.createTexture();
 	
 	            var image = new Image();
-	            function load() {
-	                image.onload = null;
-	                gl.bindTexture(gl.TEXTURE_2D, result);
 	
-	                if ((options || {}).sdf) {
-	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	                } else {
-	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	                }
+	            var load = function (onL) {
+	                return function () {
+	                    image.onload = null;
+	                    gl.bindTexture(gl.TEXTURE_2D, result);
 	
-	                gl.bindTexture(gl.TEXTURE_2D, null);
-	                onLoad && onLoad();
-	            }
+	                    if ((options || {}).sdf) {
+	                        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	                    } else {
+	                        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                    }
+	
+	                    gl.bindTexture(gl.TEXTURE_2D, null);
+	                    onL && onL();
+	                };
+	            }(onLoad);
 	
 	            image.onload = load;
 	            image.src = img;
@@ -1913,6 +1920,8 @@
 	        };
 	
 	        this.set = function (gl, styles, adder, data, get) {
+	            var isDirty = false;
+	
 	            var parts = {};
 	
 	            var pN = {};
@@ -2011,7 +2020,7 @@
 	                        niI = iI;
 	                    }
 	
-	                    filler.set(e, _part[_i2], iV, iI);
+	                    if (filler.set(e, _part[_i2], iV, iI)) isDirty = true;
 	
 	                    var idx = _part.idx[_i2];
 	                    _this._iIs[idx] = iI;
@@ -2028,6 +2037,8 @@
 	
 	                adder ? adder(section, addSection) : addSection();
 	            }
+	
+	            return isDirty;
 	        };
 	
 	        var fb = void 0;
@@ -2095,6 +2106,7 @@
 	
 	            sections.forEach(function (section) {
 	                if (section.style.texture) {
+	                    section.style.texture.update && section.style.texture.update();
 	                    gl.activeTexture(gl.TEXTURE0);
 	                    gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
 	                    gl.uniform1i(shader.uniforms.texture, 0);
@@ -2314,15 +2326,18 @@
 	    }
 	  }, {
 	    key: "ajax",
-	    value: function ajax(url, callback) {
+	    value: function ajax(url, callback, type) {
 	      var xmlhttp;
 	      // compatible with IE7+, Firefox, Chrome, Opera, Safari
 	      xmlhttp = new XMLHttpRequest();
-	      xmlhttp.onreadystatechange = function () {
-	        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-	          callback(xmlhttp.responseText);
-	        }
-	      };
+	      if (type) xmlhttp.responseType = type;
+	      xmlhttp.onreadystatechange = function (cbk) {
+	        return function () {
+	          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	            cbk(type == 'arraybuffer' ? xmlhttp.response : xmlhttp.responseText);
+	          }
+	        };
+	      }(callback);
 	      xmlhttp.open("GET", url, true);
 	      xmlhttp.send();
 	    }
@@ -2950,428 +2965,9 @@
 	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2016, Helikar Lab.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-	
-	var _default = __webpack_require__(14);
-	
-	var _default2 = _interopRequireDefault(_default);
-	
-	var _sdf = __webpack_require__(15);
-	
-	var _sdf2 = _interopRequireDefault(_sdf);
-	
-	var _utils = __webpack_require__(7);
-	
-	var _utils2 = _interopRequireDefault(_utils);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _class = function () {
-	  function _class(gl) {
-	    _classCallCheck(this, _class);
-	
-	    this._gl = gl;
-	
-	    this._modules = {
-	      'default': new _default2.default(gl),
-	      'sdf': new _sdf2.default(gl)
-	    };
-	  }
-	
-	  _createClass(_class, [{
-	    key: 'clear',
-	    value: function clear() {
-	      for (var k in this._modules) {
-	        this._modules[k].clear();
-	      }
-	    }
-	  }, {
-	    key: 'isSDF',
-	    value: function isSDF(font) {
-	      if (_utils2.default.isObject(font)) {
-	        if (font.texture && font.metrics && font.type === 'sdf') {
-	          return true;
-	        }
-	      }
-	      return false;
-	    }
-	  }, {
-	    key: 'getEngine',
-	    value: function getEngine(font) {
-	      if (this.isSDF(font)) {
-	        return this._modules.sdf;
-	      }
-	      return this._modules.default;
-	    }
-	  }, {
-	    key: 'bind',
-	    value: function bind() {
-	      for (var k in this._modules) {
-	        this._modules[k].bind();
-	      }
-	    }
-	  }, {
-	    key: 'remove',
-	    value: function remove() {
-	      for (var k in this._modules) {
-	        this._modules[k].remove && this._modules[k].remove();
-	      }
-	    }
-	  }]);
-	
-	  return _class;
-	}();
-	
-	exports.default = _class;
-	;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: David Tichy, Aleš Saska
-	 */
-	
-	var _class = function () {
-	  function _class(gl) {
-	    _classCallCheck(this, _class);
-	
-	    this._gl = gl;
-	    this._size = 1024;
-	
-	    this._canvas = document.createElement("canvas");
-	    this._canvas.width = this._canvas.height = this._size;
-	    this._canvas.style.width = this._canvas.style.height = this._size + 'px';
-	    this._canvas.style.display = "none";
-	    this._el = document.body.appendChild(this._canvas);
-	
-	    this._context = this._canvas.getContext('2d');
-	    this._context.fillStyle = "white";
-	    this._context.textAlign = "left";
-	    this._context.textBaseline = "top";
-	
-	    this._rendered = this._texts = this._x = this._y = this._height = undefined;
-	
-	    this.texture = this._gl.createTexture();
-	  }
-	
-	  _createClass(_class, [{
-	    key: "clear",
-	    value: function clear() {
-	      this._rendered = {};
-	      this._context.clearRect(0, 0, this._size, this._size);
-	      this._height = this._x = this._y = 0;
-	    }
-	  }, {
-	    key: "setFont",
-	    value: function setFont(font) {
-	      var fontstr = font ? font.size + "px " + font.type : undefined;
-	
-	      this._rendered[fontstr] = this._texts = this._rendered[fontstr] || {};
-	      this._context.font = fontstr;
-	      this._x = 0;
-	      this._y += this._height;
-	      this._height = font ? font.size + 1 : NaN;
-	    }
-	  }, {
-	    key: "getTexture",
-	    value: function getTexture(style, textures, files, onLoad) {
-	      onLoad();
-	      return this.texture;
-	    }
-	  }, {
-	    key: "_getText",
-	    value: function _getText(text) {
-	      var result = this._texts[text];
-	      if (!result) {
-	        var width = this._context.measureText(text).width;
-	        if (this._x + width > this._size) {
-	          this._x = 0;
-	          this._y += this._height;
-	        }
-	        this._context.fillText(text, this._x, this._y);
-	        this._texts[text] = result = {
-	          width: width,
-	          height: this._height,
-	          left: this._x / this._size,
-	          right: (this._x + width) / this._size,
-	          top: this._y / this._size,
-	          bottom: (this._y + this._height) / this._size
-	        };
-	        this._x += width;
-	      }
-	      return result;
-	    }
-	  }, {
-	    key: "get",
-	    value: function get(text, x, y) {
-	      var c = this._getText(text);
-	
-	      var dx = x <= 0.5 ? 0 : -c.width;
-	      var dy = y <= 0.5 ? 0 : -c.height;
-	
-	      return [{
-	        cCoord: c,
-	        dx: dx,
-	        dy: dy
-	      }];
-	    }
-	  }, {
-	    key: "steps",
-	    value: function steps(text) {
-	      return 1;
-	    }
-	  }, {
-	    key: "bind",
-	    value: function bind() {
-	      this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);
-	      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
-	      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
-	      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
-	      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
-	      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
-	    }
-	  }, {
-	    key: "remove",
-	    value: function remove() {
-	      this._context && this._el.parentNode.removeChild(this._el);
-	    }
-	  }, {
-	    key: "fontSize",
-	    get: function get() {
-	      return this._height - 1;
-	    }
-	  }]);
-	
-	  return _class;
-	}();
-	
-	exports.default = _class;
-	;
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: Aleš Saska
-	 */
-	
-	var _class = function () {
-	  function _class(gl) {
-	    _classCallCheck(this, _class);
-	
-	    this._rendered = {};
-	    this._texts;
-	    this._gl = gl;
-	  }
-	
-	  _createClass(_class, [{
-	    key: 'clear',
-	    value: function clear() {
-	      this._rendered = {};
-	    }
-	  }, {
-	    key: 'setFont',
-	    value: function setFont(style, files, textures, onLoad) {
-	      var font = style.font;
-	      this._rendered[font] = this._texts = this._rendered[font] || {};
-	
-	      this.texture = this.getTexture(style, files, textures, onLoad);
-	      this._files = files;
-	      this._SDFmetrics = files.get(style.metrics);
-	    }
-	  }, {
-	    key: 'getTexture',
-	    value: function getTexture(style, files, textures, onLoad) {
-	
-	      //handler to wait until both atlas (texture) and metrics (json file) are loaded
-	      var onL = function () {
-	        var loaded = {};
-	
-	        return function (k) {
-	          loaded[k] = true;
-	
-	          if (loaded.SDFmetrics && loaded.SDFtexture) {
-	            onLoad && onLoad();
-	          }
-	        };
-	      }();
-	
-	      files.load(style.metrics, function () {
-	        onL('SDFmetrics');
-	      }, 'json');
-	      return textures.get(this._gl, style.texture, function () {
-	        onL('SDFtexture');
-	      }, { sdf: true });
-	    }
-	  }, {
-	    key: '_getChar',
-	    value: function _getChar(text) {
-	      var result = this._texts[text];
-	      var metrics = this._SDFmetrics;
-	      if (!metrics) return {};
-	
-	      if (!result) {
-	        var canvas = this.texture.image;
-	
-	        var buffer = metrics.buffer;
-	
-	        var char = metrics.chars[text];
-	        var width = char[0] + buffer * 2;
-	        var height = char[1] + buffer * 2;
-	        var horiBearingX = char[2];
-	        var horiBearingY = char[3];
-	        var horiAdvance = char[4];
-	        var posX = char[5];
-	        var posY = char[6];
-	        this._texts[text] = result = {
-	          horiAdvance: horiAdvance,
-	          horiBearingX: horiBearingX,
-	          horiBearingY: horiBearingY,
-	          width: width,
-	          height: height,
-	          left: posX / canvas.width,
-	          right: (posX + width) / canvas.width,
-	          top: posY / canvas.height,
-	          bottom: (posY + height) / canvas.height
-	        };
-	      }
-	      return result;
-	    }
-	  }, {
-	    key: 'get',
-	    value: function get(text, x, y) {
-	      var width = 0;
-	      var height = 0;
-	
-	      for (var i = 0; i < text.length; i++) {
-	        var char = this._getChar(text[i]);
-	        height = Math.max(height, char.height);
-	        if (char.horiAdvance) {
-	          /*
-	              We prepare for the atlas coordinates, which generate in our library ccNetViz
-	              */
-	          width += char.horiAdvance + char.horiBearingX;
-	        } else {
-	          /*
-	            We prepare the coordinates for the atlas, which is created on the server
-	            */
-	          width += char.width;
-	        }
-	      }
-	
-	      var dx = x <= 0.5 ? 0 : -width;
-	      var dy = y <= 0.5 ? height / 4 : -height;
-	
-	      var ret = [];
-	      for (var _i = 0; _i < text.length; _i++) {
-	        var _char = this._getChar(text[_i]);
-	
-	        var horiAdvance = void 0;
-	        var temp_dy = dy;
-	        if (_char.horiAdvance) {
-	          /*
-	            We prepare for the atlas coordinates, which generate in our library ccNetViz
-	            */
-	          var horiBearingX = _char.horiBearingX;
-	          var horiBearingY = _char.horiBearingY;
-	          horiAdvance = _char.horiAdvance;
-	          dy -= _char.height - horiBearingY;
-	          dx += horiBearingX;
-	        }
-	
-	        ret.push({
-	          cCoord: _char,
-	          dx: dx,
-	          dy: dy
-	        });
-	
-	        dy = temp_dy;
-	        if (_char.horiAdvance) {
-	          dx += horiAdvance;
-	        } else {
-	          dx += _char.width;
-	        }
-	      }
-	      return ret;
-	    }
-	  }, {
-	    key: 'steps',
-	    value: function steps(text) {
-	      return text.length;
-	    }
-	  }, {
-	    key: 'bind',
-	    value: function bind() {}
-	  }, {
-	    key: 'isSDF',
-	    get: function get() {
-	      return true;
-	    }
-	  }, {
-	    key: 'fontSize',
-	    get: function get() {
-	      return (this._SDFmetrics || {}).size;
-	    }
-	  }]);
-	
-	  return _class;
-	}();
-	
-	exports.default = _class;
-	;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _rbush = __webpack_require__(17);
+	var _rbush = __webpack_require__(14);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
@@ -4067,7 +3663,7 @@
 	exports.default = spatialIndex;
 
 /***/ },
-/* 17 */
+/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4700,7 +4296,7 @@
 	exports.default = rbush;
 
 /***/ },
-/* 18 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4786,7 +4382,7 @@
 	exports.default = _class;
 
 /***/ },
-/* 19 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4872,7 +4468,7 @@
 	          --_this._n || _this._load.forEach(function (l) {
 	            return l();
 	          });
-	        });
+	        }, dataType == 'arraybuffer' ? dataType : undefined);
 	      }
 	      return f;
 	    }
@@ -4894,7 +4490,1873 @@
 	exports.default = _class;
 
 /***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2016, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _default = __webpack_require__(18);
+	
+	var _default2 = _interopRequireDefault(_default);
+	
+	var _sdf = __webpack_require__(19);
+	
+	var _sdf2 = _interopRequireDefault(_sdf);
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
+	
+	    this._gl = gl;
+	
+	    this._modules = {
+	      'default': new _default2.default(gl),
+	      'sdf': new _sdf2.default(gl)
+	    };
+	  }
+	
+	  _createClass(_class, [{
+	    key: 'clear',
+	    value: function clear() {
+	      for (var k in this._modules) {
+	        this._modules[k].clear();
+	      }
+	    }
+	  }, {
+	    key: 'isSDF',
+	    value: function isSDF(font) {
+	      if (_utils2.default.isObject(font)) {
+	        if (font.type === 'sdf' && font.pbf) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	  }, {
+	    key: 'getEngine',
+	    value: function getEngine(font) {
+	      if (this.isSDF(font)) {
+	        return this._modules.sdf;
+	      }
+	      return this._modules.default;
+	    }
+	  }, {
+	    key: 'bind',
+	    value: function bind() {
+	      for (var k in this._modules) {
+	        this._modules[k].bind();
+	      }
+	    }
+	  }, {
+	    key: 'remove',
+	    value: function remove() {
+	      for (var k in this._modules) {
+	        this._modules[k].remove && this._modules[k].remove();
+	      }
+	    }
+	  }]);
+	
+	  return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: David Tichy, Aleš Saska
+	 */
+	
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
+	
+	    this._gl = gl;
+	    this._size = 1024;
+	
+	    this._canvas = document.createElement("canvas");
+	    this._canvas.width = this._canvas.height = this._size;
+	    this._canvas.style.width = this._canvas.style.height = this._size + 'px';
+	    this._canvas.style.display = "none";
+	    this._el = document.body.appendChild(this._canvas);
+	
+	    this._context = this._canvas.getContext('2d');
+	    this._context.fillStyle = "white";
+	    this._context.textAlign = "left";
+	    this._context.textBaseline = "top";
+	
+	    this._rendered = this._texts = this._x = this._y = this._height = undefined;
+	
+	    this.texture = this._gl.createTexture();
+	  }
+	
+	  _createClass(_class, [{
+	    key: "clear",
+	    value: function clear() {
+	      this._rendered = {};
+	      this._context.clearRect(0, 0, this._size, this._size);
+	      this._height = this._x = this._y = 0;
+	    }
+	  }, {
+	    key: "setFont",
+	    value: function setFont(font) {
+	      var fontstr = font ? font.size + "px " + font.type : undefined;
+	
+	      this._rendered[fontstr] = this._texts = this._rendered[fontstr] || {};
+	      this._context.font = fontstr;
+	      this._x = 0;
+	      this._y += this._height;
+	      this._height = font ? font.size + 1 : NaN;
+	    }
+	  }, {
+	    key: "getTexture",
+	    value: function getTexture(style, textures, files, onLoad) {
+	      onLoad();
+	      return this.texture;
+	    }
+	  }, {
+	    key: "_getText",
+	    value: function _getText(text) {
+	      var result = this._texts[text];
+	      if (!result) {
+	        var width = this._context.measureText(text).width;
+	        if (this._x + width > this._size) {
+	          this._x = 0;
+	          this._y += this._height;
+	        }
+	        this._context.fillText(text, this._x, this._y);
+	        this._texts[text] = result = {
+	          width: width,
+	          height: this._height,
+	          left: this._x / this._size,
+	          right: (this._x + width) / this._size,
+	          top: this._y / this._size,
+	          bottom: (this._y + this._height) / this._size
+	        };
+	        this._x += width;
+	      }
+	      return result;
+	    }
+	  }, {
+	    key: "get",
+	    value: function get(text, x, y) {
+	      var c = this._getText(text);
+	
+	      var dx = x <= 0.5 ? 0 : -c.width;
+	      var dy = y <= 0.5 ? 0 : -c.height;
+	
+	      return [{
+	        cCoord: c,
+	        dx: dx,
+	        dy: dy
+	      }];
+	    }
+	  }, {
+	    key: "steps",
+	    value: function steps(text) {
+	      return 1;
+	    }
+	  }, {
+	    key: "bind",
+	    value: function bind() {
+	      this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);
+	      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
+	      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+	      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+	      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
+	      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+	    }
+	  }, {
+	    key: "remove",
+	    value: function remove() {
+	      this._context && this._el.parentNode.removeChild(this._el);
+	    }
+	  }, {
+	    key: "fontSize",
+	    get: function get() {
+	      return this._height - 1;
+	    }
+	  }]);
+	
+	  return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _pbf = __webpack_require__(20);
+	
+	var _pbf2 = _interopRequireDefault(_pbf);
+	
+	var _atlas = __webpack_require__(22);
+	
+	var _atlas2 = _interopRequireDefault(_atlas);
+	
+	var _glyphs = __webpack_require__(24);
+	
+	var _glyphs2 = _interopRequireDefault(_glyphs);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Authors: Aleš Saska
+	 */
+	
+	// A simplified representation of the glyph containing only the properties needed for shaping.
+	var SimpleGlyph = function SimpleGlyph(glyph, rect, buffer) {
+	  _classCallCheck(this, SimpleGlyph);
+	
+	  var padding = 1;
+	  this.advance = glyph.advance;
+	  this.left = glyph.left - buffer - padding;
+	  this.top = glyph.top + buffer + padding;
+	  this.rect = rect;
+	};
+	
+	var SIZE_GROWTH_RATE = 4;
+	var DEFAULT_SIZE = 128;
+	// must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
+	var MAX_SIZE = 2048;
+	
+	var _class = function () {
+	  function _class(gl) {
+	    _classCallCheck(this, _class);
+	
+	    this.width = DEFAULT_SIZE;
+	    this.height = DEFAULT_SIZE;
+	
+	    this.clear();
+	
+	    this._rendered = {};
+	    this._texts;
+	    this._gl = gl;
+	
+	    this.atlas = new _atlas2.default(this._gl);
+	    this._textures = {};
+	    this._glyphs = {};
+	    this._rects = {};
+	  }
+	
+	  _createClass(_class, [{
+	    key: 'clear',
+	    value: function clear() {}
+	  }, {
+	    key: 'setFont',
+	    value: function setFont(style, files, textures, onLoad) {
+	      var font = style.pbf;
+	
+	      this.curFont = font;
+	
+	      this._files = files;
+	      this._SDFmetrics = files.get(style.metrics);
+	    }
+	  }, {
+	    key: 'getTexture',
+	    value: function getTexture(style, files, textures, onLoad) {
+	      var _this = this,
+	          _arguments = arguments;
+	
+	      var myOnLoad = function (onL) {
+	        return function () {
+	          var data = files.load(style.pbf, onLoad, 'arraybuffer');
+	
+	          //init first most-used ASCII chars
+	          for (var i = 0; i < 128; i++) {
+	            _this._getChar(String.fromCharCode(i));
+	          }
+	
+	          onL && onL.apply(_this, _arguments);
+	        };
+	      }(onLoad);
+	
+	      var font = style.pbf;
+	      if (!this._glyphs[font]) {
+	        var data = files.load(style.pbf, myOnLoad, 'arraybuffer');
+	        this._curglyphs = this._glyphs[font] = data && new _glyphs2.default(new _pbf2.default(data));
+	      } else {
+	        myOnLoad();
+	      }
+	
+	      return this.atlas.texture;
+	    }
+	  }, {
+	    key: '_getChar',
+	    value: function _getChar(text, markDirty) {
+	      var font = this.curFont;
+	      var glyphID = text.charCodeAt(0);
+	
+	      var buffer = 3;
+	      var range = Math.floor(glyphID / 256);
+	
+	      if (this._glyphs[font]) {
+	        var g = this._glyphs[font];
+	        if (g) {
+	          var stack = g.stacks[range];
+	          if (stack) {
+	            var glyph = stack.glyphs[glyphID];
+	            if (!this._rects[font]) this._rects[font] = {};
+	            var _rect = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
+	            this._rects[font][text] = _rect;
+	          }
+	        }
+	      }
+	
+	      var r = void 0,
+	          rect = void 0;
+	      if ((r = this._rects[font]) && (rect = r[text])) {
+	        var _glyph = this._glyphs[font].stacks[range].glyphs[glyphID];
+	
+	        var glS = new SimpleGlyph(_glyph, rect, buffer);
+	        var posX = glS.rect.x; //+glS.left;
+	        var posY = glS.rect.y; //+glS.top;
+	        var horiBearingX = 3;
+	        var horiBearingY = 2;
+	        var w = glS.rect.w;
+	        var h = glS.rect.h;
+	        return {
+	          horiAdvance: glS.advance,
+	          horiBearingX: horiBearingX,
+	          horiBearingY: glS.rect.h,
+	          width: w,
+	          height: h,
+	          left: posX / this.atlas.width,
+	          right: (posX + glS.rect.w) / this.atlas.width,
+	          top: posY / this.atlas.height,
+	          bottom: (posY + glS.rect.h) / this.atlas.height
+	        };
+	      }
+	
+	      return {};
+	    }
+	  }, {
+	    key: 'get',
+	    value: function get(text, x, y, markDirty) {
+	      var width = 0;
+	      var height = 0;
+	
+	      for (var i = 0; i < text.length; i++) {
+	        var char = this._getChar(text[i], markDirty);
+	        height = Math.max(height, char.height);
+	        width += char.horiAdvance + char.horiBearingX;
+	      }
+	
+	      var dx = x <= 0.5 ? 0 : -width;
+	      var dy = y <= 0.5 ? height / 4 : -height;
+	
+	      var ret = [];
+	      for (var _i = 0; _i < text.length; _i++) {
+	        var _char = this._getChar(text[_i], markDirty);
+	
+	        var horiAdvance = void 0;
+	        dx += _char.horiBearingX;
+	
+	        ret.push({
+	          cCoord: _char,
+	          dx: dx,
+	          dy: dy
+	        });
+	
+	        dx += _char.horiAdvance;
+	      }
+	      return ret;
+	    }
+	  }, {
+	    key: 'steps',
+	    value: function steps(text) {
+	      return text.length;
+	    }
+	  }, {
+	    key: 'bind',
+	    value: function bind() {
+	      this.atlas.updateTexture(this._gl);
+	    }
+	  }, {
+	    key: 'isSDF',
+	    get: function get() {
+	      return true;
+	    }
+	  }, {
+	    key: 'fontSize',
+	    get: function get() {
+	      return 24;
+	    }
+	  }]);
+	
+	  return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ },
 /* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = Pbf;
+	
+	var ieee754 = __webpack_require__(21);
+	
+	function Pbf(buf) {
+	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
+	    this.pos = 0;
+	    this.type = 0;
+	    this.length = this.buf.length;
+	}
+	
+	Pbf.Varint  = 0; // varint: int32, int64, uint32, uint64, sint32, sint64, bool, enum
+	Pbf.Fixed64 = 1; // 64-bit: double, fixed64, sfixed64
+	Pbf.Bytes   = 2; // length-delimited: string, bytes, embedded messages, packed repeated fields
+	Pbf.Fixed32 = 5; // 32-bit: float, fixed32, sfixed32
+	
+	var SHIFT_LEFT_32 = (1 << 16) * (1 << 16),
+	    SHIFT_RIGHT_32 = 1 / SHIFT_LEFT_32;
+	
+	Pbf.prototype = {
+	
+	    destroy: function() {
+	        this.buf = null;
+	    },
+	
+	    // === READING =================================================================
+	
+	    readFields: function(readField, result, end) {
+	        end = end || this.length;
+	
+	        while (this.pos < end) {
+	            var val = this.readVarint(),
+	                tag = val >> 3,
+	                startPos = this.pos;
+	
+	            this.type = val & 0x7;
+	            readField(tag, result, this);
+	
+	            if (this.pos === startPos) this.skip(val);
+	        }
+	        return result;
+	    },
+	
+	    readMessage: function(readField, result) {
+	        return this.readFields(readField, result, this.readVarint() + this.pos);
+	    },
+	
+	    readFixed32: function() {
+	        var val = readUInt32(this.buf, this.pos);
+	        this.pos += 4;
+	        return val;
+	    },
+	
+	    readSFixed32: function() {
+	        var val = readInt32(this.buf, this.pos);
+	        this.pos += 4;
+	        return val;
+	    },
+	
+	    // 64-bit int handling is based on github.com/dpw/node-buffer-more-ints (MIT-licensed)
+	
+	    readFixed64: function() {
+	        var val = readUInt32(this.buf, this.pos) + readUInt32(this.buf, this.pos + 4) * SHIFT_LEFT_32;
+	        this.pos += 8;
+	        return val;
+	    },
+	
+	    readSFixed64: function() {
+	        var val = readUInt32(this.buf, this.pos) + readInt32(this.buf, this.pos + 4) * SHIFT_LEFT_32;
+	        this.pos += 8;
+	        return val;
+	    },
+	
+	    readFloat: function() {
+	        var val = ieee754.read(this.buf, this.pos, true, 23, 4);
+	        this.pos += 4;
+	        return val;
+	    },
+	
+	    readDouble: function() {
+	        var val = ieee754.read(this.buf, this.pos, true, 52, 8);
+	        this.pos += 8;
+	        return val;
+	    },
+	
+	    readVarint: function(isSigned) {
+	        var buf = this.buf,
+	            val, b;
+	
+	        b = buf[this.pos++]; val  =  b & 0x7f;        if (b < 0x80) return val;
+	        b = buf[this.pos++]; val |= (b & 0x7f) << 7;  if (b < 0x80) return val;
+	        b = buf[this.pos++]; val |= (b & 0x7f) << 14; if (b < 0x80) return val;
+	        b = buf[this.pos++]; val |= (b & 0x7f) << 21; if (b < 0x80) return val;
+	        b = buf[this.pos];   val |= (b & 0x0f) << 28;
+	
+	        return readVarintRemainder(val, isSigned, this);
+	    },
+	
+	    readVarint64: function() { // for compatibility with v2.0.1
+	        return this.readVarint(true);
+	    },
+	
+	    readSVarint: function() {
+	        var num = this.readVarint();
+	        return num % 2 === 1 ? (num + 1) / -2 : num / 2; // zigzag encoding
+	    },
+	
+	    readBoolean: function() {
+	        return Boolean(this.readVarint());
+	    },
+	
+	    readString: function() {
+	        var end = this.readVarint() + this.pos,
+	            str = readUtf8(this.buf, this.pos, end);
+	        this.pos = end;
+	        return str;
+	    },
+	
+	    readBytes: function() {
+	        var end = this.readVarint() + this.pos,
+	            buffer = this.buf.subarray(this.pos, end);
+	        this.pos = end;
+	        return buffer;
+	    },
+	
+	    // verbose for performance reasons; doesn't affect gzipped size
+	
+	    readPackedVarint: function(arr, isSigned) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readVarint(isSigned));
+	        return arr;
+	    },
+	    readPackedSVarint: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readSVarint());
+	        return arr;
+	    },
+	    readPackedBoolean: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readBoolean());
+	        return arr;
+	    },
+	    readPackedFloat: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readFloat());
+	        return arr;
+	    },
+	    readPackedDouble: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readDouble());
+	        return arr;
+	    },
+	    readPackedFixed32: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readFixed32());
+	        return arr;
+	    },
+	    readPackedSFixed32: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readSFixed32());
+	        return arr;
+	    },
+	    readPackedFixed64: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readFixed64());
+	        return arr;
+	    },
+	    readPackedSFixed64: function(arr) {
+	        var end = readPackedEnd(this);
+	        arr = arr || [];
+	        while (this.pos < end) arr.push(this.readSFixed64());
+	        return arr;
+	    },
+	
+	    skip: function(val) {
+	        var type = val & 0x7;
+	        if (type === Pbf.Varint) while (this.buf[this.pos++] > 0x7f) {}
+	        else if (type === Pbf.Bytes) this.pos = this.readVarint() + this.pos;
+	        else if (type === Pbf.Fixed32) this.pos += 4;
+	        else if (type === Pbf.Fixed64) this.pos += 8;
+	        else throw new Error('Unimplemented type: ' + type);
+	    },
+	
+	    // === WRITING =================================================================
+	
+	    writeTag: function(tag, type) {
+	        this.writeVarint((tag << 3) | type);
+	    },
+	
+	    realloc: function(min) {
+	        var length = this.length || 16;
+	
+	        while (length < this.pos + min) length *= 2;
+	
+	        if (length !== this.length) {
+	            var buf = new Uint8Array(length);
+	            buf.set(this.buf);
+	            this.buf = buf;
+	            this.length = length;
+	        }
+	    },
+	
+	    finish: function() {
+	        this.length = this.pos;
+	        this.pos = 0;
+	        return this.buf.subarray(0, this.length);
+	    },
+	
+	    writeFixed32: function(val) {
+	        this.realloc(4);
+	        writeInt32(this.buf, val, this.pos);
+	        this.pos += 4;
+	    },
+	
+	    writeSFixed32: function(val) {
+	        this.realloc(4);
+	        writeInt32(this.buf, val, this.pos);
+	        this.pos += 4;
+	    },
+	
+	    writeFixed64: function(val) {
+	        this.realloc(8);
+	        writeInt32(this.buf, val & -1, this.pos);
+	        writeInt32(this.buf, Math.floor(val * SHIFT_RIGHT_32), this.pos + 4);
+	        this.pos += 8;
+	    },
+	
+	    writeSFixed64: function(val) {
+	        this.realloc(8);
+	        writeInt32(this.buf, val & -1, this.pos);
+	        writeInt32(this.buf, Math.floor(val * SHIFT_RIGHT_32), this.pos + 4);
+	        this.pos += 8;
+	    },
+	
+	    writeVarint: function(val) {
+	        val = +val || 0;
+	
+	        if (val > 0xfffffff || val < 0) {
+	            writeBigVarint(val, this);
+	            return;
+	        }
+	
+	        this.realloc(4);
+	
+	        this.buf[this.pos++] =           val & 0x7f  | (val > 0x7f ? 0x80 : 0); if (val <= 0x7f) return;
+	        this.buf[this.pos++] = ((val >>>= 7) & 0x7f) | (val > 0x7f ? 0x80 : 0); if (val <= 0x7f) return;
+	        this.buf[this.pos++] = ((val >>>= 7) & 0x7f) | (val > 0x7f ? 0x80 : 0); if (val <= 0x7f) return;
+	        this.buf[this.pos++] =   (val >>> 7) & 0x7f;
+	    },
+	
+	    writeSVarint: function(val) {
+	        this.writeVarint(val < 0 ? -val * 2 - 1 : val * 2);
+	    },
+	
+	    writeBoolean: function(val) {
+	        this.writeVarint(Boolean(val));
+	    },
+	
+	    writeString: function(str) {
+	        str = String(str);
+	        this.realloc(str.length * 4);
+	
+	        this.pos++; // reserve 1 byte for short string length
+	
+	        var startPos = this.pos;
+	        // write the string directly to the buffer and see how much was written
+	        this.pos = writeUtf8(this.buf, str, this.pos);
+	        var len = this.pos - startPos;
+	
+	        if (len >= 0x80) makeRoomForExtraLength(startPos, len, this);
+	
+	        // finally, write the message length in the reserved place and restore the position
+	        this.pos = startPos - 1;
+	        this.writeVarint(len);
+	        this.pos += len;
+	    },
+	
+	    writeFloat: function(val) {
+	        this.realloc(4);
+	        ieee754.write(this.buf, val, this.pos, true, 23, 4);
+	        this.pos += 4;
+	    },
+	
+	    writeDouble: function(val) {
+	        this.realloc(8);
+	        ieee754.write(this.buf, val, this.pos, true, 52, 8);
+	        this.pos += 8;
+	    },
+	
+	    writeBytes: function(buffer) {
+	        var len = buffer.length;
+	        this.writeVarint(len);
+	        this.realloc(len);
+	        for (var i = 0; i < len; i++) this.buf[this.pos++] = buffer[i];
+	    },
+	
+	    writeRawMessage: function(fn, obj) {
+	        this.pos++; // reserve 1 byte for short message length
+	
+	        // write the message directly to the buffer and see how much was written
+	        var startPos = this.pos;
+	        fn(obj, this);
+	        var len = this.pos - startPos;
+	
+	        if (len >= 0x80) makeRoomForExtraLength(startPos, len, this);
+	
+	        // finally, write the message length in the reserved place and restore the position
+	        this.pos = startPos - 1;
+	        this.writeVarint(len);
+	        this.pos += len;
+	    },
+	
+	    writeMessage: function(tag, fn, obj) {
+	        this.writeTag(tag, Pbf.Bytes);
+	        this.writeRawMessage(fn, obj);
+	    },
+	
+	    writePackedVarint:   function(tag, arr) { this.writeMessage(tag, writePackedVarint, arr);   },
+	    writePackedSVarint:  function(tag, arr) { this.writeMessage(tag, writePackedSVarint, arr);  },
+	    writePackedBoolean:  function(tag, arr) { this.writeMessage(tag, writePackedBoolean, arr);  },
+	    writePackedFloat:    function(tag, arr) { this.writeMessage(tag, writePackedFloat, arr);    },
+	    writePackedDouble:   function(tag, arr) { this.writeMessage(tag, writePackedDouble, arr);   },
+	    writePackedFixed32:  function(tag, arr) { this.writeMessage(tag, writePackedFixed32, arr);  },
+	    writePackedSFixed32: function(tag, arr) { this.writeMessage(tag, writePackedSFixed32, arr); },
+	    writePackedFixed64:  function(tag, arr) { this.writeMessage(tag, writePackedFixed64, arr);  },
+	    writePackedSFixed64: function(tag, arr) { this.writeMessage(tag, writePackedSFixed64, arr); },
+	
+	    writeBytesField: function(tag, buffer) {
+	        this.writeTag(tag, Pbf.Bytes);
+	        this.writeBytes(buffer);
+	    },
+	    writeFixed32Field: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed32);
+	        this.writeFixed32(val);
+	    },
+	    writeSFixed32Field: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed32);
+	        this.writeSFixed32(val);
+	    },
+	    writeFixed64Field: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed64);
+	        this.writeFixed64(val);
+	    },
+	    writeSFixed64Field: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed64);
+	        this.writeSFixed64(val);
+	    },
+	    writeVarintField: function(tag, val) {
+	        this.writeTag(tag, Pbf.Varint);
+	        this.writeVarint(val);
+	    },
+	    writeSVarintField: function(tag, val) {
+	        this.writeTag(tag, Pbf.Varint);
+	        this.writeSVarint(val);
+	    },
+	    writeStringField: function(tag, str) {
+	        this.writeTag(tag, Pbf.Bytes);
+	        this.writeString(str);
+	    },
+	    writeFloatField: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed32);
+	        this.writeFloat(val);
+	    },
+	    writeDoubleField: function(tag, val) {
+	        this.writeTag(tag, Pbf.Fixed64);
+	        this.writeDouble(val);
+	    },
+	    writeBooleanField: function(tag, val) {
+	        this.writeVarintField(tag, Boolean(val));
+	    }
+	};
+	
+	function readVarintRemainder(l, s, p) {
+	    var buf = p.buf,
+	        h, b;
+	
+	    b = buf[p.pos++]; h  = (b & 0x70) >> 4;  if (b < 0x80) return toNum(l, h, s);
+	    b = buf[p.pos++]; h |= (b & 0x7f) << 3;  if (b < 0x80) return toNum(l, h, s);
+	    b = buf[p.pos++]; h |= (b & 0x7f) << 10; if (b < 0x80) return toNum(l, h, s);
+	    b = buf[p.pos++]; h |= (b & 0x7f) << 17; if (b < 0x80) return toNum(l, h, s);
+	    b = buf[p.pos++]; h |= (b & 0x7f) << 24; if (b < 0x80) return toNum(l, h, s);
+	    b = buf[p.pos++]; h |= (b & 0x01) << 31; if (b < 0x80) return toNum(l, h, s);
+	
+	    throw new Error('Expected varint not more than 10 bytes');
+	}
+	
+	function readPackedEnd(pbf) {
+	    return pbf.type === Pbf.Bytes ?
+	        pbf.readVarint() + pbf.pos : pbf.pos + 1;
+	}
+	
+	function toNum(low, high, isSigned) {
+	    if (isSigned) {
+	        return high * 0x100000000 + (low >>> 0);
+	    }
+	
+	    return ((high >>> 0) * 0x100000000) + (low >>> 0);
+	}
+	
+	function writeBigVarint(val, pbf) {
+	    var low, high;
+	
+	    if (val >= 0) {
+	        low  = (val % 0x100000000) | 0;
+	        high = (val / 0x100000000) | 0;
+	    } else {
+	        low  = ~(-val % 0x100000000);
+	        high = ~(-val / 0x100000000);
+	
+	        if (low ^ 0xffffffff) {
+	            low = (low + 1) | 0;
+	        } else {
+	            low = 0;
+	            high = (high + 1) | 0;
+	        }
+	    }
+	
+	    if (val >= 0x10000000000000000 || val < -0x10000000000000000) {
+	        throw new Error('Given varint doesn\'t fit into 10 bytes');
+	    }
+	
+	    pbf.realloc(10);
+	
+	    writeBigVarintLow(low, high, pbf);
+	    writeBigVarintHigh(high, pbf);
+	}
+	
+	function writeBigVarintLow(low, high, pbf) {
+	    pbf.buf[pbf.pos++] = low & 0x7f | 0x80; low >>>= 7;
+	    pbf.buf[pbf.pos++] = low & 0x7f | 0x80; low >>>= 7;
+	    pbf.buf[pbf.pos++] = low & 0x7f | 0x80; low >>>= 7;
+	    pbf.buf[pbf.pos++] = low & 0x7f | 0x80; low >>>= 7;
+	    pbf.buf[pbf.pos]   = low & 0x7f;
+	}
+	
+	function writeBigVarintHigh(high, pbf) {
+	    var lsb = (high & 0x07) << 4;
+	
+	    pbf.buf[pbf.pos++] |= lsb         | ((high >>>= 3) ? 0x80 : 0); if (!high) return;
+	    pbf.buf[pbf.pos++]  = high & 0x7f | ((high >>>= 7) ? 0x80 : 0); if (!high) return;
+	    pbf.buf[pbf.pos++]  = high & 0x7f | ((high >>>= 7) ? 0x80 : 0); if (!high) return;
+	    pbf.buf[pbf.pos++]  = high & 0x7f | ((high >>>= 7) ? 0x80 : 0); if (!high) return;
+	    pbf.buf[pbf.pos++]  = high & 0x7f | ((high >>>= 7) ? 0x80 : 0); if (!high) return;
+	    pbf.buf[pbf.pos++]  = high & 0x7f;
+	}
+	
+	function makeRoomForExtraLength(startPos, len, pbf) {
+	    var extraLen =
+	        len <= 0x3fff ? 1 :
+	        len <= 0x1fffff ? 2 :
+	        len <= 0xfffffff ? 3 : Math.ceil(Math.log(len) / (Math.LN2 * 7));
+	
+	    // if 1 byte isn't enough for encoding message length, shift the data to the right
+	    pbf.realloc(extraLen);
+	    for (var i = pbf.pos - 1; i >= startPos; i--) pbf.buf[i + extraLen] = pbf.buf[i];
+	}
+	
+	function writePackedVarint(arr, pbf)   { for (var i = 0; i < arr.length; i++) pbf.writeVarint(arr[i]);   }
+	function writePackedSVarint(arr, pbf)  { for (var i = 0; i < arr.length; i++) pbf.writeSVarint(arr[i]);  }
+	function writePackedFloat(arr, pbf)    { for (var i = 0; i < arr.length; i++) pbf.writeFloat(arr[i]);    }
+	function writePackedDouble(arr, pbf)   { for (var i = 0; i < arr.length; i++) pbf.writeDouble(arr[i]);   }
+	function writePackedBoolean(arr, pbf)  { for (var i = 0; i < arr.length; i++) pbf.writeBoolean(arr[i]);  }
+	function writePackedFixed32(arr, pbf)  { for (var i = 0; i < arr.length; i++) pbf.writeFixed32(arr[i]);  }
+	function writePackedSFixed32(arr, pbf) { for (var i = 0; i < arr.length; i++) pbf.writeSFixed32(arr[i]); }
+	function writePackedFixed64(arr, pbf)  { for (var i = 0; i < arr.length; i++) pbf.writeFixed64(arr[i]);  }
+	function writePackedSFixed64(arr, pbf) { for (var i = 0; i < arr.length; i++) pbf.writeSFixed64(arr[i]); }
+	
+	// Buffer code below from https://github.com/feross/buffer, MIT-licensed
+	
+	function readUInt32(buf, pos) {
+	    return ((buf[pos]) |
+	        (buf[pos + 1] << 8) |
+	        (buf[pos + 2] << 16)) +
+	        (buf[pos + 3] * 0x1000000);
+	}
+	
+	function writeInt32(buf, val, pos) {
+	    buf[pos] = val;
+	    buf[pos + 1] = (val >>> 8);
+	    buf[pos + 2] = (val >>> 16);
+	    buf[pos + 3] = (val >>> 24);
+	}
+	
+	function readInt32(buf, pos) {
+	    return ((buf[pos]) |
+	        (buf[pos + 1] << 8) |
+	        (buf[pos + 2] << 16)) +
+	        (buf[pos + 3] << 24);
+	}
+	
+	function readUtf8(buf, pos, end) {
+	    var str = '';
+	    var i = pos;
+	
+	    while (i < end) {
+	        var b0 = buf[i];
+	        var c = null; // codepoint
+	        var bytesPerSequence =
+	            b0 > 0xEF ? 4 :
+	            b0 > 0xDF ? 3 :
+	            b0 > 0xBF ? 2 : 1;
+	
+	        if (i + bytesPerSequence > end) break;
+	
+	        var b1, b2, b3;
+	
+	        if (bytesPerSequence === 1) {
+	            if (b0 < 0x80) {
+	                c = b0;
+	            }
+	        } else if (bytesPerSequence === 2) {
+	            b1 = buf[i + 1];
+	            if ((b1 & 0xC0) === 0x80) {
+	                c = (b0 & 0x1F) << 0x6 | (b1 & 0x3F);
+	                if (c <= 0x7F) {
+	                    c = null;
+	                }
+	            }
+	        } else if (bytesPerSequence === 3) {
+	            b1 = buf[i + 1];
+	            b2 = buf[i + 2];
+	            if ((b1 & 0xC0) === 0x80 && (b2 & 0xC0) === 0x80) {
+	                c = (b0 & 0xF) << 0xC | (b1 & 0x3F) << 0x6 | (b2 & 0x3F);
+	                if (c <= 0x7FF || (c >= 0xD800 && c <= 0xDFFF)) {
+	                    c = null;
+	                }
+	            }
+	        } else if (bytesPerSequence === 4) {
+	            b1 = buf[i + 1];
+	            b2 = buf[i + 2];
+	            b3 = buf[i + 3];
+	            if ((b1 & 0xC0) === 0x80 && (b2 & 0xC0) === 0x80 && (b3 & 0xC0) === 0x80) {
+	                c = (b0 & 0xF) << 0x12 | (b1 & 0x3F) << 0xC | (b2 & 0x3F) << 0x6 | (b3 & 0x3F);
+	                if (c <= 0xFFFF || c >= 0x110000) {
+	                    c = null;
+	                }
+	            }
+	        }
+	
+	        if (c === null) {
+	            c = 0xFFFD;
+	            bytesPerSequence = 1;
+	
+	        } else if (c > 0xFFFF) {
+	            c -= 0x10000;
+	            str += String.fromCharCode(c >>> 10 & 0x3FF | 0xD800);
+	            c = 0xDC00 | c & 0x3FF;
+	        }
+	
+	        str += String.fromCharCode(c);
+	        i += bytesPerSequence;
+	    }
+	
+	    return str;
+	}
+	
+	function writeUtf8(buf, str, pos) {
+	    for (var i = 0, c, lead; i < str.length; i++) {
+	        c = str.charCodeAt(i); // code point
+	
+	        if (c > 0xD7FF && c < 0xE000) {
+	            if (lead) {
+	                if (c < 0xDC00) {
+	                    buf[pos++] = 0xEF;
+	                    buf[pos++] = 0xBF;
+	                    buf[pos++] = 0xBD;
+	                    lead = c;
+	                    continue;
+	                } else {
+	                    c = lead - 0xD800 << 10 | c - 0xDC00 | 0x10000;
+	                    lead = null;
+	                }
+	            } else {
+	                if (c > 0xDBFF || (i + 1 === str.length)) {
+	                    buf[pos++] = 0xEF;
+	                    buf[pos++] = 0xBF;
+	                    buf[pos++] = 0xBD;
+	                } else {
+	                    lead = c;
+	                }
+	                continue;
+	            }
+	        } else if (lead) {
+	            buf[pos++] = 0xEF;
+	            buf[pos++] = 0xBF;
+	            buf[pos++] = 0xBD;
+	            lead = null;
+	        }
+	
+	        if (c < 0x80) {
+	            buf[pos++] = c;
+	        } else {
+	            if (c < 0x800) {
+	                buf[pos++] = c >> 0x6 | 0xC0;
+	            } else {
+	                if (c < 0x10000) {
+	                    buf[pos++] = c >> 0xC | 0xE0;
+	                } else {
+	                    buf[pos++] = c >> 0x12 | 0xF0;
+	                    buf[pos++] = c >> 0xC & 0x3F | 0x80;
+	                }
+	                buf[pos++] = c >> 0x6 & 0x3F | 0x80;
+	            }
+	            buf[pos++] = c & 0x3F | 0x80;
+	        }
+	    }
+	    return pos;
+	}
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+	  var e, m
+	  var eLen = nBytes * 8 - mLen - 1
+	  var eMax = (1 << eLen) - 1
+	  var eBias = eMax >> 1
+	  var nBits = -7
+	  var i = isLE ? (nBytes - 1) : 0
+	  var d = isLE ? -1 : 1
+	  var s = buffer[offset + i]
+	
+	  i += d
+	
+	  e = s & ((1 << (-nBits)) - 1)
+	  s >>= (-nBits)
+	  nBits += eLen
+	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+	
+	  m = e & ((1 << (-nBits)) - 1)
+	  e >>= (-nBits)
+	  nBits += mLen
+	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+	
+	  if (e === 0) {
+	    e = 1 - eBias
+	  } else if (e === eMax) {
+	    return m ? NaN : ((s ? -1 : 1) * Infinity)
+	  } else {
+	    m = m + Math.pow(2, mLen)
+	    e = e - eBias
+	  }
+	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+	}
+	
+	exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+	  var e, m, c
+	  var eLen = nBytes * 8 - mLen - 1
+	  var eMax = (1 << eLen) - 1
+	  var eBias = eMax >> 1
+	  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+	  var i = isLE ? 0 : (nBytes - 1)
+	  var d = isLE ? 1 : -1
+	  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+	
+	  value = Math.abs(value)
+	
+	  if (isNaN(value) || value === Infinity) {
+	    m = isNaN(value) ? 1 : 0
+	    e = eMax
+	  } else {
+	    e = Math.floor(Math.log(value) / Math.LN2)
+	    if (value * (c = Math.pow(2, -e)) < 1) {
+	      e--
+	      c *= 2
+	    }
+	    if (e + eBias >= 1) {
+	      value += rt / c
+	    } else {
+	      value += rt * Math.pow(2, 1 - eBias)
+	    }
+	    if (value * c >= 2) {
+	      e++
+	      c /= 2
+	    }
+	
+	    if (e + eBias >= eMax) {
+	      m = 0
+	      e = eMax
+	    } else if (e + eBias >= 1) {
+	      m = (value * c - 1) * Math.pow(2, mLen)
+	      e = e + eBias
+	    } else {
+	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+	      e = 0
+	    }
+	  }
+	
+	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+	
+	  e = (e << mLen) | m
+	  eLen += mLen
+	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+	
+	  buffer[offset + i - d] |= s * 128
+	}
+
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _shelfPack = __webpack_require__(23);
+	
+	var _shelfPack2 = _interopRequireDefault(_shelfPack);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	//import util from '../util/util';
+	
+	var SIZE_GROWTH_RATE = 4;
+	var DEFAULT_SIZE = 1024;
+	// must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
+	var MAX_SIZE = 2048;
+	
+	var GlyphAtlas = function () {
+	    function GlyphAtlas(gl) {
+	        _classCallCheck(this, GlyphAtlas);
+	
+	        this.width = DEFAULT_SIZE;
+	        this.height = DEFAULT_SIZE;
+	
+	        this.bin = new _shelfPack2.default(this.width, this.height);
+	        this.index = {};
+	        this.ids = {};
+	
+	        this.gl = gl;
+	        this.data = new Uint8Array(this.width * this.height);
+	    }
+	
+	    _createClass(GlyphAtlas, [{
+	        key: '_createTexture',
+	        value: function _createTexture() {
+	            this.dirty = false;
+	            var gl = this.gl;
+	            var texture = gl.createTexture();
+	            gl.bindTexture(gl.TEXTURE_2D, texture);
+	            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	            gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, this.width, this.height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, this.data);
+	            gl.bindTexture(gl.TEXTURE_2D, null);
+	            return texture;
+	        }
+	    }, {
+	        key: 'getGlyphs',
+	        value: function getGlyphs() {
+	            var glyphs = {};
+	            var split = void 0,
+	                name = void 0,
+	                id = void 0;
+	
+	            for (var key in this.ids) {
+	                split = key.split('#');
+	                name = split[0];
+	                id = split[1];
+	
+	                if (!glyphs[name]) glyphs[name] = [];
+	                glyphs[name].push(id);
+	            }
+	
+	            return glyphs;
+	        }
+	    }, {
+	        key: 'getRects',
+	        value: function getRects() {
+	            var rects = {};
+	            var split = void 0,
+	                name = void 0,
+	                id = void 0;
+	
+	            for (var key in this.ids) {
+	                split = key.split('#');
+	                name = split[0];
+	                id = split[1];
+	
+	                if (!rects[name]) rects[name] = {};
+	                rects[name][id] = this.index[key];
+	            }
+	
+	            return rects;
+	        }
+	    }, {
+	        key: 'addGlyph',
+	        value: function addGlyph(id, name, glyph, buffer, markDirty) {
+	            if (!glyph) return null;
+	
+	            var key = name + '#' + glyph.id;
+	
+	            // The glyph is already in this texture.
+	            if (this.index[key]) {
+	                if (this.ids[key].indexOf(id) < 0) {
+	                    this.ids[key].push(id);
+	                }
+	                return this.index[key];
+	            }
+	
+	            // The glyph bitmap has zero width.
+	            if (!glyph.bitmap) {
+	                return null;
+	            }
+	
+	            var bufferedWidth = glyph.width + buffer * 2;
+	            var bufferedHeight = glyph.height + buffer * 2;
+	
+	            // Add a 1px border around every image.
+	            var padding = 1;
+	            var packWidth = bufferedWidth + 2 * padding;
+	            var packHeight = bufferedHeight + 2 * padding;
+	
+	            // Increase to next number divisible by 4, but at least 1.
+	            // This is so we can scale down the texture coordinates and pack them
+	            // into fewer bytes.
+	            packWidth += 4 - packWidth % 4;
+	            packHeight += 4 - packHeight % 4;
+	
+	            var rect = this.bin.packOne(packWidth, packHeight);
+	            if (!rect) {
+	                this.resize();
+	                rect = this.bin.packOne(packWidth, packHeight);
+	                markDirty && markDirty();
+	            }
+	            if (!rect) {
+	                //            util.warnOnce('glyph bitmap overflow');
+	                return null;
+	            }
+	
+	            this.index[key] = rect;
+	            this.ids[key] = [id];
+	
+	            var target = this.data;
+	            var source = glyph.bitmap;
+	            for (var y = 0; y < bufferedHeight; y++) {
+	                var y1 = this.width * (rect.y + y + padding) + rect.x + padding;
+	                var y2 = bufferedWidth * y;
+	                for (var x = 0; x < bufferedWidth; x++) {
+	                    target[y1 + x] = source[y2 + x];
+	                }
+	            }
+	
+	            this.dirty = true;
+	
+	            return rect;
+	        }
+	    }, {
+	        key: 'resize',
+	        value: function resize() {
+	            var prevWidth = this.width;
+	            var prevHeight = this.height;
+	
+	            if (prevWidth >= MAX_SIZE || prevHeight >= MAX_SIZE) return;
+	
+	            if (this._texture) {
+	                if (this.gl) {
+	                    this.gl.deleteTexture(this._texture);
+	                }
+	                this._texture = null;
+	            }
+	
+	            this.width *= SIZE_GROWTH_RATE;
+	            this.height *= SIZE_GROWTH_RATE;
+	            this.bin.resize(this.width, this.height);
+	
+	            var buf = new ArrayBuffer(this.width * this.height);
+	            for (var i = 0; i < prevHeight; i++) {
+	                var src = new Uint8Array(this.data.buffer, prevHeight * i, prevWidth);
+	                var dst = new Uint8Array(buf, prevHeight * i * SIZE_GROWTH_RATE, prevWidth);
+	                dst.set(src);
+	            }
+	            this.data = new Uint8Array(buf);
+	        }
+	    }, {
+	        key: 'bind',
+	        value: function bind(gl) {}
+	    }, {
+	        key: 'updateTexture',
+	        value: function updateTexture() {
+	            var gl = this.gl;
+	            if (!this._texture) {
+	                this._texture = this._createTexture();
+	            }
+	            if (this.dirty) {
+	                gl.bindTexture(gl.TEXTURE_2D, this._texture);
+	                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, gl.ALPHA, gl.UNSIGNED_BYTE, this.data);
+	                gl.bindTexture(gl.TEXTURE_2D, null);
+	                this.dirty = false;
+	            }
+	            return this._texture;
+	        }
+	    }, {
+	        key: 'texture',
+	        get: function get() {
+	            return this._texture;
+	        }
+	    }]);
+	
+	    return GlyphAtlas;
+	}();
+	
+	exports.default = GlyphAtlas;
+	;
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function (global, factory) {
+	     true ? module.exports = factory() :
+	    typeof define === 'function' && define.amd ? define(factory) :
+	    (global.ShelfPack = factory());
+	}(this, function () {
+	
+	/**
+	 * Create a new ShelfPack bin allocator.
+	 *
+	 * Uses the Shelf Best Height Fit algorithm from
+	 * http://clb.demon.fi/files/RectangleBinPack.pdf
+	 *
+	 * @class  ShelfPack
+	 * @param  {number}  [w=64]  Initial width of the sprite
+	 * @param  {number}  [h=64]  Initial width of the sprite
+	 * @param  {Object}  [options]
+	 * @param  {boolean} [options.autoResize=false]  If `true`, the sprite will automatically grow
+	 * @example
+	 * var sprite = new ShelfPack(64, 64, { autoResize: false });
+	 */
+	function ShelfPack(w, h, options) {
+	    options = options || {};
+	    this.w = w || 64;
+	    this.h = h || 64;
+	    this.autoResize = !!options.autoResize;
+	    this.shelves = [];
+	    this.freebins = [];
+	    this.stats = {};
+	    this.bins = {};
+	    this.maxId = 0;
+	}
+	
+	
+	/**
+	 * Batch pack multiple bins into the sprite.
+	 *
+	 * @param   {Object[]} bins       Array of requested bins - each object should have `width`, `height` (or `w`, `h`) properties
+	 * @param   {number}   bins[].w   Requested bin width
+	 * @param   {number}   bins[].h   Requested bin height
+	 * @param   {Object}   [options]
+	 * @param   {boolean}  [options.inPlace=false] If `true`, the supplied bin objects will be updated inplace with `x` and `y` properties
+	 * @returns {Bin[]}    Array of allocated Bins - each Bin is an object with `id`, `x`, `y`, `w`, `h` properties
+	 * @example
+	 * var bins = [
+	 *     { id: 1, w: 12, h: 12 },
+	 *     { id: 2, w: 12, h: 16 },
+	 *     { id: 3, w: 12, h: 24 }
+	 * ];
+	 * var results = sprite.pack(bins, { inPlace: false });
+	 */
+	ShelfPack.prototype.pack = function(bins, options) {
+	    bins = [].concat(bins);
+	    options = options || {};
+	
+	    var results = [],
+	        w, h, id, allocation;
+	
+	    for (var i = 0; i < bins.length; i++) {
+	        w  = bins[i].w || bins[i].width;
+	        h  = bins[i].h || bins[i].height;
+	        id = bins[i].id;
+	
+	        if (w && h) {
+	            allocation = this.packOne(w, h, id);
+	            if (!allocation) {
+	                continue;
+	            }
+	            if (options.inPlace) {
+	                bins[i].x  = allocation.x;
+	                bins[i].y  = allocation.y;
+	                bins[i].id = allocation.id;
+	            }
+	            results.push(allocation);
+	        }
+	    }
+	
+	    // Shrink the width/height of the sprite to the bare minimum.
+	    // Since shelf-pack doubles first width, then height when running out of shelf space
+	    // this can result in fairly large unused space both in width and height if that happens
+	    // towards the end of bin packing.
+	    if (this.shelves.length > 0) {
+	        var w2 = 0;
+	        var h2 = 0;
+	
+	        for (var j = 0; j < this.shelves.length; j++) {
+	            var shelf = this.shelves[j];
+	            h2 += shelf.h;
+	            w2 = Math.max(shelf.w - shelf.free, w2);
+	        }
+	
+	        this.resize(w2, h2);
+	    }
+	
+	    return results;
+	};
+	
+	
+	/**
+	 * Pack a single bin into the sprite.
+	 *
+	 * Each bin will have a unique identitifer.
+	 * If no identifier is supplied in the `id` parameter, one will be created.
+	 * Note: The supplied `id` is used as an object index, so numeric values are fastest!
+	 *
+	 * Bins are automatically refcounted (i.e. a newly packed Bin will have a refcount of 1).
+	 * When a bin is no longer needed, use the `ShelfPack.unref` function to mark it
+	 *   as unused.  When a Bin's refcount decrements to 0, the Bin will be marked
+	 *   as free and its space may be reused by the packing code.
+	 *
+	 * @param    {number}         w      Width of the bin to allocate
+	 * @param    {number}         h      Height of the bin to allocate
+	 * @param    {number|string}  [id]   Unique identifier for this bin, (if unsupplied, assume it's a new bin and create an id)
+	 * @returns  {Bin}            Bin object with `id`, `x`, `y`, `w`, `h` properties, or `null` if allocation failed
+	 * @example
+	 * var results = sprite.packOne(12, 16, 'a');
+	 */
+	ShelfPack.prototype.packOne = function(w, h, id) {
+	    var best = { freebin: -1, shelf: -1, waste: Infinity },
+	        y = 0,
+	        bin, shelf, waste, i;
+	
+	    // if id was supplied, attempt a lookup..
+	    if (typeof id === 'string' || typeof id === 'number') {
+	        bin = this.getBin(id);
+	        if (bin) {              // we packed this bin already
+	            this.ref(bin);
+	            return bin;
+	        }
+	        if (typeof id === 'number') {
+	            this.maxId = Math.max(id, this.maxId);
+	        }
+	    } else {
+	        id = ++this.maxId;
+	    }
+	
+	    // First try to reuse a free bin..
+	    for (i = 0; i < this.freebins.length; i++) {
+	        bin = this.freebins[i];
+	
+	        // exactly the right height and width, use it..
+	        if (h === bin.maxh && w === bin.maxw) {
+	            return this.allocFreebin(i, w, h, id);
+	        }
+	        // not enough height or width, skip it..
+	        if (h > bin.maxh || w > bin.maxw) {
+	            continue;
+	        }
+	        // extra height or width, minimize wasted area..
+	        if (h <= bin.maxh && w <= bin.maxw) {
+	            waste = (bin.maxw * bin.maxh) - (w * h);
+	            if (waste < best.waste) {
+	                best.waste = waste;
+	                best.freebin = i;
+	            }
+	        }
+	    }
+	
+	    // Next find the best shelf..
+	    for (i = 0; i < this.shelves.length; i++) {
+	        shelf = this.shelves[i];
+	        y += shelf.h;
+	
+	        // not enough width on this shelf, skip it..
+	        if (w > shelf.free) {
+	            continue;
+	        }
+	        // exactly the right height, pack it..
+	        if (h === shelf.h) {
+	            return this.allocShelf(i, w, h, id);
+	        }
+	        // not enough height, skip it..
+	        if (h > shelf.h) {
+	            continue;
+	        }
+	        // extra height, minimize wasted area..
+	        if (h < shelf.h) {
+	            waste = (shelf.h - h) * w;
+	            if (waste < best.waste) {
+	                best.freebin = -1;
+	                best.waste = waste;
+	                best.shelf = i;
+	            }
+	        }
+	    }
+	
+	    if (best.freebin !== -1) {
+	        return this.allocFreebin(best.freebin, w, h, id);
+	    }
+	
+	    if (best.shelf !== -1) {
+	        return this.allocShelf(best.shelf, w, h, id);
+	    }
+	
+	    // No free bins or shelves.. add shelf..
+	    if (h <= (this.h - y) && w <= this.w) {
+	        shelf = new Shelf(y, this.w, h);
+	        return this.allocShelf(this.shelves.push(shelf) - 1, w, h, id);
+	    }
+	
+	    // No room for more shelves..
+	    // If `autoResize` option is set, grow the sprite as follows:
+	    //  * double whichever sprite dimension is smaller (`w1` or `h1`)
+	    //  * if sprite dimensions are equal, grow width before height
+	    //  * accomodate very large bin requests (big `w` or `h`)
+	    if (this.autoResize) {
+	        var h1, h2, w1, w2;
+	
+	        h1 = h2 = this.h;
+	        w1 = w2 = this.w;
+	
+	        if (w1 <= h1 || w > w1) {   // grow width..
+	            w2 = Math.max(w, w1) * 2;
+	        }
+	        if (h1 < w1 || h > h1) {    // grow height..
+	            h2 = Math.max(h, h1) * 2;
+	        }
+	
+	        this.resize(w2, h2);
+	        return this.packOne(w, h, id);  // retry
+	    }
+	
+	    return null;
+	};
+	
+	
+	/**
+	 * Called by packOne() to allocate a bin by reusing an existing freebin
+	 *
+	 * @private
+	 * @param    {number}         index  Index into the `this.freebins` array
+	 * @param    {number}         w      Width of the bin to allocate
+	 * @param    {number}         h      Height of the bin to allocate
+	 * @param    {number|string}  id     Unique identifier for this bin
+	 * @returns  {Bin}            Bin object with `id`, `x`, `y`, `w`, `h` properties
+	 * @example
+	 * var bin = sprite.allocFreebin(0, 12, 16, 'a');
+	 */
+	ShelfPack.prototype.allocFreebin = function (index, w, h, id) {
+	    var bin = this.freebins.splice(index, 1)[0];
+	    bin.id = id;
+	    bin.w = w;
+	    bin.h = h;
+	    bin.refcount = 0;
+	    this.bins[id] = bin;
+	    this.ref(bin);
+	    return bin;
+	};
+	
+	
+	/**
+	 * Called by `packOne() to allocate bin on an existing shelf
+	 *
+	 * @private
+	 * @param    {number}         index  Index into the `this.shelves` array
+	 * @param    {number}         w      Width of the bin to allocate
+	 * @param    {number}         h      Height of the bin to allocate
+	 * @param    {number|string}  id     Unique identifier for this bin
+	 * @returns  {Bin}            Bin object with `id`, `x`, `y`, `w`, `h` properties
+	 * @example
+	 * var results = sprite.allocShelf(0, 12, 16, 'a');
+	 */
+	ShelfPack.prototype.allocShelf = function(index, w, h, id) {
+	    var shelf = this.shelves[index];
+	    var bin = shelf.alloc(w, h, id);
+	    this.bins[id] = bin;
+	    this.ref(bin);
+	    return bin;
+	};
+	
+	
+	/**
+	 * Return a packed bin given its id, or undefined if the id is not found
+	 *
+	 * @param    {number|string}  id  Unique identifier for this bin,
+	 * @returns  {Bin}            The requested bin, or undefined if not yet packed
+	 * @example
+	 * var b = sprite.getBin('a');
+	 */
+	ShelfPack.prototype.getBin = function(id) {
+	    return this.bins[id];
+	};
+	
+	
+	/**
+	 * Increment the ref count of a bin and update statistics.
+	 *
+	 * @param    {Bin}     bin  Bin instance
+	 * @returns  {number}  New refcount of the bin
+	 * @example
+	 * var bin = sprite.getBin('a');
+	 * sprite.ref(bin);
+	 */
+	ShelfPack.prototype.ref = function(bin) {
+	    if (++bin.refcount === 1) {   // a new Bin.. record height in stats historgram..
+	        var h = bin.h;
+	        this.stats[h] = (this.stats[h] | 0) + 1;
+	    }
+	
+	    return bin.refcount;
+	};
+	
+	
+	/**
+	 * Decrement the ref count of a bin and update statistics.
+	 * The bin will be automatically marked as free space once the refcount reaches 0.
+	 *
+	 * @param    {Bin}     bin  Bin instance
+	 * @returns  {number}  New refcount of the bin
+	 * @example
+	 * var bin = sprite.getBin('a');
+	 * sprite.unref(bin);
+	 */
+	ShelfPack.prototype.unref = function(bin) {
+	    if (bin.refcount === 0) {
+	        return 0;
+	    }
+	
+	    if (--bin.refcount === 0) {
+	        this.stats[bin.h]--;
+	        delete this.bins[bin.id];
+	        this.freebins.push(bin);
+	    }
+	
+	    return bin.refcount;
+	};
+	
+	
+	/**
+	 * Clear the sprite.  Resets everything and resets statistics.
+	 *
+	 * @example
+	 * sprite.clear();
+	 */
+	ShelfPack.prototype.clear = function() {
+	    this.shelves = [];
+	    this.freebins = [];
+	    this.stats = {};
+	    this.bins = {};
+	    this.maxId = 0;
+	};
+	
+	
+	/**
+	 * Resize the sprite.
+	 *
+	 * @param   {number}  w  Requested new sprite width
+	 * @param   {number}  h  Requested new sprite height
+	 * @returns {boolean} `true` if resize succeeded, `false` if failed
+	 * @example
+	 * sprite.resize(256, 256);
+	 */
+	ShelfPack.prototype.resize = function(w, h) {
+	    this.w = w;
+	    this.h = h;
+	    for (var i = 0; i < this.shelves.length; i++) {
+	        this.shelves[i].resize(w);
+	    }
+	    return true;
+	};
+	
+	
+	/**
+	 * Create a new Shelf.
+	 *
+	 * @private
+	 * @class  Shelf
+	 * @param  {number}  y   Top coordinate of the new shelf
+	 * @param  {number}  w   Width of the new shelf
+	 * @param  {number}  h   Height of the new shelf
+	 * @example
+	 * var shelf = new Shelf(64, 512, 24);
+	 */
+	function Shelf(y, w, h) {
+	    this.x = 0;
+	    this.y = y;
+	    this.w = this.free = w;
+	    this.h = h;
+	}
+	
+	
+	/**
+	 * Allocate a single bin into the shelf.
+	 *
+	 * @private
+	 * @param   {number}         w   Width of the bin to allocate
+	 * @param   {number}         h   Height of the bin to allocate
+	 * @param   {number|string}  id  Unique id of the bin to allocate
+	 * @returns {Bin}            Bin object with `id`, `x`, `y`, `w`, `h` properties, or `null` if allocation failed
+	 * @example
+	 * shelf.alloc(12, 16, 'a');
+	 */
+	Shelf.prototype.alloc = function(w, h, id) {
+	    if (w > this.free || h > this.h) {
+	        return null;
+	    }
+	    var x = this.x;
+	    this.x += w;
+	    this.free -= w;
+	    return new Bin(id, x, this.y, w, h);
+	};
+	
+	
+	/**
+	 * Resize the shelf.
+	 *
+	 * @private
+	 * @param   {number}  w  Requested new width of the shelf
+	 * @returns {boolean}    true
+	 * @example
+	 * shelf.resize(512);
+	 */
+	Shelf.prototype.resize = function(w) {
+	    this.free += (w - this.w);
+	    this.w = w;
+	    return true;
+	};
+	
+	
+	/**
+	 * Create a new Bin object.
+	 *
+	 * @class  Bin
+	 * @param  {number|string}  id  Unique id of the bin
+	 * @param  {number}         x   Left coordinate of the bin
+	 * @param  {number}         y   Top coordinate of the bin
+	 * @param  {number}         w   Width of the bin
+	 * @param  {number}         h   Height of the bin
+	 * @example
+	 * var bin = new Bin('a', 0, 0, 12, 16);
+	 */
+	function Bin(id, x, y, w, h) {
+	    this.id = id;
+	    this.x  = x;
+	    this.y  = y;
+	    this.w  = w;
+	    this.h  = h;
+	    this.maxw = w;
+	    this.maxh = h;
+	    this.refcount = 0;
+	}
+	
+	return ShelfPack;
+	
+	}));
+
+/***/ },
+/* 24 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = Glyphs;
+	function Glyphs(pbf, end) {
+	    this.stacks = pbf.readFields(readFontstacks, [], end);
+	}
+	
+	function readFontstacks(tag, stacks, pbf) {
+	    if (tag === 1) {
+	        var fontstack = pbf.readMessage(readFontstack, { glyphs: {} });
+	        stacks.push(fontstack);
+	    }
+	}
+	
+	function readFontstack(tag, fontstack, pbf) {
+	    if (tag === 1) fontstack.name = pbf.readString();else if (tag === 2) fontstack.range = pbf.readString();else if (tag === 3) {
+	        var glyph = pbf.readMessage(readGlyph, {});
+	        fontstack.glyphs[glyph.id] = glyph;
+	    }
+	}
+	
+	function readGlyph(tag, glyph, pbf) {
+	    if (tag === 1) glyph.id = pbf.readVarint();else if (tag === 2) glyph.bitmap = pbf.readBytes();else if (tag === 3) glyph.width = pbf.readVarint();else if (tag === 4) glyph.height = pbf.readVarint();else if (tag === 5) glyph.left = pbf.readSVarint();else if (tag === 6) glyph.top = pbf.readSVarint();else if (tag === 7) glyph.advance = pbf.readVarint();
+	}
+
+/***/ },
+/* 25 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4980,7 +6442,7 @@
 	;
 
 /***/ },
-/* 21 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
