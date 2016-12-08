@@ -7,8 +7,7 @@
  */
 
 import ccNetViz_defaultTexts  from './default';
-import ccNetViz_sdfTexts      from './sdf';
-import ccNetViz_oldSdfTexts   from './sdf_old';
+import ccNetViz_sdfTexts      from './sdf/sdf';
 import ccNetViz_utils         from '../utils';
 
 export default class {

@@ -1,6 +1,6 @@
 import Protobuf from 'pbf';
-import GlyphAtlas from './dynamicsdf/atlas';
-import Glyphs from './dynamicsdf/glyphs';
+import GlyphAtlas from './atlas';
+import Glyphs from './glyphs';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -65,26 +65,26 @@ export default class {
   
   get fontSize(){
     return 24;
-    console.log(this._curglyphs);
-    return (this._SDFmetrics || {}).size;
   }
 
   getTexture (style, files, textures, onLoad){
-    let myOnLoad = () => {
-      let data = files.load(style.pbf, onLoad, 'arraybuffer');
-      
-      //init first most-used ASCII chars
-//      for(let i = 0; i < 128; i++){
-//        this._getChar(String.fromCharCode(i));
-//      }
+    let myOnLoad = ((onL) => {
+      return () => {
+        let data = files.load(style.pbf, onLoad, 'arraybuffer');
+        
+        //init first most-used ASCII chars
+        for(let i = 0; i < 128; i++){
+          this._getChar(String.fromCharCode(i));
+        }
 
-//      onLoad && onLoad.apply(this,arguments);
-    };
+        onL && onL.apply(this,arguments);
+      }
+    })(onLoad);
     
 
     var font = style.pbf;
     if(!this._glyphs[font]){
-      let data = files.load(style.pbf, onLoad, 'arraybuffer');
+      let data = files.load(style.pbf, myOnLoad, 'arraybuffer');
       this._curglyphs = this._glyphs[font] = data && new Glyphs(new Protobuf(data));
     }else{
       myOnLoad();

@@ -5,6 +5,7 @@ import ccNetViz_color         from './color';
 import ccNetViz_utils         from './utils';
 import ccNetViz_textures      from './dataSources/textures';
 import ccNetViz_files         from './dataSources/files';
+import ccNetViz_texts         from './texts/texts' ;
 import ccNetViz_lazyEvents    from './lazyEvents';
 import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
@@ -108,7 +109,7 @@ var ccNetViz = function(canvas, options){
 
   let events = new ccNetViz_lazyEvents();
   let layers = {};
-  let view,gl,drawFunc,textures,files;
+  let view,gl,drawFunc,textures,files,texts;
   let context = {};
   
   this.cntShownNodes = () => {
@@ -145,7 +146,7 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
   let batch = undefined;
@@ -405,6 +406,7 @@ var ccNetViz = function(canvas, options){
     removeEvts(canvas, zoomevts);
     
     events.disable();
+    texts && texts.remove();
 
     removed = true;
   }
@@ -611,7 +613,8 @@ var ccNetViz = function(canvas, options){
 
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
-  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  texts = new ccNetViz_texts(gl);
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)
     console.warn("Cannot initialize WebGL context");

@@ -3,7 +3,6 @@ import ccNetViz_gl        from './gl' ;
 import ccNetViz_primitive from './primitive' ;
 import ccNetViz_layout    from './layout/layout' ;
 import ccNetViz_geomutils from './geomutils' ;
-import ccNetViz_texts     from './texts/texts' ;
 import ccNetViz_utils     from './utils' ;
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
@@ -17,7 +16,7 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-export default function(canvas, context, view, gl, textures, files, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     
@@ -222,7 +221,6 @@ export default function(canvas, context, view, gl, textures, files, events, opti
     }
     
     this.remove = () => {
-      texts && texts.remove();
     }
     
     
@@ -543,7 +541,6 @@ export default function(canvas, context, view, gl, textures, files, events, opti
     
     let loadCalled = false;
     if(!gl) { options.onLoad && !loadCalled && (loadCalled = true) && options.onLoad(); return this };
-    let texts = new ccNetViz_texts(gl);
     
     let getLabelType = (f) => {
       if(texts.isSDF(f))
@@ -965,8 +962,8 @@ export default function(canvas, context, view, gl, textures, files, events, opti
         for (let p in styles) {
             let s = styles[p];
 
-            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
-            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
+//            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
+//            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
 
             s.texture && textures.get(gl, s.texture, onLoad);
             s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
