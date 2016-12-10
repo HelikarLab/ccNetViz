@@ -16,7 +16,7 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     
@@ -776,7 +776,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         let shaderparams = {attribute:{offsetMul:1}};
 
         let bind = c => {
-            let size = getSize(c, getEdgesCnt(), 0.2);
+            let size = getSize(c, c.style, getEdgesCnt(), 0.2);
             if (!size) return true;
 
             let uniforms = c.shader.uniforms;
@@ -933,10 +933,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             let fontScale = 1.0;
             let sdfSize = textEngine.fontSize;
-            let wantedSize = (f || {}).size || sdfSize;
-            if(wantedSize && sdfSize)
-              fontScale = wantedSize / sdfSize;
+            let wantedSize = getLabelSize(context, f || {}) || sdfSize;
             
+            let opts = {};
+            if(wantedSize && sdfSize){
+              fontScale *= wantedSize / sdfSize;
+            }
+
             gl.uniform1f(uniforms.discardAll, is_outline && !textEngine.isSDF ? 1.0 : 0.0);
 
 

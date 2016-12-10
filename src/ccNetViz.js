@@ -146,7 +146,7 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
   let batch = undefined;
@@ -258,18 +258,22 @@ var ccNetViz = function(canvas, options){
   };
 
 
-  
-  let getSize = (c, n, sc) => {
+  let getSize = (c, s, n, sc) => {
     let result = sc * Math.sqrt(c.width * c.height / n) / view.size;
-    let s = c.style;
     if (s) {
-      result = s.maxSize ? Math.min(s.maxSize, result) : result;
-      result = result < s.hideSize ? 0 : (s.minSize ? Math.max(s.minSize, result) : result);
+      let min = s.size ? s.size : s.minSize;
+      let max = s.size ? s.size : s.maxSize;
+
+      result = max ? Math.min(max, result) : result;
+      if(result < s.hideSize)
+        return 0;
+      result = min ? Math.max(min, result) : result;
     }
     return result;
   };
 
-  let getNodeSize = c => getSize(c, getNodesCnt(), 0.4);
+  let getNodeSize = c => getSize(c, c.style, getNodesCnt(), 0.4);
+  let getLabelSize = (c,s) => getSize(c, s, getNodesCnt(), 0.4);;
 
   let offset = 0.5 * nodeStyle.maxSize;
 
@@ -294,7 +298,7 @@ var ccNetViz = function(canvas, options){
 
     //bad hack because we use different size for curveExc and for nodeSize :(
     if(context.style) delete context.style;
-    context.curveExc = getSize(context, getEdgesCnt(), 0.5);
+    context.curveExc = getSize(context, undefined, getEdgesCnt(), 0.5);
     context.style     = nodeStyle;
     context.nodeSize = getNodeSize(context);
 
@@ -514,7 +518,7 @@ var ccNetViz = function(canvas, options){
       else {
           let x,y;
           if(e.touches && e.touches.length > 0){ x = e.touches[0].clientX; y = e.touches[0].clientY; } else { x = e.clientX; y = e.clientY; }
-          
+
           let mx = x - sx;
           let my = y - sy;
 
@@ -535,7 +539,7 @@ var ccNetViz = function(canvas, options){
 
         removeEvts(window, evts);
     };
-    
+
     let zoom = e => {
         e = parseTouchEvts(e);
 
@@ -605,8 +609,7 @@ var ccNetViz = function(canvas, options){
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
     gl.enable(gl.BLEND);
   }
-  
-  
+
   view = {size:1,x:0,y:0};
 
   this.resize();
@@ -614,7 +617,7 @@ var ccNetViz = function(canvas, options){
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
   texts = new ccNetViz_texts(gl);
-  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)
     console.warn("Cannot initialize WebGL context");
