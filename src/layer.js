@@ -923,7 +923,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     let bindLabels = (is_outline) => {
       return c => {
             if (!getNodeSize(c)) return true;
-            let f = c.style.label.font;
+            
+            let l = c.style.label;
+            let f = l.font;
             let uniforms = c.shader.uniforms;
 
             gl.uniform1f(uniforms.type, getLabelType(f));
@@ -933,7 +935,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             let fontScale = 1.0;
             let sdfSize = textEngine.fontSize;
-            let wantedSize = getLabelSize(context, f || {}) || sdfSize;
+            let wantedSize = getLabelSize(context, l || {}) || sdfSize;
             
             let opts = {};
             if(wantedSize && sdfSize){
@@ -943,7 +945,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform1f(uniforms.discardAll, is_outline && !textEngine.isSDF ? 1.0 : 0.0);
 
 
-            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : 192.0 / 256.0);
+            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : (f.defaultColor || 192.0) / 256.0);
             gl.uniform1f(uniforms.fontScale, fontScale);
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
