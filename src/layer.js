@@ -54,11 +54,10 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   let c = parts[i];
-                  let chr = c.cCoord || c;
 
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                  ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
-                  ccNetViz_primitive.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
+                  ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, c.width + c.dx, c.dy, c.width + c.dx, c.height + c.dy, c.dx, c.height + c.dy);
+                  ccNetViz_primitive.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
                 
@@ -935,7 +934,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             let fontScale = 1.0;
             let sdfSize = textEngine.fontSize;
-            let wantedSize = getLabelSize(context, l || {}) || sdfSize;
+            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined ) || sdfSize;
             
             let opts = {};
             if(wantedSize && sdfSize){

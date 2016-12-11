@@ -26,7 +26,7 @@ class SimpleGlyph {
 
 
 const SIZE_GROWTH_RATE = 4;
-const DEFAULT_SIZE = 128;
+const DEFAULT_SIZE = 512;
 // must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
 const MAX_SIZE = 2048;
 
@@ -40,11 +40,12 @@ export default class {
     this._rendered = {};
     this._texts;
     this._gl = gl;
-    
-    this.atlas = new GlyphAtlas(this._gl);
+
+    this.atlas = new GlyphAtlas(this._gl, () => { this._cachedGlyphs = {}; });
     this._textures = {};
     this._glyphs = {};
     this._rects = {};
+    this._cachedGlyphs = {};
   }
 
   get isSDF(){
@@ -76,7 +77,7 @@ export default class {
         for(let i = 0; i < 128; i++){
           this._getChar(String.fromCharCode(i));
         }
-
+        
         onL && onL.apply(this,arguments);
       }
     })(onLoad);
@@ -105,7 +106,7 @@ export default class {
       if(g){
         const stack = g.stacks[range];
         if(stack){
-          const glyph = stack.glyphs[glyphID];    
+          const glyph = stack.glyphs[glyphID];
           if(!this._rects[font]) this._rects[font] = {}; 
           const rect = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
           this._rects[font][text] = rect;
@@ -115,52 +116,29 @@ export default class {
 
     let r,rect;
     if( (r = this._rects[font]) && (rect = r[text]) ){
-        const glyph = this._glyphs[font].stacks[range].glyphs[glyphID];
-        
-        const glS = new SimpleGlyph(glyph, rect, buffer);
-
-        return glS;
-/*
-        const posX = glS.rect.x;//+glS.left;
-        const posY = glS.rect.y;//+glS.top;
-        const horiBearingX = 3;
-        const horiBearingY = 2;
-        const w = glS.rect.w;
-        const h = glS.rect.h;
-        return {
-          horiAdvance: glS.advance,
-          horiBearingX: horiBearingX,
-          horiBearingY: glS.rect.h,
-          width: w,
-          height: h,
-          left: (posX) / this.atlas.width,
-          right: (posX + glS.rect.w) / this.atlas.width,
-          top: (posY) / this.atlas.height,
-          bottom: (posY+glS.rect.h) / this.atlas.height
-        };*/
+        let cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
+        return cache[glyphID] || ( cache[glyphID] = new SimpleGlyph(this._glyphs[font].stacks[range].glyphs[glyphID], rect, buffer));
     }
-    
+
     return {};
   }
-  
+
   get (text, x, y, markDirty){
     let width = 0; 
     let height = 0;
 
     const horiBearingX = 3;
     const horiBearingY = 2;
-        
+
     for(let i = 0; i < text.length; i++){
       const char           = this._getChar(text[i], markDirty);
       const rect           = char.rect || {};
-      height             = Math.max(height, rect.h);
-//      width             += char.horiAdvance + char.horiBearingX;
-//      width             += rect.w//char.horiAdvance + char.horiBearingX;
+      height             = Math.max(height, rect.h - char.top);
       width             += char.advance + horiBearingX;
     }
 
     let dx = x <= 0.5 ? 0 : -width ;
-    let dy = y <= 0.5 ? height/4 : -height; 
+    let dy = y <= 0.5 ? height/4 : -height ; 
 
 
 
@@ -181,9 +159,9 @@ export default class {
         bottom: ( rect.y + rect.h ) / this.atlas.height,
         top:    rect.y / this.atlas.height,
         dx:     dx,
-        dy:     dy // - ( height - rect.h )
+        dy:     dy + char.top + ( height - rect.h )
       });
-      
+
       dx += char.advance;
     }
     return ret;

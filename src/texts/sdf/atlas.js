@@ -10,10 +10,11 @@ const MAX_SIZE = 2048;
 
 export default class GlyphAtlas {
 
-    constructor(gl) {
+    constructor(gl, resetCache) {
         this.width = DEFAULT_SIZE;
         this.height = DEFAULT_SIZE;
 
+        this._resetCache = resetCache;
         this.bin = new ShelfPack(this.width, this.height);
         this.index = {};
         this.ids = {};
@@ -160,6 +161,7 @@ export default class GlyphAtlas {
             dst.set(src);
         }
         this.data = new Uint8Array(buf);
+        this._resetCache();
     }
 
     bind(gl) {

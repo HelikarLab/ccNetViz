@@ -83,7 +83,12 @@ export default class {
     let dy = y <= 0.5 ? 0 : -c.height;
     
     return [{
-        cCoord: c,
+        width:  c.width,
+        height: c.height,
+        left:   c.left,
+        right:  c.right,
+        top:    c.top,
+        bottom: c.bottom,
         dx: dx,
         dy: dy
       }];
