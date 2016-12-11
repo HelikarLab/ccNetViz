@@ -118,6 +118,9 @@ export default class {
         const glyph = this._glyphs[font].stacks[range].glyphs[glyphID];
         
         const glS = new SimpleGlyph(glyph, rect, buffer);
+
+        return glS;
+/*
         const posX = glS.rect.x;//+glS.left;
         const posY = glS.rect.y;//+glS.top;
         const horiBearingX = 3;
@@ -134,7 +137,7 @@ export default class {
           right: (posX + glS.rect.w) / this.atlas.width,
           top: (posY) / this.atlas.height,
           bottom: (posY+glS.rect.h) / this.atlas.height
-        };
+        };*/
     }
     
     return {};
@@ -144,10 +147,16 @@ export default class {
     let width = 0; 
     let height = 0;
 
+    const horiBearingX = 3;
+    const horiBearingY = 2;
+        
     for(let i = 0; i < text.length; i++){
-      let char           = this._getChar(text[i], markDirty);
-      height             = Math.max(height, char.height);
-      width         += char.horiAdvance + char.horiBearingX;
+      const char           = this._getChar(text[i], markDirty);
+      const rect           = char.rect || {};
+      height             = Math.max(height, rect.h);
+//      width             += char.horiAdvance + char.horiBearingX;
+//      width             += rect.w//char.horiAdvance + char.horiBearingX;
+      width             += char.advance + horiBearingX;
     }
 
     let dx = x <= 0.5 ? 0 : -width ;
@@ -157,18 +166,25 @@ export default class {
 
     let ret = [];
     for(let i = 0; i < text.length; i++) {
-      let char = this._getChar(text[i], markDirty);
+      const char = this._getChar(text[i], markDirty);
+      const rect = char.rect || {};
 
       let horiAdvance;
-      dx += char.horiBearingX;
+
+      dx += horiBearingX;
 
       ret.push({
-        cCoord: char,
-        dx: dx,
-        dy: dy
+        width:  rect.w,
+        height: rect.h,
+        left:   rect.x / this.atlas.width,
+        right:  ( rect.x + rect.w ) / this.atlas.width,
+        bottom: ( rect.y + rect.h ) / this.atlas.height,
+        top:    rect.y / this.atlas.height,
+        dx:     dx,
+        dy:     dy // - ( height - rect.h )
       });
       
-      dx += char.horiAdvance; 
+      dx += char.advance;
     }
     return ret;
   }

@@ -54,7 +54,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   let c = parts[i];
-                  let chr = c.cCoord;
+                  let chr = c.cCoord || c;
 
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
                   ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
