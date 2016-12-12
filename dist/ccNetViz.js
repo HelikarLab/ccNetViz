@@ -341,7 +341,7 @@
 	
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 	
 	  var batch = undefined;
@@ -479,19 +479,25 @@
 	    return _this;
 	  };
 	
-	  var getSize = function getSize(c, n, sc) {
+	  var getSize = function getSize(c, s, n, sc) {
 	    var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
-	    var s = c.style;
 	    if (s) {
-	      result = s.maxSize ? Math.min(s.maxSize, result) : result;
-	      result = result < s.hideSize ? 0 : s.minSize ? Math.max(s.minSize, result) : result;
+	      var min = s.size ? s.size : s.minSize;
+	      var max = s.size ? s.size : s.maxSize;
+	
+	      result = max ? Math.min(max, result) : result;
+	      if (result < s.hideSize) return 0;
+	      result = min ? Math.max(min, result) : result;
 	    }
 	    return result;
 	  };
 	
 	  var getNodeSize = function getNodeSize(c) {
-	    return getSize(c, getNodesCnt(), 0.4);
+	    return getSize(c, c.style, getNodesCnt(), 0.4);
 	  };
+	  var getLabelSize = function getLabelSize(c, s) {
+	    return getSize(c, s, getNodesCnt(), 0.4);
+	  };;
 	
 	  var offset = 0.5 * nodeStyle.maxSize;
 	
@@ -516,7 +522,7 @@
 	
 	    //bad hack because we use different size for curveExc and for nodeSize :(
 	    if (context.style) delete context.style;
-	    context.curveExc = getSize(context, getEdgesCnt(), 0.5);
+	    context.curveExc = getSize(context, undefined, getEdgesCnt(), 0.5);
 	    context.style = nodeStyle;
 	    context.nodeSize = getNodeSize(context);
 	
@@ -843,7 +849,7 @@
 	  textures = new _textures2.default(events, onLoad);
 	  files = new _files2.default(events, onLoad);
 	  texts = new _texts2.default(gl);
-	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (!gl) console.warn("Cannot initialize WebGL context");
 	};
@@ -870,7 +876,7 @@
 	    value: true
 	});
 	
-	exports.default = function (canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	exports.default = function (canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 	
 	    getNodesCnt = getNodesCnt || function () {
@@ -916,11 +922,10 @@
 	                    });
 	                    for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
 	                        var c = parts[i];
-	                        var chr = c.cCoord;
 	
 	                        _primitive2.default.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-	                        _primitive2.default.vertices(v.relative, iV, c.dx, c.dy, chr.width + c.dx, c.dy, chr.width + c.dx, chr.height + c.dy, c.dx, chr.height + c.dy);
-	                        _primitive2.default.vertices(v.textureCoord, iV, chr.left, chr.bottom, chr.right, chr.bottom, chr.right, chr.top, chr.left, chr.top);
+	                        _primitive2.default.vertices(v.relative, iV, c.dx, c.dy, c.width + c.dx, c.dy, c.width + c.dx, c.height + c.dy, c.dx, c.height + c.dy);
+	                        _primitive2.default.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
 	                        _primitive2.default.quad(v.indices, iV, iI);
 	                    }
 	
@@ -1490,7 +1495,7 @@
 	        var shaderparams = { attribute: { offsetMul: 1 } };
 	
 	        var bind = function bind(c) {
-	            var size = getSize(c, getEdgesCnt(), 0.2);
+	            var size = getSize(c, c.style, getEdgesCnt(), 0.2);
 	            if (!size) return true;
 	
 	            var uniforms = c.shader.uniforms;
@@ -1531,7 +1536,9 @@
 	    var bindLabels = function bindLabels(is_outline) {
 	        return function (c) {
 	            if (!getNodeSize(c)) return true;
-	            var f = c.style.label.font;
+	
+	            var l = c.style.label;
+	            var f = l.font;
 	            var uniforms = c.shader.uniforms;
 	
 	            gl.uniform1f(uniforms.type, getLabelType(f));
@@ -1541,12 +1548,16 @@
 	
 	            var fontScale = 1.0;
 	            var sdfSize = textEngine.fontSize;
-	            var wantedSize = (f || {}).size || sdfSize;
-	            if (wantedSize && sdfSize) fontScale = wantedSize / sdfSize;
+	            var wantedSize = (textEngine.isSDF ? getLabelSize(context, l || {}) : undefined) || sdfSize;
+	
+	            var opts = {};
+	            if (wantedSize && sdfSize) {
+	                fontScale *= wantedSize / sdfSize;
+	            }
 	
 	            gl.uniform1f(uniforms.discardAll, is_outline && !textEngine.isSDF ? 1.0 : 0.0);
 	
-	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : 192.0 / 256.0);
+	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : (f.defaultColor || 192.0) / 256.0);
 	            gl.uniform1f(uniforms.fontScale, fontScale);
 	            gl.uniform1f(uniforms.height_font, sdfSize);
 	            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
@@ -4683,7 +4694,12 @@
 	      var dy = y <= 0.5 ? 0 : -c.height;
 	
 	      return [{
-	        cCoord: c,
+	        width: c.width,
+	        height: c.height,
+	        left: c.left,
+	        right: c.right,
+	        top: c.top,
+	        bottom: c.bottom,
 	        dx: dx,
 	        dy: dy
 	      }];
@@ -4769,12 +4785,14 @@
 	};
 	
 	var SIZE_GROWTH_RATE = 4;
-	var DEFAULT_SIZE = 128;
+	var DEFAULT_SIZE = 512;
 	// must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
 	var MAX_SIZE = 2048;
 	
 	var _class = function () {
 	  function _class(gl) {
+	    var _this = this;
+	
 	    _classCallCheck(this, _class);
 	
 	    this.width = DEFAULT_SIZE;
@@ -4786,10 +4804,13 @@
 	    this._texts;
 	    this._gl = gl;
 	
-	    this.atlas = new _atlas2.default(this._gl);
+	    this.atlas = new _atlas2.default(this._gl, function () {
+	      _this._cachedGlyphs = {};
+	    });
 	    this._textures = {};
 	    this._glyphs = {};
 	    this._rects = {};
+	    this._cachedGlyphs = {};
 	  }
 	
 	  _createClass(_class, [{
@@ -4808,7 +4829,7 @@
 	  }, {
 	    key: 'getTexture',
 	    value: function getTexture(style, files, textures, onLoad) {
-	      var _this = this,
+	      var _this2 = this,
 	          _arguments = arguments;
 	
 	      var myOnLoad = function (onL) {
@@ -4817,10 +4838,10 @@
 	
 	          //init first most-used ASCII chars
 	          for (var i = 0; i < 128; i++) {
-	            _this._getChar(String.fromCharCode(i));
+	            _this2._getChar(String.fromCharCode(i));
 	          }
 	
-	          onL && onL.apply(_this, _arguments);
+	          onL && onL.apply(_this2, _arguments);
 	        };
 	      }(onLoad);
 	
@@ -4859,26 +4880,8 @@
 	      var r = void 0,
 	          rect = void 0;
 	      if ((r = this._rects[font]) && (rect = r[text])) {
-	        var _glyph = this._glyphs[font].stacks[range].glyphs[glyphID];
-	
-	        var glS = new SimpleGlyph(_glyph, rect, buffer);
-	        var posX = glS.rect.x; //+glS.left;
-	        var posY = glS.rect.y; //+glS.top;
-	        var horiBearingX = 3;
-	        var horiBearingY = 2;
-	        var w = glS.rect.w;
-	        var h = glS.rect.h;
-	        return {
-	          horiAdvance: glS.advance,
-	          horiBearingX: horiBearingX,
-	          horiBearingY: glS.rect.h,
-	          width: w,
-	          height: h,
-	          left: posX / this.atlas.width,
-	          right: (posX + glS.rect.w) / this.atlas.width,
-	          top: posY / this.atlas.height,
-	          bottom: (posY + glS.rect.h) / this.atlas.height
-	        };
+	        var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
+	        return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(this._glyphs[font].stacks[range].glyphs[glyphID], rect, buffer));
 	      }
 	
 	      return {};
@@ -4889,10 +4892,14 @@
 	      var width = 0;
 	      var height = 0;
 	
+	      var horiBearingX = 3;
+	      var horiBearingY = 2;
+	
 	      for (var i = 0; i < text.length; i++) {
 	        var char = this._getChar(text[i], markDirty);
-	        height = Math.max(height, char.height);
-	        width += char.horiAdvance + char.horiBearingX;
+	        var rect = char.rect || {};
+	        height = Math.max(height, rect.h - char.top);
+	        width += char.advance + horiBearingX;
 	      }
 	
 	      var dx = x <= 0.5 ? 0 : -width;
@@ -4901,17 +4908,24 @@
 	      var ret = [];
 	      for (var _i = 0; _i < text.length; _i++) {
 	        var _char = this._getChar(text[_i], markDirty);
+	        var _rect2 = _char.rect || {};
 	
 	        var horiAdvance = void 0;
-	        dx += _char.horiBearingX;
+	
+	        dx += horiBearingX;
 	
 	        ret.push({
-	          cCoord: _char,
+	          width: _rect2.w,
+	          height: _rect2.h,
+	          left: _rect2.x / this.atlas.width,
+	          right: (_rect2.x + _rect2.w) / this.atlas.width,
+	          bottom: (_rect2.y + _rect2.h) / this.atlas.height,
+	          top: _rect2.y / this.atlas.height,
 	          dx: dx,
-	          dy: dy
+	          dy: dy + _char.top + (height - _rect2.h)
 	        });
 	
-	        dx += _char.horiAdvance;
+	        dx += _char.advance;
 	      }
 	      return ret;
 	    }
@@ -5685,12 +5699,13 @@
 	var MAX_SIZE = 2048;
 	
 	var GlyphAtlas = function () {
-	    function GlyphAtlas(gl) {
+	    function GlyphAtlas(gl, resetCache) {
 	        _classCallCheck(this, GlyphAtlas);
 	
 	        this.width = DEFAULT_SIZE;
 	        this.height = DEFAULT_SIZE;
 	
+	        this._resetCache = resetCache;
 	        this.bin = new _shelfPack2.default(this.width, this.height);
 	        this.index = {};
 	        this.ids = {};
@@ -5841,6 +5856,7 @@
 	                dst.set(src);
 	            }
 	            this.data = new Uint8Array(buf);
+	            this._resetCache();
 	        }
 	    }, {
 	        key: 'bind',
