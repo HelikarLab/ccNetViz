@@ -41,37 +41,37 @@
       var startTime = new Date();
 
       var conf = {
-		    styles: {
-			background: {
-			  color: "rgb(255, 255, 255)"
-			},
-			node: {
-			  minSize: 6,
-			  maxSize: 16,
-			  color: "rgb(255, 0, 0)",
-			  texture: "images/circle.png",
-			  label: {
-			      color: "rgb(120, 120, 120)",
-            size:    14,
-			      font: {
-				  type:    "sdf",
-				  pbf: "http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf",
-			      }
-			  }
-			},
-			edge: {
-			  width: 1,
-			  color: "rgb(204, 204, 204)",
-			  arrow: {
-			      minSize: 6,
-			      maxSize: 16,
-			      aspect: 1,
-			      texture: "images/arrow.png",
-			      hideSize: 1
-			  }
-			}
-		    }
-		  };
+        styles: {
+            background: {
+                color: "rgb(255, 255, 255)"
+            },
+            node: {
+                minSize: 6,
+                maxSize: 16,
+                color: "rgb(255, 0, 0)",
+                texture: "images/circle.png",
+                label: {
+                    color: "rgb(120, 120, 120)",
+                    size:    14,
+                    font: {
+                        type:    "sdf",
+                        pbf: "http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf",
+                    }
+                }
+            },
+            edge: {
+                width: 1,
+                color: "rgb(204, 204, 204)",
+                arrow: {
+                    minSize: 6,
+                    maxSize: 16,
+                    aspect: 1,
+                    texture: "images/arrow.png",
+                    hideSize: 1
+                }
+            }
+        }
+      };
 
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
