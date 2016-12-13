@@ -1432,8 +1432,8 @@
 	
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 	
-	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform float gamma;", "float g = 4.0 * 1.4142 * gamma / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", //SDF
-	    "    float tx=texture2D(texture, tc).a;", "    float a= smoothstep(buffer - g, buffer + g, tx);", "    gl_FragColor=vec4(color.rgb, a*color.a);", "  }else{", //NORMAL FONT
+	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform float boldness;", "float gamma = 4.0 * 1.4142 * boldness / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", //SDF
+	    "    float tx=texture2D(texture, tc).a;", "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);", "    gl_FragColor=vec4(color.rgb, a*color.a);", "  }else{", //NORMAL FONT
 	    "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 	
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
@@ -1563,8 +1563,8 @@
 	            if (is_outline && !textEngine.isSDF) //discardAll
 	                fontScale = 0;
 	
-	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : (f.brightness || 192.0) / 256.0);
-	            gl.uniform1f(uniforms.gamma, f.gamma || 1.);
+	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : 192.0 / 256.0);
+	            gl.uniform1f(uniforms.boldness, (f ? f.boldness : undefined) || 1.);
 	            gl.uniform1f(uniforms.fontScale, fontScale);
 	            gl.uniform1f(uniforms.height_font, sdfSize);
 	            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
