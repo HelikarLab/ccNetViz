@@ -496,7 +496,7 @@
 	    return getSize(c, c.style, getNodesCnt(), 0.4);
 	  };
 	  var getLabelSize = function getLabelSize(c, s) {
-	    return getSize(c, s, getNodesCnt(), 0.4);
+	    return getSize(c, s, getNodesCnt(), 0.25);
 	  };;
 	
 	  var offset = 0.5 * nodeStyle.maxSize;
@@ -1432,8 +1432,8 @@
 	
 	    var fsColorTexture = ["precision mediump float;", "uniform vec4 color;", "uniform sampler2D texture;", "varying vec2 tc;", "void main(void) {", "   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "}"];
 	
-	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform mediump float discardAll;", "float gamma = 4.0 * 1.4142 / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(discardAll > 0.5) discard; ", "  if(type > 0.5){", //SDF
-	    "    float tx=texture2D(texture, tc).a;", "    float a= smoothstep(buffer - gamma, buffer + gamma, tx);", "    gl_FragColor=vec4(color.rgb, a*color.a);", "  }else{", //NORMAL FONT
+	    var fsLabelTexture = ["precision mediump float;", "uniform lowp sampler2D texture;", "uniform mediump vec4 color;", "uniform mediump float height_font;", "uniform float type;", "uniform float buffer;", "uniform float gamma;", "float g = 4.0 * 1.4142 * gamma / height_font;", "varying mediump vec2 tc;", "void main() {", "  if(type > 0.5){", //SDF
+	    "    float tx=texture2D(texture, tc).a;", "    float a= smoothstep(buffer - g, buffer + g, tx);", "    gl_FragColor=vec4(color.rgb, a*color.a);", "  }else{", //NORMAL FONT
 	    "    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));", "  }", "}"];
 	
 	    var fsVarColorTexture = ["precision mediump float;", "uniform sampler2D texture;", "varying vec2 tc;", "varying vec4 c;", "void main(void) {", "   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));", "}"];
@@ -1548,16 +1548,23 @@
 	
 	            var fontScale = 1.0;
 	            var sdfSize = textEngine.fontSize;
-	            var wantedSize = (textEngine.isSDF ? getLabelSize(context, l || {}) : undefined) || sdfSize;
+	            var wantedSize = textEngine.isSDF ? getLabelSize(context, l || {}) : undefined;
+	            if (wantedSize === 0) {
+	                fontScale = 0;
+	            } else if (!wantedSize) {
+	                wantedSize = sdfSize;
+	            };
 	
 	            var opts = {};
 	            if (wantedSize && sdfSize) {
 	                fontScale *= wantedSize / sdfSize;
 	            }
 	
-	            gl.uniform1f(uniforms.discardAll, is_outline && !textEngine.isSDF ? 1.0 : 0.0);
+	            if (is_outline && !textEngine.isSDF) //discardAll
+	                fontScale = 0;
 	
-	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : (f.defaultColor || 192.0) / 256.0);
+	            gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : (f.brightness || 192.0) / 256.0);
+	            gl.uniform1f(uniforms.gamma, f.gamma || 1.);
 	            gl.uniform1f(uniforms.fontScale, fontScale);
 	            gl.uniform1f(uniforms.height_font, sdfSize);
 	            gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
@@ -1575,9 +1582,6 @@
 	        var styles = options.styles;
 	        for (var p in styles) {
 	            var s = styles[p];
-	
-	            //            var lf = s.label && s.label.font && ccNetViz_utils.isObject(s.label.font) ? s.label.font : {};
-	            //            lf.SDFmetrics && files.load(lf.SDFmetrics, onLoad, 'json');
 	
 	            s.texture && textures.get(gl, s.texture, onLoad);
 	            s.arrow && s.arrow.texture && textures.get(gl, s.arrow.texture);
