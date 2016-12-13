@@ -1,6 +1,6 @@
 {
   "name": "ccnetviz",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/ccNetViz.js",
   "devDependencies": {
     "babel-cli": "^6.16.0",
@@ -24,7 +24,10 @@
     "efficiency",
     "WebGL"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "pbf": "^3.0.5",
+    "shelf-pack": "^2.0.1"
+  },
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "react-scripts start",
