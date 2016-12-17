@@ -10,7 +10,7 @@ export default class Utils {
   static extend(from){
     for(var i = 1; i < arguments.length; i++){
       for(var k in arguments[i]){
-	from[k] = arguments[i][k];
+        from[k] = arguments[i][k];
       }
     }
     return from;
