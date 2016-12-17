@@ -214,13 +214,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
     this.getCurrentSpatialSearch = (context) => {
       if(spatialSearch === undefined){
-        spatialSearch = new ccNetViz_spatialSearch(context, [], [], [], [], normalize);
+        spatialSearch = new ccNetViz_spatialSearch(context, texts, [], [], [], [], normalize);
       }
       return spatialSearch;
     }
     
-    this.remove = () => {
-    }
+    this.remove = () => { }
     
     
     let edgeTypes;
@@ -232,7 +231,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
         this.getCurrentSpatialSearch = (context) => {
           if(spatialSearch === undefined){
-            spatialSearch = new ccNetViz_spatialSearch(context, nodes, lines, curves, circles, normalize);
+            spatialSearch = new ccNetViz_spatialSearch(context, texts, nodes, lines, curves, circles, normalize);
           }
           return spatialSearch;
         }

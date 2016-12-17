@@ -337,8 +337,48 @@ function getEdgeShift(context, screensize, e, ct){
 
 class Node{
   constructor(n){
-    this.isNode = true;
     this.e = n;
+  };
+  get isNode(){
+    return true;
+  };
+  getBBox(){
+    return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
+  };
+  intersectsRect(x1,y1,x2,y2){
+    return pointInRect(this.e.x, this.e.y, x1,y1,x2,y2);
+  };
+  dist2(x,y, context){
+    return distance2(x,y,this.e.x,this.e.y);
+  };
+}
+
+class Label{
+  constructor(n){
+    this.e = n;
+  };
+  get isLabel(){
+    return true;
+  };
+  getTextBB(context, size){
+    let x1,y1,x2,y2;
+    
+    let s = ccNetViz_geomutils.edgeSource(this.e);
+    let t = ccNetViz_geomutils.edgeTarget(this.e);
+    
+    x1 = s.x;
+    y1 = s.y;
+    x2 = t.x;
+    y2 = t.y;
+    
+    getEdgeShift(context, size, s.e, ct);
+    x1 += ct.x;
+    y1 += ct.y;
+    getEdgeShift(context, size, t.e, ct);
+    x2 += ct.x;
+    y2 += ct.y;
+
+    return [x1,y1,x2,y2];
   };
   getBBox(){
     return [this.e.x-EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
@@ -353,8 +393,10 @@ class Node{
 
 class Line{
   constructor(l){
-    this.isEdge = true;
     this.e = l;
+  };
+  get isEdge(){
+    return true;
   };
   getPoints(context, size){
     let x1,y1,x2,y2;
@@ -395,8 +437,10 @@ class Line{
 
 class Circle{
   constructor(c){
-    this.isEdge = true;
     this.e = c;
+  };
+  get isEdge(){
+    return true;
   };
   getBezierPoints(context, screensize){
     let x1,y1,s;
@@ -447,8 +491,10 @@ class Circle{
 
 class Curve{
   constructor(c){
-    this.isEdge = true;
     this.e = c;
+  };
+  get isEdge(){
+    return true;
   };
   getBezierPoints(context, size, normalize){
     let x1,x2,y1,y2;
@@ -509,58 +555,45 @@ function sortByDistances(e1, e2){
 }
 
 
-var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve};
+var tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve, labels: Label};
 
 export default class spatialIndex{
-  constructor(c, nodes, lines, curves, circles, normalize){
+  constructor(c, texts, nodes, lines, curves, circles, normalize){
+    //init all elements into rbush tree with size 1 (outer bound - the worst case)
+    const size = 1;
     
-    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
-    let size = 1;
-    
+    this.texts = texts;
     this.normalize = normalize;
+    let t = this.types = {nodes: [], lines: [], circles: [], curves: [], labels: []};
+    let i = 0, d = [];
+
+    let addEntity = (e) => {
+      d[i] = e.getBBox(c, size, normalize);
+      d[i].push(e);
+      i++;
+      return e;
+    };
     
+    nodes.forEach((n) => {
+      t.nodes.push(addEntity(new Node(n)));
+    });
+
+    lines.forEach((l) => {
+      t.lines.push(addEntity(new Line(l)));
+    });
+
+    circles.forEach((c) => {
+      t.circles.push(addEntity(new Circle(c)));
+    });
+    
+    curves.forEach((c) => {
+      t.curves.push(addEntity(new Curve(c)));
+    });
+
     //tree initialization
     this.rbushtree = rbush();
 
-    this.types = {nodes: [], lines: [], circles: [], curves: []};
-
-    let i,j;
-    let d = [];
-    
-    d.length = nodes.length;
-    for(i = 0;i < nodes.length; i++){
-      let e = new Node(nodes[i]);
-      d[i] = e.getBBox(c, size);
-      this.types.nodes.push(e);
-      d[i].push(e);
-    }
-
-    d.length += lines.length;
-    for(j = 0;j < lines.length;i++, j++){
-      let e = new Line(lines[j]);
-      d[i] = e.getBBox(c, size);
-      this.types.lines.push(e);
-      d[i].push(e);
-    }
-
-    d.length += circles.length;
-    for(j = 0;j < circles.length;i++, j++){
-      let e = new Circle(circles[j]);
-      d[i] = e.getBBox(c, size);
-      this.types.circles.push(e);
-      d[i].push(e);
-    }
-    
-    d.length += curves.length;
-    for(j = 0;j < curves.length;i++, j++){
-      let e = new Curve(curves[j]);
-      d[i] = e.getBBox(c, size, normalize);
-      this.types.curves.push(e);
-      d[i].push(e);
-    }
-
     this.rbushtree.load(d);
-    
   }
   findArea(context,x1,y1,x2,y2,size,nodes,edges){
     if(x1 > x2){
@@ -596,9 +629,9 @@ export default class spatialIndex{
     for(let i = 0; i < data.length; i++){
       let e = data[i][4];
 
-      let dist2 = e.dist2(x,y, context, size, this.normalize);
+      let dist2 = e.dist2(x,y, context, size, this.normalize, this.texts);
 
-      if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize))
+      if(!e.intersectsRect(x1,y1,x2,y2,context, size, this.normalize, this.texts))
         continue;
 
       if(e.isNode && nodes){
@@ -628,7 +661,7 @@ export default class spatialIndex{
 
     for(let i = 0; i < data.length; i++){
       let e = data[i][4];
-      let dist2 = e.dist2(x,y, context, size, this.normalize);
+      let dist2 = e.dist2(x,y, context, size, this.normalize, this.texts);
       if(dist2 > radius2)
         continue;
 
@@ -656,7 +689,7 @@ export default class spatialIndex{
     this.rbushtree.remove(this.types[t][i]);
 
     let e = new tConst[t](v);
-    let arr = e.getBBox(context, size, this.normalize);
+    let arr = e.getBBox(context, size, this.normalize, this.texts);
     arr.push(e);
 
     this.rbushtree.insert(this.types[t][i] = arr);
