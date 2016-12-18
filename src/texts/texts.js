@@ -11,12 +11,12 @@ import ccNetViz_sdfTexts      from './sdf/sdf';
 import ccNetViz_utils         from '../utils';
 
 export default class {
-  constructor(gl){
+  constructor(gl, files, textures){
     this._gl = gl;
 
     this._modules = {
-      'default': new ccNetViz_defaultTexts(gl),
-      'sdf': new ccNetViz_sdfTexts(gl),
+      'default': new ccNetViz_defaultTexts(gl, files, textures),
+      'sdf': new ccNetViz_sdfTexts(gl, files, textures),
     };
   }
 

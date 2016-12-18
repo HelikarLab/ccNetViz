@@ -273,7 +273,7 @@ var ccNetViz = function(canvas, options){
   };
 
   let getNodeSize = c => getSize(c, c.style, getNodesCnt(), 0.4);
-  let getLabelSize = (c,s) => getSize(c, s, getNodesCnt(), 0.25);;
+  let getLabelSize = (c,s) => getSize(c, s, getNodesCnt(), 0.25);
 
   let offset = 0.5 * nodeStyle.maxSize;
 
@@ -616,7 +616,7 @@ var ccNetViz = function(canvas, options){
 
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
-  texts = new ccNetViz_texts(gl);
+  texts = new ccNetViz_texts(gl, files, textures);
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)

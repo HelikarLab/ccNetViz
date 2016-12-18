@@ -4,6 +4,7 @@ import ccNetViz_primitive from './primitive' ;
 import ccNetViz_layout    from './layout/layout' ;
 import ccNetViz_geomutils from './geomutils' ;
 import ccNetViz_utils     from './utils' ;
+import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
 /**
@@ -43,7 +44,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         return (function(style){
           let textEngine = texts.getEngine(style.font);
       
-          textEngine.setFont(style.font, files, textures);
+          textEngine.setFont(style.font);
 
           return {
               set: (v, e, iV, iI) => {
@@ -214,7 +215,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
     this.getCurrentSpatialSearch = (context) => {
       if(spatialSearch === undefined){
-        spatialSearch = new ccNetViz_spatialSearch(context, texts, [], [], [], [], normalize);
+        spatialSearch = new ccNetViz_spatialSearch(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize);
       }
       return spatialSearch;
     }
@@ -229,13 +230,6 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
     this.set = function(nodes, edges, layout) {
 
-        this.getCurrentSpatialSearch = (context) => {
-          if(spatialSearch === undefined){
-            spatialSearch = new ccNetViz_spatialSearch(context, texts, nodes, lines, curves, circles, normalize);
-          }
-          return spatialSearch;
-        }
-      
         removedNodes = 0;
         removedEdges = 0;
       
@@ -335,11 +329,23 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         };
 
         init();
+        
+        let nodesParts   = partitionByStyle(nodes);
+        let circlesParts = partitionByStyle(circles);
+        let linesParts   = partitionByStyle(lines);
+        let curvesParts  = partitionByStyle(curves);
+
+        this.getCurrentSpatialSearch = (context) => {
+          if(spatialSearch === undefined){
+            spatialSearch = new ccNetViz_spatialSearch(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize);
+          }
+          return spatialSearch;
+        }        
 
         layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
         
         if(!gl) return isDirty;
-
+        
         let tryInitPrimitives = () => {
             var isDirty = false;
 
@@ -352,33 +358,36 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             let labelAdder = (section, addSection) => {
               var slf = (section.style.label || {}).font || {};
               let textEngine = texts.getEngine(slf);
-              section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
+              section.style.texture = textEngine.getTexture(slf, addSection);
             }
 
-            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+            let is;
+            is = nodes.length && !nodes[0].color;
+            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, is ? nodes : [], is ? nodesParts : {}, nodesFiller);
+            is = nodes.length && nodes[0].color;
+            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, is ? nodes : [], is ? nodesParts : {}, nodesFiller);
 
             if (nodeStyle.label) {
                 texts.clear();
-                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
+                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
                 texts.bind();
             }
 
-            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
+            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, linesParts, edgesFiller.lines);
 
             if (extensions.OES_standard_derivatives) {
-                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
-                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
+                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, curvesParts, edgesFiller.curves);
+                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, circlesParts, edgesFiller.circles);
             }
 
             if (edgeStyle.arrow) {
-                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, linesParts, arrowFiller.lineArrows);
 
                 if (extensions.OES_standard_derivatives) {
-                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
+                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, curvesParts, arrowFiller.curveArrows);
 
-                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, circlesParts, arrowFiller.circleArrows);
                 }
             }
 
@@ -409,12 +418,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         };});
     }
     
-    this.find = (x,y,dist,nodes,edges) => {
-      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges);
+    this.find = (x,y,dist,nodes,edges,labels) => {
+      return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges,labels);
     }
 
-    this.findArea = (x1,y1,x2,y2,nodes,edges) => {
-      return this.getCurrentSpatialSearch(context).findArea(context, x1,y1,x2,y2, view.size, nodes,edges);
+    this.findArea = (x1,y1,x2,y2,nodes,edges,labels) => {
+      return this.getCurrentSpatialSearch(context).findArea(context, x1,y1,x2,y2, view.size, nodes,edges,labels);
     }
     
     this.updateNode = (n, i) => {
@@ -928,12 +937,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform1f(uniforms.type, getLabelType(f));
 
             let textEngine = texts.getEngine(f);
-            textEngine.setFont(f, files, textures);
+            textEngine.setFont(f);
 
             let fontScale = 1.0;
             let sdfSize = textEngine.fontSize;
-            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
-            if(wantedSize === 0){ fontScale = 0 } else if(!wantedSize){ wantedSize = sdfSize };
+//            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
+            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize );
+            if(wantedSize === 0){ fontScale = 0; };
             
             let opts = {};
             if(wantedSize && sdfSize){

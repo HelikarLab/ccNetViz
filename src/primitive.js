@@ -1,6 +1,7 @@
 import ccNetViz_shader from './shader' ;
-import ccNetViz_color  from './color' ;
 import ccNetViz_utils  from './utils' ;
+import {getPartitionStyle} from './primitiveTools';
+
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -9,6 +10,8 @@ import ccNetViz_utils  from './utils' ;
  *  This source code is licensed under the GPLv3 License.
  *  Author: David Tichy
  */
+
+
 
 export default class primitive{
   constructor(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
@@ -68,24 +71,9 @@ export default class primitive{
       }
     }
     
-    this.set = (gl, styles, adder, data, get) => {
+    this.set = (gl, styles, adder, data, parts, get) => {
         var isDirty = false;
       
-        let parts = {};
-        
-        let pN = {};
-        for (let i = 0; i < data.length; i++) {
-            let el = data[i];
-            let part = parts[el.style] = parts[el.style] || [];
-            if(part.idx === undefined)
-              part.idx = [];
-            part.idx.push(i); 
-
-            el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
-            
-            part.push(el);
-        }
-
         iS = 0;
         iB = 0;
 
@@ -113,30 +101,12 @@ export default class primitive{
             iB++;
         };
 
-        let createStyle = style => {
-            let result = {};
-
-            let copy = s => {
-                if (s) for (let p in s) result[p] = s[p];
-            };
-
-            copy(baseStyle);
-            copy(style);
-
-            if (styleProperty) {
-                copy(baseStyle[styleProperty]);
-                style && copy(style[styleProperty]);
-            }
-            result.color = result.color && new ccNetViz_color(result.color);
-            return result;
-        };
-
         sections = [];
         for (let p in parts) {
             iS = iB;
 
             let section = {
-                style: createStyle(styles[p]),
+                style: getPartitionStyle(styles[p], baseStyle, styleProperty),
                 buffers: [],
                 styleName: p
             };

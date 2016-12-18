@@ -7,7 +7,7 @@
  */
 
 export default class {
-  constructor(gl){
+  constructor(gl, files, textures){
     this._gl = gl;
     this._size = 1024;
 
@@ -49,7 +49,7 @@ export default class {
     return this._height - 1;
   }
   
-  getTexture (style, textures, files, onLoad){
+  getTexture (style, onLoad){
     onLoad();
     return this.texture;
   }

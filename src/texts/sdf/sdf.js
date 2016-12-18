@@ -31,12 +31,14 @@ const DEFAULT_SIZE = 512;
 const MAX_SIZE = 2048;
 
 export default class {
-  constructor(gl) {
+  constructor(gl, files, textures) {
     this.width = DEFAULT_SIZE;
     this.height = DEFAULT_SIZE;
 
     this.clear();
 
+    this._files    = files;
+    
     this._rendered = {};
     this._texts;
     this._gl = gl;
@@ -55,23 +57,18 @@ export default class {
   clear (){
   }
 
-  setFont (style, files, textures, onLoad) {
-    var font = style.pbf;
-    
-    this.curFont = font;
-
-    this._files      = files;
-    this._SDFmetrics = files.get(style.metrics);
+  setFont (style) {
+    this.curFont = style.pbf;
   }
   
   get fontSize(){
     return 24;
   }
 
-  getTexture (style, files, textures, onLoad){
+  getTexture (style, onLoad){
     let myOnLoad = ((onL) => {
       return () => {
-        let data = files.load(style.pbf, onLoad, 'arraybuffer');
+        let data = this._files.load(style.pbf, onLoad, 'arraybuffer');
         
         //init first most-used ASCII chars
         for(let i = 0; i < 128; i++){
@@ -85,7 +82,7 @@ export default class {
 
     var font = style.pbf;
     if(!this._glyphs[font]){
-      let data = files.load(style.pbf, myOnLoad, 'arraybuffer');
+      let data = this._files.load(style.pbf, myOnLoad, 'arraybuffer');
       this._curglyphs = this._glyphs[font] = data && new Glyphs(new Protobuf(data));
     }else{
       myOnLoad();
