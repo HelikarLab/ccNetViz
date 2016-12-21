@@ -105,14 +105,14 @@ export default class {
         if(stack){
           const glyph = stack.glyphs[glyphID];
           if(!this._rects[font]) this._rects[font] = {}; 
-          const rect = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
-          this._rects[font][text] = rect;
+          
+          this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);;
         }
       }
     }
 
     let r,rect;
-    if( (r = this._rects[font]) && (rect = r[text]) ){
+    if( (r = this._rects[font]) && (rect = r[text])){
         let cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
         return cache[glyphID] || ( cache[glyphID] = new SimpleGlyph(this._glyphs[font].stacks[range].glyphs[glyphID], rect, buffer));
     }
@@ -130,8 +130,9 @@ export default class {
     for(let i = 0; i < text.length; i++){
       const char           = this._getChar(text[i], markDirty);
       const rect           = char.rect || {};
-      height             = Math.max(height, rect.h - char.top);
-      width             += char.advance + horiBearingX;
+      height               = Math.max(height, rect.h - char.top);
+      width               += char.advance + horiBearingX;
+//      width               += rect.w + horiBearingX;
     }
 
     let dx = x <= 0.5 ? 0 : -width ;
@@ -160,6 +161,7 @@ export default class {
       });
 
       dx += char.advance;
+//      dx += rect.w;
     }
     return ret;
   }

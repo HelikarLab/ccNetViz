@@ -89,11 +89,6 @@ export default class GlyphAtlas {
             return this.index[key];
         }
 
-        // The glyph bitmap has zero width.
-        if (!glyph.bitmap) {
-            return null;
-        }
-
         const bufferedWidth = glyph.width + buffer * 2;
         const bufferedHeight = glyph.height + buffer * 2;
 
@@ -115,23 +110,24 @@ export default class GlyphAtlas {
             markDirty && markDirty();
         }
         if (!rect) {
-//            util.warnOnce('glyph bitmap overflow');
             return null;
         }
 
         this.index[key] = rect;
         this.ids[key] = [id];
 
-        const target = this.data;
-        const source = glyph.bitmap;
-        for (let y = 0; y < bufferedHeight; y++) {
-            const y1 = this.width * (rect.y + y + padding) + rect.x + padding;
-            const y2 = bufferedWidth * y;
-            for (let x = 0; x < bufferedWidth; x++) {
-                target[y1 + x] = source[y2 + x];
-            }
+        if (glyph.bitmap) {
+          const target = this.data;
+          const source = glyph.bitmap;
+          for (let y = 0; y < bufferedHeight; y++) {
+              const y1 = this.width * (rect.y + y + padding) + rect.x + padding;
+              const y2 = bufferedWidth * y;
+              for (let x = 0; x < bufferedWidth; x++) {
+                  target[y1 + x] = source[y2 + x];
+              }
+          }
         }
-
+          
         this.dirty = true;
 
         return rect;
