@@ -168,7 +168,7 @@
 	
 	var _layer2 = _interopRequireDefault(_layer);
 	
-	var _layout = __webpack_require__(8);
+	var _layout = __webpack_require__(9);
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(15);
+	var _textures = __webpack_require__(17);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(16);
+	var _files = __webpack_require__(18);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(17);
+	var _texts = __webpack_require__(19);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(25);
+	var _lazyEvents = __webpack_require__(27);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(26);
+	var _interactivityBatch = __webpack_require__(28);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(13);
+	var _spatialSearch = __webpack_require__(14);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -497,7 +497,7 @@
 	  };
 	  var getLabelSize = function getLabelSize(c, s) {
 	    return getSize(c, s, getNodesCnt(), 0.25);
-	  };;
+	  };
 	
 	  var offset = 0.5 * nodeStyle.maxSize;
 	
@@ -848,7 +848,7 @@
 	
 	  textures = new _textures2.default(events, onLoad);
 	  files = new _files2.default(events, onLoad);
-	  texts = new _texts2.default(gl);
+	  texts = new _texts2.default(gl, files, textures);
 	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (!gl) console.warn("Cannot initialize WebGL context");
@@ -909,7 +909,7 @@
 	        return function (style) {
 	            var textEngine = texts.getEngine(style.font);
 	
-	            textEngine.setFont(style.font, files, textures);
+	            textEngine.setFont(style.font);
 	
 	            return {
 	                set: function set(v, e, iV, iI) {
@@ -1108,7 +1108,7 @@
 	
 	    this.getCurrentSpatialSearch = function (context) {
 	        if (spatialSearch === undefined) {
-	            spatialSearch = new _spatialSearch2.default(context, [], [], [], [], normalize);
+	            spatialSearch = new _spatialSearch2.default(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize);
 	        }
 	        return spatialSearch;
 	    };
@@ -1122,13 +1122,6 @@
 	
 	    this.set = function (nodes, edges, layout) {
 	        var _this2 = this;
-	
-	        this.getCurrentSpatialSearch = function (context) {
-	            if (spatialSearch === undefined) {
-	                spatialSearch = new _spatialSearch2.default(context, nodes, lines, curves, circles, normalize);
-	            }
-	            return spatialSearch;
-	        };
 	
 	        removedNodes = 0;
 	        removedEdges = 0;
@@ -1230,6 +1223,18 @@
 	
 	        init();
 	
+	        var nodesParts = (0, _primitiveTools.partitionByStyle)(nodes);
+	        var circlesParts = (0, _primitiveTools.partitionByStyle)(circles);
+	        var linesParts = (0, _primitiveTools.partitionByStyle)(lines);
+	        var curvesParts = (0, _primitiveTools.partitionByStyle)(curves);
+	
+	        this.getCurrentSpatialSearch = function (context) {
+	            if (spatialSearch === undefined) {
+	                spatialSearch = new _spatialSearch2.default(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize);
+	            }
+	            return spatialSearch;
+	        };
+	
 	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return isDirty;
@@ -1243,33 +1248,36 @@
 	            var labelAdder = function labelAdder(section, addSection) {
 	                var slf = (section.style.label || {}).font || {};
 	                var textEngine = texts.getEngine(slf);
-	                section.style.texture = textEngine.getTexture(slf, files, textures, addSection);
+	                section.style.texture = textEngine.getTexture(slf, addSection);
 	            };
 	
-	            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, nodes.length && !nodes[0].color ? nodes : [], nodesFiller);
-	            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, nodes.length && nodes[0].color ? nodes : [], nodesFiller);
+	            var is = void 0;
+	            is = nodes.length && !nodes[0].color;
+	            isDirty = isDirty || scene.nodes.set(gl, options.styles, defaultAdder, is ? nodes : [], is ? nodesParts : {}, nodesFiller);
+	            is = nodes.length && nodes[0].color;
+	            isDirty = isDirty || scene.nodesColored.set(gl, options.styles, defaultAdder, is ? nodes : [], is ? nodesParts : {}, nodesFiller);
 	
 	            if (nodeStyle.label) {
 	                texts.clear();
-	                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, labelsFiller);
-	                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, labelsFiller);
+	                isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
+	                isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
 	                texts.bind();
 	            }
 	
-	            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, edgesFiller.lines);
+	            isDirty = isDirty || scene.lines.set(gl, options.styles, defaultAdder, lines, linesParts, edgesFiller.lines);
 	
 	            if (extensions.OES_standard_derivatives) {
-	                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, edgesFiller.curves);
-	                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, edgesFiller.circles);
+	                isDirty = isDirty || scene.curves.set(gl, options.styles, defaultAdder, curves, curvesParts, edgesFiller.curves);
+	                isDirty = isDirty || scene.circles.set(gl, options.styles, defaultAdder, circles, circlesParts, edgesFiller.circles);
 	            }
 	
 	            if (edgeStyle.arrow) {
-	                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, arrowFiller.lineArrows);
+	                isDirty = isDirty || scene.lineArrows.set(gl, options.styles, defaultAdder, lines, linesParts, arrowFiller.lineArrows);
 	
 	                if (extensions.OES_standard_derivatives) {
-	                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, arrowFiller.curveArrows);
+	                    isDirty = isDirty || scene.curveArrows.set(gl, options.styles, defaultAdder, curves, curvesParts, arrowFiller.curveArrows);
 	
-	                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, arrowFiller.circleArrows);
+	                    isDirty = isDirty || scene.circleArrows.set(gl, options.styles, defaultAdder, circles, circlesParts, arrowFiller.circleArrows);
 	                }
 	            }
 	
@@ -1301,12 +1309,12 @@
 	        });
 	    };
 	
-	    this.find = function (x, y, dist, nodes, edges) {
-	        return _this.getCurrentSpatialSearch(context).find(context, x, y, dist, view.size, nodes, edges);
+	    this.find = function (x, y, dist, nodes, edges, labels) {
+	        return _this.getCurrentSpatialSearch(context).find(context, x, y, dist, view.size, nodes, edges, labels);
 	    };
 	
-	    this.findArea = function (x1, y1, x2, y2, nodes, edges) {
-	        return _this.getCurrentSpatialSearch(context).findArea(context, x1, y1, x2, y2, view.size, nodes, edges);
+	    this.findArea = function (x1, y1, x2, y2, nodes, edges, labels) {
+	        return _this.getCurrentSpatialSearch(context).findArea(context, x1, y1, x2, y2, view.size, nodes, edges, labels);
 	    };
 	
 	    this.updateNode = function (n, i) {
@@ -1544,15 +1552,14 @@
 	            gl.uniform1f(uniforms.type, getLabelType(f));
 	
 	            var textEngine = texts.getEngine(f);
-	            textEngine.setFont(f, files, textures);
+	            textEngine.setFont(f);
 	
 	            var fontScale = 1.0;
 	            var sdfSize = textEngine.fontSize;
-	            var wantedSize = textEngine.isSDF ? getLabelSize(context, l || {}) : undefined;
+	            //            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
+	            var wantedSize = textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize;
 	            if (wantedSize === 0) {
 	                fontScale = 0;
-	            } else if (!wantedSize) {
-	                wantedSize = sdfSize;
 	            };
 	
 	            var opts = {};
@@ -1611,11 +1618,11 @@
 	
 	var _primitive2 = _interopRequireDefault(_primitive);
 	
-	var _layout = __webpack_require__(8);
+	var _layout = __webpack_require__(9);
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(12);
+	var _geomutils = __webpack_require__(13);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1623,7 +1630,9 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _spatialSearch = __webpack_require__(13);
+	var _primitiveTools = __webpack_require__(8);
+	
+	var _spatialSearch = __webpack_require__(14);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -1849,13 +1858,11 @@
 	
 	var _shader2 = _interopRequireDefault(_shader);
 	
-	var _color = __webpack_require__(3);
-	
-	var _color2 = _interopRequireDefault(_color);
-	
 	var _utils = __webpack_require__(7);
 	
 	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _primitiveTools = __webpack_require__(8);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1934,22 +1941,8 @@
 	            }
 	        };
 	
-	        this.set = function (gl, styles, adder, data, get) {
+	        this.set = function (gl, styles, adder, data, parts, get) {
 	            var isDirty = false;
-	
-	            var parts = {};
-	
-	            var pN = {};
-	            for (var i = 0; i < data.length; i++) {
-	                var el = data[i];
-	                var part = parts[el.style] = parts[el.style] || [];
-	                if (part.idx === undefined) part.idx = [];
-	                part.idx.push(i);
-	
-	                el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style] + 1;
-	
-	                part.push(el);
-	            }
 	
 	            iS = 0;
 	            iB = 0;
@@ -1979,26 +1972,6 @@
 	                iB++;
 	            };
 	
-	            var createStyle = function createStyle(style) {
-	                var result = {};
-	
-	                var copy = function copy(s) {
-	                    if (s) for (var p in s) {
-	                        result[p] = s[p];
-	                    }
-	                };
-	
-	                copy(baseStyle);
-	                copy(style);
-	
-	                if (styleProperty) {
-	                    copy(baseStyle[styleProperty]);
-	                    style && copy(style[styleProperty]);
-	                }
-	                result.color = result.color && new _color2.default(result.color);
-	                return result;
-	            };
-	
 	            sections = [];
 	            for (var p in parts) {
 	                var add = function add() {
@@ -2009,7 +1982,7 @@
 	                iS = iB;
 	
 	                var section = {
-	                    style: createStyle(styles[p]),
+	                    style: (0, _primitiveTools.getPartitionStyle)(styles[p], baseStyle, styleProperty),
 	                    buffers: [],
 	                    styleName: p
 	                };
@@ -2018,13 +1991,13 @@
 	                filler.numVertices = filler.numVertices || 4;
 	                filler.numIndices = filler.numIndices || 6;
 	
-	                var _part = parts[p];
+	                var part = parts[p];
 	
-	                var pL = partLength(filler, _part);
+	                var pL = partLength(filler, part);
 	                init(filler, pL);
 	                var max = primitive.maxBufferSize;
-	                for (var _i2 = 0; _i2 < _part.length; _i2++) {
-	                    var s = filler.size ? filler.size(e, _part[_i2]) : 1;
+	                for (var i = 0; i < part.length; i++) {
+	                    var s = filler.size ? filler.size(e, part[i]) : 1;
 	                    var niV = iV + s * filler.numVertices;
 	                    var niI = iI + s * filler.numIndices;
 	
@@ -2035,9 +2008,9 @@
 	                        niI = iI;
 	                    }
 	
-	                    if (filler.set(e, _part[_i2], iV, iI)) isDirty = true;
+	                    if (filler.set(e, part[i], iV, iI)) isDirty = true;
 	
-	                    var idx = _part.idx[_i2];
+	                    var idx = part.idx[i];
 	                    _this._iIs[idx] = iI;
 	                    _this._iVs[idx] = iV;
 	                    _this._iBs[idx] = iB;
@@ -2373,14 +2346,72 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.getPartitionStyle = exports.partitionByStyle = undefined;
+	
+	var _color = __webpack_require__(3);
+	
+	var _color2 = _interopRequireDefault(_color);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function partitionByStyle(data) {
+	    var parts = {};
+	
+	    var pN = {};
+	    for (var i = 0; i < data.length; i++) {
+	        var el = data[i];
+	        var part = parts[el.style] = parts[el.style] || [];
+	        if (part.idx === undefined) part.idx = [];
+	        part.idx.push(i);
+	
+	        el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style] + 1;
+	
+	        part.push(el);
+	    }
+	
+	    return parts;
+	}
+	
+	function getPartitionStyle(style, baseStyle, styleProperty) {
+	    var result = {};
+	
+	    var copy = function copy(s) {
+	        if (s) for (var p in s) {
+	            result[p] = s[p];
+	        }
+	    };
+	
+	    copy(baseStyle);
+	    copy(style);
+	
+	    if (styleProperty) {
+	        copy(baseStyle[styleProperty]);
+	        style && copy(style[styleProperty]);
+	    }
+	    result.color = result.color && new _color2.default(result.color);
+	    return result;
+	};
+	
+	exports.partitionByStyle = partitionByStyle;
+	exports.getPartitionStyle = getPartitionStyle;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _force = __webpack_require__(9);
+	var _force = __webpack_require__(10);
 	
 	var _force2 = _interopRequireDefault(_force);
 	
-	var _random = __webpack_require__(11);
+	var _random = __webpack_require__(12);
 	
 	var _random2 = _interopRequireDefault(_random);
 	
@@ -2461,7 +2492,7 @@
 	exports.default = _class;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2640,7 +2671,7 @@
 	    };
 	};
 	
-	var _quadTree = __webpack_require__(10);
+	var _quadTree = __webpack_require__(11);
 	
 	var _quadTree2 = _interopRequireDefault(_quadTree);
 	
@@ -2657,7 +2688,7 @@
 	 */
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2825,7 +2856,7 @@
 	   */
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2871,7 +2902,7 @@
 	;
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2971,7 +3002,7 @@
 	;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2982,13 +3013,17 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(14);
+	var _rbush = __webpack_require__(15);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(12);
+	var _geomutils = __webpack_require__(13);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
+	
+	var _primitiveTools = __webpack_require__(8);
+	
+	var _geomtools = __webpack_require__(16);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3001,270 +3036,6 @@
 	 *  This source code is licensed under the GPLv3 License.
 	 *  Author: Aleš Saska - http://alessaska.cz/
 	 */
-	
-	var EPS = Number.EPSILON || 1e-14;
-	
-	//solving cube analyticaly for bezier curves
-	function cuberoot(x) {
-	  var y = Math.pow(Math.abs(x), 1 / 3);
-	  return x < 0 ? -y : y;
-	}
-	
-	function solveCubic(a, b, c, d) {
-	  if (Math.abs(a) < 1e-8) {
-	    // Quadratic case, ax^2+bx+c=0
-	    a = b;b = c;c = d;
-	    if (Math.abs(a) < 1e-8) {
-	      // Linear case, ax+b=0
-	      a = b;b = c;
-	      if (Math.abs(a) < 1e-8) // Degenerate case
-	        return [];
-	      return [-b / a];
-	    }
-	
-	    var D = b * b - 4 * a * c;
-	    if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
-	    return [];
-	  }
-	
-	  // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
-	  var p = (3 * a * c - b * b) / (3 * a * a);
-	  var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-	  var roots = void 0;
-	
-	  if (Math.abs(p) < 1e-8) {
-	    // p = 0 -> t^3 = -q -> t = -q^1/3
-	    roots = [cuberoot(-q)];
-	  } else if (Math.abs(q) < 1e-8) {
-	    // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
-	    roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
-	  } else {
-	    var _D = q * q / 4 + p * p * p / 27;
-	    if (Math.abs(_D) < 1e-8) {
-	      // D = 0 -> two roots
-	      roots = [-1.5 * q / p, 3 * q / p];
-	    } else if (_D > 0) {
-	      // Only one real root
-	      var u = cuberoot(-q / 2 - Math.sqrt(_D));
-	      roots = [u - p / (3 * u)];
-	    } else {
-	      // D < 0, three roots, but needs to use complex numbers/trigonometric solution
-	      var _u = 2 * Math.sqrt(-p / 3);
-	      var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
-	      var k = 2 * Math.PI / 3;
-	      roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
-	    }
-	  }
-	
-	  // Convert back from depressed cubic
-	  for (var i = 0; i < roots.length; i++) {
-	    roots[i] -= b / (3 * a);
-	  }return roots;
-	}
-	
-	//function distanceToBezier(x,y,ax,ay,bx,by,cx,cy){
-	function distance2ToBezier(x, y, a, d, b, e, c, f) {
-	  //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
-	
-	  var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
-	  var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
-	  var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
-	  var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
-	
-	  var eqresult = solveCubic(A, B, C, D);
-	
-	  //loop through all possible solitions to find out which point is the nearest
-	  var mindist = Infinity;
-	  for (var i = 0; i < eqresult.length; i++) {
-	    var t = eqresult[i];
-	
-	    if (t < 0 || t > 1) continue;
-	
-	    //point at bezier curve
-	    var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
-	    var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
-	
-	    var dist = distance2(x, y, px, py);
-	    if (dist < mindist) mindist = dist;
-	  }
-	
-	  return mindist;
-	}
-	
-	/*
-	 * @param v - array of with points [x1,y1,x2,y2 .... ]
-	 * @return array representing bounding box [x1,y1,x2,y2]
-	 */
-	function getBBFromPoints(v) {
-	  var xmin = Infinity;
-	  var xmax = -xmin;
-	  var ymin = Infinity;
-	  var ymax = -ymin;
-	
-	  //x of points - even indexes in array 
-	  for (var i = 0; i < v.length; i += 2) {
-	    var val = v[i];
-	    if (val < xmin) xmin = val;
-	    if (val > xmax) xmax = val;
-	  }
-	
-	  //y of points - odd indexes in array 
-	  for (var _i = 1; _i < v.length; _i += 2) {
-	    var _val = v[_i];
-	    if (_val < ymin) ymin = _val;
-	    if (_val > ymax) ymax = _val;
-	  }
-	
-	  return [xmin, ymin, xmax, ymax];
-	}
-	
-	//distance from point to point
-	function distance2(x1, y1, x2, y2) {
-	  var dx = x1 - x2;
-	  var dy = y1 - y2;
-	  return dx * dx + dy * dy;
-	}
-	
-	//distance from point to line
-	function pDistance2(x, y, x1, y1, x2, y2) {
-	  var A = x - x1;
-	  var B = y - y1;
-	  var C = x2 - x1;
-	  var D = y2 - y1;
-	
-	  var dot = A * C + B * D;
-	  var len_sq = C * C + D * D;
-	  var param = -1;
-	  if (len_sq != 0) //in case of 0 length line
-	    param = dot / len_sq;
-	
-	  var xx = void 0,
-	      yy = void 0;
-	
-	  if (param < 0) {
-	    xx = x1;
-	    yy = y1;
-	  } else if (param > 1) {
-	    xx = x2;
-	    yy = y2;
-	  } else {
-	    xx = x1 + param * C;
-	    yy = y1 + param * D;
-	  }
-	
-	  return distance2(x, y, xx, yy);
-	}
-	
-	function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y) {
-	  var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
-	  var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
-	
-	  if (d == 0) {
-	    return false;
-	  }
-	
-	  var r = q / d;
-	
-	  q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
-	  var s = q / d;
-	
-	  if (r < 0 || r > 1 || s < 0 || s > 1) {
-	    return false;
-	  }
-	
-	  return true;
-	}
-	
-	function pointInRect(px, py, x1, y1, x2, y2) {
-	  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
-	}
-	
-	function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
-	  if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
-	
-	  return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
-	}
-	
-	function eq(a, b) {
-	  return a >= b - EPS && a <= b + EPS;
-	}
-	
-	function neq(a, b) {
-	  return !eq(a, b);
-	}
-	
-	function checkBezierTkoef(a, d, b, e, c, f, t, q, s, r, v) {
-	  if (t < 0 || t > 1) return false;
-	
-	  if (neq(v - s, 0)) {
-	    var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
-	    if (x < 0 || x > 1) return false;
-	  }
-	
-	  return true;
-	}
-	
-	function bezierIntersectsLine(a, d, b, e, c, f, q, s, r, v) {
-	  //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
-	
-	  var t;
-	
-	  var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
-	  if (neq(tden, 0)) {
-	    if (neq(q - r, 0)) {
-	      var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
-	      var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
-	      if (sq >= 0) {
-	        var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
-	
-	        t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
-	        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-	
-	        t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
-	        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-	      }
-	    }
-	  }
-	
-	  tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
-	  if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
-	    t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
-	    t = t / (2 * tden);
-	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-	  }
-	
-	  if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
-	    t = (2 * e - f - v) / (2 * (e - f));
-	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-	  }
-	
-	  var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
-	  var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
-	  if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
-	    t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
-	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-	  }
-	
-	  return false;
-	}
-	
-	function bezierIntersectsRect(a, d, b, e, c, f, r1x, r1y, r2x, r2y) {
-	  if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
-	
-	  var centerx = (r1x + r2x) / 2;
-	  var centery = (r1y + r2y) / 2;
-	
-	  var diffx = r1x - r2x;
-	  var diffy = r1y - r2y;
-	
-	  //performance optimalization based on distance
-	  var diff2xy = diffx * diffx + diffy * diffy;
-	  var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
-	  if (dist2 * 4 > diff2xy) return false;
-	  if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
-	
-	  return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
-	}
 	
 	var ct = {};
 	function getEdgeShift(context, screensize, e, ct) {
@@ -3282,7 +3053,7 @@
 	
 	  var len2 = ctx * context.width * ctx * context.width + cty * context.height * cty * context.height;
 	
-	  if (eq(len2, 0)) {
+	  if ((0, _geomtools.eq)(len2, 0)) {
 	    ctx = 0;
 	    cty = 0;
 	  } else {
@@ -3304,35 +3075,132 @@
 	  function Node(n) {
 	    _classCallCheck(this, Node);
 	
-	    this.isNode = true;
 	    this.e = n;
 	  }
 	
 	  _createClass(Node, [{
 	    key: 'getBBox',
 	    value: function getBBox() {
-	      return [this.e.x - EPS, this.e.y - EPS, this.e.x + EPS, this.e.y + EPS];
+	      return [this.e.x - _geomtools.EPS, this.e.y - _geomtools.EPS, this.e.x + _geomtools.EPS, this.e.y + _geomtools.EPS];
 	    }
 	  }, {
 	    key: 'intersectsRect',
 	    value: function intersectsRect(x1, y1, x2, y2) {
-	      return pointInRect(this.e.x, this.e.y, x1, y1, x2, y2);
+	      return (0, _geomtools.pointInRect)(this.e.x, this.e.y, x1, y1, x2, y2);
 	    }
 	  }, {
 	    key: 'dist2',
 	    value: function dist2(x, y, context) {
-	      return distance2(x, y, this.e.x, this.e.y);
+	      return (0, _geomtools.distance2)(x, y, this.e.x, this.e.y);
+	    }
+	  }, {
+	    key: 'isNode',
+	    get: function get() {
+	      return true;
 	    }
 	  }]);
 	
 	  return Node;
 	}();
 	
+	var Label = function () {
+	  function Label(n, textpos, style, fontSize, isSDF, getLabelSize) {
+	    _classCallCheck(this, Label);
+	
+	    this.e = n;
+	    this.pos = textpos;
+	    this.style = style;
+	    this.fontSize = fontSize;
+	    this.isSDF = isSDF;
+	    this.getLabelSize = getLabelSize;
+	  }
+	
+	  _createClass(Label, [{
+	    key: 'getTextPos',
+	    value: function getTextPos(context, size) {
+	      var x = this.e.x;
+	      var y = this.e.y;
+	
+	      var x1 = void 0,
+	          y1 = void 0,
+	          x2 = void 0,
+	          y2 = void 0;
+	      x1 = x2 = x;
+	      y1 = y2 = y;
+	
+	      var wantedSize = this.isSDF ? this.getLabelSize(context, this.style.label || {}) : this.fontSize;
+	
+	      var fontScale = wantedSize / this.fontSize;
+	      if (wantedSize === 0) {
+	        fontScale = 0;
+	      };
+	
+	      var step = function step(edge, x) {
+	        return x < edge ? 0 : 1;
+	      };
+	
+	      var offset = 0.5 * context.nodeSize;
+	      var MAX = 10.;
+	      var MIN = -10.;
+	      var bbox = [MAX, MAX, MIN, MIN];
+	
+	      //    vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0)
+	
+	      this.pos.forEach(function (c) {
+	        var offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
+	        x1 = x + size * (c.dx * fontScale) / context.width / 2;
+	        y1 = y + size * (c.dy * fontScale + offsety) / context.height / 2;
+	        x2 = x + size * ((c.dx + c.width) * fontScale) / context.width / 2;
+	        y2 = y + size * ((c.dy + c.height) * fontScale + offsety) / context.height / 2;
+	
+	        bbox[0] = Math.min(x1, bbox[0]);
+	        bbox[1] = Math.min(y1, bbox[1]);
+	        bbox[2] = Math.max(x2, bbox[2]);
+	        bbox[3] = Math.max(y2, bbox[3]);
+	      });
+	
+	      return bbox;
+	    }
+	  }, {
+	    key: 'getBBox',
+	    value: function getBBox(context) {
+	      var bb = this.getTextPos(context, 1);
+	      bb[0] = Math.min(bb[0], this.e.x);
+	      bb[1] = Math.min(bb[1], this.e.y);
+	      bb[2] = Math.max(bb[2], this.e.x);
+	      bb[3] = Math.max(bb[3], this.e.y);
+	      return bb;
+	    }
+	  }, {
+	    key: 'intersectsRect',
+	    value: function intersectsRect(x1, y1, x2, y2, context, size) {
+	      var t = this.getTextPos(context, size);
+	      return (0, _geomtools.rectIntersectsRect)(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
+	    }
+	  }, {
+	    key: 'dist2',
+	    value: function dist2(x, y, context, size) {
+	      var t = this.getTextPos(context);
+	
+	      if ((0, _geomtools.pointInRect)(x, y, t[0], t[1], t[2], t[3])) return 0;
+	
+	      //minimum from distance from corners or distance from borders
+	      return Math.min((0, _geomtools.distance2)(t[0], t[1]), (0, _geomtools.distance2)(t[2], t[3]), (0, _geomtools.distance2)(t[0], t[3]), (0, _geomtools.distance2)(t[2], t[1]), (0, _geomtools.pDistance2)(x, y, t[0], t[1], t[2], t[1]), (0, _geomtools.pDistance2)(x, y, t[0], t[3], t[2], t[3]), (0, _geomtools.pDistance2)(x, y, t[0], t[1], t[0], t[3]), (0, _geomtools.pDistance2)(x, y, t[2], t[1], t[2], t[3]));
+	    }
+	  }, {
+	    key: 'isLabel',
+	    get: function get() {
+	      return true;
+	    }
+	  }]);
+	
+	  return Label;
+	}();
+	
 	var Line = function () {
 	  function Line(l) {
 	    _classCallCheck(this, Line);
 	
-	    this.isEdge = true;
 	    this.e = l;
 	  }
 	
@@ -3373,14 +3241,19 @@
 	    value: function intersectsRect(x1, y1, x2, y2, context, size) {
 	      var p = this.getPoints(context, size);
 	
-	      return lineIntersectsRect(p[0], p[1], p[2], p[3], x1, y1, x2, y2);
+	      return (0, _geomtools.lineIntersectsRect)(p[0], p[1], p[2], p[3], x1, y1, x2, y2);
 	    }
 	  }, {
 	    key: 'dist2',
 	    value: function dist2(x, y, context, size) {
 	      var p = this.getPoints(context, size);
 	
-	      return pDistance2(x, y, p[0], p[1], p[2], p[3]);
+	      return (0, _geomtools.pDistance2)(x, y, p[0], p[1], p[2], p[3]);
+	    }
+	  }, {
+	    key: 'isEdge',
+	    get: function get() {
+	      return true;
 	    }
 	  }]);
 	
@@ -3391,7 +3264,6 @@
 	  function Circle(c) {
 	    _classCallCheck(this, Circle);
 	
-	    this.isEdge = true;
 	    this.e = c;
 	  }
 	
@@ -3422,13 +3294,13 @@
 	    value: function getBBox(context, size) {
 	      var v = this.getBezierPoints(context, size);
 	
-	      return getBBFromPoints(v);
+	      return (0, _geomtools.getBBFromPoints)(v);
 	    }
 	  }, {
 	    key: 'intersectsRect',
 	    value: function intersectsRect(x1, y1, x2, y2, context, size, normalize) {
 	      var v = this.getBezierPoints(context, size);
-	      return bezierIntersectsRect(v[0], v[1], v[2], v[3], v[4], v[5], x1, y1, x2, y2) || bezierIntersectsRect(v[2], v[3], v[4], v[5], v[6], v[7], x1, y1, x2, y2);
+	      return (0, _geomtools.bezierIntersectsRect)(v[0], v[1], v[2], v[3], v[4], v[5], x1, y1, x2, y2) || (0, _geomtools.bezierIntersectsRect)(v[2], v[3], v[4], v[5], v[6], v[7], x1, y1, x2, y2);
 	    }
 	  }, {
 	    key: 'dist2',
@@ -3436,10 +3308,15 @@
 	      var v = this.getBezierPoints(context, size);
 	
 	      //circle is just 2 bezier curves :)
-	      var d1 = distance2ToBezier(x, y, v[0], v[1], v[2], v[3], v[4], v[5]);
-	      var d2 = distance2ToBezier(x, y, v[2], v[3], v[4], v[5], v[6], v[7]);
+	      var d1 = (0, _geomtools.distance2ToBezier)(x, y, v[0], v[1], v[2], v[3], v[4], v[5]);
+	      var d2 = (0, _geomtools.distance2ToBezier)(x, y, v[2], v[3], v[4], v[5], v[6], v[7]);
 	
 	      return Math.min(d1, d2);
+	    }
+	  }, {
+	    key: 'isEdge',
+	    get: function get() {
+	      return true;
 	    }
 	  }]);
 	
@@ -3450,7 +3327,6 @@
 	  function Curve(c) {
 	    _classCallCheck(this, Curve);
 	
-	    this.isEdge = true;
 	    this.e = c;
 	  }
 	
@@ -3495,19 +3371,24 @@
 	    key: 'intersectsRect',
 	    value: function intersectsRect(x1, y1, x2, y2, context, size, normalize) {
 	      var v = this.getBezierPoints(context, size, normalize);
-	      return bezierIntersectsRect(v[0], v[1], v[2], v[3], v[4], v[5], x1, y1, x2, y2);
+	      return (0, _geomtools.bezierIntersectsRect)(v[0], v[1], v[2], v[3], v[4], v[5], x1, y1, x2, y2);
 	    }
 	  }, {
 	    key: 'getBBox',
 	    value: function getBBox(context, size, normalize) {
 	      var v = this.getBezierPoints(context, size, normalize);
-	      return getBBFromPoints(v);
+	      return (0, _geomtools.getBBFromPoints)(v);
 	    }
 	  }, {
 	    key: 'dist2',
 	    value: function dist2(x, y, context, size, normalize) {
 	      var v = this.getBezierPoints(context, size, normalize);
-	      return distance2ToBezier(x, y, v[0], v[1], v[2], v[3], v[4], v[5]);
+	      return (0, _geomtools.distance2ToBezier)(x, y, v[0], v[1], v[2], v[3], v[4], v[5]);
+	    }
+	  }, {
+	    key: 'isEdge',
+	    get: function get() {
+	      return true;
 	    }
 	  }]);
 	
@@ -3518,64 +3399,90 @@
 	  return e1.dist2 - e2.dist2;
 	}
 	
-	var tConst = { nodes: Node, lines: Line, circles: Circle, curves: Curve };
+	var tConst = { nodes: Node, lines: Line, circles: Circle, curves: Curve, labels: Label };
 	
 	var spatialIndex = function () {
-	  function spatialIndex(c, nodes, lines, curves, circles, normalize) {
+	  function spatialIndex(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize) {
 	    _classCallCheck(this, spatialIndex);
 	
-	    //init all elements into rbush tree with size 1 (the biggest possible - the worst case)
-	    var size = 1;
+	    //init all elements into rbush tree with size 1 (outer bound - the worst case)
+	    var size = 1;var oldsize = c.size;c.size = 1.;
 	
+	    this.texts = texts;
 	    this.normalize = normalize;
+	    var t = this.types = { nodes: [], lines: [], circles: [], curves: [], labels: [] };
+	    var i = 0,
+	        d = [];
+	
+	    var addEntity = function addEntity(e) {
+	      d[i] = e.getBBox(c, size, normalize);
+	      d[i].push(e);
+	      i++;
+	      return e;
+	    };
+	
+	    nodes.forEach(function (n) {
+	      t.nodes.push(addEntity(new Node(n)));
+	    });
+	
+	    lines.forEach(function (l) {
+	      t.lines.push(addEntity(new Line(l)));
+	    });
+	
+	    circles.forEach(function (c) {
+	      t.circles.push(addEntity(new Circle(c)));
+	    });
+	
+	    curves.forEach(function (c) {
+	      t.curves.push(addEntity(new Curve(c)));
+	    });
+	
+	    //labels position could differ by style >> must partition by it
+	
+	    var _loop = function _loop(style) {
+	      var nodes = nodesParts[style];
+	
+	      var ns = (0, _primitiveTools.getPartitionStyle)(options.styles[style], nodeStyle, "label");
+	      var textEngine = texts.getEngine(ns.font);
+	      textEngine.setFont(ns.font);
+	      var fontSize = textEngine.fontSize;
+	      var isSDF = textEngine.isSDF;
+	
+	      nodes.forEach(function (n) {
+	        var textpos = textEngine.get(n.label, n.x, n.y);
+	        t.labels.push(addEntity(new Label(n, textpos, ns, fontSize, isSDF, getLabelSize)));
+	      });
+	    };
+	
+	    for (var style in nodesParts) {
+	      _loop(style);
+	    }
 	
 	    //tree initialization
 	    this.rbushtree = (0, _rbush2.default)();
 	
-	    this.types = { nodes: [], lines: [], circles: [], curves: [] };
-	
-	    var i = void 0,
-	        j = void 0;
-	    var d = [];
-	
-	    d.length = nodes.length;
-	    for (i = 0; i < nodes.length; i++) {
-	      var e = new Node(nodes[i]);
-	      d[i] = e.getBBox(c, size);
-	      this.types.nodes.push(e);
-	      d[i].push(e);
-	    }
-	
-	    d.length += lines.length;
-	    for (j = 0; j < lines.length; i++, j++) {
-	      var _e = new Line(lines[j]);
-	      d[i] = _e.getBBox(c, size);
-	      this.types.lines.push(_e);
-	      d[i].push(_e);
-	    }
-	
-	    d.length += circles.length;
-	    for (j = 0; j < circles.length; i++, j++) {
-	      var _e2 = new Circle(circles[j]);
-	      d[i] = _e2.getBBox(c, size);
-	      this.types.circles.push(_e2);
-	      d[i].push(_e2);
-	    }
-	
-	    d.length += curves.length;
-	    for (j = 0; j < curves.length; i++, j++) {
-	      var _e3 = new Curve(curves[j]);
-	      d[i] = _e3.getBBox(c, size, normalize);
-	      this.types.curves.push(_e3);
-	      d[i].push(_e3);
-	    }
-	
 	    this.rbushtree.load(d);
+	
+	    //restore the size of scale (loosen outer the upper bound)
+	    c.size = oldsize;
 	  }
 	
 	  _createClass(spatialIndex, [{
+	    key: '_tryAddEl',
+	    value: function _tryAddEl(ret, e, dist2, nodes, edges, labels) {
+	      if (nodes && e.isNode) {
+	        ret.nodes.push({ node: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
+	      }
+	      if (edges && e.isEdge) {
+	        ret.edges.push({ edge: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
+	      }
+	      if (labels && e.isLabel) {
+	        ret.labels.push({ label: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
+	      }
+	    }
+	  }, {
 	    key: 'findArea',
-	    value: function findArea(context, x1, y1, x2, y2, size, nodes, edges) {
+	    value: function findArea(context, x1, y1, x2, y2, size, nodes, edges, labels) {
 	      if (x1 > x2) {
 	        var p = x1;
 	        x1 = x2;
@@ -3590,42 +3497,34 @@
 	      var ret = {};
 	      if (edges) ret.edges = [];
 	      if (nodes) ret.nodes = [];
-	
-	      if (ret.nodes) {
-	        ret.nodes.sort(sortByDistances);
-	      }
-	      if (ret.edges) {
-	        ret.edges.sort(sortByDistances);
-	      }
+	      if (labels) ret.labels = [];
 	
 	      var x = (x1 + x2) / 2;
 	      var y = (y1 + y2) / 2;
 	
-	      var data = this.rbushtree.search([x1 - EPS, y1 - EPS, x2 + EPS, y2 + EPS]);
+	      var data = this.rbushtree.search([x1 - _geomtools.EPS, y1 - _geomtools.EPS, x2 + _geomtools.EPS, y2 + _geomtools.EPS]);
 	
-	      for (var _i2 = 0; _i2 < data.length; _i2++) {
-	        var e = data[_i2][4];
+	      for (var i = 0; i < data.length; i++) {
+	        var e = data[i][4];
+	        var dist2 = e.dist2(x, y, context, size, this.normalize, this.texts);
+	        if (!e.intersectsRect(x1, y1, x2, y2, context, size, this.normalize, this.texts)) continue;
 	
-	        var dist2 = e.dist2(x, y, context, size, this.normalize);
+	        this._tryAddEl(ret, e, dist2, nodes, edges, labels);
+	      }
 	
-	        if (!e.intersectsRect(x1, y1, x2, y2, context, size, this.normalize)) continue;
-	
-	        if (e.isNode && nodes) {
-	          ret.nodes.push({ node: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
-	        }
-	        if (e.isEdge && edges) {
-	          ret.edges.push({ edge: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
-	        }
+	      for (var k in ret) {
+	        ret[k].sort(sortByDistances);
 	      }
 	
 	      return ret;
 	    }
 	  }, {
 	    key: 'find',
-	    value: function find(context, x, y, radius, size, nodes, edges) {
+	    value: function find(context, x, y, radius, size, nodes, edges, labels) {
 	      var ret = {};
 	      if (edges) ret.edges = [];
 	      if (nodes) ret.nodes = [];
+	      if (labels) ret.labels = [];
 	
 	      var xradius = radius;
 	      var yradius = radius;
@@ -3634,24 +3533,16 @@
 	
 	      var data = this.rbushtree.search([x - xradius, y - yradius, x + xradius, y + yradius]);
 	
-	      for (var _i3 = 0; _i3 < data.length; _i3++) {
-	        var e = data[_i3][4];
-	        var dist2 = e.dist2(x, y, context, size, this.normalize);
+	      for (var i = 0; i < data.length; i++) {
+	        var e = data[i][4];
+	        var dist2 = e.dist2(x, y, context, size, this.normalize, this.texts);
 	        if (dist2 > radius2) continue;
 	
-	        if (e.isNode && nodes) {
-	          ret.nodes.push({ node: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
-	        }
-	        if (e.isEdge && edges) {
-	          ret.edges.push({ edge: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
-	        }
+	        this._tryAddEl(ret, e, dist2, nodes, edges, labels);
 	      }
 	
-	      if (ret.nodes) {
-	        ret.nodes.sort(sortByDistances);
-	      }
-	      if (ret.edges) {
-	        ret.edges.sort(sortByDistances);
+	      for (var k in ret) {
+	        ret[k].sort(sortByDistances);
 	      }
 	
 	      return ret;
@@ -3665,7 +3556,7 @@
 	      this.rbushtree.remove(this.types[t][i]);
 	
 	      var e = new tConst[t](v);
-	      var arr = e.getBBox(context, size, this.normalize);
+	      var arr = e.getBBox(context, size, this.normalize, this.texts);
 	      arr.push(e);
 	
 	      this.rbushtree.insert(this.types[t][i] = arr);
@@ -3678,7 +3569,7 @@
 	exports.default = spatialIndex;
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -4311,7 +4202,321 @@
 	exports.default = rbush;
 
 /***/ },
-/* 15 */
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
+	
+	var _rbush = __webpack_require__(15);
+	
+	var _rbush2 = _interopRequireDefault(_rbush);
+	
+	var _geomutils = __webpack_require__(13);
+	
+	var _geomutils2 = _interopRequireDefault(_geomutils);
+	
+	var _primitiveTools = __webpack_require__(8);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 *  Copyright (c) 2016, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Aleš Saska - http://alessaska.cz/
+	 */
+	
+	var EPS = Number.EPSILON || 1e-14;
+	
+	//solving cube analyticaly for bezier curves
+	function cuberoot(x) {
+	  var y = Math.pow(Math.abs(x), 1 / 3);
+	  return x < 0 ? -y : y;
+	}
+	
+	function solveCubic(a, b, c, d) {
+	  if (Math.abs(a) < 1e-8) {
+	    // Quadratic case, ax^2+bx+c=0
+	    a = b;b = c;c = d;
+	    if (Math.abs(a) < 1e-8) {
+	      // Linear case, ax+b=0
+	      a = b;b = c;
+	      if (Math.abs(a) < 1e-8) // Degenerate case
+	        return [];
+	      return [-b / a];
+	    }
+	
+	    var D = b * b - 4 * a * c;
+	    if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
+	    return [];
+	  }
+	
+	  // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
+	  var p = (3 * a * c - b * b) / (3 * a * a);
+	  var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+	  var roots = void 0;
+	
+	  if (Math.abs(p) < 1e-8) {
+	    // p = 0 -> t^3 = -q -> t = -q^1/3
+	    roots = [cuberoot(-q)];
+	  } else if (Math.abs(q) < 1e-8) {
+	    // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
+	    roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
+	  } else {
+	    var _D = q * q / 4 + p * p * p / 27;
+	    if (Math.abs(_D) < 1e-8) {
+	      // D = 0 -> two roots
+	      roots = [-1.5 * q / p, 3 * q / p];
+	    } else if (_D > 0) {
+	      // Only one real root
+	      var u = cuberoot(-q / 2 - Math.sqrt(_D));
+	      roots = [u - p / (3 * u)];
+	    } else {
+	      // D < 0, three roots, but needs to use complex numbers/trigonometric solution
+	      var _u = 2 * Math.sqrt(-p / 3);
+	      var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
+	      var k = 2 * Math.PI / 3;
+	      roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
+	    }
+	  }
+	
+	  // Convert back from depressed cubic
+	  for (var i = 0; i < roots.length; i++) {
+	    roots[i] -= b / (3 * a);
+	  }return roots;
+	}
+	
+	//function distanceToBezier(x,y,ax,ay,bx,by,cx,cy){
+	function distance2ToBezier(x, y, a, d, b, e, c, f) {
+	  //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
+	
+	  var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
+	  var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
+	  var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
+	  var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
+	
+	  var eqresult = solveCubic(A, B, C, D);
+	
+	  //loop through all possible solitions to find out which point is the nearest
+	  var mindist = Infinity;
+	  for (var i = 0; i < eqresult.length; i++) {
+	    var t = eqresult[i];
+	
+	    if (t < 0 || t > 1) continue;
+	
+	    //point at bezier curve
+	    var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
+	    var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
+	
+	    var dist = distance2(x, y, px, py);
+	    if (dist < mindist) mindist = dist;
+	  }
+	
+	  return mindist;
+	}
+	
+	/*
+	 * @param v - array of with points [x1,y1,x2,y2 .... ]
+	 * @return array representing bounding box [x1,y1,x2,y2]
+	 */
+	function getBBFromPoints(v) {
+	  var xmin = Infinity;
+	  var xmax = -xmin;
+	  var ymin = Infinity;
+	  var ymax = -ymin;
+	
+	  //x of points - even indexes in array 
+	  for (var i = 0; i < v.length; i += 2) {
+	    var val = v[i];
+	    if (val < xmin) xmin = val;
+	    if (val > xmax) xmax = val;
+	  }
+	
+	  //y of points - odd indexes in array 
+	  for (var _i = 1; _i < v.length; _i += 2) {
+	    var _val = v[_i];
+	    if (_val < ymin) ymin = _val;
+	    if (_val > ymax) ymax = _val;
+	  }
+	
+	  return [xmin, ymin, xmax, ymax];
+	}
+	
+	//distance from point to point
+	function distance2(x1, y1, x2, y2) {
+	  var dx = x1 - x2;
+	  var dy = y1 - y2;
+	  return dx * dx + dy * dy;
+	}
+	
+	//distance from point to line
+	function pDistance2(x, y, x1, y1, x2, y2) {
+	  var A = x - x1;
+	  var B = y - y1;
+	  var C = x2 - x1;
+	  var D = y2 - y1;
+	
+	  var dot = A * C + B * D;
+	  var len_sq = C * C + D * D;
+	  var param = -1;
+	  if (len_sq != 0) //in case of 0 length line
+	    param = dot / len_sq;
+	
+	  var xx = void 0,
+	      yy = void 0;
+	
+	  if (param < 0) {
+	    xx = x1;
+	    yy = y1;
+	  } else if (param > 1) {
+	    xx = x2;
+	    yy = y2;
+	  } else {
+	    xx = x1 + param * C;
+	    yy = y1 + param * D;
+	  }
+	
+	  return distance2(x, y, xx, yy);
+	}
+	
+	function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y) {
+	  var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
+	  var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
+	
+	  if (d == 0) {
+	    return false;
+	  }
+	
+	  var r = q / d;
+	
+	  q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
+	  var s = q / d;
+	
+	  if (r < 0 || r > 1 || s < 0 || s > 1) {
+	    return false;
+	  }
+	
+	  return true;
+	}
+	
+	function pointInRect(px, py, x1, y1, x2, y2) {
+	  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
+	}
+	
+	function rectIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
+	  return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
+	
+	  return b[0] <= a[2] && b[1] <= a[3] && b[2] >= a[0] && b[3] >= a[1];
+	}
+	
+	function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
+	  if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
+	
+	  return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+	}
+	
+	function eq(a, b) {
+	  return a >= b - EPS && a <= b + EPS;
+	}
+	
+	function neq(a, b) {
+	  return !eq(a, b);
+	}
+	
+	function checkBezierTkoef(a, d, b, e, c, f, t, q, s, r, v) {
+	  if (t < 0 || t > 1) return false;
+	
+	  if (neq(v - s, 0)) {
+	    var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
+	    if (x < 0 || x > 1) return false;
+	  }
+	
+	  return true;
+	}
+	
+	function bezierIntersectsLine(a, d, b, e, c, f, q, s, r, v) {
+	  //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
+	
+	  var t = void 0;
+	
+	  var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
+	  if (neq(tden, 0)) {
+	    if (neq(q - r, 0)) {
+	      var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
+	      var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
+	      if (sq >= 0) {
+	        var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
+	
+	        t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
+	        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+	
+	        t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
+	        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+	      }
+	    }
+	  }
+	
+	  tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
+	  if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
+	    t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
+	    t = t / (2 * tden);
+	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+	  }
+	
+	  if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
+	    t = (2 * e - f - v) / (2 * (e - f));
+	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+	  }
+	
+	  var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
+	  var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
+	  if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
+	    t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
+	    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+	  }
+	
+	  return false;
+	}
+	
+	function bezierIntersectsRect(a, d, b, e, c, f, r1x, r1y, r2x, r2y) {
+	  if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
+	
+	  var centerx = (r1x + r2x) / 2;
+	  var centery = (r1y + r2y) / 2;
+	
+	  var diffx = r1x - r2x;
+	  var diffy = r1y - r2y;
+	
+	  //performance optimalization based on distance
+	  var diff2xy = diffx * diffx + diffy * diffy;
+	  var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
+	  if (dist2 * 4 > diff2xy) return false;
+	  if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
+	
+	  return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
+	}
+	
+	exports.EPS = EPS;
+	exports.bezierIntersectsRect = bezierIntersectsRect;
+	exports.bezierIntersectsLine = bezierIntersectsLine;
+	exports.lineIntersectsRect = lineIntersectsRect;
+	exports.rectIntersectsRect = rectIntersectsRect;
+	exports.pointInRect = pointInRect;
+	exports.distance2ToBezier = distance2ToBezier;
+	exports.distance2 = distance2;
+	exports.pDistance2 = pDistance2;
+	exports.getBBFromPoints = getBBFromPoints;
+	exports.eq = eq;
+	exports.neq = neq;
+
+/***/ },
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4397,7 +4602,7 @@
 	exports.default = _class;
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4505,7 +4710,7 @@
 	exports.default = _class;
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4522,11 +4727,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(18);
+	var _default = __webpack_require__(20);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(19);
+	var _sdf = __webpack_require__(21);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -4539,14 +4744,14 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	  function _class(gl) {
+	  function _class(gl, files, textures) {
 	    _classCallCheck(this, _class);
 	
 	    this._gl = gl;
 	
 	    this._modules = {
-	      'default': new _default2.default(gl),
-	      'sdf': new _sdf2.default(gl)
+	      'default': new _default2.default(gl, files, textures),
+	      'sdf': new _sdf2.default(gl, files, textures)
 	    };
 	  }
 	
@@ -4598,7 +4803,7 @@
 	;
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -4620,7 +4825,7 @@
 	 */
 	
 	var _class = function () {
-	  function _class(gl) {
+	  function _class(gl, files, textures) {
 	    _classCallCheck(this, _class);
 	
 	    this._gl = gl;
@@ -4662,7 +4867,7 @@
 	    }
 	  }, {
 	    key: "getTexture",
-	    value: function getTexture(style, textures, files, onLoad) {
+	    value: function getTexture(style, onLoad) {
 	      onLoad();
 	      return this.texture;
 	    }
@@ -4742,7 +4947,7 @@
 	;
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4753,15 +4958,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(20);
+	var _pbf = __webpack_require__(22);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(22);
+	var _atlas = __webpack_require__(24);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(24);
+	var _glyphs = __webpack_require__(26);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -4794,7 +4999,7 @@
 	var MAX_SIZE = 2048;
 	
 	var _class = function () {
-	  function _class(gl) {
+	  function _class(gl, files, textures) {
 	    var _this = this;
 	
 	    _classCallCheck(this, _class);
@@ -4803,6 +5008,8 @@
 	    this.height = DEFAULT_SIZE;
 	
 	    this.clear();
+	
+	    this._files = files;
 	
 	    this._rendered = {};
 	    this._texts;
@@ -4822,23 +5029,18 @@
 	    value: function clear() {}
 	  }, {
 	    key: 'setFont',
-	    value: function setFont(style, files, textures, onLoad) {
-	      var font = style.pbf;
-	
-	      this.curFont = font;
-	
-	      this._files = files;
-	      this._SDFmetrics = files.get(style.metrics);
+	    value: function setFont(style) {
+	      this.curFont = style.pbf;
 	    }
 	  }, {
 	    key: 'getTexture',
-	    value: function getTexture(style, files, textures, onLoad) {
+	    value: function getTexture(style, onLoad) {
 	      var _this2 = this,
 	          _arguments = arguments;
 	
 	      var myOnLoad = function (onL) {
 	        return function () {
-	          var data = files.load(style.pbf, onLoad, 'arraybuffer');
+	          var data = _this2._files.load(style.pbf, onLoad, 'arraybuffer');
 	
 	          //init first most-used ASCII chars
 	          for (var i = 0; i < 128; i++) {
@@ -4851,7 +5053,7 @@
 	
 	      var font = style.pbf;
 	      if (!this._glyphs[font]) {
-	        var data = files.load(style.pbf, myOnLoad, 'arraybuffer');
+	        var data = this._files.load(style.pbf, myOnLoad, 'arraybuffer');
 	        this._curglyphs = this._glyphs[font] = data && new _glyphs2.default(new _pbf2.default(data));
 	      } else {
 	        myOnLoad();
@@ -4875,8 +5077,8 @@
 	          if (stack) {
 	            var glyph = stack.glyphs[glyphID];
 	            if (!this._rects[font]) this._rects[font] = {};
-	            var _rect = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
-	            this._rects[font][text] = _rect;
+	
+	            this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);;
 	          }
 	        }
 	      }
@@ -4904,6 +5106,7 @@
 	        var rect = char.rect || {};
 	        height = Math.max(height, rect.h - char.top);
 	        width += char.advance + horiBearingX;
+	        //      width               += rect.w + horiBearingX;
 	      }
 	
 	      var dx = x <= 0.5 ? 0 : -width;
@@ -4912,24 +5115,25 @@
 	      var ret = [];
 	      for (var _i = 0; _i < text.length; _i++) {
 	        var _char = this._getChar(text[_i], markDirty);
-	        var _rect2 = _char.rect || {};
+	        var _rect = _char.rect || {};
 	
 	        var horiAdvance = void 0;
 	
 	        dx += horiBearingX;
 	
 	        ret.push({
-	          width: _rect2.w,
-	          height: _rect2.h,
-	          left: _rect2.x / this.atlas.width,
-	          right: (_rect2.x + _rect2.w) / this.atlas.width,
-	          bottom: (_rect2.y + _rect2.h) / this.atlas.height,
-	          top: _rect2.y / this.atlas.height,
+	          width: _rect.w,
+	          height: _rect.h,
+	          left: _rect.x / this.atlas.width,
+	          right: (_rect.x + _rect.w) / this.atlas.width,
+	          bottom: (_rect.y + _rect.h) / this.atlas.height,
+	          top: _rect.y / this.atlas.height,
 	          dx: dx,
-	          dy: dy + _char.top + (height - _rect2.h)
+	          dy: dy + _char.top + (height - _rect.h)
 	        });
 	
 	        dx += _char.advance;
+	        //      dx += rect.w;
 	      }
 	      return ret;
 	    }
@@ -4962,14 +5166,14 @@
 	;
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(21);
+	var ieee754 = __webpack_require__(23);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -5586,7 +5790,7 @@
 
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -5676,7 +5880,7 @@
 
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5687,7 +5891,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(23);
+	var _shelfPack = __webpack_require__(25);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -5787,11 +5991,6 @@
 	                return this.index[key];
 	            }
 	
-	            // The glyph bitmap has zero width.
-	            if (!glyph.bitmap) {
-	                return null;
-	            }
-	
 	            var bufferedWidth = glyph.width + buffer * 2;
 	            var bufferedHeight = glyph.height + buffer * 2;
 	
@@ -5813,20 +6012,21 @@
 	                markDirty && markDirty();
 	            }
 	            if (!rect) {
-	                //            util.warnOnce('glyph bitmap overflow');
 	                return null;
 	            }
 	
 	            this.index[key] = rect;
 	            this.ids[key] = [id];
 	
-	            var target = this.data;
-	            var source = glyph.bitmap;
-	            for (var y = 0; y < bufferedHeight; y++) {
-	                var y1 = this.width * (rect.y + y + padding) + rect.x + padding;
-	                var y2 = bufferedWidth * y;
-	                for (var x = 0; x < bufferedWidth; x++) {
-	                    target[y1 + x] = source[y2 + x];
+	            if (glyph.bitmap) {
+	                var target = this.data;
+	                var source = glyph.bitmap;
+	                for (var y = 0; y < bufferedHeight; y++) {
+	                    var y1 = this.width * (rect.y + y + padding) + rect.x + padding;
+	                    var y2 = bufferedWidth * y;
+	                    for (var x = 0; x < bufferedWidth; x++) {
+	                        target[y1 + x] = source[y2 + x];
+	                    }
 	                }
 	            }
 	
@@ -5895,7 +6095,7 @@
 	;
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -6344,7 +6544,7 @@
 	}));
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6376,7 +6576,7 @@
 	}
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6462,7 +6662,7 @@
 	;
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6473,7 +6673,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(12);
+	var _geomutils = __webpack_require__(13);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
