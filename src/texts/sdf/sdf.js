@@ -136,7 +136,7 @@ export default class {
     }
 
     let dx = x <= 0.5 ? 0 : -width ;
-    let dy = y <= 0.5 ? height/4 : -height ; 
+    let dy = y <= 0.5 ? 0 : -height ; 
 
 
 
