@@ -5110,7 +5110,9 @@
 	      }
 	
 	      var dx = x <= 0.5 ? 0 : -width;
-	      var dy = y <= 0.5 ? height / 4 : -height;
+	      var dy = y <= 0.5 ? 0 : -height;
+	      //    let dy = y <= 0.5 ? height/4 : -height ; 
+	
 	
 	      var ret = [];
 	      for (var _i = 0; _i < text.length; _i++) {
