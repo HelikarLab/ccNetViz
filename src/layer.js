@@ -17,7 +17,7 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
  * 	Aleš Saska - http://alessaska.cz/
  */
 
-export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
     
@@ -215,7 +215,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
     this.getCurrentSpatialSearch = (context) => {
       if(spatialSearch === undefined){
-        spatialSearch = new ccNetViz_spatialSearch(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize);
+        spatialSearch = new ccNetViz_spatialSearch(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize, getLabelHideSize);
       }
       return spatialSearch;
     }
@@ -337,7 +337,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
         this.getCurrentSpatialSearch = (context) => {
           if(spatialSearch === undefined){
-            spatialSearch = new ccNetViz_spatialSearch(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize);
+            spatialSearch = new ccNetViz_spatialSearch(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideSize);
           }
           return spatialSearch;
         }        
@@ -944,12 +944,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 //            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
             let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize );
             if(wantedSize === 0){ fontScale = 0; };
-            
+
             let opts = {};
             if(wantedSize && sdfSize){
               fontScale *= wantedSize / sdfSize;
             }
-            
+
             if(is_outline && !textEngine.isSDF) //discardAll
               fontScale = 0;
 

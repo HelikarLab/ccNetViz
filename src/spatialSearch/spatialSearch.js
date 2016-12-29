@@ -325,7 +325,7 @@ function sortByDistances(e1, e2){
 let tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve, labels: Label};
 
 export default class spatialIndex{
-  constructor(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize){
+  constructor(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideScreen){
     //init all elements into rbush tree with size 1 (outer bound - the worst case)
     const size = 1; const oldsize = c.size; c.size = 1.;
     
@@ -334,33 +334,37 @@ export default class spatialIndex{
     let t = this.types = {nodes: [], lines: [], circles: [], curves: [], labels: []};
     let i = 0, d = [];
 
-    let addEntity = (e) => {
+    let addEntity = (e, d, i) => {
       d[i] = e.getBBox(c, size, normalize);
       d[i].push(e);
-      i++;
       return e;
     };
     
     nodes.forEach((n) => {
-      t.nodes.push(addEntity(new Node(n)));
+      t.nodes.push(addEntity(new Node(n), d, i++));
     });
 
     lines.forEach((l) => {
-      t.lines.push(addEntity(new Line(l)));
+      t.lines.push(addEntity(new Line(l), d, i++));
     });
 
     circles.forEach((c) => {
-      t.circles.push(addEntity(new Circle(c)));
+      t.circles.push(addEntity(new Circle(c), d, i++));
     });
     
     curves.forEach((c) => {
-      t.curves.push(addEntity(new Curve(c)));
+      t.curves.push(addEntity(new Curve(c), d, i++));
     });
-    
-    
+
+
+    let sd = {};
+    let sdi = {};
+
+
     //labels position could differ by style >> must partition by it
     for(let style in nodesParts){
       let nodes = nodesParts[style];
+
 
       let ns = getPartitionStyle(options.styles[style],nodeStyle,"label");
       let textEngine = texts.getEngine(ns.font);
@@ -368,15 +372,27 @@ export default class spatialIndex{
       const fontSize = textEngine.fontSize;
       const isSDF = textEngine.isSDF;
 
+      let sd_n = (sd[style] || (sd[style] = []));
+      let sdi_n = (sdi[style] || (sdi[style] = 0));
+
+      //biggest size in which the text is shown
+      c.size = getLabelHideScreen(c, ns.label || {});
       nodes.forEach((n) => {
         let textpos = textEngine.get(n.label, n.x, n.y);
-        t.labels.push(addEntity(new Label(n,textpos, ns, fontSize, isSDF, getLabelSize)));
+        t.labels.push(addEntity(new Label(n,textpos, ns, fontSize, isSDF, getLabelSize), sd_n, sdi_n++));
       });
+
+      sdi[style] = sdi_n;
+    }
+
+    this.rbushtree_s = {};
+    for(let style in sd){
+        let rb = this.rbushtree_s[style] = rbush();
+        rb.load(sd[style]);
     }
 
     //tree initialization
     this.rbushtree = rbush();
-
     this.rbushtree.load(d);
     
     
@@ -416,7 +432,12 @@ export default class spatialIndex{
     let y = (y1+y2)/2;
 
     let data = this.rbushtree.search([x1-EPS, y1-EPS, x2+EPS,  y2+EPS]);
-    
+    if(labels){
+        for(let s in this.rbushtree_s){
+            data = data.concat(this.rbushtree_s[s].search([x1-EPS, y1-EPS, x2+EPS,  y2+EPS]));
+        }
+    }
+
     for(let i = 0; i < data.length; i++){
       let e = data[i][4];
       let dist2 = e.dist2(x,y, context, size, this.normalize, this.texts);
@@ -444,6 +465,11 @@ export default class spatialIndex{
     let radius2 = radius*radius;
 
     let data = this.rbushtree.search([x - xradius, y - yradius, x + xradius,  y + yradius]);
+    if(labels){
+        for(let s in this.rbushtree_s){
+            data = data.concat(this.rbushtree_s[s].search([x - xradius, y - yradius, x + xradius,  y + yradius]));
+        }
+    }
 
     for(let i = 0; i < data.length; i++){
       let e = data[i][4];

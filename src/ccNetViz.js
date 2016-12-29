@@ -146,7 +146,7 @@ var ccNetViz = function(canvas, options){
   function insertTempLayer(){
     if(layers.temp)
       return;
-    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+    layers.temp = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
   let batch = undefined;
@@ -158,16 +158,16 @@ var ccNetViz = function(canvas, options){
   
   this.set = (n, e, layout) => {
     if(checkRemoved()) return this;
-    
+
     nodes = n || [];
     edges = e || [];
-    
+
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
-    
+
     layers.temp && layers.temp.set([], [], layout);
     layers.main.set(nodes, edges, layout);
-    
+
     //reset batch
     batch = undefined;
     setted = true;
@@ -274,6 +274,24 @@ var ccNetViz = function(canvas, options){
 
   let getNodeSize = c => getSize(c, c.style, getNodesCnt(), 0.4);
   let getLabelSize = (c,s) => getSize(c, s, getNodesCnt(), 0.25);
+
+  let getLabelHideSize = (c,s) => {
+    if(s){
+        const sc = 0.25;
+        let n = layers.main.cntShownNodes();  //lower bound
+        let t = sc * Math.sqrt(c.width * c.height / n);
+
+        let vs;
+        if(s.hideSize){
+            vs = t / s.hideSize;
+            if(s.maxSize)
+                vs = Math.min(vs, t / s.maxSize);
+            return vs;
+        }
+    }
+
+    return 1;
+  };
 
   let offset = 0.5 * nodeStyle.maxSize;
 
@@ -617,7 +635,7 @@ var ccNetViz = function(canvas, options){
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
   texts = new ccNetViz_texts(gl, files, textures);
-  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)
     console.warn("Cannot initialize WebGL context");
