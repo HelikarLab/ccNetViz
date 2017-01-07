@@ -331,6 +331,15 @@ var ccNetViz = function(canvas, options){
   };
   drawFunc = this.draw.bind(this);
   
+  this.getScreenCoords = function(conf){
+    if(checkRemoved()) return;
+    let ret = {};
+    let rect = canvas.getBoundingClientRect();
+    if(conf.x !== undefined) ret.x = (conf.x - view.x + context.offsetX) / (view.size + 2*context.offsetX) * canvas.width + rect.left;
+    if(conf.y !== undefined) ret.y = ( 1 - ( conf.y - view.y + context.offsetY) / (view.size + 2*context.offsetY) )  * canvas.height + rect.top;
+    return ret;
+  };
+  
   this.getLayerCoords = function(conf){
     if(checkRemoved()) return;
 
