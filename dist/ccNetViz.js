@@ -341,7 +341,7 @@
 	
 	  function insertTempLayer() {
 	    if (layers.temp) return;
-	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	  }
 	
 	  var batch = undefined;
@@ -499,6 +499,23 @@
 	    return getSize(c, s, getNodesCnt(), 0.25);
 	  };
 	
+	  var getLabelHideSize = function getLabelHideSize(c, s) {
+	    if (s) {
+	      var sc = 0.25;
+	      var n = layers.main.cntShownNodes(); //lower bound
+	      var t = sc * Math.sqrt(c.width * c.height / n);
+	
+	      var vs = void 0;
+	      if (s.hideSize) {
+	        vs = t / s.hideSize;
+	        if (s.maxSize) vs = Math.min(vs, t / s.maxSize);
+	        return vs;
+	      }
+	    }
+	
+	    return 1;
+	  };
+	
 	  var offset = 0.5 * nodeStyle.maxSize;
 	
 	  this.draw = function () {
@@ -536,6 +553,15 @@
 	    }
 	  };
 	  drawFunc = this.draw.bind(this);
+	
+	  this.getScreenCoords = function (conf) {
+	    if (checkRemoved()) return;
+	    var ret = {};
+	    var rect = canvas.getBoundingClientRect();
+	    if (conf.x !== undefined) ret.x = (conf.x - view.x + context.offsetX) / (view.size + 2 * context.offsetX) * canvas.width + rect.left;
+	    if (conf.y !== undefined) ret.y = (1 - (conf.y - view.y + context.offsetY) / (view.size + 2 * context.offsetY)) * canvas.height + rect.top;
+	    return ret;
+	  };
 	
 	  this.getLayerCoords = function (conf) {
 	    if (checkRemoved()) return;
@@ -849,7 +875,7 @@
 	  textures = new _textures2.default(events, onLoad);
 	  files = new _files2.default(events, onLoad);
 	  texts = new _texts2.default(gl, files, textures);
-	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (!gl) console.warn("Cannot initialize WebGL context");
 	};
@@ -876,7 +902,7 @@
 	    value: true
 	});
 	
-	exports.default = function (canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
+	exports.default = function (canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
 	    var _this = this;
 	
 	    getNodesCnt = getNodesCnt || function () {
@@ -1108,7 +1134,7 @@
 	
 	    this.getCurrentSpatialSearch = function (context) {
 	        if (spatialSearch === undefined) {
-	            spatialSearch = new _spatialSearch2.default(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize);
+	            spatialSearch = new _spatialSearch2.default(context, texts, options, [], {}, [], {}, [], {}, [], {}, normalize, nodeStyle, getLabelSize, getLabelHideSize);
 	        }
 	        return spatialSearch;
 	    };
@@ -1230,7 +1256,7 @@
 	
 	        this.getCurrentSpatialSearch = function (context) {
 	            if (spatialSearch === undefined) {
-	                spatialSearch = new _spatialSearch2.default(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize);
+	                spatialSearch = new _spatialSearch2.default(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideSize);
 	            }
 	            return spatialSearch;
 	        };
@@ -3021,6 +3047,10 @@
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
 	var _primitiveTools = __webpack_require__(8);
 	
 	var _geomtools = __webpack_require__(16);
@@ -3402,11 +3432,11 @@
 	var tConst = { nodes: Node, lines: Line, circles: Circle, curves: Curve, labels: Label };
 	
 	var spatialIndex = function () {
-	  function spatialIndex(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize) {
+	  function spatialIndex(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideScreen) {
 	    _classCallCheck(this, spatialIndex);
 	
 	    //init all elements into rbush tree with size 1 (outer bound - the worst case)
-	    var size = 1;var oldsize = c.size;c.size = 1.;
+	    var size = 1;var oldsize = c.size || 1;c.size = 1.;
 	
 	    this.texts = texts;
 	    this.normalize = normalize;
@@ -3414,28 +3444,30 @@
 	    var i = 0,
 	        d = [];
 	
-	    var addEntity = function addEntity(e) {
+	    var addEntity = function addEntity(e, d, i) {
 	      d[i] = e.getBBox(c, size, normalize);
 	      d[i].push(e);
-	      i++;
 	      return e;
 	    };
 	
 	    nodes.forEach(function (n) {
-	      t.nodes.push(addEntity(new Node(n)));
+	      t.nodes.push(addEntity(new Node(n), d, i++));
 	    });
 	
 	    lines.forEach(function (l) {
-	      t.lines.push(addEntity(new Line(l)));
+	      t.lines.push(addEntity(new Line(l), d, i++));
 	    });
 	
 	    circles.forEach(function (c) {
-	      t.circles.push(addEntity(new Circle(c)));
+	      t.circles.push(addEntity(new Circle(c), d, i++));
 	    });
 	
 	    curves.forEach(function (c) {
-	      t.curves.push(addEntity(new Curve(c)));
+	      t.curves.push(addEntity(new Curve(c), d, i++));
 	    });
+	
+	    var sd = {};
+	    var sdi = {};
 	
 	    //labels position could differ by style >> must partition by it
 	
@@ -3448,19 +3480,31 @@
 	      var fontSize = textEngine.fontSize;
 	      var isSDF = textEngine.isSDF;
 	
+	      var sd_n = sd[style] || (sd[style] = []);
+	      var sdi_n = sdi[style] || (sdi[style] = 0);
+	
+	      //biggest size in which the text is shown
+	      c.size = getLabelHideScreen(c, ns.label || {});
 	      nodes.forEach(function (n) {
 	        var textpos = textEngine.get(n.label, n.x, n.y);
-	        t.labels.push(addEntity(new Label(n, textpos, ns, fontSize, isSDF, getLabelSize)));
+	        t.labels.push(addEntity(new Label(n, textpos, ns, fontSize, isSDF, getLabelSize), sd_n, sdi_n++));
 	      });
+	
+	      sdi[style] = sdi_n;
 	    };
 	
 	    for (var style in nodesParts) {
 	      _loop(style);
 	    }
 	
+	    this.rbushtree_s = {};
+	    for (var _style in sd) {
+	      var rb = this.rbushtree_s[_style] = (0, _rbush2.default)();
+	      rb.load(sd[_style]);
+	    }
+	
 	    //tree initialization
 	    this.rbushtree = (0, _rbush2.default)();
-	
 	    this.rbushtree.load(d);
 	
 	    //restore the size of scale (loosen outer the upper bound)
@@ -3503,6 +3547,11 @@
 	      var y = (y1 + y2) / 2;
 	
 	      var data = this.rbushtree.search([x1 - _geomtools.EPS, y1 - _geomtools.EPS, x2 + _geomtools.EPS, y2 + _geomtools.EPS]);
+	      if (labels) {
+	        for (var s in this.rbushtree_s) {
+	          data = data.concat(this.rbushtree_s[s].search([x1 - _geomtools.EPS, y1 - _geomtools.EPS, x2 + _geomtools.EPS, y2 + _geomtools.EPS]));
+	        }
+	      }
 	
 	      for (var i = 0; i < data.length; i++) {
 	        var e = data[i][4];
@@ -3532,6 +3581,11 @@
 	      var radius2 = radius * radius;
 	
 	      var data = this.rbushtree.search([x - xradius, y - yradius, x + xradius, y + yradius]);
+	      if (labels) {
+	        for (var s in this.rbushtree_s) {
+	          data = data.concat(this.rbushtree_s[s].search([x - xradius, y - yradius, x + xradius, y + yradius]));
+	        }
+	      }
 	
 	      for (var i = 0; i < data.length; i++) {
 	        var e = data[i][4];
@@ -5111,8 +5165,6 @@
 	
 	      var dx = x <= 0.5 ? 0 : -width;
 	      var dy = y <= 0.5 ? 0 : -height;
-	      //    let dy = y <= 0.5 ? height/4 : -height ; 
-	
 	
 	      var ret = [];
 	      for (var _i = 0; _i < text.length; _i++) {
