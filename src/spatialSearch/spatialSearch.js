@@ -1,5 +1,6 @@
 import rbush from './rbush' ;
 import ccNetViz_geomutils from '../geomutils' ;
+import ccNetViz_utils from '../utils' ;
 import {partitionByStyle, getPartitionStyle} from '../primitiveTools' ;
 import {
         EPS,
@@ -327,7 +328,7 @@ let tConst = {nodes: Node, lines: Line, circles: Circle, curves: Curve, labels: 
 export default class spatialIndex{
   constructor(c, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideScreen){
     //init all elements into rbush tree with size 1 (outer bound - the worst case)
-    const size = 1; const oldsize = c.size; c.size = 1.;
+    const size = 1; const oldsize = c.size || 1; c.size = 1.;
     
     this.texts = texts;
     this.normalize = normalize;
