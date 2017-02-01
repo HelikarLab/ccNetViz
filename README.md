@@ -139,6 +139,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
   getEdgesCount(){},		//callback to use if you want to force edges count into this library (used to calculate curve excentricity and other built in options), expecting number as return value
   onDrag: function(viewport){}, //drag event, disable original evet in case of return false
   onZoom: function(viewport){}, //zoom event, disable original evet in case of return false
+  onClick: function(){},	//called on click on graph
+  onDblClick: function(){},	//called on double click on graph
 }
 ```
 
