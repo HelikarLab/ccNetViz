@@ -110,8 +110,6 @@ class Label{
     let bbox = [MAX, MAX, MIN, MIN];
     
     
-//    vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0)
-
     this.pos.forEach((c) => {
       const offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
       x1 = x + size * ( c.dx * fontScale ) / context.width / 2;
@@ -140,7 +138,7 @@ class Label{
     return rectIntersectsRect(x1,y1,x2,y2,t[0],t[1],t[2],t[3]);
   };
   dist2(x,y, context, size){
-    let t = this.getTextPos(context);
+    let t = this.getTextPos(context, size);
 
     if(pointInRect(x,y,t[0],t[1],t[2],t[3]))
       return 0;

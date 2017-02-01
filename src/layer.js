@@ -941,7 +941,6 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             let fontScale = 1.0;
             let sdfSize = textEngine.fontSize;
-//            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
             let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize );
             if(wantedSize === 0){ fontScale = 0; };
 
