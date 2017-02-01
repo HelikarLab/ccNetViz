@@ -9,6 +9,7 @@ import ccNetViz_texts         from './texts/texts' ;
 import ccNetViz_lazyEvents    from './lazyEvents';
 import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
+import {getPartitionStyle}    from './primitiveTools' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -397,28 +398,44 @@ var ccNetViz = function(canvas, options){
 
   this.find = function(){return findMerge('find', arguments); };
   this.findArea = function(){return findMerge('findArea', arguments); };
-
-
-  let onDownThis = onMouseDown.bind(this), onWheelThis = onWheel.bind(this);
   
+  this.getTextPosition = (n) => {
+    const offset = 0.5 * context.nodeSize;    
+    const offsety = (2.0 * (n.y <=  0.5 ? 0 : 1) - 1.0) * offset;
+
+    let ns = getPartitionStyle(options.styles[n.style],nodeStyle,"label");
+    let textEngine = texts.getEngine(ns.font);
+    textEngine.setFont(ns.font);
+
+    let wantedSize = ( textEngine.isSDF ? getLabelSize(context, ns.label || {}) : textEngine.fontSize );
+    let fontScale = wantedSize / textEngine.fontSize; if(wantedSize === 0){ fontScale = 0; };
+
+
+    return {offsetY: offsety, fontScale: fontScale, chars:textEngine.get(n.label, n.x, n.y)};
+  };
+
+
   
   let addEvts = (el, evts) => {
     for(var k in (evts || {})){
-      el.addEventListener(k, evts[k]);
+      evts[k] && el.addEventListener(k, evts[k]);
     }
   }
   
   let removeEvts = (el, evts) => {
     for(var k in (evts || {})){
-      el.removeEventListener(k, evts[k]);
+      evts[k] && el.removeEventListener(k, evts[k]);
     }
   }
 
+  let onDownThis = onMouseDown.bind(this);
+  
   let zoomevts;
   addEvts(canvas, zoomevts = {
     'mousedown': onDownThis,
     'touchstart': onDownThis,
-    'wheel': onWheelThis
+    'wheel': onWheel.bind(this),
+    'contextmenu': options.onContextMenu
   })
 
   this.remove = () => {
@@ -447,8 +464,8 @@ var ccNetViz = function(canvas, options){
     let is_change = false;
     if(last_view){
       for(let k in view){
-  if(last_view[k] !== view[k]) 
-    is_change = true;
+        if(last_view[k] !== view[k]) 
+          is_change = true;
       }
     }
     ccNetViz_utils.extend(last_view, view);
@@ -458,7 +475,8 @@ var ccNetViz = function(canvas, options){
     }
   }
 
-  
+  function onContextMenu(e){
+  }
 
   function onWheel(e) {
       let rect = canvas.getBoundingClientRect();
@@ -488,7 +506,10 @@ var ccNetViz = function(canvas, options){
       this.draw();      
   }  
   
+  let lastUpTime = 0;
   function onMouseDown(downe) {
+    if(downe.which !== 1) return; //catch only 1 - left mouse button
+    
     let parseTouchEvts = (e) => {
       if(!e.touches) return e;
       
@@ -562,7 +583,17 @@ var ccNetViz = function(canvas, options){
         e = parseTouchEvts(e);
 
         custom && od.stop && od.stop(e);
-        !dragged && options.onClick && options.onClick(e);
+        
+        if(!dragged){
+          options.onClick && options.onClick(e);
+        
+          if( new Date().getTime() - lastUpTime < 250 ) {
+            options.onDblClick && options.onDblClick(e);
+            lastUpTime = 0;
+          }else{
+            lastUpTime = new Date().getTime();
+          }
+        }
 
         removeEvts(window, evts);
     };
