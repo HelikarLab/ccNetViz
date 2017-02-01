@@ -208,6 +208,8 @@
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
+	var _primitiveTools = __webpack_require__(8);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
@@ -623,26 +625,42 @@
 	    return findMerge('findArea', arguments);
 	  };
 	
-	  var onDownThis = onMouseDown.bind(this),
-	      onWheelThis = onWheel.bind(this);
+	  this.getTextPosition = function (n) {
+	    var offset = 0.5 * context.nodeSize;
+	    var offsety = (2.0 * (n.y <= 0.5 ? 0 : 1) - 1.0) * offset;
+	
+	    var ns = (0, _primitiveTools.getPartitionStyle)(options.styles[n.style], nodeStyle, "label");
+	    var textEngine = texts.getEngine(ns.font);
+	    textEngine.setFont(ns.font);
+	
+	    var wantedSize = textEngine.isSDF ? getLabelSize(context, ns.label || {}) : textEngine.fontSize;
+	    var fontScale = wantedSize / textEngine.fontSize;if (wantedSize === 0) {
+	      fontScale = 0;
+	    };
+	
+	    return { offsetY: offsety, fontScale: fontScale, chars: textEngine.get(n.label, n.x, n.y) };
+	  };
 	
 	  var addEvts = function addEvts(el, evts) {
 	    for (var k in evts || {}) {
-	      el.addEventListener(k, evts[k]);
+	      evts[k] && el.addEventListener(k, evts[k]);
 	    }
 	  };
 	
 	  var removeEvts = function removeEvts(el, evts) {
 	    for (var k in evts || {}) {
-	      el.removeEventListener(k, evts[k]);
+	      evts[k] && el.removeEventListener(k, evts[k]);
 	    }
 	  };
+	
+	  var onDownThis = onMouseDown.bind(this);
 	
 	  var zoomevts = void 0;
 	  addEvts(canvas, zoomevts = {
 	    'mousedown': onDownThis,
 	    'touchstart': onDownThis,
-	    'wheel': onWheelThis
+	    'wheel': onWheel.bind(this),
+	    'contextmenu': options.onContextMenu
 	  });
 	
 	  this.remove = function () {
@@ -683,6 +701,8 @@
 	    }
 	  }
 	
+	  function onContextMenu(e) {}
+	
 	  function onWheel(e) {
 	    var rect = canvas.getBoundingClientRect();
 	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
@@ -710,8 +730,11 @@
 	    this.draw();
 	  }
 	
+	  var lastUpTime = 0;
 	  function onMouseDown(downe) {
 	    var _this2 = this;
+	
+	    if (downe.which !== 1) return; //catch only 1 - left mouse button
 	
 	    var parseTouchEvts = function parseTouchEvts(e) {
 	      if (!e.touches) return e;
@@ -791,7 +814,17 @@
 	      e = parseTouchEvts(e);
 	
 	      custom && od.stop && od.stop(e);
-	      !dragged && options.onClick && options.onClick(e);
+	
+	      if (!dragged) {
+	        options.onClick && options.onClick(e);
+	
+	        if (new Date().getTime() - lastUpTime < 250) {
+	          options.onDblClick && options.onDblClick(e);
+	          lastUpTime = 0;
+	        } else {
+	          lastUpTime = new Date().getTime();
+	        }
+	      }
 	
 	      removeEvts(window, evts);
 	    };
@@ -1582,7 +1615,6 @@
 	
 	            var fontScale = 1.0;
 	            var sdfSize = textEngine.fontSize;
-	            //            let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : undefined );
 	            var wantedSize = textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize;
 	            if (wantedSize === 0) {
 	                fontScale = 0;
@@ -3174,8 +3206,6 @@
 	      var MIN = -10.;
 	      var bbox = [MAX, MAX, MIN, MIN];
 	
-	      //    vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0)
-	
 	      this.pos.forEach(function (c) {
 	        var offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
 	        x1 = x + size * (c.dx * fontScale) / context.width / 2;
@@ -3210,7 +3240,7 @@
 	  }, {
 	    key: 'dist2',
 	    value: function dist2(x, y, context, size) {
-	      var t = this.getTextPos(context);
+	      var t = this.getTextPos(context, size);
 	
 	      if ((0, _geomtools.pointInRect)(x, y, t[0], t[1], t[2], t[3])) return 0;
 	
