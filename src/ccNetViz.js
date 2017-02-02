@@ -260,7 +260,7 @@ var ccNetViz = function(canvas, options){
 
 
   let getSize = (c, s, n, sc) => {
-    let result = sc * Math.sqrt(c.width * c.height / n) / view.size;
+    let result = sc * Math.sqrt(c.width * c.height / (n+1)) / view.size;
     if (s) {
       let min = s.size ? s.size : s.minSize;
       let max = s.size ? s.size : s.maxSize;
@@ -280,7 +280,7 @@ var ccNetViz = function(canvas, options){
     if(s){
         const sc = 0.25;
         let n = layers.main.cntShownNodes();  //lower bound
-        let t = sc * Math.sqrt(c.width * c.height / n);
+        let t = sc * Math.sqrt(c.width * c.height / ( n+1 ) );
 
         let vs;
         if(s.hideSize){

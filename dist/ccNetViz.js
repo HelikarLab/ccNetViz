@@ -482,7 +482,7 @@
 	  };
 	
 	  var getSize = function getSize(c, s, n, sc) {
-	    var result = sc * Math.sqrt(c.width * c.height / n) / view.size;
+	    var result = sc * Math.sqrt(c.width * c.height / (n + 1)) / view.size;
 	    if (s) {
 	      var min = s.size ? s.size : s.minSize;
 	      var max = s.size ? s.size : s.maxSize;
@@ -505,7 +505,7 @@
 	    if (s) {
 	      var sc = 0.25;
 	      var n = layers.main.cntShownNodes(); //lower bound
-	      var t = sc * Math.sqrt(c.width * c.height / n);
+	      var t = sc * Math.sqrt(c.width * c.height / (n + 1));
 	
 	      var vs = void 0;
 	      if (s.hideSize) {
