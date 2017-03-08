@@ -287,9 +287,10 @@
 	  edgeStyle.width = edgeStyle.width || 1;
 	  edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 	
-	  var onLoad = options.onLoad || function () {
-	    if (removed || !setted) return;
-	    _this.draw();
+	  var onLoad = function onLoad() {
+	    if (!options.onLoad || options.onLoad()) {
+	      _this.draw.bind(_this, true);
+	    }
 	  };
 	
 	  if (edgeStyle.arrow) {
@@ -520,7 +521,8 @@
 	
 	  var offset = 0.5 * nodeStyle.maxSize;
 	
-	  this.draw = function () {
+	  this.draw = function (silent) {
+	    if (silent && (removed || !setted)) return;
 	    if (checkRemoved()) return;
 	
 	    var width = canvas.width;
@@ -5162,7 +5164,7 @@
 	            var glyph = stack.glyphs[glyphID];
 	            if (!this._rects[font]) this._rects[font] = {};
 	
-	            this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);;
+	            this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
 	          }
 	        }
 	      }

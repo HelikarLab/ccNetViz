@@ -91,14 +91,7 @@ var ccNetViz = function(canvas, options){
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
-  let onLoad = (
-                options.onLoad
-                  ||
-                (() => {
-                if(removed || !setted) return;
-                 this.draw();
-                })
-              );  
+  let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw.bind(this, true);} };
 
   if (edgeStyle.arrow) {
       let s = edgeStyle.arrow;
@@ -296,7 +289,8 @@ var ccNetViz = function(canvas, options){
 
   let offset = 0.5 * nodeStyle.maxSize;
 
-  this.draw = () => {
+  this.draw = (silent) => {
+    if(silent && (removed || !setted) ) return;
     if(checkRemoved()) return;
 
     let width = canvas.width;
@@ -410,8 +404,7 @@ var ccNetViz = function(canvas, options){
     let wantedSize = ( textEngine.isSDF ? getLabelSize(context, ns.label || {}) : textEngine.fontSize );
     let fontScale = wantedSize / textEngine.fontSize; if(wantedSize === 0){ fontScale = 0; };
 
-
-    return {offsetY: offsety, fontScale: fontScale, chars:textEngine.get(n.label, n.x, n.y)};
+    return {offsetY: offsety, fontScale: fontScale, chars: textEngine.get(n.label, n.x, n.y)};
   };
 
 
