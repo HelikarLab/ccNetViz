@@ -106,7 +106,7 @@ export default class {
           const glyph = stack.glyphs[glyphID];
           if(!this._rects[font]) this._rects[font] = {}; 
           
-          this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);;
+          this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
         }
       }
     }
