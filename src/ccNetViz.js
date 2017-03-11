@@ -91,7 +91,7 @@ var ccNetViz = function(canvas, options){
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
-  let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw.bind(this, true);} };
+  let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
 
   if (edgeStyle.arrow) {
       let s = edgeStyle.arrow;

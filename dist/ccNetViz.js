@@ -289,7 +289,7 @@
 	
 	  var onLoad = function onLoad() {
 	    if (!options.onLoad || options.onLoad()) {
-	      _this.draw.bind(_this, true);
+	      _this.draw(true);
 	    }
 	  };
 	
