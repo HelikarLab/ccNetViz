@@ -227,9 +227,21 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     let edgePoses;
 
     let spatialSearch = undefined;
+    
+    let lvl = 0;
+    //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
+    let set_end = () => {
+      let enableLazyRedraw = false;
+      let reset = (p) => {
+        if(enableLazyRedraw)
+          this.set(this.nodes, this.edges);
+      };
+      files.onLoad(reset)
+      textures.onLoad(reset)
+      enableLazyRedraw = true;
+    };    
 
     this.set = function(nodes, edges, layout) {
-
         removedNodes = 0;
         removedEdges = 0;
       
@@ -395,18 +407,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         };
         
         while(tryInitPrimitives()); //loop until they are not dirty
-        
-        //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
-        (() => {
-          let enableLazyRedraw = false;
-          let reset = (p) => {
-            if(enableLazyRedraw)
-              this.set(this.nodes, this.edges);
-          };
-          files.onLoad(reset)
-          textures.onLoad(reset)
-          enableLazyRedraw = true;
-        })();
+        set_end();
     };
     
     

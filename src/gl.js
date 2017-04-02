@@ -34,8 +34,7 @@ export default class {
 
       let image = new Image();
       
-      let load = ((onL)=> {
-        return function() {
+      let load = () => {
             image.onload = null;
             gl.bindTexture(gl.TEXTURE_2D, result);
 
@@ -54,9 +53,8 @@ export default class {
             }
 
             gl.bindTexture(gl.TEXTURE_2D, null);
-            onL && onL();
-        }
-      })(onLoad);
+            onLoad && onLoad();
+      }
 
       image.onload = load;
       image.src = img;

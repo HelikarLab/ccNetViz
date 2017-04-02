@@ -1181,9 +1181,19 @@
 	
 	    var spatialSearch = undefined;
 	
-	    this.set = function (nodes, edges, layout) {
-	        var _this2 = this;
+	    var lvl = 0;
+	    //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
+	    var set_end = function set_end() {
+	        var enableLazyRedraw = false;
+	        var reset = function reset(p) {
+	            if (enableLazyRedraw) _this.set(_this.nodes, _this.edges);
+	        };
+	        files.onLoad(reset);
+	        textures.onLoad(reset);
+	        enableLazyRedraw = true;
+	    };
 	
+	    this.set = function (nodes, edges, layout) {
 	        removedNodes = 0;
 	        removedEdges = 0;
 	
@@ -1346,17 +1356,7 @@
 	        };
 	
 	        while (tryInitPrimitives()) {} //loop until they are not dirty
-	
-	        //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
-	        (function () {
-	            var enableLazyRedraw = false;
-	            var reset = function reset(p) {
-	                if (enableLazyRedraw) _this2.set(_this2.nodes, _this2.edges);
-	            };
-	            files.onLoad(reset);
-	            textures.onLoad(reset);
-	            enableLazyRedraw = true;
-	        })();
+	        set_end();
 	    };
 	
 	    this.update = function (element, attribute, data) {
@@ -1832,29 +1832,27 @@
 	
 	            var image = new Image();
 	
-	            var load = function (onL) {
-	                return function () {
-	                    image.onload = null;
-	                    gl.bindTexture(gl.TEXTURE_2D, result);
+	            var load = function load() {
+	                image.onload = null;
+	                gl.bindTexture(gl.TEXTURE_2D, result);
 	
-	                    if ((options || {}).sdf) {
-	                        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	                    } else {
-	                        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	                    }
+	                if ((options || {}).sdf) {
+	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	                } else {
+	                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	                }
 	
-	                    gl.bindTexture(gl.TEXTURE_2D, null);
-	                    onL && onL();
-	                };
-	            }(onLoad);
+	                gl.bindTexture(gl.TEXTURE_2D, null);
+	                onLoad && onLoad();
+	            };
 	
 	            image.onload = load;
 	            image.src = img;
