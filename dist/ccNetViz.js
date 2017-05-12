@@ -909,7 +909,7 @@
 	
 	  textures = new _textures2.default(events, onLoad);
 	  files = new _files2.default(events, onLoad);
-	  texts = new _texts2.default(gl, files, textures);
+	  texts = gl && new _texts2.default(gl, files, textures);
 	  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 	
 	  if (!gl) console.warn("Cannot initialize WebGL context");
@@ -1308,7 +1308,7 @@
 	
 	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
-	        if (!gl) return isDirty;
+	        if (!gl) return;
 	
 	        var tryInitPrimitives = function tryInitPrimitives() {
 	            var isDirty = false;

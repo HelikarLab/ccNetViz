@@ -667,7 +667,7 @@ var ccNetViz = function(canvas, options){
 
   textures = new ccNetViz_textures(events, onLoad);
   files = new ccNetViz_files(events, onLoad);
-  texts = new ccNetViz_texts(gl, files, textures);
+  texts = gl && (new ccNetViz_texts(gl, files, textures));
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   
   if(!gl)

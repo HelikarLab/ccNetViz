@@ -356,7 +356,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
         layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
         
-        if(!gl) return isDirty;
+        if(!gl) return;
         
         let tryInitPrimitives = () => {
             var isDirty = false;
