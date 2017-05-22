@@ -202,11 +202,6 @@ function rectIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y){
           p1y <= r2y &&
           p2x >= r1x &&
           p2y >= r1y;
-
-  return b[0] <= a[2] &&
-      b[1] <= a[3] &&
-      b[2] >= a[0] &&
-      b[3] >= a[1];
 }
 
 function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y)
