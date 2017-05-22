@@ -137,8 +137,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
   onLoad: function(){},	//called when graph loaded
   getNodesCount(){},	//callback to use if you want to force nodes count into this library (used to calculate curve excentricity and other built in options), expecting number as return value
   getEdgesCount(){},		//callback to use if you want to force edges count into this library (used to calculate curve excentricity and other built in options), expecting number as return value
-  onDrag: function(viewport){}, //drag event, disable original evet in case of return false
-  onZoom: function(viewport){}, //zoom event, disable original evet in case of return false
+  onDrag: function(viewport){}, //drag event, disable original event in case of return false
+  onZoom: function(viewport){}, //zoom event, disable original event in case of return false
   onClick: function(){},	//called on click on graph
   onDblClick: function(){},	//called on double click on graph
 }
@@ -151,7 +151,7 @@ There are three predefined styles:
 
 All default property values of these styles can be overriden (as in example above).
 
-Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subset of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
+Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
 When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from 
 [our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with 
@@ -200,7 +200,7 @@ Reset zoom and panning.
 
 Set graph viewport.
 
-"viewport" argument is object with keys to modify (all of keys are optional)
+"viewport" argument is an object with keys to modify (all of keys are optional)
 
 ```javascript
 {
