@@ -371,7 +371,7 @@ var ccNetViz = function(canvas, options){
   }
 
   let findMerge = function(funcname, args){
-    if(checkRemoved()) return;
+    if(checkRemoved() || !gl) return;
 
     let f1 = layers.main[funcname].apply(layers.main, args);
 
@@ -394,6 +394,8 @@ var ccNetViz = function(canvas, options){
   this.findArea = function(){return findMerge('findArea', arguments); };
   
   this.getTextPosition = (n) => {
+    if(checkRemoved() || !gl) return;
+
     const offset = 0.5 * context.nodeSize;    
     const offsety = (2.0 * (n.y <=  0.5 ? 0 : 1) - 1.0) * offset;
 

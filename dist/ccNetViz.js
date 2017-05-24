@@ -602,7 +602,7 @@
 	  };
 	
 	  var findMerge = function findMerge(funcname, args) {
-	    if (checkRemoved()) return;
+	    if (checkRemoved() || !gl) return;
 	
 	    var f1 = layers.main[funcname].apply(layers.main, args);
 	
@@ -628,6 +628,8 @@
 	  };
 	
 	  this.getTextPosition = function (n) {
+	    if (checkRemoved() || !gl) return;
+	
 	    var offset = 0.5 * context.nodeSize;
 	    var offsety = (2.0 * (n.y <= 0.5 ? 0 : 1) - 1.0) * offset;
 	
