@@ -602,7 +602,7 @@
 	  };
 	
 	  var findMerge = function findMerge(funcname, args) {
-	    if (checkRemoved()) return;
+	    if (checkRemoved() || !gl) return;
 	
 	    var f1 = layers.main[funcname].apply(layers.main, args);
 	
@@ -628,6 +628,8 @@
 	  };
 	
 	  this.getTextPosition = function (n) {
+	    if (checkRemoved() || !gl) return;
+	
 	    var offset = 0.5 * context.nodeSize;
 	    var offsety = (2.0 * (n.y <= 0.5 ? 0 : 1) - 1.0) * offset;
 	
@@ -4495,8 +4497,6 @@
 	
 	function rectIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
 	  return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
-	
-	  return b[0] <= a[2] && b[1] <= a[3] && b[2] >= a[0] && b[3] >= a[1];
 	}
 	
 	function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
