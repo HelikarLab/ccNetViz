@@ -3030,18 +3030,24 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        this._angle = 2 * Math.PI / nodes.length;
+	        this.nd = 0;
 	    }
 	
 	    _createClass(_class, [{
 	        key: "apply",
 	        value: function apply() {
+	            console.log(this._nodes);
 	            var nd = degrees(this._nodes, this._edges);
+	            this.nd = nd;
+	            console.log(nd);
 	            var angle = this._angle;
+	            var nodes = this._nodes;
 	            nd.nodes.forEach(function (node, i) {
-	                node.x = Math.cos(i * angle);
-	                node.y = Math.sin(i * angle);
-	                node.weight = nd.degrees[i];
+	                nodes[node.index].x = (1 + Math.cos(i * angle)) * .5;
+	                nodes[node.index].y = (1 + Math.sin(i * angle)) * .5;
+	                nodes[node.index].weight = nd.degrees[i];
 	            });
+	            console.log(this._nodes);
 	        }
 	    }]);
 	
