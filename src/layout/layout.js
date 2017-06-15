@@ -1,5 +1,6 @@
 import layoutForce from './force' ;
 import layoutRandom from './random' ;
+import layoutCircular from './circular' ;
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12,9 +13,11 @@ export default class {
   static get force(){
     return layoutForce;
   }
-
   static get random(){
     return layoutRandom;
+  }
+  static get circular(){
+    return layoutCircular;
   }
   
   static normalize (nodes, dim) {

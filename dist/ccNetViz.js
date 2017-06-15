@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -154,9 +154,9 @@
 	
 	exports.default = ccNetVizMultiLevel;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(17);
+	var _textures = __webpack_require__(18);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(18);
+	var _files = __webpack_require__(19);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(19);
+	var _texts = __webpack_require__(20);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(27);
+	var _lazyEvents = __webpack_require__(28);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(28);
+	var _interactivityBatch = __webpack_require__(29);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(14);
+	var _spatialSearch = __webpack_require__(15);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -363,6 +363,7 @@
 	    edges.forEach(checkUniqId);
 	
 	    layers.temp && layers.temp.set([], [], layout);
+	    console.log("10");
 	    layers.main.set(nodes, edges, layout);
 	
 	    //reset batch
@@ -929,9 +930,9 @@
 	window.ccNetViz = ccNetViz;
 	exports.default = ccNetViz;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1308,6 +1309,7 @@
 	            return spatialSearch;
 	        };
 	
+	        console.log(10);
 	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
@@ -1684,7 +1686,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(13);
+	var _geomutils = __webpack_require__(14);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,15 +1696,15 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(14);
+	var _spatialSearch = __webpack_require__(15);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1776,9 +1778,9 @@
 	exports.default = Color;
 	;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1902,9 +1904,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2229,9 +2231,9 @@
 	
 	exports.default = primitive;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2321,9 +2323,9 @@
 	exports.default = Shader;
 	;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -2397,9 +2399,9 @@
 	exports.default = Utils;
 	;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2455,9 +2457,9 @@
 	exports.partitionByStyle = partitionByStyle;
 	exports.getPartitionStyle = getPartitionStyle;
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2474,6 +2476,10 @@
 	var _random = __webpack_require__(12);
 	
 	var _random2 = _interopRequireDefault(_random);
+	
+	var _circular = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./circular\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
+	var _circular2 = _interopRequireDefault(_circular);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2544,6 +2550,12 @@
 	        get: function get() {
 	            return _random2.default;
 	        }
+	    }, {
+	        key: 'circular',
+	        get: function get() {
+	            console.log("10");
+	            return _circular2.default;
+	        }
 	    }]);
 
 	    return _class;
@@ -2551,9 +2563,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2747,9 +2759,9 @@
 	 *  Author: David Tichy
 	 */
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -2915,9 +2927,9 @@
 	   *  Author: David Tichy
 	   */
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -2961,9 +2973,10 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
+/***/ }),
+/* 13 */,
+/* 14 */
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3061,9 +3074,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3073,11 +3086,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(15);
+	var _rbush = __webpack_require__(16);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(13);
+	var _geomutils = __webpack_require__(14);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -3087,7 +3100,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(16);
+	var _geomtools = __webpack_require__(17);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3530,9 +3543,9 @@
 	    }
 	
 	    this.rbushtree_s = {};
-	    for (var _style in sd) {
-	      var rb = this.rbushtree_s[_style] = (0, _rbush2.default)();
-	      rb.load(sd[_style]);
+	    for (var style in sd) {
+	      var rb = this.rbushtree_s[style] = (0, _rbush2.default)();
+	      rb.load(sd[style]);
 	    }
 	
 	    //tree initialization
@@ -3654,9 +3667,9 @@
 	
 	exports.default = spatialIndex;
 
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -4287,9 +4300,9 @@
 	
 	exports.default = rbush;
 
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -4298,11 +4311,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(15);
+	var _rbush = __webpack_require__(16);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(13);
+	var _geomutils = __webpack_require__(14);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -4599,9 +4612,9 @@
 	exports.eq = eq;
 	exports.neq = neq;
 
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -4685,9 +4698,9 @@
 
 	exports.default = _class;
 
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -4793,9 +4806,9 @@
 
 	exports.default = _class;
 
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -4811,11 +4824,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(20);
+	var _default = __webpack_require__(21);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(21);
+	var _sdf = __webpack_require__(22);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -4886,9 +4899,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 20 */
-/***/ function(module, exports) {
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -5030,9 +5043,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -5042,15 +5055,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(22);
+	var _pbf = __webpack_require__(23);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(24);
+	var _atlas = __webpack_require__(25);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(26);
+	var _glyphs = __webpack_require__(27);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -5249,15 +5262,15 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(23);
+	var ieee754 = __webpack_require__(24);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -5873,9 +5886,9 @@
 	}
 
 
-/***/ },
-/* 23 */
-/***/ function(module, exports) {
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 	  var e, m
@@ -5963,9 +5976,9 @@
 	}
 
 
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -5975,7 +5988,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(25);
+	var _shelfPack = __webpack_require__(26);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -6178,9 +6191,9 @@
 	exports.default = GlyphAtlas;
 	;
 
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
 	     true ? module.exports = factory() :
@@ -6627,9 +6640,9 @@
 	
 	}));
 
-/***/ },
-/* 26 */
-/***/ function(module, exports) {
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -6659,9 +6672,9 @@
 	    if (tag === 1) glyph.id = pbf.readVarint();else if (tag === 2) glyph.bitmap = pbf.readBytes();else if (tag === 3) glyph.width = pbf.readVarint();else if (tag === 4) glyph.height = pbf.readVarint();else if (tag === 5) glyph.left = pbf.readSVarint();else if (tag === 6) glyph.top = pbf.readSVarint();else if (tag === 7) glyph.advance = pbf.readVarint();
 	}
 
-/***/ },
-/* 27 */
-/***/ function(module, exports) {
+/***/ }),
+/* 28 */
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -6745,9 +6758,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -6757,7 +6770,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(13);
+	var _geomutils = __webpack_require__(14);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -7011,7 +7024,7 @@
 	exports.default = _class;
 	;
 
-/***/ }
+/***/ })
 /******/ ]);
 //# sourceMappingURL=ccNetViz.js.map
 if(typeof module !== "undefined")
