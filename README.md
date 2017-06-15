@@ -232,3 +232,23 @@ Property to access nodes data of given graph. Use this just to read current valu
 ***edges***
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
+
+**Development in ccNetViz**
+This is the pipeline you should follow to make changes to ccNetViz:
+0. Fork ccNetViz repository e.g. from [HeilikarLab].
+1. Make changes to src/ tree.
+2. Build with "$ npm run build" on the ccNetViz root directory.
+3. Clear cache from browser: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+4. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+5. Commit changes to your fork and make a pull request e.g. on the repository you forked.
+
+[HeilikarLab]: https://github.com/HelikarLab/ccNetViz
+
+If the file tree does not get updated, there might be issues with the files you are trying to update.
+You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
+
+Notes:
+* You have to build the package (e.g. into dist/) to run new code.
+* E.g. in Chrome, it always reused the package from cache
+(ctrl+shift+r does not force it to reload recently built package),
+i.e. you have to clear the cache.
