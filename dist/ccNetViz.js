@@ -363,7 +363,6 @@
 	    edges.forEach(checkUniqId);
 	
 	    layers.temp && layers.temp.set([], [], layout);
-	    console.log("10");
 	    layers.main.set(nodes, edges, layout);
 	
 	    //reset batch
@@ -1309,7 +1308,6 @@
 	            return spatialSearch;
 	        };
 	
-	        console.log(10);
 	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
@@ -2553,7 +2551,6 @@
 	    }, {
 	        key: 'circular',
 	        get: function get() {
-	            console.log("10");
 	            return _circular2.default;
 	        }
 	    }]);
