@@ -20,7 +20,7 @@ export default class {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
-    angle = 2.Math.PI/nodes.length;
+    angle = 2*Math.PI/nodes.length;
   }
   function degrees(nodes, edges) {
       // should return ordered nodes and their degrees - high to low
