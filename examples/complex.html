@@ -3,7 +3,7 @@
 <head>
   <title>ccNetViz complex graphs example</title>
   <style type="text/css">
-    #container {
+    #body, canvas {
       width: 500px;
       height: 500px;
     }
@@ -22,7 +22,6 @@
 <body>
   <h1>Different graphs example</h1>
   <div id='body'>
-  <canvas id="container"></canvas>
   </div>
   <div id='info' />
     <select id='listExamples'></select>
@@ -38,15 +37,15 @@
     
     function init(){
       function onChange(e){
-	var v = $(this).val();
-	  
-	$.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
+        var v = $(this).val();
+        
+        $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
       }
     
       //fill in graph names
       var select = $("#listExamples");
       $.each(examples, function(index,val){
-	select.append($("<option />", {'value': val}).text(val));
+        select.append($("<option />", {'value': val}).text(val));
       });
       select.change(onChange);
       
@@ -55,19 +54,22 @@
     };
 
     var graph;
+    var el;
     function showGraph(data){
+      if(el)
+        el.parentNode.removeChild(el);
+      document.getElementById("body").appendChild(el = document.createElement("canvas"));
+
       var startTime = new Date();
-    
-      var el = document.getElementById('container');
-      
+
       if(graph) graph.remove();	//if there was old graph, remove its handlers from DOM content
 
       graph = new ccNetViz(el, {
-	styles: {
-	  node: { texture: "images/node.png", label: { hideSize: 16 } },
-	  node: { label: { hideSize: 16 } },
-	  edge: { arrow: { texture: "images/arrow.png" } }
-	}});
+        styles: {
+            node: { texture: "images/node.png", label: { hideSize: 16 } },
+            node: { label: { hideSize: 16 } },
+            edge: { arrow: { texture: "images/arrow.png" } }
+        }});
       graph.set(data.nodes, data.edges, "force");
       graph.draw();
       
