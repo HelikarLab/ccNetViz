@@ -2475,7 +2475,7 @@
 	
 	var _random2 = _interopRequireDefault(_random);
 	
-	var _circular = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./circular\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _circular = __webpack_require__(13);
 	
 	var _circular2 = _interopRequireDefault(_circular);
 	
@@ -2971,7 +2971,87 @@
 	;
 
 /***/ }),
-/* 13 */,
+/* 13 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	function degrees(nodes, edges) {
+	    // should return ordered nodes and their degrees - high to low
+	    var degrees = Array(nodes.length).fill(0);
+	    edges.forEach(function (e) {
+	        degrees[e.source.index] += 1;
+	        degrees[e.target.index] += 1;
+	    }); // check to see if not getting double of the degree in undirected graphs
+	    //getting the order of nodes from highest to lowest degrees
+	    var ordered_nodes = degrees.map(function (el, i) {
+	        return { index: i, value: el };
+	    });
+	    ordered_nodes.sort(function (a, b) {
+	        return +(a.value < b.value) || +(a.value === b.value) - 1;
+	    });
+	    var ordered_degrees = ordered_nodes.map(function (el) {
+	        return degrees[el.index];
+	    });
+	    return { nodes: ordered_nodes,
+	        degrees: ordered_degrees };
+	}
+	
+	var _class = function () {
+	    // get degree of all nodes
+	    // let user define at least: starting angle and radius and
+	    // clock/cclock direction
+	    // size of vertices
+	    // more: a ratio of compactness for the more/less connected nodes
+	    // a spiral ratio with a rotation ratio for having more than 2pi
+	    // distribution of nodes when spiriling
+	    // use some other ordering criterion than degree? Strength?
+	    // defined by user and found as attribute of each node?
+	    // random ordering, minimal crossing of edges?
+	    function _class(nodes, edges) {
+	        _classCallCheck(this, _class);
+	
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        this._angle = 2 * Math.PI / nodes.length;
+	    }
+	
+	    _createClass(_class, [{
+	        key: "apply",
+	        value: function apply() {
+	            var nd = degrees(this._nodes, this._edges);
+	            var angle = this._angle;
+	            nd.nodes.forEach(function (node, i) {
+	                node.x = Math.cos(i * angle);
+	                node.y = Math.sin(i * angle);
+	                node.weight = nd.degrees[i];
+	            });
+	        }
+	    }]);
+	
+	    return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ }),
 /* 14 */
 /***/ (function(module, exports) {
 

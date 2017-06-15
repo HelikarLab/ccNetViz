@@ -1,0 +1,17 @@
+thisDocument description this is a CRI file to link ccNetViz to the semantic web. Every line is a triple.
+forceDirected, grid, circular, hierarchical, spectral, hive, spiral is layout
+layout is incomplete
+spiral javascript https://gist.github.com/ttm/73019d8a8051652334d3f3af9f1a3993.js
+spiral option placce most connected vertices from the center or the outside
+circular javascript ccNetViz/src/layout/circular.js # parse the js file as well for cri triples
+layout reference https://en.wikipedia.org/wiki/Graph_drawing
+layout recommendation should make available options for node weights. In force it is implemented as degree (called strength therein). Nodes can have weights related to their clustering coefficient and other measures. See with crew if we should use e.g. jsnetworkx for networks measures
+layout question what is the better way to make the settings of the layout to be modified in real time by the user? Where in the code to make handlers and think of a widget in the graph canvas to change settings.
+layout is representation
+matrix is represtation
+layout implemented circular, force, random
+
+#default mode, line is triple. Should yield another rdf graph
+cri recommendation parse document as a conceptualization set, link each triple to it. it renders rdf graphs and datasets
+cri recommendation in the predicate a and is should mentions rdf:type and rdfs:subClass. Maybe try to use owl:Classes
+cri recommendation use toki pona mode, writer can relate english to toki pona lemmas.

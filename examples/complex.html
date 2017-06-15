@@ -68,7 +68,7 @@
 	  node: { label: { hideSize: 16 } },
 	  edge: { arrow: { texture: "images/arrow.png" } }
 	}});
-      graph.set(data.nodes, data.edges, "force");
+      graph.set(data.nodes, data.edges, "circular");
       graph.draw();
       
       $('#nodesCnt').text(data.nodes.length);
