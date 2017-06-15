@@ -238,10 +238,11 @@ This is the pipeline you should follow to make changes to ccNetViz:
 
 0. Fork ccNetViz repository e.g. from [HeilikarLab].
 1. Make changes to src/ tree.
-2. Build with "$ npm run build" on the ccNetViz root directory.
-3. Clear cache from browser: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
-4. Run a test page (e.g. anyone in examples/) at the browser to see the results.
-5. Commit changes to your fork and make a pull request e.g. on the repository you forked.
+2. Run "$ npm update" to download needed packages.
+3. Build with "$ npm run build" on the ccNetViz root directory.
+4. Clear cache from browser: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+5. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+6. Commit changes to your fork and make a pull request e.g. on the repository you forked.
 
 [HeilikarLab]: https://github.com/HelikarLab/ccNetViz
 
