@@ -233,7 +233,7 @@ Property to access nodes data of given graph. Use this just to read current valu
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
 
-**Development in ccNetViz**
+### Development in ccNetViz
 This is the pipeline you should follow to make changes to ccNetViz:
 0. Fork ccNetViz repository e.g. from [HeilikarLab].
 1. Make changes to src/ tree.
