@@ -246,11 +246,11 @@ This is the pipeline you should follow to make changes to ccNetViz:
 
 [HeilikarLab]: https://github.com/HelikarLab/ccNetViz
 
-If the file tree does not get updated, there might be issues with the files you are trying to update.
-You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
 
 Notes:
-* You have to build the package (e.g. into dist/) to run new code.
+* If the file tree does not get updated, there might be issues with the files you are trying to update.
+You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
+* You have to build the package (e.g. into dist/) to run new code, i.e. you cannot make changes to src/ tree and load them to the browser.
 * E.g. in Chrome, it always reused the package from cache
 (ctrl+shift+r does not force it to reload recently built package),
 i.e. you have to clear the cache.
