@@ -82,6 +82,27 @@ layer ordering can be done with respect to smallest/largest diameter or radius
 
 branch ordering can be set bottom up, from leaves to root (e.g. by degree)
 
+hierarchical can produce incomplete graph representations. Other trees necessary to complete the graph can be exposed in the same canvas. Parents can be found for each node or leaf upwards to yield more complete representations and negative layers.
+
+hierarchical can produce n-ary trees for graphs: choose root, each parent has children which has the greatest n-measures (e.g. degree)
+
+layout subtopic graphDrawing
+
+layout recommendation make layouts that do not follow measures in an obvious way, but is meant to expose the structure.
+One idea is to fix most connected vertices far away (in a plane or circles).
+Another is to expose an erdos sector with more space (e.g. in a circular, double the spacing of intermediary or hubs.
+In circular layout, choose a periodicity, place the most connected vertices pi/period apart,
+walk a step 2pi/|nodes| each period placed nodes.
+
+cri note standard writing lets you write trees really well. RDF/CRI lets you write graphs
+cri recommendation link words and terms in the cri interface
+
+cri reference https://link.springer.com/chapter/10.1007%2F978-3-319-03841-4_6
+
+avvo question is there another analysis method that consists in visualizing data such as network visualization?
+
+
+
 cri parse python and other code as triples "a = 5" = "subject predicate object".
 cri parse think of good practices in writing code in python that can be parsed by cri. See python/js/c++/other parsers
 cri parse make a good parser for cri triples, modes, etc. Use it for vim syntax highlighting and rendering RDF. Make it by walking though cri written documents. Use Percolate to parse datatypes. 

@@ -236,11 +236,12 @@ Property to access edges data of given graph. Use this just to read current valu
 ### Development in ccNetViz
 This is the pipeline you should follow to make changes to ccNetViz:
 
-0. Fork ccNetViz repository e.g. from [HeilikarLab].
+0. Fork ccNetViz repository e.g. from [HeilikarLab]. Start a server
+   (such as Apache) with a path to the ccNetViz directory.
 1. Make changes to src/ tree.
 2. Run "$ npm update" to download needed packages.
 3. Build with "$ npm run build" on the ccNetViz root directory.
-4. Clear cache from browser: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+4. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
 5. Run a test page (e.g. anyone in examples/) at the browser to see the results.
 6. Commit changes to your fork and make a pull request e.g. on the repository you forked.
 

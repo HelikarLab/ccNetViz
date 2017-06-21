@@ -1,6 +1,7 @@
 import layoutForce from './force' ;
 import layoutRandom from './random' ;
 import layoutCircular from './circular' ;
+import layoutTree from './tree' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -19,6 +20,9 @@ export default class {
   }
   static get circular(){
     return layoutCircular;
+  }
+  static get tree(){
+    return layoutTree;
   }
   
   static normalize (nodes, dim) {
