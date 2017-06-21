@@ -170,7 +170,7 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 * target: pointer to given target node object
 * style (optional): name of custom style class used for this edge
 
-Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular". If not specified, positions are taken from each node x, y properties.
+Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular", "tree". If not specified, positions are taken from each node x, y properties.
 
 
 ***find(x, y, radius, nodes, edges)***

@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(19);
+	var _textures = __webpack_require__(20);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(20);
+	var _files = __webpack_require__(21);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(21);
+	var _texts = __webpack_require__(22);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(29);
+	var _lazyEvents = __webpack_require__(30);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(30);
+	var _interactivityBatch = __webpack_require__(31);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(16);
+	var _spatialSearch = __webpack_require__(17);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -1684,7 +1684,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(15);
+	var _geomutils = __webpack_require__(16);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,7 +1694,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(16);
+	var _spatialSearch = __webpack_require__(17);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -2483,6 +2483,10 @@
 	
 	var _tree2 = _interopRequireDefault(_tree);
 	
+	var _treeT = __webpack_require__(15);
+	
+	var _treeT2 = _interopRequireDefault(_treeT);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2561,6 +2565,11 @@
 	    key: 'tree',
 	    get: function get() {
 	      return _tree2.default;
+	    }
+	  }, {
+	    key: 'tree2',
+	    get: function get() {
+	      return _treeT2.default;
 	    }
 	  }]);
 
@@ -3101,35 +3110,7 @@
 	    return 1 + depth;
 	}
 	
-	function drawTreeTop(root) {
-	    var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-	    var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-	
-	    // each node is in vertically on the top of the stack of its leafs
-	    var node = root;
-	    node.visited = true;
-	    node.x = alphax + stepx * (layer - 1);
-	    node.y = alphay + stepy * visited_leafs_parent;
-	    // visit children until leafs
-	    visited_leafs = 0;
-	    node.children.forEach(function (child) {
-	        if (child.visited != true) {
-	            visited_leafs += drawTree(chid, layer + 1);
-	        }
-	    });
-	    if (node.children.length == 0) {
-	        visited_leafs++;
-	    }
-	    return visited_leafs;
-	}
-	
 	var _class = function () {
-	    // make hierarchy of nodes if input is with node edge (default)
-	    // only one root node supported for now
-	    // left-right tree by default, let user choose
-	    // top-down, bottom-top, right-left
-	    // hierarchical layouts for non-trees (cyclical graphs) should be
-	    // implemented separately
 	    function _class(nodes, edges) {
 	        _classCallCheck(this, _class);
 	
@@ -3143,32 +3124,146 @@
 	            var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 	
-	            // each node is vertically centered with respect to nodes
 	            root.centered = true;
-	            // branch order is for now stable but unpredictable for an unknown graph at the moment, see layouts.cri
+	            // branch order is for now stable but unpredictable, see layouts.cri
 	            var visited_leafs = 0;
 	            for (var i = 0; i < root.children.length; i++) {
 	                var child = root.children[i];
 	                if (child.centered != true) {
-	                    console.log("centering children");
 	                    visited_leafs += this.drawTreeCentered(child, visited_leafs + visited_leafs_parent, layer + 1);
 	                }
 	            }
 	            if (root.children == 0) {
 	                visited_leafs++;
 	            }
-	            // moving to parent, position node in the middle of all the
-	            // leafs found in all and from it
+	            // moving to parent, position node
 	            root.y = this.stepy * (visited_leafs_parent + (visited_leafs - 1) / 2) + this.alphay;
-	            root.vs = visited_leafs;
-	            root.vsp = visited_leafs_parent;
 	            root.x = (layer - 1) * this.stepx + this.alphax;
 	            return visited_leafs;
 	        }
 	    }, {
 	        key: "apply",
 	        value: function apply() {
-	            console.log("applying tree layout");
+	            // only one root node supported for now
+	            // left-right tree by default, let user choose
+	            // top-down, bottom-top, right-left in subsequent versions
+	            // hierarchical layouts for non-trees (cyclical graphs) should be
+	            // implemented separately for now
+	            var nodes = this._nodes;
+	            // make hierarchy, annotate parent(s) and children in the nodes
+	            nodes.forEach(function (n, i) {
+	                n.parents = [];
+	                n.children = [];
+	                n.centered = false;
+	            });
+	            this._edges.forEach(function (e, i) {
+	                e.source.children.push(e.target);
+	                e.target.parents.push(e.source);
+	            });
+	            // find the root
+	            for (var i = 0; i < nodes.length; i++) {
+	                if (nodes[i].parents.length == 0) {
+	                    var root = nodes[i];
+	                    break;
+	                }
+	            }
+	            var depth = getDepth(root);
+	            // each layer of tree x = [0+alpha,1-alpha]
+	            this.alphax = .05;
+	            this.stepx = (1 - 2 * this.alphax) / (depth - 1);
+	            // posx = alphax + stepx*(depth-1)
+	
+	            // find the number of leafs to distribute nodes vertically
+	            var leafs = 0;
+	            nodes.forEach(function (node) {
+	                if (node.children.length == 0) {
+	                    leafs++;
+	                }
+	            });
+	            // each leaf y = [0+alpha,1-alpha]
+	            this.alphay = .05;
+	            this.stepy = (1 - 2 * this.alphay) / (leafs - 1);
+	            // posy = alphay + stepy*(leafn-1)
+	
+	            this.drawTreeCentered(root);
+	        }
+	    }]);
+	
+	    return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	function getDepth(obj) {
+	    var depth = 0;
+	    if (obj.children) {
+	        obj.children.forEach(function (d) {
+	            var tmpDepth = getDepth(d);
+	            if (tmpDepth > depth) {
+	                depth = tmpDepth;
+	            }
+	        });
+	    }
+	    return 1 + depth;
+	}
+	
+	var _class = function () {
+	    function _class(nodes, edges) {
+	        _classCallCheck(this, _class);
+	
+	        this._nodes = nodes;
+	        this._edges = edges;
+	    }
+	
+	    _createClass(_class, [{
+	        key: "drawTreeTop",
+	        value: function drawTreeTop(root) {
+	            var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+	
+	            // each node is in vertically on the top of the stack of its leafs
+	            root.visited = true;
+	            root.x = this.alphax + this.stepx * (layer - 1);
+	            root.y = 1 - (this.alphay + this.stepy * visited_leafs_parent);
+	            // visit children until leafs
+	            var visited_leafs = 0;
+	            for (var i = 0; i < root.children.length; i++) {
+	                var child = root.children[i];
+	                if (child.centered != true) {
+	                    visited_leafs += this.drawTreeTop(child, visited_leafs + visited_leafs_parent, layer + 1);
+	                }
+	            }
+	            if (root.children.length == 0) {
+	                visited_leafs++;
+	            }
+	            return visited_leafs;
+	        }
+	    }, {
+	        key: "apply",
+	        value: function apply() {
 	            var nodes = this._nodes;
 	            // make hierarchy, annotate parent(s) and children in the nodes
 	            // this layout can be run on any graph actually
@@ -3214,8 +3309,7 @@
 	            // backtracking to go from leaf to parents
 	            // and decide if parent is visited (always in tree layout)
 	
-	            // drawTreeTop(root); // an option to be implemented
-	            this.drawTreeCentered(root);
+	            this.drawTreeTop(root);
 	            console.log(this._nodes);
 	        }
 	    }]);
@@ -3227,7 +3321,7 @@
 	;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -3327,7 +3421,7 @@
 	;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3338,11 +3432,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(17);
+	var _rbush = __webpack_require__(18);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(15);
+	var _geomutils = __webpack_require__(16);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -3352,7 +3446,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(18);
+	var _geomtools = __webpack_require__(19);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3920,7 +4014,7 @@
 	exports.default = spatialIndex;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -4553,7 +4647,7 @@
 	exports.default = rbush;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4563,11 +4657,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(17);
+	var _rbush = __webpack_require__(18);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(15);
+	var _geomutils = __webpack_require__(16);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -4865,7 +4959,7 @@
 	exports.neq = neq;
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4951,7 +5045,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5059,7 +5153,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5076,11 +5170,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(22);
+	var _default = __webpack_require__(23);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(23);
+	var _sdf = __webpack_require__(24);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -5152,7 +5246,7 @@
 	;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5296,7 +5390,7 @@
 	;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5307,15 +5401,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(24);
+	var _pbf = __webpack_require__(25);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(26);
+	var _atlas = __webpack_require__(27);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(28);
+	var _glyphs = __webpack_require__(29);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -5515,14 +5609,14 @@
 	;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(25);
+	var ieee754 = __webpack_require__(26);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -6139,7 +6233,7 @@
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6229,7 +6323,7 @@
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6240,7 +6334,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(27);
+	var _shelfPack = __webpack_require__(28);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -6444,7 +6538,7 @@
 	;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -6893,7 +6987,7 @@
 	}));
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -6925,7 +7019,7 @@
 	}
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -7011,7 +7105,7 @@
 	;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7022,7 +7116,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(15);
+	var _geomutils = __webpack_require__(16);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	

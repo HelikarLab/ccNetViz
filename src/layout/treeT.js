@@ -19,38 +19,37 @@ function getDepth(obj) {
     return 1 + depth
 }
 
+
 export default class {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
   }
 
-  drawTreeCentered(root, visited_leafs_parent=0, layer=1){
-      root.centered = true;
-      // branch order is for now stable but unpredictable, see layouts.cri
-      var visited_leafs = 0;
-      for (var i=0; i < root.children.length; i++){
-          var child = root.children[i];
-          if (child.centered != true){
-              visited_leafs += this.drawTreeCentered(child, visited_leafs+visited_leafs_parent, layer+1);
-          }
-      }
-      if (root.children == 0){
-          visited_leafs++;
-      }
-      // moving to parent, position node
-      root.y = this.stepy*(visited_leafs_parent+(visited_leafs-1)/2) + this.alphay;
-      root.x = (layer-1)*this.stepx + this.alphax;
-      return visited_leafs;
-  }
+  drawTreeTop(root, visited_leafs_parent=0, layer=1){
+    // each node is in vertically on the top of the stack of its leafs
+    root.visited = true;
+    root.x = this.alphax+this.stepx*(layer-1);
+    root.y = 1-(this.alphay+this.stepy*(visited_leafs_parent));
+    // visit children until leafs
+    var visited_leafs = 0;
+    for (var i=0; i < root.children.length; i++){
+       var child = root.children[i];
+       if (child.centered != true){
+         visited_leafs += this.drawTreeTop(child, visited_leafs+visited_leafs_parent, layer+1);
+       }
+    }
+    if(root.children.length == 0){
+        visited_leafs++;
+    }
+    return visited_leafs;
+}
   apply () {
-      // only one root node supported for now
-      // left-right tree by default, let user choose
-      // top-down, bottom-top, right-left in subsequent versions
-      // hierarchical layouts for non-trees (cyclical graphs) should be
-      // implemented separately for now
       var nodes = this._nodes;
       // make hierarchy, annotate parent(s) and children in the nodes
+      // this layout can be run on any graph actually
+      // for which the children might be selected e.g. for their degree
+      // draw can be decided on other measures, such as closeness centrality or clustering
       nodes.forEach(function(n,i){
           n.parents = [];
           n.children = [];
@@ -85,6 +84,13 @@ export default class {
       this.stepy = (1-2*this.alphay)/(leafs-1);
       // posy = alphay + stepy*(leafn-1)
 
-      this.drawTreeCentered(root);
+      // give nodes their positions
+      // plot each branch in depth first,
+      // increment y position for each leaf
+      // backtracking to go from leaf to parents
+      // and decide if parent is visited (always in tree layout)
+
+      this.drawTreeTop(root);
+      console.log(this._nodes);
   }
 };

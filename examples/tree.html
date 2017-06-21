@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ccNetViz tree layout example</title>
+  <title>ccNetViz tree layouts example</title>
   <style type="text/css">
     #body, canvas {
       width: 500px;
@@ -20,11 +20,12 @@
   <script src="../dist/ccNetViz.js"></script>
 </head>
 <body>
-  <h1>Tree layout example</h1>
+  <h1>Tree layouts example</h1>
   <div id='body'>
   </div>
   <div id='info' />
-    <select id='listExamples'></select>
+    graph: <select id='listExamples'></select>
+    layout: <select id='listLayouts'></select>
     <div id='report'>
       Nodes: <span id='nodesCnt'></span><br />
       Edges: <span id='edgesCnt'></span><br />
@@ -33,13 +34,17 @@
   </div>
   <script>
   
-    var examples = 'tree1.json,banana.json'.split(',');
+    var examples = 'tree1.json,tree2.json'.split(',');
     
     function init(){
       function onChange(e){
         var v = $(this).val();
         
         $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
+      }
+      function onChange2(e){
+        layout = $(this).val();
+        showGraph(adata);
       }
     
       //fill in graph names
@@ -51,6 +56,16 @@
       
       //init graph with currently selected data
       onChange.call(select);
+
+      //fill in layout names
+      var select2 = $("#listLayouts");
+      $.each(["tree", "tree2"], function(index,val){
+        select2.append($("<option />", {'value': val}).text(val));
+      });
+      select2.change(onChange2);
+      
+      //init graph with currently selected layout
+      onChange2.call(select2);
     };
 
     var graph;
@@ -71,7 +86,10 @@
 	  node: { label: { hideSize: 16 } },
 	  edge: { arrow: { texture: "images/arrow.png" } }
 	}});
-      graph.set(data.nodes, data.edges, "tree");
+      if (layout == null){
+          layout = "tree";
+      }
+      graph.set(data.nodes, data.edges, layout);
       console.log("antes do draw");
       graph.draw();
       console.log("depois do draw");

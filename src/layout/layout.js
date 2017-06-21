@@ -2,6 +2,7 @@ import layoutForce from './force' ;
 import layoutRandom from './random' ;
 import layoutCircular from './circular' ;
 import layoutTree from './tree' ;
+import layoutTreeT from './treeT' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -23,6 +24,9 @@ export default class {
   }
   static get tree(){
     return layoutTree;
+  }
+  static get tree2(){
+    return layoutTreeT;
   }
   
   static normalize (nodes, dim) {
