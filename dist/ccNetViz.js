@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(20);
+	var _textures = __webpack_require__(21);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(21);
+	var _files = __webpack_require__(22);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(22);
+	var _texts = __webpack_require__(23);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(30);
+	var _lazyEvents = __webpack_require__(31);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(31);
+	var _interactivityBatch = __webpack_require__(32);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(17);
+	var _spatialSearch = __webpack_require__(18);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -1684,7 +1684,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(16);
+	var _geomutils = __webpack_require__(17);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,7 +1694,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(17);
+	var _spatialSearch = __webpack_require__(18);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -2487,6 +2487,10 @@
 	
 	var _treeT2 = _interopRequireDefault(_treeT);
 	
+	var _hierarchical = __webpack_require__(16);
+	
+	var _hierarchical2 = _interopRequireDefault(_hierarchical);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2570,6 +2574,11 @@
 	    key: 'tree2',
 	    get: function get() {
 	      return _treeT2.default;
+	    }
+	  }, {
+	    key: 'hierarchical',
+	    get: function get() {
+	      return _hierarchical2.default;
 	    }
 	  }]);
 
@@ -3327,6 +3336,150 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	function getDepth(obj) {
+	    var depth = 0;
+	    if (obj.children) {
+	        obj.children.forEach(function (d) {
+	            var tmpDepth = getDepth(d);
+	            if (tmpDepth > depth) {
+	                depth = tmpDepth;
+	            }
+	        });
+	    }
+	    return 1 + depth;
+	}
+	
+	var _class = function () {
+	    // this layout should handle any digraph
+	    function _class(nodes, edges) {
+	        _classCallCheck(this, _class);
+	
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        this.alphay = 0.05; // y margin
+	        this.alphax = 0.05; // x margin
+	    }
+	
+	    _createClass(_class, [{
+	        key: "makeLayers",
+	        value: function makeLayers(nodes, layer) {
+	            var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	            for (var i = 0; i < nodes.length; ++i) {
+	                nodes[i].visited = true;
+	                nodes[i].layer = layer; // makes x afterwards
+	                // nodes[i].x = layer; // have to normalize afterwards
+	                nodes[i].y = this.alphay + i * stepy;
+	                // node.order = index; // important to order nodes by connection with previous layer
+	            }
+	            var next_layer = [];
+	            for (var i = 0; i < nodes.length; i++) {
+	                var neighbors = nodes[i].parents.concat(nodes[i].children);
+	                for (var j = 0; j < neighbors.length; j++) {
+	                    if (neighbors[j].visited == false && !next_layer.includes(neighbors[j])) {
+	                        next_layer.push(neighbors[j]);
+	                    }
+	                }
+	            }
+	            if (next_layer.length == 0) {
+	                return layer;
+	            } else {
+	                return this.makeLayers(next_layer, layer + 1);
+	            }
+	        }
+	    }, {
+	        key: "apply",
+	        value: function apply() {
+	            // left-right tree by default, let user choose
+	            // top-down, bottom-top, right-left in subsequent versions
+	            // hierarchical layouts for trees (acyclic graphs) are
+	            // implemented separately for now
+	            var nodes = this._nodes;
+	            nodes.forEach(function (n, i) {
+	                n.parents = [];
+	                n.children = [];
+	                n.visited = false;
+	            });
+	            this._edges.forEach(function (e, i) {
+	                e.source.children.push(e.target);
+	                e.target.parents.push(e.source);
+	            });
+	            // find the roots:
+	            // nodes defined by the user as roots OR
+	            // nodes with in-degree == 0 OR
+	            // nodes with greatest in-degree (or degree if undirected graph)
+	            var roots = [];
+	            for (var i = 0; i < nodes.length; i++) {
+	                if (nodes[i].isroot == true) {
+	                    // has to be on the json file of the graph
+	                    roots.push(nodes[i]);
+	                }
+	            }
+	            if (roots.length == 0) {
+	                for (var i = 0; i < nodes.length; i++) {
+	                    if (nodes[i].parents.length == 0) {
+	                        roots.push(nodes[i]);
+	                    }
+	                }
+	            }
+	            if (roots.length == 0) {
+	                // calculate max out-degree
+	                var max_outdegree = 0;
+	                nodes.forEach(function (node) {
+	                    if (node.children.length > max_outdegree) {
+	                        max_outdegree = node.children.length;
+	                    }
+	                });
+	                // choose vertices with greatest out-degree
+	                nodes.forEach(function (node) {
+	                    if (node.children.length == max_outdegree) {
+	                        roots.push(node);
+	                    }
+	                });
+	            }
+	            // number of layers and max number of nodes in each layer
+	            // has to be found by making the layout
+	            // there are two approaches to finding the nodes in each layer:
+	            // 1) each layer has all the neighbors of the nodes in the previous layer
+	            // 2) follow links and then place non visited nodes on the layer of neighbors OR
+	            // this layout implements the first of these approaches.
+	            var depth = this.makeLayers(roots, 1);
+	            // each layer of tree x = [0+alpha,1-alpha]
+	            var stepx = (1 - 2 * this.alphax) / (depth - 1);
+	            // posx = alphax + stepx*(depth-1)
+	            for (var i = 0; i < this._nodes.length; ++i) {
+	                this._nodes[i].x = this.alphax + stepx * (this._nodes[i].layer - 1);
+	            }
+	        }
+	    }]);
+	
+	    return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	
@@ -3421,7 +3574,7 @@
 	;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3432,11 +3585,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(18);
+	var _rbush = __webpack_require__(19);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(16);
+	var _geomutils = __webpack_require__(17);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -3446,7 +3599,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(19);
+	var _geomtools = __webpack_require__(20);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -4014,7 +4167,7 @@
 	exports.default = spatialIndex;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -4647,7 +4800,7 @@
 	exports.default = rbush;
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4657,11 +4810,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(18);
+	var _rbush = __webpack_require__(19);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(16);
+	var _geomutils = __webpack_require__(17);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -4959,7 +5112,7 @@
 	exports.neq = neq;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5045,7 +5198,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5153,7 +5306,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5170,11 +5323,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(23);
+	var _default = __webpack_require__(24);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(24);
+	var _sdf = __webpack_require__(25);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -5246,7 +5399,7 @@
 	;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5390,7 +5543,7 @@
 	;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5401,15 +5554,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(25);
+	var _pbf = __webpack_require__(26);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(27);
+	var _atlas = __webpack_require__(28);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(29);
+	var _glyphs = __webpack_require__(30);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -5609,14 +5762,14 @@
 	;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(26);
+	var ieee754 = __webpack_require__(27);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -6233,7 +6386,7 @@
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6323,7 +6476,7 @@
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6334,7 +6487,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(28);
+	var _shelfPack = __webpack_require__(29);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -6538,7 +6691,7 @@
 	;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -6987,7 +7140,7 @@
 	}));
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -7019,7 +7172,7 @@
 	}
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -7105,7 +7258,7 @@
 	;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7116,7 +7269,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(16);
+	var _geomutils = __webpack_require__(17);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
