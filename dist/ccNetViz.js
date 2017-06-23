@@ -3378,13 +3378,17 @@
 	    _createClass(_class, [{
 	        key: "makeLayers",
 	        value: function makeLayers(nodes, layer) {
-	            var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
-	            for (var i = 0; i < nodes.length; ++i) {
-	                nodes[i].visited = true;
-	                nodes[i].layer = layer; // makes x afterwards
-	                // nodes[i].x = layer; // have to normalize afterwards
-	                nodes[i].y = this.alphay + i * stepy;
-	                // node.order = index; // important to order nodes by connection with previous layer
+	            if (nodes.length > 1) {
+	                var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	                for (var i = 0; i < nodes.length; ++i) {
+	                    nodes[i].visited = true;
+	                    nodes[i].layer = layer; // makes x afterwards
+	                    nodes[i].y = this.alphay + i * stepy;
+	                }
+	            } else {
+	                nodes[0].visited = true;
+	                nodes[0].layer = layer; // makes x afterwards
+	                nodes[0].y = 0.5;
 	            }
 	            var next_layer = [];
 	            for (var i = 0; i < nodes.length; i++) {
