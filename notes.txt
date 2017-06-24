@@ -1,3 +1,7 @@
+contemplar demais componentes nos layouts hierarquicos
+contemplar vertices solitários
+===========
+
 can ccNetViz handle undirected graphs or are all edges directed by default?
 do the tree layouts really take long? (100ms < time < 150ms)
 
