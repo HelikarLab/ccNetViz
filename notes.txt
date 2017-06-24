@@ -1,5 +1,8 @@
 contemplar demais componentes nos layouts hierarquicos
 contemplar vertices solitários
+consistent use of let and var (code review by ales)
+how to optimize loops? Use always for loops (not forEach) and let?
+make initial phase 1 evaluation
 ===========
 
 can ccNetViz handle undirected graphs or are all edges directed by default?

@@ -4,6 +4,7 @@ import layoutCircular from './circular' ;
 import layoutTree from './tree' ;
 import layoutTreeT from './treeT' ;
 import layoutHierarchical from './hierarchical' ;
+import layoutHierarchical2 from './hierarchical2' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -31,6 +32,9 @@ export default class {
   }
   static get hierarchical(){
     return layoutHierarchical;
+  }
+  static get hierarchical2(){
+    return layoutHierarchical2;
   }
   
   static normalize (nodes, dim) {
