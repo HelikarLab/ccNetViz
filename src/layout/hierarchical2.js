@@ -22,12 +22,12 @@ function getDepth(obj) {
 function isOrphan(node){
     var orphan = true;
     for (let i=0; i<node.parents.length; ++i){
-        parent_ = node.parents[i];
+        var parent_ = node.parents[i];
         if (parent_ != node)
             orphan = false;
     }
     for (let i=0; i<node.children.length; ++i){
-        child = node.parents[i];
+        var child = node.parents[i];
         if (child != node)
             orphan = false;
     }
@@ -41,7 +41,8 @@ export default class {
     this._edges = edges;
     this.alphay = 0.05; // y margin
     this.alphax = 0.05; // x margin
-    this.components = {"current_component": 0};
+    this.components = {"current_component": 0, "depth": 0};
+    this.unvisited = nodes;
   }
   
   initHierarchy(){
@@ -66,7 +67,7 @@ export default class {
           else
               nodes.push(node);
       }
-      return [orphans, nodes];
+      return orphans;
   }
   findRoots(nodes){
       // find the roots:
@@ -101,6 +102,7 @@ export default class {
               }
           });
       }
+      return roots;
   }
 
   placeOrphans(nodes, max_layer){
@@ -115,24 +117,26 @@ export default class {
           return max_layer;
   }
 
-  nonVisitedNodes(){
+  unvisitedNodes(){
       var nodes = [];
-      this._nodes.forEach(function(node){
-          if (node.visited == false)
+      var orphans = this.orphans;
+      this.unvisited.forEach(function(node){
+          if (node.visited == false && !(node in orphans))
               nodes.push(node);
       });
-      return nodes;
+      if (nodes.length != this.unvisited){
+          this.maybe_more = true;
+          this.unvisited = nodes;
+      } else this.maybe_more = false;
   }
 
   placeAdditional(){
       // place non-visited nodes in between layers
-
-      // find non visited nodes
-      var nodes = this.nonVisitedNodes;
       var aux_layers = {};
-      var c = this.components[this.current_component];
-      for (let i=0; i<nodes.length; ++i){
-          var node = nodes[i];
+      var c = this.components[this.components.current_component];
+      var layers = c.layers;
+      for (let i=0; i<this.unvisited.length; ++i){
+          var node = this.unvisited[i];
           var lowest_layer = this.components.depth;
           var child_found = false;
           for(let j=0; j<node.children.length; ++j){
@@ -142,14 +146,15 @@ export default class {
                   if(child.layer <= lowest_layer){ // child has to be visited to have a layer
                       lowest_layer = child.layer;
                   }
+                  break;
               }
           }
           if (child_found){
               node.visited = true;
-              node.x = lowest_layer-sep;
-              if ( !((lowest_layer-sep) in aux_layers))
-                  aux_layers[lowest_layer-sep] = []
-              aux_layers[lowest_layer-sep].push(node)
+              // node.index = lowest_layer-sep;
+              if ( !((lowest_layer-sep) in layers))
+                  layers[lowest_layer-sep] = []
+              layers[lowest_layer-sep].push(node)
           }
           else {
               var lowest_layer = max_layer;
@@ -166,32 +171,10 @@ export default class {
               if (parent_found){
                   node.visited = true;
                   node.x = lowest_layer+sep;
-                  if ( !((lowest_layer+sep) in aux_layers) )
-                      aux_layers[lowest_layer+sep] = []
-                  aux_layers[lowest_layer+sep].push(node)
+                  if ( !((lowest_layer+sep) in layers) )
+                      layers[lowest_layer+sep] = []
+                  layers[lowest_layer+sep].push(node)
               }
-          }
-      }
-      var positioned_nodes = [];
-      for (var key in aux_layers){
-          var layer = aux_layers[key];
-          // var stepy = (1 - 2*this.alphay)/(layer.length-1);
-          for (let i=0; i<layer.length; ++i){
-              layer[i].index = i + index_offset;
-              positioned_nodes.push(layer[i]);
-          }
-      }
-      var remaining_nodes = [];
-      for (let i=0; i<nodes.length; ++i){
-          if (positioned_nodes.indexOf(nodes[i]) == -1)
-              remaining_nodes.push(nodes[i]);
-      }
-      if (remaining_nodes.length > 0){
-          if (remaining_nodes.length < nodes.length){
-              this.placeNew(remaining_nodes, max_layer, sep*.4);
-          } else { // new component
-              var roots = this.findRoots(remaining_nodes);
-              makeLayers(roots, 1, 0, index_offset);
           }
       }
   }
@@ -204,19 +187,20 @@ export default class {
       else
           this.components[component].index_offset = 0;
       this.components[component].current_layer = 1;
-      this.components[component].layers = {"nodes": [], "layer_value": 1};
+      //this.components[component].layers = {"nodes": [], "layer_value": 1};
+      this.components[component].layers = {};
   }
 
   layerNodes(nodes){
-      if (!(this.current_component in this.components))
-          this.initializeComponent(component);
-      var c = this.components[component];
+      if (!(this.components.current_component in this.components))
+          this.initializeComponent(this.components.current_component);
+      var c = this.components[this.components.current_component];
       if (nodes.length > c.max_nodes_layer)
           c.max_nodes_layer = nodes.length;
-      c.layers[c.current_layer].layer_value = c.current_layer;
+      c.layers[c.current_layer] = [];
       for (let i=0; i<nodes.length; ++i){
           nodes[i].visited = true;
-          c.layers[c.current_layer].nodes.push(node);
+          c.layers[c.current_layer].push(nodes[i]);
       }
       var next_layer = [];
       for (let i=0; i<nodes.length; i++){
@@ -229,7 +213,9 @@ export default class {
       }
       if (next_layer.length > 0){
           c.current_layer++;
-          this.makeLayers(next_layer);
+          if (this.components.depth<c.current_layer)
+              this.components.depth = c.current_layer;
+          this.layerNodes(next_layer);
       }
   }
 
@@ -247,21 +233,24 @@ export default class {
       // this layout implements the second of these approaches.
 
       this.initHierarchy();
-      var [orphans, nodes] = separateOrphanNodes();
-      while (nodes.length > 0){
-          let roots = this.findRoots(nodes);
-          nodes = this.layerNodes(roots);
-          this.placeAdditional(); // place additional nodes linked to this component
+      this.orphans = this.separateOrphans();
+      this.unvisitedNodes();
+      while (this.unvisited.length > 0){
+          let roots = this.findRoots(this.unvisited);
+          this.layerNodes(roots);
+          this.unvisitedNodes(); // update unvisited nodes
+          this.maybe_mode = true;
+          while (this.maybe_more){
+              this.placeAdditional(); // place additional nodes linked to this component
+              this.unvisitedNodes(); // update unvisited nodes
+          }
           this.components.current_component++;
       }
-      this.placeOrphans(orphans);
 
       // layerNodes should populate the dictionary this.components of components and aux variables:
       // components[x] is a component, x is an integer
       // components[x].vertical_nodes is the maximum number of nodes in a layer for the component
-      // components[x].layer[j] is the j-th layer on the component
-      // components[x].layer[j].nodes is the nodes in the layer on the component
-      // components[x].layer[j].layer_value the layer value, necessary because we have fractional layers
+      // components[x].layer[j] is the j-th layer on the component, j can be fractional
       // components[x].index_offset is the number of nodes positioned in above components
       // components.ncomponents is the number of components
       // components.vertical_nodes is the sum of the max nodes in any layer of each component
@@ -270,26 +259,23 @@ export default class {
       // each layer of tree xy = [0+alpha,1-alpha]
       var stepx = (1-2*this.alphax)/(this.components.depth-1);
       var stepy = (1-2*this.alphay)/(this.components.vertical_nodes-1);
-      for (let i=0; i<this.components.ncomponents; ++i){
+      for (var i=0; i<this.components.current_component; i++){
           var component = this.components[i];
-          for (let j=0; j<component.layers.length; ++j){
-              var layer = component.layers[j];
+          for (var layer_val in component.layers){
+              var layer = component.layers[layer_val];
               if (layer.length == 1){
                   var node = layer[0];
-                  node.x = this.alphax + stepx*j;
-                  node.y = this.alphay + stepx*(component.index_offset + component.vertical_nodes/2);
+                  node.x = this.alphax + stepx*layer_val;
+                  node.y = this.alphay + stepy*(component.index_offset + component.vertical_nodes/2);
               } else {
                   for (let k=0; k<layer.length; ++k){
                       var node = layer[k];
-                      node.x = this.alphax + stepx*j;
-                      node.y = this.alphay + stepx*(component.index_offset + k);
+                      node.x = this.alphax + stepx*layer_val;
+                      node.y = this.alphay + stepy*(component.index_offset + k);
                   }
               }
           }
       }
-      // for (var i=0; i<this._nodes.length; ++i){
-      //     this._nodes[i].x = this.alphax + stepx*(this._nodes[i].layer - 1);
-      //     this._nodes[i].y = this.alphay + stepy*(this._nodes[i].index - 1);
-      // }
+      this.placeOrphans(this.orphans);
   }
 };
