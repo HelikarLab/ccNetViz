@@ -41,7 +41,7 @@ export default class {
     this._edges = edges;
     this.alphay = 0.05; // y margin
     this.alphax = 0.05; // x margin
-    this.components = {"current_component": 0, "depth": 0};
+    this.components = {"current_component": 0, "depth": 1};
     this.unvisited = nodes;
   }
   
@@ -189,14 +189,15 @@ export default class {
       this.components[component].current_layer = 1;
       //this.components[component].layers = {"nodes": [], "layer_value": 1};
       this.components[component].layers = {};
+      this.components[component].vertical_nodes = 0;
   }
 
   layerNodes(nodes){
       if (!(this.components.current_component in this.components))
           this.initializeComponent(this.components.current_component);
       var c = this.components[this.components.current_component];
-      if (nodes.length > c.max_nodes_layer)
-          c.max_nodes_layer = nodes.length;
+      if (nodes.length > c.vertical_nodes)
+          c.vertical_nodes = nodes.length;
       c.layers[c.current_layer] = [];
       for (let i=0; i<nodes.length; ++i){
           nodes[i].visited = true;
@@ -246,6 +247,10 @@ export default class {
           }
           this.components.current_component++;
       }
+      this.components.vertical_nodes = 0;
+      for (var i=0; i<this.components.current_component; i++){
+          this.components.vertical_nodes += this.components[i].vertical_nodes;
+      }
 
       // layerNodes should populate the dictionary this.components of components and aux variables:
       // components[x] is a component, x is an integer
@@ -257,8 +262,8 @@ export default class {
       // components.depth is the maximum number of layers
 
       // each layer of tree xy = [0+alpha,1-alpha]
-      var stepx = (1-2*this.alphax)/(this.components.depth-1);
-      var stepy = (1-2*this.alphay)/(this.components.vertical_nodes-1);
+      var stepx = (1-2*this.alphax)/(this.components.depth);
+      var stepy = (1-2*this.alphay)/(this.components.vertical_nodes);
       for (var i=0; i<this.components.current_component; i++){
           var component = this.components[i];
           for (var layer_val in component.layers){
