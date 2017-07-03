@@ -3834,6 +3834,29 @@
 	    });
 	}
 	
+	function twoGreatest(arr) {
+	    var max = Math.max.apply(null, arr),
+	        // get the max of the array
+	    maxi = arr.indexOf(max);
+	    arr[maxi] = -Infinity; // replace max in the array with -infinity
+	    var second_max = Math.max.apply(null, arr),
+	        // get the new max 
+	    second_maxi = arr.indexOf(second_max);
+	    return [maxi, second_maxi];
+	}
+	
+	function normalize(x, y) {
+	    var maxx = Math.max.apply(null, x.map(Math.abs)) * 1.3,
+	        maxy = Math.max.apply(null, y.map(Math.abs)) * 1.3;
+	    var minx = Math.min.apply(null, x),
+	        miny = Math.min.apply(null, y);
+	    for (var i = 0; i < x.length; ++i) {
+	        x[i] = (x[i] - minx) / maxx;
+	        y[i] = (y[i] - miny) / maxy;
+	    }
+	    return [x, y];
+	}
+	
 	var _class = function () {
 	    // get degree of all nodes
 	    // let user define at least: starting angle and radius and
@@ -3857,14 +3880,33 @@
 	        value: function apply() {
 	            var A = create2dArray(this._nodes.length, this._nodes.length);
 	            // build the adjacency matrix
+	            for (var i = 0; i < this._edges.length; ++i) {
+	                var _ii = this._edges[i].source.index;
+	                var j = this._edges[i].target.index;
+	                A[_ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
+	            }
 	            // build the diagonal of degrees
 	            // subtract adjacency from degrees
+	            for (var _i = 0; _i < this._nodes.length; ++_i) {
+	                A[_i][_i] -= A[_i].reduce(function (a, b) {
+	                    return a + b;
+	                }, 0);
+	            }
+	            var eig = _numeric2.default.eig(A);
 	            // use eigenvectors with greatest values for x,y
+	            var ii = twoGreatest(eig.lambda.abs().x);
+	            // var x = eig.E.transpose().x[ii[0]];
+	            // var y = eig.E.transpose().x[ii[1]];
+	            // or
+	            var eigv = eig.E.transpose().x;
+	            var x = eigv[ii[0]];
+	            var y = eigv[ii[1]];
+	            var xy = normalize(x, y);
 	            // recipe from http://www.sfu.ca/personal/archives/richards/Pages/NAS.AJS-WDR.pdf
 	            // and implemented in networkx/drawing/layout.py
 	            this._nodes.forEach(function (node, i) {
-	                nodes[node.index].x = .5;
-	                nodes[node.index].y = .5;
+	                node.x = xy[0][i];
+	                node.y = xy[1][i];
 	            });
 	            console.log(this._nodes);
 	        }
