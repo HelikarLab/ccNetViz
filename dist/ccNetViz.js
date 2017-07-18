@@ -3844,24 +3844,34 @@
 	}
 	
 	function twoGreatest(arr) {
-	    var max = Math.max.apply(null, arr),
+	    // var max = Math.max.apply(null, arr), // get the max of the array
+	    //     maxi = arr.indexOf(max);
+	    // arr[maxi] = -Infinity; // replace max in the array with -infinity
+	    // var second_max = Math.max.apply(null, arr), // get the new max 
+	    //     second_maxi = arr.indexOf(second_max);
+	    var max = Math.min.apply(null, arr),
 	        // get the max of the array
 	    maxi = arr.indexOf(max);
-	    arr[maxi] = -Infinity; // replace max in the array with -infinity
-	    var second_max = Math.max.apply(null, arr),
+	    arr[maxi] = Infinity; // replace max in the array with -infinity
+	    var second_max = Math.min.apply(null, arr),
 	        // get the new max 
 	    second_maxi = arr.indexOf(second_max);
-	    return [maxi, second_maxi];
+	    arr[second_maxi] = Infinity; // replace max in the array with -infinity
+	    var third_max = Math.min.apply(null, arr),
+	        // get the new max 
+	    third_maxi = arr.indexOf(third_max);
+	    // return [maxi, second_maxi];
+	    return [second_maxi, third_maxi];
 	}
 	
 	function normalize(x, y) {
-	    var maxx = Math.max.apply(null, x.map(Math.abs)) * 1.3,
-	        maxy = Math.max.apply(null, y.map(Math.abs)) * 1.3;
+	    var maxx = Math.max.apply(null, x.map(Math.abs)),
+	        maxy = Math.max.apply(null, y.map(Math.abs));
 	    var minx = Math.min.apply(null, x),
 	        miny = Math.min.apply(null, y);
 	    for (var i = 0; i < x.length; ++i) {
-	        x[i] = (x[i] - minx) / maxx;
-	        y[i] = (y[i] - miny) / maxy;
+	        x[i] = 0.1 + (x[i] - minx) / ((maxx - minx) * 1.25);
+	        y[i] = 0.1 + (y[i] - miny) / ((maxy - miny) * 1.25);
 	    }
 	    return [x, y];
 	}
@@ -3892,13 +3902,14 @@
 	            for (var i = 0; i < this._edges.length; ++i) {
 	                var _ii = this._edges[i].source.index;
 	                var j = this._edges[i].target.index;
-	                A[_ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
+	                A[_ii][j] = -1; // not considering edge weight for now (the example json files don't have weight)
+	                A[j][_ii] = -1; // not considering edge weight for now (the example json files don't have weight)
 	            }
 	            // build the diagonal of degrees
 	            // NOT subtract adjacency from degrees but:
 	            // substitute diagonal by degrees
 	            for (var _i = 0; _i < this._nodes.length; ++_i) {
-	                A[_i][_i] = A[_i].reduce(function (a, b) {
+	                A[_i][_i] = -A[_i].reduce(function (a, b) {
 	                    return a + b;
 	                }, 0);
 	            }

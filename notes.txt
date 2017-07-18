@@ -1,5 +1,21 @@
 dar conta dos casos em que o cálculo dos eigens não convege.
 implement spectral layouts that use the edge weights
+I summed 1 to the degrees to avoid division by zero (and handle disconnected graphs).
+I don't know the consequences for the algorithm, and I don't know if we would be better
+if we summed another values (such as 0.0001),
+but the algorithm is giving nice results in reasonable time.
+
+The spectral.js is working fine!
+It gives us the exact result as networkX.
+There are still 2 problems with it (on the calculation of eigen(values/vectors):
+1) It takes a long time to compute.
+Sometimes very long time! (try graph-1000-2.json for example)
+2) It raises error for Glucose.json (does not converge).
+(I did not find any other graph on data/* for which it
+raises an error).
+The networkx implementation uses numpy eig function,
+which is way faster and more robust in the sense
+that is can handle more matrices.
 
 ================
 
