@@ -7,6 +7,7 @@ import layoutHierarchical from './hierarchical' ;
 import layoutHierarchical2 from './hierarchical2' ;
 import layoutSpectral from './spectral' ;
 import layoutSpectral2 from './spectral2' ;
+import layoutHive from './hive' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -43,6 +44,9 @@ export default class {
   }
   static get spectral2(){
     return layoutSpectral2;
+  }
+  static get hive(){
+    return layoutHive;
   }
   
   static normalize (nodes, dim) {

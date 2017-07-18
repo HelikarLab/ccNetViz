@@ -17,6 +17,19 @@ The networkx implementation uses numpy eig function,
 which is way faster and more robust in the sense
 that is can handle more matrices.
 
+I am not being able to find an algorithm
+to find the eigenvectors which I can implement.
+It can be an approximation.
+We only need the two eigenvectors associated
+with the two lowest non-zero eigenvalues.
+One last resort that comes to mind it to implement
+it in python in algorithmia.com and call it on the
+ccNetViz as an AAS (Algorithm as a Service).
+
+I can dedicate some days to this,
+but ask for help first.
+Maybe you find some algorithm or library or have some other idea.
+
 ================
 
 contemplar demais componentes nos layouts hierarquicos

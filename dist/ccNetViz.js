@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(25);
+	var _textures = __webpack_require__(26);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(26);
+	var _files = __webpack_require__(27);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(27);
+	var _texts = __webpack_require__(28);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(35);
+	var _lazyEvents = __webpack_require__(36);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(36);
+	var _interactivityBatch = __webpack_require__(37);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(22);
+	var _spatialSearch = __webpack_require__(23);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -1684,7 +1684,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(21);
+	var _geomutils = __webpack_require__(22);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,7 +1694,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(22);
+	var _spatialSearch = __webpack_require__(23);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -2503,6 +2503,10 @@
 	
 	var _spectral4 = _interopRequireDefault(_spectral3);
 	
+	var _hive = __webpack_require__(21);
+	
+	var _hive2 = _interopRequireDefault(_hive);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2606,6 +2610,11 @@
 	    key: 'spectral2',
 	    get: function get() {
 	      return _spectral4.default;
+	    }
+	  }, {
+	    key: 'hive',
+	    get: function get() {
+	      return _hive2.default;
 	    }
 	  }]);
 
@@ -3843,25 +3852,25 @@
 	    });
 	}
 	
-	function twoGreatest(arr) {
+	function twoSmallest(arr) {
 	    // var max = Math.max.apply(null, arr), // get the max of the array
 	    //     maxi = arr.indexOf(max);
 	    // arr[maxi] = -Infinity; // replace max in the array with -infinity
 	    // var second_max = Math.max.apply(null, arr), // get the new max 
 	    //     second_maxi = arr.indexOf(second_max);
-	    var max = Math.min.apply(null, arr),
+	    var min = Math.min.apply(null, arr),
 	        // get the max of the array
-	    maxi = arr.indexOf(max);
-	    arr[maxi] = Infinity; // replace max in the array with -infinity
-	    var second_max = Math.min.apply(null, arr),
+	    mini = arr.indexOf(min);
+	    arr[mini] = Infinity; // replace max in the array with -infinity
+	    var second_min = Math.min.apply(null, arr),
 	        // get the new max 
-	    second_maxi = arr.indexOf(second_max);
-	    arr[second_maxi] = Infinity; // replace max in the array with -infinity
-	    var third_max = Math.min.apply(null, arr),
+	    second_mini = arr.indexOf(second_min);
+	    arr[second_mini] = Infinity; // replace max in the array with -infinity
+	    var third_min = Math.min.apply(null, arr),
 	        // get the new max 
-	    third_maxi = arr.indexOf(third_max);
+	    third_mini = arr.indexOf(third_min);
 	    // return [maxi, second_maxi];
-	    return [second_maxi, third_maxi];
+	    return [second_mini, third_mini];
 	}
 	
 	function normalize(x, y) {
@@ -3915,7 +3924,7 @@
 	            }
 	            var eig = _numeric2.default.eig(A);
 	            // use eigenvectors with greatest values for x,y
-	            var ii = twoGreatest(eig.lambda.abs().x);
+	            var ii = twoSmallest(eig.lambda.abs().x);
 	            // var x = eig.E.transpose().x[ii[0]];
 	            // var y = eig.E.transpose().x[ii[1]];
 	            // or
@@ -8613,6 +8622,86 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	function degrees(nodes, edges) {
+	    // should return ordered nodes and their degrees - high to low
+	    var degrees = Array(nodes.length).fill(0);
+	    edges.forEach(function (e) {
+	        degrees[e.source.index] += 1;
+	        degrees[e.target.index] += 1;
+	    }); // check to see if not getting double of the degree in undirected graphs
+	    //getting the order of nodes from highest to lowest degrees
+	    var ordered_nodes = degrees.map(function (el, i) {
+	        return { index: i, value: el };
+	    });
+	    ordered_nodes.sort(function (a, b) {
+	        return +(a.value < b.value) || +(a.value === b.value) - 1;
+	    });
+	    var ordered_degrees = ordered_nodes.map(function (el) {
+	        return degrees[el.index];
+	    });
+	    return { nodes: ordered_nodes,
+	        degrees: ordered_degrees };
+	}
+	
+	var _class = function () {
+	    // get degree of all nodes
+	    function _class(nodes, edges) {
+	        _classCallCheck(this, _class);
+	
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        this._margin = 0.05; // from [0,1] borders
+	        this._radius = 0.05; // of the empty circle on the center
+	        this._nlines = 5;
+	    }
+	
+	    _createClass(_class, [{
+	        key: "apply",
+	        value: function apply() {
+	            var nd = degrees(this._nodes, this._edges);
+	
+	            var nodes_segment = this._nodes.length / this._nlines;
+	            var segment = 0.5 - (this._margin + this._radius);
+	            var step = segment / nodes_segment;
+	            var angle = 2 * Math.PI / this._nlines;
+	            var j = 0;
+	            for (var i = 0; i < this._nodes.length; ++i) {
+	                var ii = nd.nodes[i].index;
+	                this._nodes[ii].x = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.cos(angle * j);
+	                this._nodes[ii].y = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.sin(angle * j);
+	                j = Math.floor(i / nodes_segment);
+	            }
+	        }
+	    }]);
+	
+	    return _class;
+	}();
+	
+	exports.default = _class;
+	;
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	
@@ -8707,7 +8796,7 @@
 	;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8718,11 +8807,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(23);
+	var _rbush = __webpack_require__(24);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(21);
+	var _geomutils = __webpack_require__(22);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -8732,7 +8821,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(24);
+	var _geomtools = __webpack_require__(25);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -9300,7 +9389,7 @@
 	exports.default = spatialIndex;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -9933,7 +10022,7 @@
 	exports.default = rbush;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9943,11 +10032,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(23);
+	var _rbush = __webpack_require__(24);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(21);
+	var _geomutils = __webpack_require__(22);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -10245,7 +10334,7 @@
 	exports.neq = neq;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10331,7 +10420,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10439,7 +10528,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10456,11 +10545,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(28);
+	var _default = __webpack_require__(29);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(29);
+	var _sdf = __webpack_require__(30);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -10532,7 +10621,7 @@
 	;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -10676,7 +10765,7 @@
 	;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10687,15 +10776,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(30);
+	var _pbf = __webpack_require__(31);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(32);
+	var _atlas = __webpack_require__(33);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(34);
+	var _glyphs = __webpack_require__(35);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -10895,14 +10984,14 @@
 	;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(31);
+	var ieee754 = __webpack_require__(32);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -11519,7 +11608,7 @@
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -11609,7 +11698,7 @@
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11620,7 +11709,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(33);
+	var _shelfPack = __webpack_require__(34);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -11824,7 +11913,7 @@
 	;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -12273,7 +12362,7 @@
 	}));
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -12305,7 +12394,7 @@
 	}
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -12391,7 +12480,7 @@
 	;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12402,7 +12491,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(21);
+	var _geomutils = __webpack_require__(22);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
