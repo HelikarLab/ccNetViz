@@ -57,9 +57,10 @@ export default class {
           A[ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
       }
       // build the diagonal of degrees
-      // subtract adjacency from degrees
+      // NOT subtract adjacency from degrees but:
+      // substitute diagonal by degrees
       for (let i=0; i<this._nodes.length; ++i){
-          A[i][i] -= A[i].reduce((a, b) => a+b, 0);
+          A[i][i] = A[i].reduce((a, b) => a+b, 0);
       }
       var eig = numeric.eig(A);
       // use eigenvectors with greatest values for x,y

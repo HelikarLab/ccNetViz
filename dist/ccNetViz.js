@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(24);
+	var _textures = __webpack_require__(25);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(25);
+	var _files = __webpack_require__(26);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(26);
+	var _texts = __webpack_require__(27);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(34);
+	var _lazyEvents = __webpack_require__(35);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(35);
+	var _interactivityBatch = __webpack_require__(36);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(21);
+	var _spatialSearch = __webpack_require__(22);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -1684,7 +1684,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(20);
+	var _geomutils = __webpack_require__(21);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,7 +1694,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(21);
+	var _spatialSearch = __webpack_require__(22);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -2499,6 +2499,10 @@
 	
 	var _spectral2 = _interopRequireDefault(_spectral);
 	
+	var _spectral3 = __webpack_require__(20);
+	
+	var _spectral4 = _interopRequireDefault(_spectral3);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2597,6 +2601,11 @@
 	    key: 'spectral',
 	    get: function get() {
 	      return _spectral2.default;
+	    }
+	  }, {
+	    key: 'spectral2',
+	    get: function get() {
+	      return _spectral4.default;
 	    }
 	  }]);
 
@@ -3886,9 +3895,10 @@
 	                A[_ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
 	            }
 	            // build the diagonal of degrees
-	            // subtract adjacency from degrees
+	            // NOT subtract adjacency from degrees but:
+	            // substitute diagonal by degrees
 	            for (var _i = 0; _i < this._nodes.length; ++_i) {
-	                A[_i][_i] -= A[_i].reduce(function (a, b) {
+	                A[_i][_i] = A[_i].reduce(function (a, b) {
 	                    return a + b;
 	                }, 0);
 	            }
@@ -8356,6 +8366,242 @@
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	// inspired in Matlab implementation
+	// and JS transcription in
+	// https://github.com/alanmeeson/spectral-graph-layout
+	
+	function create2dArray(rows, columns) {
+	    return [].concat(_toConsumableArray(Array(rows).keys())).map(function (i) {
+	        return Array(columns).fill(0);
+	    });
+	}
+	
+	var _class = function () {
+	    function _class(nodes, edges) {
+	        _classCallCheck(this, _class);
+	
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        this._epsilon = 1e-8; // tolerance
+	        this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
+	        this._num_elements = nodes.length; //number of nodes in graph
+	        this._dims = 2;
+	    }
+	
+	    _createClass(_class, [{
+	        key: "apply",
+	        value: function apply() {
+	            var A = create2dArray(this._nodes.length, this._nodes.length);
+	            // build the adjacency matrix
+	            for (var _i = 0; _i < this._edges.length; ++_i) {
+	                var ii = this._edges[_i].source.index;
+	                var j = this._edges[_i].target.index;
+	                A[ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
+	            }
+	            var D = deg(A); //degree of each node in graph (number of connections).
+	
+	            var dims = this._dims + 1; //add one to the dims to allow for the first eigen vector
+	            var u = new Array(dims); //declare the eigen vector matrix
+	            u[0] = normalize(ones(this._num_elements)); //create & normalize the first eigen vector
+	            for (var i = 1; i < dims; i++) {
+	                u[i] = zeros(this._num_elements);
+	            } //create empty space for the other eigen vectors
+	
+	            //Power iteration to determine the remaining eigen vectors.
+	            for (var k = 1; k < dims; k++) {
+	                //for each eigen vector after the first, 
+	                //initialize eigen vector with random values
+	                var uhk = normalize(rand(this._num_elements));
+	
+	                var itt_count = 0; //we are allowing a max of 100 iterations, to avoid hanging and infinite loops. (specified above in constants)
+	                var stop = false; //stopping criterion flag.
+	                while (!stop) {
+	                    // do...while using flags to keep it consistent with my matlab implementation
+	
+	                    //D-orthogonalize against previous eigenvectors
+	                    var uk = uhk.slice();
+	                    for (var l = 0; l < k; l++) {
+	                        var ul = u[l]; //extract the l-th eigen vector
+	
+	                        //Calculate (uk'.D.ul)/(ul'.D.ul)
+	                        var top_ = 0;
+	                        var bottom = 0;
+	                        for (var vmi = 0; vmi < uk.length; vmi++) {
+	                            top_ += uk[vmi] * D[vmi] * ul[vmi];
+	                            bottom += ul[vmi] * D[vmi] * ul[vmi];
+	                        }
+	                        var ratio = top_ / bottom;
+	
+	                        //uk = uk - ((uk' . D . ul) / (ul' . D ul)) . ul
+	                        for (var vsi = 0; vsi < uk.length; vsi++) {
+	                            uk[vsi] = uk[vsi] - ratio * ul[vsi];
+	                        }
+	                    }
+	
+	                    //multiply with .5(I+D^-1 A)
+	                    for (var i = 0; i < uhk.length; i++) {
+	                        uhk[i] = 0.5 * (uk[i] + dot(A[i], uk) / D[i]);
+	                    }
+	
+	                    uhk = normalize(uhk);
+	
+	                    itt_count = itt_count + 1;
+	                    stop = itt_count > 100 | !(dot(uhk, uk) < 1 - this._epsilon);
+	                }
+	                u[k] = uhk.slice();
+	            }
+	
+	            //discard the first eigenvector which should be [ones].
+	            // var v = new Array(u.length);
+	            // for (var i=0; i < u.length; i++) {
+	            //     v[i] = new Array(u[i].length);
+	            //     for (var j=0; j < u[i].length; j++) v[i][j] = u[i][j];
+	            // }
+	            var x = normalize2(u[1]);
+	            var y = normalize2(u[2]);
+	            this._nodes.forEach(function (node, i) {
+	                node.x = x[i];
+	                node.y = y[i];
+	            });
+	        }
+	    }]);
+	
+	    return _class;
+	}();
+	
+	exports.default = _class;
+	;
+	
+	function deg(graph) {
+	    //Calculate the degree of each node from the graph matrix.
+	    var d = zeros(graph.length);
+	
+	    //degree of node i is the sum of the weights of all edges connected to it.
+	    for (var i = 0; i < graph.length; i++) {
+	        var node_degree = 0;
+	        for (var j = 0; j < graph[i].length; j++) {
+	            node_degree += graph[i][j];
+	        }
+	        d[i] = node_degree + 1;
+	    }
+	
+	    return d;
+	}
+	
+	function dot(a, b) {
+	    //inner product of two vectors
+	    var d = 0;
+	    for (var i = 0; i < a.length; i++) {
+	        d += a[i] * b[i];
+	    }
+	    return d;
+	}
+	
+	function euclideanDistance(coordinates) {
+	    //calculate the euclidean distance between two points/vectors.
+	    // used for normalization.
+	    var d = 0;
+	
+	    for (var i = 0; i < coordinates.length; i++) {
+	        d += Math.pow(coordinates[i], 2);
+	    }
+	    return Math.sqrt(d);
+	}
+	
+	function normalize(arr) {
+	    //normalizes a vector = arr/||arr||
+	    var d = euclideanDistance(arr);
+	    var narr = new Array(arr.length);
+	    for (var i = 0; i < arr.length; i++) {
+	        narr[i] = arr[i] / d;
+	    }
+	
+	    return narr;
+	}
+	
+	function rand(n) {
+	    //create a vector of length n and fill with random numbers.
+	    var arr = new Array(n);
+	    for (var i = 0; i < n; i++) {
+	        arr[i] = Math.random();
+	    }return arr;
+	}
+	
+	function add(a, b) {
+	    var c = new Array(a.length);
+	    for (var i = 0; i < a.length; i++) {
+	        c[i] = new Array(a[i].length);
+	        for (var j = 0; j < a[i].length; j++) {
+	            c[i][j] = a[i][j] + b[i][j];
+	        }
+	    }
+	    return c;
+	}
+	
+	function symmetricRandMatrix(n, ulim) {
+	    var mat = new Array(n);
+	    for (var i = 0; i < n; i++) {
+	        mat[i] = new Array(n);
+	        mat[i][i] = 0;
+	    }
+	    for (var i = 0; i < n; i++) {
+	        for (var j = i + 1; j < n; j++) {
+	            mat[i][j] = ulim * Math.random();
+	            mat[j][i] = mat[i][j];
+	        }
+	    }
+	    return mat;
+	}
+	
+	function zeros(n) {
+	    //create a vector filled with zeros
+	    var arr = new Array(n);
+	    for (var i = 0; i < n; i++) {
+	        arr[i] = 0;
+	    }return arr;
+	}
+	
+	function ones(n) {
+	    //create a vector filled with ones
+	    var arr = new Array(n);
+	    for (var i = 0; i < n; i++) {
+	        arr[i] = 1;
+	    }return arr;
+	}
+	
+	function normalize2(x) {
+	    var maxx = Math.max.apply(null, x.map(Math.abs));
+	    var minx = Math.min.apply(null, x);
+	    for (var i = 0; i < x.length; ++i) {
+	        x[i] = 0.1 + (x[i] - minx) / ((maxx - minx) * 1.25);
+	    }
+	    return x;
+	}
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	
@@ -8450,7 +8696,7 @@
 	;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8461,11 +8707,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(22);
+	var _rbush = __webpack_require__(23);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(20);
+	var _geomutils = __webpack_require__(21);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -8475,7 +8721,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(23);
+	var _geomtools = __webpack_require__(24);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -9043,7 +9289,7 @@
 	exports.default = spatialIndex;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -9676,7 +9922,7 @@
 	exports.default = rbush;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9686,11 +9932,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(22);
+	var _rbush = __webpack_require__(23);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(20);
+	var _geomutils = __webpack_require__(21);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -9988,7 +10234,7 @@
 	exports.neq = neq;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10074,7 +10320,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10182,7 +10428,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10199,11 +10445,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(27);
+	var _default = __webpack_require__(28);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(28);
+	var _sdf = __webpack_require__(29);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -10275,7 +10521,7 @@
 	;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -10419,7 +10665,7 @@
 	;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10430,15 +10676,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(29);
+	var _pbf = __webpack_require__(30);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(31);
+	var _atlas = __webpack_require__(32);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(33);
+	var _glyphs = __webpack_require__(34);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -10638,14 +10884,14 @@
 	;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(30);
+	var ieee754 = __webpack_require__(31);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -11262,7 +11508,7 @@
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -11352,7 +11598,7 @@
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11363,7 +11609,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(32);
+	var _shelfPack = __webpack_require__(33);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -11567,7 +11813,7 @@
 	;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -12016,7 +12262,7 @@
 	}));
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -12048,7 +12294,7 @@
 	}
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -12134,7 +12380,7 @@
 	;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12145,7 +12391,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(20);
+	var _geomutils = __webpack_require__(21);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	

@@ -6,6 +6,7 @@ import layoutTreeT from './treeT' ;
 import layoutHierarchical from './hierarchical' ;
 import layoutHierarchical2 from './hierarchical2' ;
 import layoutSpectral from './spectral' ;
+import layoutSpectral2 from './spectral2' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -39,6 +40,9 @@ export default class {
   }
   static get spectral(){
     return layoutSpectral;
+  }
+  static get spectral2(){
+    return layoutSpectral2;
   }
   
   static normalize (nodes, dim) {

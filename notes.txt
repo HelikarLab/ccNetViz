@@ -1,3 +1,8 @@
+dar conta dos casos em que o cálculo dos eigens não convege.
+implement spectral layouts that use the edge weights
+
+================
+
 contemplar demais componentes nos layouts hierarquicos
 contemplar vertices solitários
 consistent use of let and var (code review by ales)
