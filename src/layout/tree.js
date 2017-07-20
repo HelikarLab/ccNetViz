@@ -6,7 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth} from 'utils';
+import {getDepth} from './utils';
 
 export default class {
   constructor(nodes, edges) {

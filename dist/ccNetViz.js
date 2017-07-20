@@ -184,27 +184,27 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _textures = __webpack_require__(26);
+	var _textures = __webpack_require__(27);
 	
 	var _textures2 = _interopRequireDefault(_textures);
 	
-	var _files = __webpack_require__(27);
+	var _files = __webpack_require__(28);
 	
 	var _files2 = _interopRequireDefault(_files);
 	
-	var _texts = __webpack_require__(28);
+	var _texts = __webpack_require__(29);
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(36);
+	var _lazyEvents = __webpack_require__(37);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(37);
+	var _interactivityBatch = __webpack_require__(38);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
-	var _spatialSearch = __webpack_require__(23);
+	var _spatialSearch = __webpack_require__(24);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 	
@@ -1684,7 +1684,7 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _geomutils = __webpack_require__(22);
+	var _geomutils = __webpack_require__(23);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -1694,7 +1694,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _spatialSearch = __webpack_require__(23);
+	var _spatialSearch = __webpack_require__(24);
 	
 	var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
@@ -2479,31 +2479,31 @@
 	
 	var _circular2 = _interopRequireDefault(_circular);
 	
-	var _tree = __webpack_require__(14);
+	var _tree = __webpack_require__(15);
 	
 	var _tree2 = _interopRequireDefault(_tree);
 	
-	var _treeT = __webpack_require__(15);
+	var _treeT = __webpack_require__(16);
 	
 	var _treeT2 = _interopRequireDefault(_treeT);
 	
-	var _hierarchical = __webpack_require__(16);
+	var _hierarchical = __webpack_require__(17);
 	
 	var _hierarchical2 = _interopRequireDefault(_hierarchical);
 	
-	var _hierarchical3 = __webpack_require__(17);
+	var _hierarchical3 = __webpack_require__(18);
 	
 	var _hierarchical4 = _interopRequireDefault(_hierarchical3);
 	
-	var _spectral = __webpack_require__(18);
+	var _spectral = __webpack_require__(19);
 	
 	var _spectral2 = _interopRequireDefault(_spectral);
 	
-	var _spectral3 = __webpack_require__(20);
+	var _spectral3 = __webpack_require__(21);
 	
 	var _spectral4 = _interopRequireDefault(_spectral3);
 	
-	var _hive = __webpack_require__(21);
+	var _hive = __webpack_require__(22);
 	
 	var _hive2 = _interopRequireDefault(_hive);
 	
@@ -3051,7 +3051,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3097,6 +3097,69 @@
 
 /***/ }),
 /* 14 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.create2dArray = create2dArray;
+	exports.degrees = degrees;
+	exports.getDepth = getDepth;
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
+	
+	function create2dArray(rows, columns) {
+	    return [].concat(_toConsumableArray(Array(rows).keys())).map(function (i) {
+	        return Array(columns).fill(0);
+	    });
+	}
+	
+	function degrees(nodes, edges) {
+	    // should return ordered nodes and their degrees - high to low
+	    var degrees = Array(nodes.length).fill(0);
+	    edges.forEach(function (e) {
+	        degrees[e.source.index] += 1;
+	        degrees[e.target.index] += 1;
+	    }); // check to see if not getting double of the degree in undirected graphs
+	    //getting the order of nodes from highest to lowest degrees
+	    var ordered_nodes = degrees.map(function (el, i) {
+	        return { index: i, value: el };
+	    });
+	    ordered_nodes.sort(function (a, b) {
+	        return +(a.value < b.value) || +(a.value === b.value) - 1;
+	    });
+	    var ordered_degrees = ordered_nodes.map(function (el) {
+	        return degrees[el.index];
+	    });
+	    return { nodes: ordered_nodes,
+	        degrees: ordered_degrees };
+	}
+	
+	function getDepth(obj) {
+	    var depth = 0;
+	    if (obj.children) {
+	        obj.children.forEach(function (d) {
+	            var tmpDepth = getDepth(d);
+	            if (tmpDepth > depth) {
+	                depth = tmpDepth;
+	            }
+	        });
+	    }
+	    return 1 + depth;
+	}
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3113,7 +3176,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3203,7 +3266,7 @@
 	;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3220,7 +3283,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3314,7 +3377,7 @@
 	;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3331,7 +3394,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3449,7 +3512,7 @@
 	;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3466,7 +3529,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3741,7 +3804,7 @@
 	;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3758,11 +3821,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _numeric = __webpack_require__(19);
+	var _numeric = __webpack_require__(20);
 	
 	var _numeric2 = _interopRequireDefault(_numeric);
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3858,7 +3921,7 @@
 	;
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
@@ -8289,7 +8352,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8310,7 +8373,7 @@
 	// and JS transcription in
 	// https://github.com/alanmeeson/spectral-graph-layout
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -8517,7 +8580,7 @@
 	}
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8534,7 +8597,7 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _utils = __webpack_require__(14);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -8576,7 +8639,7 @@
 	;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -8676,7 +8739,7 @@
 	;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8687,11 +8750,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _rbush = __webpack_require__(24);
+	var _rbush = __webpack_require__(25);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(22);
+	var _geomutils = __webpack_require__(23);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -8701,7 +8764,7 @@
 	
 	var _primitiveTools = __webpack_require__(8);
 	
-	var _geomtools = __webpack_require__(25);
+	var _geomtools = __webpack_require__(26);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -9269,7 +9332,7 @@
 	exports.default = spatialIndex;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -9902,7 +9965,7 @@
 	exports.default = rbush;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9912,11 +9975,11 @@
 	});
 	exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 	
-	var _rbush = __webpack_require__(24);
+	var _rbush = __webpack_require__(25);
 	
 	var _rbush2 = _interopRequireDefault(_rbush);
 	
-	var _geomutils = __webpack_require__(22);
+	var _geomutils = __webpack_require__(23);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	
@@ -10214,7 +10277,7 @@
 	exports.neq = neq;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10300,7 +10363,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10408,7 +10471,7 @@
 	exports.default = _class;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10425,11 +10488,11 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Authors: David Tichy, Aleš Saska
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
-	var _default = __webpack_require__(29);
+	var _default = __webpack_require__(30);
 	
 	var _default2 = _interopRequireDefault(_default);
 	
-	var _sdf = __webpack_require__(30);
+	var _sdf = __webpack_require__(31);
 	
 	var _sdf2 = _interopRequireDefault(_sdf);
 	
@@ -10501,7 +10564,7 @@
 	;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -10645,7 +10708,7 @@
 	;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10656,15 +10719,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _pbf = __webpack_require__(31);
+	var _pbf = __webpack_require__(32);
 	
 	var _pbf2 = _interopRequireDefault(_pbf);
 	
-	var _atlas = __webpack_require__(33);
+	var _atlas = __webpack_require__(34);
 	
 	var _atlas2 = _interopRequireDefault(_atlas);
 	
-	var _glyphs = __webpack_require__(35);
+	var _glyphs = __webpack_require__(36);
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
@@ -10864,14 +10927,14 @@
 	;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	module.exports = Pbf;
 	
-	var ieee754 = __webpack_require__(32);
+	var ieee754 = __webpack_require__(33);
 	
 	function Pbf(buf) {
 	    this.buf = ArrayBuffer.isView && ArrayBuffer.isView(buf) ? buf : new Uint8Array(buf || 0);
@@ -11488,7 +11551,7 @@
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -11578,7 +11641,7 @@
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11589,7 +11652,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _shelfPack = __webpack_require__(34);
+	var _shelfPack = __webpack_require__(35);
 	
 	var _shelfPack2 = _interopRequireDefault(_shelfPack);
 	
@@ -11793,7 +11856,7 @@
 	;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
@@ -12242,7 +12305,7 @@
 	}));
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -12274,7 +12337,7 @@
 	}
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -12360,7 +12423,7 @@
 	;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12371,7 +12434,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _geomutils = __webpack_require__(22);
+	var _geomutils = __webpack_require__(23);
 	
 	var _geomutils2 = _interopRequireDefault(_geomutils);
 	

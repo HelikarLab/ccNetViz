@@ -6,7 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-import {degrees} from 'utils';
+import {degrees} from './utils';
 
 export default class {
   // get degree of all nodes

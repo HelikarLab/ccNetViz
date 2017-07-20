@@ -8,7 +8,7 @@
 
 import numeric from 'numeric';
 
-import {create2dArray} from 'utils';
+import {create2dArray} from './utils';
 
 function twoSmallest (arr) {
     var min = Math.min.apply(null, arr), // get the max of the array

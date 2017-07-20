@@ -10,7 +10,7 @@
 // and JS transcription in
 // https://github.com/alanmeeson/spectral-graph-layout
 
-import {create2dArray} from 'utils';
+import {create2dArray} from './utils';
 
 export default class {
   constructor(nodes, edges) {
