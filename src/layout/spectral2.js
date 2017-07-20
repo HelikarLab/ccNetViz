@@ -10,9 +10,7 @@
 // and JS transcription in
 // https://github.com/alanmeeson/spectral-graph-layout
 
-function create2dArray (rows, columns) {
-    return [...Array(rows).keys()].map(i => Array(columns).fill(0));
-}
+import {create2dArray} from 'utils';
 
 export default class {
   constructor(nodes, edges) {

@@ -6,19 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-function getDepth(obj) {
-    var depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-            var tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth
-}
-
+import {getDepth} from 'utils';
 
 export default class {
   constructor(nodes, edges) {
@@ -91,6 +79,5 @@ export default class {
       // and decide if parent is visited (always in tree layout)
 
       this.drawTreeTop(root);
-      console.log(this._nodes);
   }
 };

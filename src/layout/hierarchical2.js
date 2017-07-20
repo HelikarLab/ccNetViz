@@ -6,18 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-function getDepth(obj) {
-    var depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-            var tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth
-}
+import {getDepth} from 'utils';
 
 function isOrphan(node){
     var orphan = true;
@@ -69,6 +58,7 @@ export default class {
       }
       return orphans;
   }
+
   findRoots(nodes){
       // find the roots:
       // nodes defined by the user as roots OR

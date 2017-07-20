@@ -8,16 +8,9 @@
 
 import numeric from 'numeric';
 
-function create2dArray (rows, columns) {
-    return [...Array(rows).keys()].map(i => Array(columns).fill(0));
-}
+import {create2dArray} from 'utils';
 
 function twoSmallest (arr) {
-    // var max = Math.max.apply(null, arr), // get the max of the array
-    //     maxi = arr.indexOf(max);
-    // arr[maxi] = -Infinity; // replace max in the array with -infinity
-    // var second_max = Math.max.apply(null, arr), // get the new max 
-    //     second_maxi = arr.indexOf(second_max);
     var min = Math.min.apply(null, arr), // get the max of the array
         mini = arr.indexOf(min);
     arr[mini] = Infinity; // replace max in the array with -infinity
@@ -26,7 +19,6 @@ function twoSmallest (arr) {
     arr[second_mini] = Infinity; // replace max in the array with -infinity
     var third_min = Math.min.apply(null, arr), // get the new max 
         third_mini = arr.indexOf(third_min);
-    // return [maxi, second_maxi];
     return [second_mini, third_mini];
 }
 
@@ -57,6 +49,7 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
   }
+
   apply () {
       var A = create2dArray(this._nodes.length, this._nodes.length);
       // build the adjacency matrix
@@ -88,6 +81,5 @@ export default class {
           node.x = xy[0][i];
           node.y = xy[1][i];
       }); 
-      console.log(this._nodes);
   }
 };

@@ -6,26 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-function degrees(nodes, edges) {
-  // should return ordered nodes and their degrees - high to low
-  var degrees = Array(nodes.length).fill(0);
-  edges.forEach(function(e) {
-      degrees[e.source.index] += 1;
-      degrees[e.target.index] += 1;
-  }); // check to see if not getting double of the degree in undirected graphs
-  //getting the order of nodes from highest to lowest degrees
-  var ordered_nodes = degrees.map(function(el, i) {
-      return { index: i, value: el };
-  });
-  ordered_nodes.sort(function(a, b) {
-      return +(a.value < b.value) || +(a.value === b.value) - 1;
-  });
-  var ordered_degrees = ordered_nodes.map(function(el){
-      return degrees[el.index];
-  });
-  return { nodes: ordered_nodes,
-           degrees: ordered_degrees } ;
-}
+import {degrees} from 'utils';
 
 export default class {
   // get degree of all nodes
@@ -46,10 +27,9 @@ export default class {
       var j = 0;
       for(let i=0; i<this._nodes.length; ++i){
           let ii = nd.nodes[i].index;
-          this._nodes[ii].x = 0.5+(this._radius + step*(i-j*nodes_segment))*Math.cos(angle*j);
-          this._nodes[ii].y = 0.5+(this._radius + step*(i-j*nodes_segment))*Math.sin(angle*j);
+          this._nodes[ii].x = 0.5+(this._radius + step*(i-j*nodes_segment))*Math.cos(angle*j+Math.PI/2);
+          this._nodes[ii].y = 0.5+(this._radius + step*(i-j*nodes_segment))*Math.sin(angle*j+Math.PI/2);
           j = Math.floor(i/nodes_segment);
       }
   }
 };
-

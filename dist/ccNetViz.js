@@ -3035,86 +3035,61 @@
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function degrees(nodes, edges) {
-	    // should return ordered nodes and their degrees - high to low
-	    var degrees = Array(nodes.length).fill(0);
-	    edges.forEach(function (e) {
-	        degrees[e.source.index] += 1;
-	        degrees[e.target.index] += 1;
-	    }); // check to see if not getting double of the degree in undirected graphs
-	    //getting the order of nodes from highest to lowest degrees
-	    var ordered_nodes = degrees.map(function (el, i) {
-	        return { index: i, value: el };
-	    });
-	    ordered_nodes.sort(function (a, b) {
-	        return +(a.value < b.value) || +(a.value === b.value) - 1;
-	    });
-	    var ordered_degrees = ordered_nodes.map(function (el) {
-	        return degrees[el.index];
-	    });
-	    return { nodes: ordered_nodes,
-	        degrees: ordered_degrees };
-	}
-	
 	var _class = function () {
-	    // get degree of all nodes
-	    // let user define at least: starting angle and radius and
-	    // clock/cclock direction
-	    // size of vertices
-	    // more: a ratio of compactness for the more/less connected nodes
-	    // a spiral ratio with a rotation ratio for having more than 2pi
-	    // distribution of nodes when spiriling
-	    // use some other ordering criterion than degree? Strength?
-	    // defined by user and found as attribute of each node?
-	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges) {
-	        _classCallCheck(this, _class);
+	  // get degree of all nodes
+	  // let user define at least: starting angle and radius and
+	  // clock/cclock direction
+	  // size of vertices
+	  // more: a ratio of compactness for the more/less connected nodes
+	  // a spiral ratio with a rotation ratio for having more than 2pi
+	  // distribution of nodes when spiriling
+	  // use some other ordering criterion than degree? Strength?
+	  // defined by user and found as attribute of each node?
+	  // random ordering, minimal crossing of edges?
+	  function _class(nodes, edges) {
+	    _classCallCheck(this, _class);
 	
-	        this._nodes = nodes;
-	        this._edges = edges;
-	        this._angle = 2 * Math.PI / nodes.length;
-	        this.nd = 0;
+	    this._nodes = nodes;
+	    this._edges = edges;
+	    this._angle = 2 * Math.PI / nodes.length;
+	  }
+	
+	  _createClass(_class, [{
+	    key: 'apply',
+	    value: function apply() {
+	      console.log(this._nodes);
+	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	      var angle = this._angle;
+	      var nodes = this._nodes;
+	      nd.nodes.forEach(function (node, i) {
+	        nodes[node.index].x = (1 + Math.cos(i * angle)) * .5;
+	        nodes[node.index].y = (1 + Math.sin(i * angle)) * .5;
+	        nodes[node.index].weight = nd.degrees[i];
+	      });
 	    }
+	  }]);
 	
-	    _createClass(_class, [{
-	        key: "apply",
-	        value: function apply() {
-	            console.log(this._nodes);
-	            var nd = degrees(this._nodes, this._edges);
-	            this.nd = nd;
-	            console.log(nd);
-	            var angle = this._angle;
-	            var nodes = this._nodes;
-	            nd.nodes.forEach(function (node, i) {
-	                nodes[node.index].x = (1 + Math.cos(i * angle)) * .5;
-	                nodes[node.index].y = (1 + Math.sin(i * angle)) * .5;
-	                nodes[node.index].weight = nd.degrees[i];
-	            });
-	            console.log(this._nodes);
-	        }
-	    }]);
-	
-	    return _class;
+	  return _class;
 	}();
 	
 	exports.default = _class;
@@ -3122,38 +3097,25 @@
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function getDepth(obj) {
-	    var depth = 0;
-	    if (obj.children) {
-	        obj.children.forEach(function (d) {
-	            var tmpDepth = getDepth(d);
-	            if (tmpDepth > depth) {
-	                depth = tmpDepth;
-	            }
-	        });
-	    }
-	    return 1 + depth;
-	}
 	
 	var _class = function () {
 	    function _class(nodes, edges) {
@@ -3164,7 +3126,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "drawTreeCentered",
+	        key: 'drawTreeCentered',
 	        value: function drawTreeCentered(root) {
 	            var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
@@ -3187,7 +3149,7 @@
 	            return visited_leafs;
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // only one root node supported for now
 	            // left-right tree by default, let user choose
@@ -3212,7 +3174,7 @@
 	                    break;
 	                }
 	            }
-	            var depth = getDepth(root);
+	            var depth = (0, _utils.getDepth)(root);
 	            // each layer of tree x = [0+alpha,1-alpha]
 	            this.alphax = .05;
 	            this.stepx = (1 - 2 * this.alphax) / (depth - 1);
@@ -3242,38 +3204,25 @@
 
 /***/ }),
 /* 15 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function getDepth(obj) {
-	    var depth = 0;
-	    if (obj.children) {
-	        obj.children.forEach(function (d) {
-	            var tmpDepth = getDepth(d);
-	            if (tmpDepth > depth) {
-	                depth = tmpDepth;
-	            }
-	        });
-	    }
-	    return 1 + depth;
-	}
 	
 	var _class = function () {
 	    function _class(nodes, edges) {
@@ -3284,7 +3233,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "drawTreeTop",
+	        key: 'drawTreeTop',
 	        value: function drawTreeTop(root) {
 	            var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
@@ -3307,7 +3256,7 @@
 	            return visited_leafs;
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            var nodes = this._nodes;
 	            // make hierarchy, annotate parent(s) and children in the nodes
@@ -3330,7 +3279,7 @@
 	                    break;
 	                }
 	            }
-	            var depth = getDepth(root);
+	            var depth = (0, _utils.getDepth)(root);
 	            // each layer of tree x = [0+alpha,1-alpha]
 	            this.alphax = .05;
 	            this.stepx = (1 - 2 * this.alphax) / (depth - 1);
@@ -3355,7 +3304,6 @@
 	            // and decide if parent is visited (always in tree layout)
 	
 	            this.drawTreeTop(root);
-	            console.log(this._nodes);
 	        }
 	    }]);
 	
@@ -3367,38 +3315,25 @@
 
 /***/ }),
 /* 16 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function getDepth(obj) {
-	    var depth = 0;
-	    if (obj.children) {
-	        obj.children.forEach(function (d) {
-	            var tmpDepth = getDepth(d);
-	            if (tmpDepth > depth) {
-	                depth = tmpDepth;
-	            }
-	        });
-	    }
-	    return 1 + depth;
-	}
 	
 	var _class = function () {
 	    // this layout should handle any digraph
@@ -3412,7 +3347,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "makeLayers",
+	        key: 'makeLayers',
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
 	                var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
@@ -3442,7 +3377,7 @@
 	            }
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3515,7 +3450,7 @@
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -3523,30 +3458,17 @@
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function getDepth(obj) {
-	    var depth = 0;
-	    if (obj.children) {
-	        obj.children.forEach(function (d) {
-	            var tmpDepth = getDepth(d);
-	            if (tmpDepth > depth) {
-	                depth = tmpDepth;
-	            }
-	        });
-	    }
-	    return 1 + depth;
-	}
 	
 	function isOrphan(node) {
 	    var orphan = true;
@@ -3828,36 +3750,25 @@
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
 	var _numeric = __webpack_require__(19);
 	
 	var _numeric2 = _interopRequireDefault(_numeric);
 	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
-	                                                                                                                                                                                                     *  Copyright (c) 2017, Helikar Lab.
-	                                                                                                                                                                                                     *  All rights reserved.
-	                                                                                                                                                                                                     *
-	                                                                                                                                                                                                     *  This source code is licensed under the GPLv3 License.
-	                                                                                                                                                                                                     *  Author: Renato Fabbri
-	                                                                                                                                                                                                     */
-	
-	function create2dArray(rows, columns) {
-	    return [].concat(_toConsumableArray(Array(rows).keys())).map(function (i) {
-	        return Array(columns).fill(0);
-	    });
-	}
-	
 	function twoSmallest(arr) {
-	    // var max = Math.max.apply(null, arr), // get the max of the array
-	    //     maxi = arr.indexOf(max);
-	    // arr[maxi] = -Infinity; // replace max in the array with -infinity
-	    // var second_max = Math.max.apply(null, arr), // get the new max 
-	    //     second_maxi = arr.indexOf(second_max);
 	    var min = Math.min.apply(null, arr),
 	        // get the max of the array
 	    mini = arr.indexOf(min);
@@ -3869,7 +3780,6 @@
 	    var third_min = Math.min.apply(null, arr),
 	        // get the new max 
 	    third_mini = arr.indexOf(third_min);
-	    // return [maxi, second_maxi];
 	    return [second_mini, third_mini];
 	}
 	
@@ -3906,7 +3816,7 @@
 	    _createClass(_class, [{
 	        key: 'apply',
 	        value: function apply() {
-	            var A = create2dArray(this._nodes.length, this._nodes.length);
+	            var A = (0, _utils.create2dArray)(this._nodes.length, this._nodes.length);
 	            // build the adjacency matrix
 	            for (var i = 0; i < this._edges.length; ++i) {
 	                var _ii = this._edges[i].source.index;
@@ -3938,7 +3848,6 @@
 	                node.x = xy[0][i];
 	                node.y = xy[1][i];
 	            });
-	            console.log(this._nodes);
 	        }
 	    }]);
 	
@@ -8381,37 +8290,29 @@
 
 /***/ }),
 /* 20 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 	
 	// inspired in Matlab implementation
 	// and JS transcription in
 	// https://github.com/alanmeeson/spectral-graph-layout
 	
-	function create2dArray(rows, columns) {
-	    return [].concat(_toConsumableArray(Array(rows).keys())).map(function (i) {
-	        return Array(columns).fill(0);
-	    });
-	}
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
 	    function _class(nodes, edges) {
@@ -8426,9 +8327,9 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
-	            var A = create2dArray(this._nodes.length, this._nodes.length);
+	            var A = (0, _utils.create2dArray)(this._nodes.length, this._nodes.length);
 	            // build the adjacency matrix
 	            for (var _i = 0; _i < this._edges.length; ++_i) {
 	                var ii = this._edges[_i].source.index;
@@ -8617,46 +8518,25 @@
 
 /***/ }),
 /* 21 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
-	function degrees(nodes, edges) {
-	    // should return ordered nodes and their degrees - high to low
-	    var degrees = Array(nodes.length).fill(0);
-	    edges.forEach(function (e) {
-	        degrees[e.source.index] += 1;
-	        degrees[e.target.index] += 1;
-	    }); // check to see if not getting double of the degree in undirected graphs
-	    //getting the order of nodes from highest to lowest degrees
-	    var ordered_nodes = degrees.map(function (el, i) {
-	        return { index: i, value: el };
-	    });
-	    ordered_nodes.sort(function (a, b) {
-	        return +(a.value < b.value) || +(a.value === b.value) - 1;
-	    });
-	    var ordered_degrees = ordered_nodes.map(function (el) {
-	        return degrees[el.index];
-	    });
-	    return { nodes: ordered_nodes,
-	        degrees: ordered_degrees };
-	}
 	
 	var _class = function () {
 	    // get degree of all nodes
@@ -8671,9 +8551,9 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
-	            var nd = degrees(this._nodes, this._edges);
+	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
 	
 	            var nodes_segment = this._nodes.length / this._nlines;
 	            var segment = 0.5 - (this._margin + this._radius);
@@ -8682,8 +8562,8 @@
 	            var j = 0;
 	            for (var i = 0; i < this._nodes.length; ++i) {
 	                var ii = nd.nodes[i].index;
-	                this._nodes[ii].x = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.cos(angle * j);
-	                this._nodes[ii].y = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.sin(angle * j);
+	                this._nodes[ii].x = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + Math.PI / 2);
+	                this._nodes[ii].y = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + Math.PI / 2);
 	                j = Math.floor(i / nodes_segment);
 	            }
 	        }

@@ -1,3 +1,45 @@
+* revisar o circular
+* revisar os trees
+  - Tvz não precise varrer a arvore duas vezes (uma para getDepth e a outra para desenhar
+* revisar os hierarquicos
+  - Contemplar mais de uma componente
+* revisar o hive
+  - ver site e artigos do hive plot
+* revisar os espectrais e resolver questão dos eigens
+  - ver implementação do numpy
+    * uses /usr/lib/python3/dist-packages/numpy/linalg/_umath_linalg.cpython-35m-x86_64-linux-gnu.so
+  - ver implementação do numeric
+    * it transforms into the Hessenberg: https://github.com/sloisel/numeric/blob/master/src/numeric.js#L1478
+  - decidir como resolver isso por hora:
+    * outras implementações?
+* contemplar notas so Ales, em especial para uso decente de var, let e ++
+  - tirar (todos?) os vars
+  - colocar funcoes de uso comum em um utils.js?
+    * getDepth
+    * degrees
+* Fazer o layout.html com todos os metodos de layout
+
+===========
+
+The infos are on the beggining of the class.
+If you prefer the infos in the beggining of the file,
+I will change it ASAP.
+
+Trees and hierarchical layouts can only handle 1 connected component
+(securely. There are, actually graphs with multiple components which the
+algs already handle).
+The spectral.js is using the numeric.eig.
+The way out of it would be to try other libraries or implement
+some more robust algorithm.
+The later will probably be far from trivial,
+so I would start with the first case.
+
+
+
+
+
+====================
+
 dar conta dos casos em que o cálculo dos eigens não convege.
 implement spectral layouts that use the edge weights
 I summed 1 to the degrees to avoid division by zero (and handle disconnected graphs).
@@ -279,4 +321,3 @@ Other issues:
 - Errors in performance test (printscreen)
 - Errors in examples in both Chrome and Firefox.
 There are many of them, is there any possibility that we look at them together?
-

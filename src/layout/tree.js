@@ -6,18 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-function getDepth(obj) {
-    var depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-            var tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth
-}
+import {getDepth} from 'utils';
 
 export default class {
   constructor(nodes, edges) {
@@ -43,6 +32,7 @@ export default class {
       root.x = (layer-1)*this.stepx + this.alphax;
       return visited_leafs;
   }
+
   apply () {
       // only one root node supported for now
       // left-right tree by default, let user choose
