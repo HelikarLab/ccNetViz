@@ -1,3 +1,44 @@
+dar conta dos casos em que o cálculo dos eigens não convege.
+implement spectral layouts that use the edge weights
+I summed 1 to the degrees to avoid division by zero (and handle disconnected graphs).
+I don't know the consequences for the algorithm, and I don't know if we would be better
+if we summed another values (such as 0.0001),
+but the algorithm is giving nice results in reasonable time.
+
+The spectral.js is working fine!
+It gives us the exact result as networkX.
+There are still 2 problems with it (on the calculation of eigen(values/vectors):
+1) It takes a long time to compute.
+Sometimes very long time! (try graph-1000-2.json for example)
+2) It raises error for Glucose.json (does not converge).
+(I did not find any other graph on data/* for which it
+raises an error).
+The networkx implementation uses numpy eig function,
+which is way faster and more robust in the sense
+that is can handle more matrices.
+
+I am not being able to find an algorithm
+to find the eigenvectors which I can implement.
+It can be an approximation.
+We only need the two eigenvectors associated
+with the two lowest non-zero eigenvalues.
+One last resort that comes to mind it to implement
+it in python in algorithmia.com and call it on the
+ccNetViz as an AAS (Algorithm as a Service).
+
+I can dedicate some days to this,
+but ask for help first.
+Maybe you find some algorithm or library or have some other idea.
+
+================
+
+contemplar demais componentes nos layouts hierarquicos
+contemplar vertices solitários
+consistent use of let and var (code review by ales)
+how to optimize loops? Use always for loops (not forEach) and let?
+make initial phase 1 evaluation
+===========
+
 can ccNetViz handle undirected graphs or are all edges directed by default?
 do the tree layouts really take long? (100ms < time < 150ms)
 
