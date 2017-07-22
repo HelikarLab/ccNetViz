@@ -6,8 +6,6 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth} from './utils';
-
 export default class {
   // this layout should handle any digraph
   constructor(nodes, edges) {

@@ -35,6 +35,10 @@ export function getDepth(obj) {
     var depth = 0;
     if (obj.children) {
         obj.children.forEach(function (d) {
+	    if (d.depth_visited == true){
+		    throw new Error("This layout is only for trees acyclic graphs");
+	    }
+	    d.depth_visited = true;
             var tmpDepth = getDepth(d);
             if (tmpDepth > depth) {
                 depth = tmpDepth;

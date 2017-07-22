@@ -6,8 +6,6 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth} from './utils';
-
 function isOrphan(node){
     var orphan = true;
     for (let i=0; i<node.parents.length; ++i){

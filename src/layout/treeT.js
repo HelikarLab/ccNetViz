@@ -17,6 +17,7 @@ export default class {
   drawTreeTop(root, visited_leafs_parent=0, layer=1){
     // each node is in vertically on the top of the stack of its leafs
     root.visited = true;
+    root.depth_visited = false; // so that getDepth does not raise error if another tree layout is called subsequently
     root.x = this.alphax+this.stepx*(layer-1);
     root.y = 1-(this.alphay+this.stepy*(visited_leafs_parent));
     // visit children until leafs

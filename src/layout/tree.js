@@ -16,6 +16,7 @@ export default class {
 
   drawTreeCentered(root, visited_leafs_parent=0, layer=1){
       root.centered = true;
+      root.depth_visited = false;
       // branch order is for now stable but unpredictable, see layouts.cri
       var visited_leafs = 0;
       for (var i=0; i < root.children.length; i++){

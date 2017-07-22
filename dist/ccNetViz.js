@@ -3149,6 +3149,10 @@
 	    var depth = 0;
 	    if (obj.children) {
 	        obj.children.forEach(function (d) {
+	            if (d.depth_visited == true) {
+	                throw new Error("This layout is only for trees acyclic graphs");
+	            }
+	            d.depth_visited = true;
 	            var tmpDepth = getDepth(d);
 	            if (tmpDepth > depth) {
 	                depth = tmpDepth;
@@ -3195,6 +3199,7 @@
 	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 	
 	            root.centered = true;
+	            root.depth_visited = false;
 	            // branch order is for now stable but unpredictable, see layouts.cri
 	            var visited_leafs = 0;
 	            for (var i = 0; i < root.children.length; i++) {
@@ -3303,6 +3308,7 @@
 	
 	            // each node is in vertically on the top of the stack of its leafs
 	            root.visited = true;
+	            root.depth_visited = false;
 	            root.x = this.alphax + this.stepx * (layer - 1);
 	            root.y = 1 - (this.alphay + this.stepy * visited_leafs_parent);
 	            // visit children until leafs
@@ -3378,25 +3384,25 @@
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-	
-	var _utils = __webpack_require__(14);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
 	
 	var _class = function () {
 	    // this layout should handle any digraph
@@ -3410,7 +3416,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: 'makeLayers',
+	        key: "makeLayers",
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
 	                var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
@@ -3440,7 +3446,7 @@
 	            }
 	        }
 	    }, {
-	        key: 'apply',
+	        key: "apply",
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3513,7 +3519,7 @@
 
 /***/ }),
 /* 18 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3521,17 +3527,17 @@
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-	
-	var _utils = __webpack_require__(14);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 *  Copyright (c) 2017, Helikar Lab.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the GPLv3 License.
+	 *  Author: Renato Fabbri
+	 */
 	
 	function isOrphan(node) {
 	    var orphan = true;
@@ -3820,10 +3826,6 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-	
-	// import Matrix from 'ml-matrix';
-	// import evd from 'ml-matrix';
-	// import {getDepth} from './utils';
 	
 	var _mlMatrix = __webpack_require__(20);
 	

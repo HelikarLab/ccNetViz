@@ -7,10 +7,6 @@
  */
 
 import {EigenvalueDecomposition} from 'ml-matrix';
-// import Matrix from 'ml-matrix';
-// import evd from 'ml-matrix';
-// import {getDepth} from './utils';
-
 import {create2dArray} from './utils';
 
 function twoSmallest (arr) {

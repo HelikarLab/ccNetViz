@@ -1,4 +1,4 @@
-* ver email do ales
+* resolver getDepth
 * implementar versinus e grid
 * 
 
