@@ -6,7 +6,10 @@
  *  Author: Renato Fabbri
  */
 
-import numeric from 'numeric';
+import {EigenvalueDecomposition} from 'ml-matrix';
+// import Matrix from 'ml-matrix';
+// import evd from 'ml-matrix';
+// import {getDepth} from './utils';
 
 import {create2dArray} from './utils';
 
@@ -65,18 +68,20 @@ export default class {
       for (let i=0; i<this._nodes.length; ++i){
           A[i][i] = -A[i].reduce((a, b) => a+b, 0);
       }
-      var eig = numeric.eig(A);
-      // use eigenvectors with greatest values for x,y
-      var ii = twoSmallest(eig.lambda.abs().x);
-      // var x = eig.E.transpose().x[ii[0]];
-      // var y = eig.E.transpose().x[ii[1]];
-      // or
-      var eigv = eig.E.transpose().x;
-      var x = eigv[ii[0]];
-      var y = eigv[ii[1]];
+      var foo = new EigenvalueDecomposition(A);
+      var iii = twoSmallest(foo.realEigenvalues);
+      var foo_ = foo.eigenvectorMatrix.transpose();
+      var x = foo_[iii[0]];
+      var y = foo_[iii[1]];
       var xy = normalize(x, y);
+      // var fooo = new Matrix.EigenvalueDecomposition(A);
+      // var fooo = new Matrix.EigenvalueDecomposition(A);
       // recipe from http://www.sfu.ca/personal/archives/richards/Pages/NAS.AJS-WDR.pdf
       // and implemented in networkx/drawing/layout.py
+
+      var baz = 1;
+
+
       this._nodes.forEach(function(node, i){
           node.x = xy[0][i];
           node.y = xy[1][i];

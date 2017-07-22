@@ -1,3 +1,11 @@
+* ver email do ales
+* implementar versinus e grid
+* 
+
+eigv[0-7] == foo_[52-45]
+
+===========
+
 * revisar o circular
 * revisar os trees
   - Tvz não precise varrer a arvore duas vezes (uma para getDepth e a outra para desenhar
