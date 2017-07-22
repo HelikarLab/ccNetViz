@@ -10,13 +10,13 @@ import {EigenvalueDecomposition} from 'ml-matrix';
 import {create2dArray} from './utils';
 
 function twoSmallest (arr) {
-    var min = Math.min.apply(null, arr), // get the max of the array
+    const min = Math.min.apply(null, arr), // get the max of the array
         mini = arr.indexOf(min);
     arr[mini] = Infinity; // replace max in the array with -infinity
-    var second_min = Math.min.apply(null, arr), // get the new max 
+    const second_min = Math.min.apply(null, arr), // get the new max 
         second_mini = arr.indexOf(second_min);
     arr[second_mini] = Infinity; // replace max in the array with -infinity
-    var third_min = Math.min.apply(null, arr), // get the new max 
+    const third_min = Math.min.apply(null, arr), // get the new max 
         third_mini = arr.indexOf(third_min);
     return [second_mini, third_mini];
 }
@@ -50,7 +50,7 @@ export default class {
   }
 
   apply () {
-      var A = create2dArray(this._nodes.length, this._nodes.length);
+      let A = create2dArray(this._nodes.length, this._nodes.length);
       // build the adjacency matrix
       for (let i=0; i<this._edges.length; ++i){
           let ii = this._edges[i].source.index;
@@ -64,20 +64,16 @@ export default class {
       for (let i=0; i<this._nodes.length; ++i){
           A[i][i] = -A[i].reduce((a, b) => a+b, 0);
       }
-      var foo = new EigenvalueDecomposition(A);
-      var iii = twoSmallest(foo.realEigenvalues);
-      var foo_ = foo.eigenvectorMatrix.transpose();
-      var x = foo_[iii[0]];
-      var y = foo_[iii[1]];
-      var xy = normalize(x, y);
+      let foo = new EigenvalueDecomposition(A);
+      const iii = twoSmallest(foo.realEigenvalues);
+      const foo_ = foo.eigenvectorMatrix.transpose();
+      const x = foo_[iii[0]];
+      const y = foo_[iii[1]];
+      const xy = normalize(x, y);
       // var fooo = new Matrix.EigenvalueDecomposition(A);
       // var fooo = new Matrix.EigenvalueDecomposition(A);
       // recipe from http://www.sfu.ca/personal/archives/richards/Pages/NAS.AJS-WDR.pdf
       // and implemented in networkx/drawing/layout.py
-
-      var baz = 1;
-
-
       this._nodes.forEach(function(node, i){
           node.x = xy[0][i];
           node.y = xy[1][i];

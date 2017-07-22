@@ -1,4 +1,4 @@
-* resolver getDepth
+* resolver getDepth OK
 * implementar versinus e grid
 * 
 

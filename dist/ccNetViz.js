@@ -3077,15 +3077,12 @@
 	  _createClass(_class, [{
 	    key: 'apply',
 	    value: function apply() {
-	      console.log(this._nodes);
 	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	      var angle = this._angle;
-	      var nodes = this._nodes;
-	      nd.nodes.forEach(function (node, i) {
-	        nodes[node.index].x = (1 + Math.cos(i * angle)) * .5;
-	        nodes[node.index].y = (1 + Math.sin(i * angle)) * .5;
-	        nodes[node.index].weight = nd.degrees[i];
-	      });
+	      for (var i = 0; i < this._nodes.length; ++i) {
+	        this._nodes[nd.nodes[i].index].x = (1 + Math.cos(i * this._angle)) * .5;
+	        this._nodes[nd.nodes[i].index].y = (1 + Math.sin(i * this._angle)) * .5;
+	        this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+	      }
 	    }
 	  }]);
 	
@@ -3199,7 +3196,7 @@
 	            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 	
 	            root.centered = true;
-	            root.depth_visited = false;
+	            root.depth_visited = false; // so that getDepth does not raise error if another tree layout is called subsequently
 	            // branch order is for now stable but unpredictable, see layouts.cri
 	            var visited_leafs = 0;
 	            for (var i = 0; i < root.children.length; i++) {
@@ -3308,7 +3305,7 @@
 	
 	            // each node is in vertically on the top of the stack of its leafs
 	            root.visited = true;
-	            root.depth_visited = false;
+	            root.depth_visited = false; // so that getDepth does not raise error if another tree layout is called subsequently
 	            root.x = this.alphax + this.stepx * (layer - 1);
 	            root.y = 1 - (this.alphay + this.stepy * visited_leafs_parent);
 	            // visit children until leafs
@@ -3431,8 +3428,8 @@
 	                nodes[0].y = 0.5;
 	            }
 	            var next_layer = [];
-	            for (var i = 0; i < nodes.length; i++) {
-	                var neighbors = nodes[i].parents.concat(nodes[i].children);
+	            for (var _i = 0; _i < nodes.length; _i++) {
+	                var neighbors = nodes[_i].parents.concat(nodes[_i].children);
 	                for (var j = 0; j < neighbors.length; j++) {
 	                    if (neighbors[j].visited == false && !next_layer.includes(neighbors[j])) {
 	                        next_layer.push(neighbors[j]);
@@ -3474,9 +3471,9 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                for (var i = 0; i < nodes.length; i++) {
-	                    if (nodes[i].parents.length == 0) {
-	                        roots.push(nodes[i]);
+	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+	                    if (nodes[_i2].parents.length == 0) {
+	                        roots.push(nodes[_i2]);
 	                    }
 	                }
 	            }
@@ -3505,8 +3502,8 @@
 	            // each layer of tree x = [0+alpha,1-alpha]
 	            var stepx = (1 - 2 * this.alphax) / (depth - 1);
 	            // posx = alphax + stepx*(depth-1)
-	            for (var i = 0; i < this._nodes.length; ++i) {
-	                this._nodes[i].x = this.alphax + stepx * (this._nodes[i].layer - 1);
+	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
+	                this._nodes[_i3].x = this.alphax + stepx * (this._nodes[_i3].layer - 1);
 	            }
 	        }
 	    }]);
@@ -3546,7 +3543,7 @@
 	        if (parent_ != node) orphan = false;
 	    }
 	    for (var _i = 0; _i < node.children.length; ++_i) {
-	        var child = node.parents[_i];
+	        var child = node.children[_i];
 	        if (child != node) orphan = false;
 	    }
 	    return orphan;
@@ -3604,9 +3601,9 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                for (var i = 0; i < nodes.length; i++) {
-	                    if (nodes[i].parents.length == 0) {
-	                        roots.push(nodes[i]);
+	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+	                    if (nodes[_i2].parents.length == 0) {
+	                        roots.push(nodes[_i2]);
 	                    }
 	                }
 	            }
@@ -3678,23 +3675,23 @@
 	                    if (!(lowest_layer - sep in layers)) layers[lowest_layer - sep] = [];
 	                    layers[lowest_layer - sep].push(node);
 	                } else {
-	                    var lowest_layer = max_layer;
+	                    var _lowest_layer = max_layer;
 	                    var parent_found = false;
 	                    for (var _j = 0; _j < node.parents.length; ++_j) {
 	                        var parent_ = node.parents[_j];
 	                        if (parent_.visited == true) {
 	                            parent_found = true;
-	                            if (parent_.layer <= lowest_layer) {
+	                            if (parent_.layer <= _lowest_layer) {
 	                                // child has to be visited to have a layer
-	                                lowest_layer = parent_.layer;
+	                                _lowest_layer = parent_.layer;
 	                            }
 	                        }
 	                    }
 	                    if (parent_found) {
 	                        node.visited = true;
-	                        node.x = lowest_layer + sep;
-	                        if (!(lowest_layer + sep in layers)) layers[lowest_layer + sep] = [];
-	                        layers[lowest_layer + sep].push(node);
+	                        node.x = _lowest_layer + sep;
+	                        if (!(_lowest_layer + sep in layers)) layers[_lowest_layer + sep] = [];
+	                        layers[_lowest_layer + sep].push(node);
 	                    }
 	                }
 	            }
@@ -3722,8 +3719,8 @@
 	                c.layers[c.current_layer].push(nodes[i]);
 	            }
 	            var next_layer = [];
-	            for (var _i2 = 0; _i2 < nodes.length; _i2++) {
-	                var candidates = nodes[_i2].children;
+	            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
+	                var candidates = nodes[_i3].children;
 	                for (var j = 0; j < candidates.length; j++) {
 	                    if (candidates[j].visited == false && !next_layer.includes(candidates[j])) {
 	                        next_layer.push(candidates[j]);
@@ -3782,8 +3779,8 @@
 	            // each layer of tree xy = [0+alpha,1-alpha]
 	            var stepx = (1 - 2 * this.alphax) / this.components.depth;
 	            var stepy = (1 - 2 * this.alphay) / this.components.vertical_nodes;
-	            for (var i = 0; i < this.components.current_component; i++) {
-	                var component = this.components[i];
+	            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
+	                var component = this.components[_i4];
 	                for (var layer_val in component.layers) {
 	                    var layer = component.layers[layer_val];
 	                    if (layer.length == 1) {
@@ -3792,9 +3789,9 @@
 	                        node.y = this.alphay + stepy * (component.index_offset + component.vertical_nodes / 2);
 	                    } else {
 	                        for (var k = 0; k < layer.length; ++k) {
-	                            var node = layer[k];
-	                            node.x = this.alphax + stepx * layer_val;
-	                            node.y = this.alphay + stepy * (component.index_offset + k);
+	                            var _node = layer[k];
+	                            _node.x = this.alphax + stepx * layer_val;
+	                            _node.y = this.alphay + stepy * (component.index_offset + k);
 	                        }
 	                    }
 	                }
@@ -3907,9 +3904,6 @@
 	            // var fooo = new Matrix.EigenvalueDecomposition(A);
 	            // recipe from http://www.sfu.ca/personal/archives/richards/Pages/NAS.AJS-WDR.pdf
 	            // and implemented in networkx/drawing/layout.py
-	
-	            var baz = 1;
-	
 	            this._nodes.forEach(function (node, i) {
 	                node.x = xy[0][i];
 	                node.y = xy[1][i];
@@ -8372,9 +8366,9 @@
 	        value: function apply() {
 	            var A = (0, _utils.create2dArray)(this._nodes.length, this._nodes.length);
 	            // build the adjacency matrix
-	            for (var _i = 0; _i < this._edges.length; ++_i) {
-	                var ii = this._edges[_i].source.index;
-	                var j = this._edges[_i].target.index;
+	            for (var i = 0; i < this._edges.length; ++i) {
+	                var ii = this._edges[i].source.index;
+	                var j = this._edges[i].target.index;
 	                A[ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
 	            }
 	            var D = deg(A); //degree of each node in graph (number of connections).
@@ -8382,8 +8376,8 @@
 	            var dims = this._dims + 1; //add one to the dims to allow for the first eigen vector
 	            var u = new Array(dims); //declare the eigen vector matrix
 	            u[0] = normalize(ones(this._num_elements)); //create & normalize the first eigen vector
-	            for (var i = 1; i < dims; i++) {
-	                u[i] = zeros(this._num_elements);
+	            for (var _i = 1; _i < dims; _i++) {
+	                u[_i] = zeros(this._num_elements);
 	            } //create empty space for the other eigen vectors
 	
 	            //Power iteration to determine the remaining eigen vectors.
@@ -8418,8 +8412,8 @@
 	                    }
 	
 	                    //multiply with .5(I+D^-1 A)
-	                    for (var i = 0; i < uhk.length; i++) {
-	                        uhk[i] = 0.5 * (uk[i] + dot(A[i], uk) / D[i]);
+	                    for (var _i2 = 0; _i2 < uhk.length; _i2++) {
+	                        uhk[_i2] = 0.5 * (uk[_i2] + dot(A[_i2], uk) / D[_i2]);
 	                    }
 	
 	                    uhk = normalize(uhk);
@@ -8523,10 +8517,10 @@
 	        mat[i] = new Array(n);
 	        mat[i][i] = 0;
 	    }
-	    for (var i = 0; i < n; i++) {
-	        for (var j = i + 1; j < n; j++) {
-	            mat[i][j] = ulim * Math.random();
-	            mat[j][i] = mat[i][j];
+	    for (var _i3 = 0; _i3 < n; _i3++) {
+	        for (var j = _i3 + 1; j < n; j++) {
+	            mat[_i3][j] = ulim * Math.random();
+	            mat[j][_i3] = mat[_i3][j];
 	        }
 	    }
 	    return mat;
@@ -8595,7 +8589,6 @@
 	        key: 'apply',
 	        value: function apply() {
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	
 	            var nodes_segment = this._nodes.length / this._nlines;
 	            var segment = 0.5 - (this._margin + this._radius);
 	            var step = segment / nodes_segment;

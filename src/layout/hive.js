@@ -18,13 +18,12 @@ export default class {
     this._nlines = 5;
   }
   apply () {
-      var nd = degrees(this._nodes, this._edges);
-      
-      var nodes_segment = this._nodes.length / this._nlines;
-      var segment = 0.5 - (this._margin + this._radius);
-      var step = segment / nodes_segment;
-      var angle = 2*Math.PI/this._nlines;
-      var j = 0;
+      let nd = degrees(this._nodes, this._edges);
+      const nodes_segment = this._nodes.length / this._nlines;
+      const segment = 0.5 - (this._margin + this._radius);
+      const step = segment / nodes_segment;
+      const angle = 2*Math.PI/this._nlines;
+      let j = 0;
       for(let i=0; i<this._nodes.length; ++i){
           let ii = nd.nodes[i].index;
           this._nodes[ii].x = 0.5+(this._radius + step*(i-j*nodes_segment))*Math.cos(angle*j+Math.PI/2);

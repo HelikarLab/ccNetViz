@@ -25,14 +25,11 @@ export default class {
     this._angle = 2*Math.PI/nodes.length;
   }
   apply () {
-      console.log(this._nodes);
-      var nd = degrees(this._nodes, this._edges);
-      var angle = this._angle;
-      var nodes = this._nodes;
-      nd.nodes.forEach(function(node, i){
-          nodes[node.index].x = (1+Math.cos(i*angle))*.5;
-          nodes[node.index].y = (1+Math.sin(i*angle))*.5;
-          nodes[node.index].weight = nd.degrees[i];
-      }); 
+      let nd = degrees(this._nodes, this._edges);
+      for (let i=0; i<this._nodes.length; ++i){
+          this._nodes[nd.nodes[i].index].x = (1+Math.cos(i*this._angle))*.5;
+          this._nodes[nd.nodes[i].index].y = (1+Math.sin(i*this._angle))*.5;
+          this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+      }
   }
 };
