@@ -9,6 +9,7 @@ import layoutSpectral from './spectral' ;
 import layoutSpectral2 from './spectral2' ;
 import layoutHive from './hive' ;
 import layoutGrid from './grid' ;
+import layoutVersinus from './versinus' ;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -51,6 +52,8 @@ export default class {
   }
   static get grid(){
     return layoutGrid;
+  }static get versinus(){
+    return layoutVersinus;
   }
   
   static normalize (nodes, dim) {
