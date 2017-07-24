@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    { "label": "1"},
+    { "label": "2"},
+    { "label": "3"},
+    { "label": "4"},
+    { "label": "5"},
+    { "label": "6"},
+    { "label": "7"},
+    { "label": "8"},
+    { "label": "9"},
+    { "label": "10"},
+    { "label": "11"},
+    { "label": "12"},
+    { "label": "13"}
+  ],
+  "edges": [
+    { "source": 3, "target": 4 },
+    { "source": 3, "target": 0 },
+    { "source": 4, "target": 7 },
+    { "source": 4, "target": 8 },
+    { "source": 0, "target": 1 },
+    { "source": 0, "target": 2 },
+    { "source": 0, "target": 12 },
+    { "source": 2, "target": 10 },
+    { "source": 2, "target": 11 },
+    { "source": 1, "target": 5 },
+    { "source": 5, "target": 9 },
+    { "source": 5, "target": 6 }
+  ]
+}

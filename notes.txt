@@ -1,0 +1,336 @@
+* see ales comments about the roadmap
+* tackle (probably) the insertion of optional arguments to layouts
+
+===========
+
+* resolver getDepth OK
+* implementar versinus e grid OK
+* 
+
+eigv[0-7] == foo_[52-45]
+
+===========
+
+* revisar o circular
+* revisar os trees
+  - Tvz não precise varrer a arvore duas vezes (uma para getDepth e a outra para desenhar
+* revisar os hierarquicos
+  - Contemplar mais de uma componente
+* revisar o hive
+  - ver site e artigos do hive plot
+* revisar os espectrais e resolver questão dos eigens
+  - ver implementação do numpy
+    * uses /usr/lib/python3/dist-packages/numpy/linalg/_umath_linalg.cpython-35m-x86_64-linux-gnu.so
+  - ver implementação do numeric
+    * it transforms into the Hessenberg: https://github.com/sloisel/numeric/blob/master/src/numeric.js#L1478
+  - decidir como resolver isso por hora:
+    * outras implementações?
+* contemplar notas so Ales, em especial para uso decente de var, let e ++
+  - tirar (todos?) os vars
+  - colocar funcoes de uso comum em um utils.js?
+    * getDepth
+    * degrees
+* Fazer o layout.html com todos os metodos de layout
+
+===========
+
+The infos are on the beggining of the class.
+If you prefer the infos in the beggining of the file,
+I will change it ASAP.
+
+Trees and hierarchical layouts can only handle 1 connected component
+(securely. There are, actually graphs with multiple components which the
+algs already handle).
+The spectral.js is using the numeric.eig.
+The way out of it would be to try other libraries or implement
+some more robust algorithm.
+The later will probably be far from trivial,
+so I would start with the first case.
+
+
+
+
+
+====================
+
+dar conta dos casos em que o cálculo dos eigens não convege.
+implement spectral layouts that use the edge weights
+I summed 1 to the degrees to avoid division by zero (and handle disconnected graphs).
+I don't know the consequences for the algorithm, and I don't know if we would be better
+if we summed another values (such as 0.0001),
+but the algorithm is giving nice results in reasonable time.
+
+The spectral.js is working fine!
+It gives us the exact result as networkX.
+There are still 2 problems with it (on the calculation of eigen(values/vectors):
+1) It takes a long time to compute.
+Sometimes very long time! (try graph-1000-2.json for example)
+2) It raises error for Glucose.json (does not converge).
+(I did not find any other graph on data/* for which it
+raises an error).
+The networkx implementation uses numpy eig function,
+which is way faster and more robust in the sense
+that is can handle more matrices.
+
+I am not being able to find an algorithm
+to find the eigenvectors which I can implement.
+It can be an approximation.
+We only need the two eigenvectors associated
+with the two lowest non-zero eigenvalues.
+One last resort that comes to mind it to implement
+it in python in algorithmia.com and call it on the
+ccNetViz as an AAS (Algorithm as a Service).
+
+I can dedicate some days to this,
+but ask for help first.
+Maybe you find some algorithm or library or have some other idea.
+
+================
+
+contemplar demais componentes nos layouts hierarquicos
+contemplar vertices solitários
+consistent use of let and var (code review by ales)
+how to optimize loops? Use always for loops (not forEach) and let?
+make initial phase 1 evaluation
+===========
+
+can ccNetViz handle undirected graphs or are all edges directed by default?
+do the tree layouts really take long? (100ms < time < 150ms)
+
+===========
+
+mandar os feitos p Cristina.
+Avisar a Cristina q estou à disposição para aumentar nossas chances de receber a bolsa.
+mandar as paginas e anotações p HL.
+===========
+
+Each layer or a HL can be in a radial line of the Hive Plot.
+
+There are no implementations of hierarchical layouts for non-tree graphs
+except for cytoscape (not even cytoscape.js has a HL).
+
+A vocab and ont for network visualization:
+* Integrate into GraphML.
+Send to Malini and recuero for feedback.
+* See how to make a graph layout library
+to use with NV d3 cytoscape.js etc
+And use it as a nodejs command line tool (input is a graph, output is a layout).
+* 3D and linear plots?
+
+
+
+
+============
+
+how to allow layout to have settings?
+* make a function for layout settings
+* allow settings to be input to the graph.set
+implement settings to circular layout.
+implement spiral layout
+implement grid layout
+implement hierarquical layout
+  - top-down
+  - bottom-up
+  - left-right
+  - right-left
+  - what are the standard algorithms?
+  - the hub can be the root or a vertex set by the user
+  - for trees XX
+    * Input in which format?
+  - There does not seem to be a unique way to derive a hierarchy.
+  Find out if HL has a layout in mind or if it has a use in mind for which I can derive a hierachical layout.
+  Should we be able to deal with digraphs and undirected graphs? Trees? Weighted and unweighted graphs?
+    * There is a measure of hierarchy for all graphs here: https://arxiv.org/pdf/1202.0191.pdf
+    We can use this measure to plot vertices with greatest values on top and descend to vertices with lesser values.
+  - Layered graph layout for digraphs using the Coffman-Graham algorithm.
+implement dot
+
+why should I implement a layout as a class?
+
+how would I correct the complex.html bug?
+
+write to redmine. Wiki. Link in cri.
+
+============
+
+* Subscribed to payoneer.
+
+should degree() be called in the constructor or in apply()?
+
+Circular is working.
+I am leaving settings of the layout for another phase
+as it implies changing ccNetViz code that is not dedicated to layouts.
+PS. this thursday and friday are hollidays here in Brazil,
+but I should keep up working to compensate for
+doing other stuff that were not implementing layouts.
+
+Should I reset my repository and make cleaner commits
+in order for us to have a neat git history?
+
+I want to access variables in the browser.
+e.g. circular nd variable of the apply()
+I can't make the statement:
+nd_ = nd;
+such as I can do in the complex.html file:
+adata = data; // inside showGraph()
+
+Is there a workaround?
+I can console.log them, but I did not find out how to inspect them
+on the browser.
+
+Where in the browser can I access the circular constructor variables?
+E.g. graph.draw.layout.circular.nd
+
+
+
+this are the warnings I get when loading complex.html on the browser:
+http://imgur.com/a/gRaUv
+(both in http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/complex.html
+and locally)
+
+
+
+write a development cycle entry in the README.md:
+1. Make changes to src/ tree.
+2. Build with "$ npm run build" on the ccNetViz root directory.
+3. Clear cache from browser: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+4. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+
+If the file tree does not get updated, there might be issues with the files you are trying to update.
+You can try: "$ ./node_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
+
+Notes:
+* You have to build the package (e.g. into dist/) to run new code.
+* E.g. in Chrome, it always reused the package from cache
+(ctrl+shift+r does not force it to reload recently built package),
+i.e. you have to clear the cache.
+
+================
+
+wrote:
+Alias "/nv" "/home/r/repos/ccNetViz"
+in /etc/apache2/apache2.conf,
+It loads ccNetViz tree correctly.
+It loads complex.html ok at first,
+but got the following error when changing the graph (e.g. to line-10.json):
+http://imgur.com/a/3H4PJ
+
+loads in firefox too.
+changing graph yields a blank/white canvas and the error:
+http://imgur.com/a/PAxmw
+
+can't load js tree directly:
+  <script src="../src/ccNetVizMultiLevel.js"></script>
+  OR: 
+  <script src="../src/ccNetViz.js"></script>
+gives unexpected token import in browser console.
+Made dist package ok with npm run build,
+giving error in the browser:
+"missing module"
+doesn't seem to update
+"import layoutRandom from './random' ;"
+line that is on new /src/layout/layout.js
+
+
+
+
+====================
+
+I did not find the redmine login.
+The warnings, I did not find them anymore.
+The pull request I registered is not closed:
+https://github.com/HelikarLab/ccNetViz/pulls
+just a reminder.
+
+In examples/complex.html, Firefox loads the first graph
+(seems to be Bronchiseptica.json)
+but with the errors in the image below.
+Than, when I change the graph
+(e.g. to T-Cell.json)
+I get no graph,
+again the "XML Parsing Error"
+and a Type error. Screenshot:
+http://imgur.com/a/Drw5p
+
+In Chrome, I get no graph and the errors:
+"XMLHttpRequest cannot load file:///home/r/repos/ccNetViz/examples/data/Bronchiseptica.json. Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https.
+send @ jquery.min.js:4"
+I have the same problem in other examples.
+
+In Firefox, I always get:
+"XML Parsing Error: not well-formed
+Location: file:///home/r/repos/ccNetViz/examples/data/graph-10-2.json"
+and
+"Error: WebGL warning: texImage2D: Conversion requires pixel reformatting."
+
+In interactivity_hover.html, in Chrome, the errors:
+http://imgur.com/a/PlSlX
+
+In running $ npm run build I get the log:
+https://gist.github.com/ttm/55a1eb044a7f53e445c83b2dcb087b7e
+and in my terminal:
+r@K45:~/repos/ccNetViz$ npm run build
+
+> ccnetviz@1.0.14 build /home/r/repos/ccNetViz
+> node build.js
+
+sh: 1: node: not found
+
+npm ERR! Linux 4.4.0-78-generic
+npm ERR! argv "/usr/bin/nodejs" "/usr/bin/npm" "run" "build"
+npm ERR! node v4.2.6
+npm ERR! npm  v3.5.2
+npm ERR! file sh
+npm ERR! code ELIFECYCLE
+npm ERR! errno ENOENT
+npm ERR! syscall spawn
+npm ERR! ccnetviz@1.0.14 build: `node build.js`
+npm ERR! spawn ENOENT
+npm ERR! 
+npm ERR! Failed at the ccnetviz@1.0.14 build script 'node build.js'.
+npm ERR! Make sure you have the latest version of node.js and npm installed.
+npm ERR! If you do, this is most likely a problem with the ccnetviz package,
+npm ERR! not with npm itself.
+npm ERR! Tell the author that this fails on your system:
+npm ERR!     node build.js
+npm ERR! You can get information on how to open an issue for this project with:
+npm ERR!     npm bugs ccnetviz
+npm ERR! Or if that isn't available, you can get their info via:
+npm ERR!     npm owner ls ccnetviz
+npm ERR! There is likely additional logging output above.
+
+npm ERR! Please include the following file with any support request:
+npm ERR!     /home/r/repos/ccNetViz/npm-debug.log
+
+PS. I am implementing circular.js and importing its default function
+in layout.js. I hope to finish this first contribution in the next days,
+including a usage example file.
+
+---------
+Implement circular layout and an example.
+
+
+
+--------------------
+
+From README.md:
+- What is color "combined with node image"?
+      color: "rgb(255, 0, 0)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
+- Minimum size of what? Node?
+        hideSize: 16,   //minimum size (height) for the label to be displayed
+- Aspect of arrow?
+        aspect: 2,  //aspect of arrow image, default: 1
+- Drag graph (window) or node?
+	  onDrag: function(viewport){}, //drag event, disable original event in case of return false
+- In the first function, find the nodes in the circle (x,y,readius) and in the second find the area?
+	***find(x, y, radius, nodes, edges)***
+	***findArea(x1, y1, x2, y2, nodes, edges)***
+- in spatialsearch_simple l16 is equivalent to "= function(a, b) {"?:
+	var normalize = (a, b) => {
+
+Other issues:
+- How to be sure that I am using WebGL?
+- Errors in unit test (printscreen)
+- Errors in performance test (printscreen)
+- Errors in examples in both Chrome and Firefox.
+There are many of them, is there any possibility that we look at them together?

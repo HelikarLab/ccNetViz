@@ -1,5 +1,16 @@
 import layoutForce from './force' ;
 import layoutRandom from './random' ;
+import layoutCircular from './circular' ;
+import layoutTree from './tree' ;
+import layoutTreeT from './treeT' ;
+import layoutHierarchical from './hierarchical' ;
+import layoutHierarchical2 from './hierarchical2' ;
+import layoutSpectral from './spectral' ;
+import layoutSpectral2 from './spectral2' ;
+import layoutHive from './hive' ;
+import layoutGrid from './grid' ;
+import layoutVersinus from './versinus' ;
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12,9 +23,37 @@ export default class {
   static get force(){
     return layoutForce;
   }
-
   static get random(){
     return layoutRandom;
+  }
+  static get circular(){
+    return layoutCircular;
+  }
+  static get tree(){
+    return layoutTree;
+  }
+  static get tree2(){
+    return layoutTreeT;
+  }
+  static get hierarchical(){
+    return layoutHierarchical;
+  }
+  static get hierarchical2(){
+    return layoutHierarchical2;
+  }
+  static get spectral(){
+    return layoutSpectral;
+  }
+  static get spectral2(){
+    return layoutSpectral2;
+  }
+  static get hive(){
+    return layoutHive;
+  }
+  static get grid(){
+    return layoutGrid;
+  }static get versinus(){
+    return layoutVersinus;
   }
   
   static normalize (nodes, dim) {

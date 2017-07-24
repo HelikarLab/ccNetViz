@@ -20,13 +20,14 @@
   },
   "keywords": [
     "graph",
-    "gisualization",
+    "visualization",
     "efficiency",
     "WebGL"
   ],
   "dependencies": {
     "pbf": "^3.0.5",
-    "shelf-pack": "^2.0.1"
+    "shelf-pack": "^2.0.1",
+    "ml-matrix": "^5.0.0"
   },
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",

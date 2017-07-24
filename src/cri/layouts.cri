@@ -1,0 +1,129 @@
+thisDocument description this is a CRI file to link ccNetViz to the semantic web. Every line is a triple.
+forceDirected, grid, circular, hierarchical, spectral, hive, spiral is layout
+layout is incomplete
+spiral javascript https://gist.github.com/ttm/73019d8a8051652334d3f3af9f1a3993.js
+spiral option placce most connected vertices from the center or the outside
+circular javascript ccNetViz/src/layout/circular.js # parse the js file as well for cri triples
+layout reference https://en.wikipedia.org/wiki/Graph_drawing
+layout reference sigma
+sigma implements forceAtlas2
+sigma implements noOverlap
+sigma url http://sigmajs.org/
+layout reference https://github.com/gyuque/livizjs
+layout reference vis.js
+layout reference viz.js
+viz.js url https://github.com/mdaines/viz.js
+viz.js implements dot, netto, circo, etc
+layout reference graphviz
+layout recommendation should make available options for node weights. In force it is implemented as degree (called strength therein). Nodes can have weights related to their clustering coefficient and other measures. See with crew if we should use e.g. jsnetworkx for networks measures
+layout question what is the better way to make the settings of the layout to be modified in real time by the user? Where in the code to make handlers and think of a widget in the graph canvas to change settings.
+layout is representation
+matrix is represtation
+layout implemented circular, force, random
+
+#default mode, line is triple. Should yield another rdf graph
+cri recommendation parse document as a conceptualization set, link each triple to it. it renders rdf graphs and datasets
+cri recommendation in the predicate a and is should mentions rdf:type and rdfs:subClass. Maybe try to use owl:Classes
+cri recommendation use toki pona mode, writer can relate english to toki pona lemmas.
+cri recommendation make vim syntax highlighting asap
+
+#default
+nv article written first in cri, then translated into an article and to be enhanced and finished (e.g. by an expert or whomever or NLP).
+
+# "a" follows definition or rdf:type
+DeterministicGraphLayout a graph that results always in the same position of vertices.
+It make be considered varying by colors and shapes,
+but forms can be set to measures of edges and vertices to imply a deterministic figure.
+Rotation is another criteria for defining  deterministic graphs or near deterministic.
+
+nv nearDeterministicGraphLayout a graph that results always in almost same position of vertices.
+nv nearDeterministicVisualization a visualization method or technique that is always the same.
+
+nearDeterministicGraphLayout is nearDeterministicVisualization # is is subclass
+nearDeterministicGraphLayout possibleUse communityDetection
+communityDetection with k-means, distanceBasedClustering
+
+graphLayout for biology
+treeTree for biology
+hierarchicalGraghLayout for biology
+hierarchicalGraghLayout newAlgorithm parents have higher values in measurements such as degree/strength, closeness, clustering, etc. Start from top measures and in the next layer are all the neighbors from top measures down.
+It seems like parallel coordinates.
+For a digraph, parent-child relations can come from out-degree or in or total.
+Different clustering (cycle order, pondered sum of measures in cycles (multiply matrix by itself, explore spectrum of cycle orders),
+and betweeness can be used.
+The more the measures are combined, the more deterministic is the graph.
+The variation it has can also help in visualization.
+One can use a shortest path algorithm to give rise to the layers of the tree,
+and each layer has a distance from the chosen vertex, like Dijkstra's algorithm.
+It is valuable in social networks as they are frequently not too large for individual vertices to be hand picked and yield insights about the structure.
+Also because individual nodes, corresponding to genes or species, or airports or persons,
+can be better scrutinized.
+
+measureBasedHierarchy a hierarchicalGraphLayout
+measureBasedHierarchy recommendation chose the node with greatest measure (any you choose) and order them in next layers of the tree as connected, each neighbor (parent) is on next layer (children), and each layer has the nodes ordered by the same graphMeasurement. 
+
+measureBasedHierarchy recommendation make constant changes in the criteria of ordering nodes in layers and in each layer as an animation for AAVO as AAVI. Criteria can be compound e.g. x*clust1+y*clust2+z*degree. x,y,z follow paths along other measures or lines or sines.
+measureBasedHierarchy recommendation each layer has an ordering of the nodes in which they are displayed in a line or log line.
+
+nv question how to make animations on ccNetViz? How well can we update the position of nodes and edges without deleting the graph or the canvas?
+nv note if can write over the graph, use to turvar a zona de incerteza no hierarquical
+
+nv question should or can we use d3 or three? (i know some d3, it can help, besides, there are helpful snippets).
+
+nv recommendation allow animations, make videos or gifs if necessary
+
+one can choose more than one root for e.g. couples, groups
+
+tree is a matrix with its columns having different ranks (sizes, number of entries/elements)
+
+layer ordering by deepest branches and siblings upwards. Shortest branches. Geodesic choice by least parents (or more parents) or larger total e.g. degree. Need to find all shortest paths for varying this criteria.
+
+layer ordering can be done with respect to smallest/largest diameter or radius
+
+branch ordering can be set bottom up, from leaves to root (e.g. by degree)
+
+hierarchical can produce incomplete graph representations. Other trees necessary to complete the graph can be exposed in the same canvas. Parents can be found for each node or leaf upwards to yield more complete representations and negative layers.
+
+hierarchical can produce n-ary trees for graphs: choose root, each parent has children which has the greatest n-measures (e.g. degree)
+
+layout subtopic graphDrawing
+
+layout recommendation make layouts that do not follow measures in an obvious way, but is meant to expose the structure.
+One idea is to fix most connected vertices far away (in a plane or circles).
+Another is to expose an erdos sector with more space (e.g. in a circular, double the spacing of intermediary or hubs.
+In circular layout, choose a periodicity, place the most connected vertices pi/period apart,
+walk a step 2pi/|nodes| each period placed nodes.
+
+cri note standard writing lets you write trees really well. RDF/CRI lets you write graphs
+cri recommendation link words and terms in the cri interface
+
+cri reference https://link.springer.com/chapter/10.1007%2F978-3-319-03841-4_6
+
+avvo question is there another analysis method that consists in visualizing data such as network visualization?
+
+
+
+cri parse python and other code as triples "a = 5" = "subject predicate object".
+cri parse think of good practices in writing code in python that can be parsed by cri. See python/js/c++/other parsers
+cri parse make a good parser for cri triples, modes, etc. Use it for vim syntax highlighting and rendering RDF. Make it by walking though cri written documents. Use Percolate to parse datatypes. 
+
+
+
+
+graphMeasurement has degree, strength, betweenness, closeness, clustering
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -170,7 +170,7 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 * target: pointer to given target node object
 * style (optional): name of custom style class used for this edge
 
-Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random". If not specified, positions are taken from each node x, y properties.
+Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular", "tree". If not specified, positions are taken from each node x, y properties.
 
 
 ***find(x, y, radius, nodes, edges)***
@@ -232,3 +232,26 @@ Property to access nodes data of given graph. Use this just to read current valu
 ***edges***
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
+
+### Development in ccNetViz
+This is the pipeline you should follow to make changes to ccNetViz:
+
+0. Fork ccNetViz repository e.g. from [HeilikarLab]. Start a server
+   (such as Apache) with a path to the ccNetViz directory.
+1. Make changes to src/ tree.
+2. Run "$ npm update" to download needed packages.
+3. Build with "$ npm run build" on the ccNetViz root directory.
+4. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+5. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+6. Commit changes to your fork and make a pull request e.g. on the repository you forked.
+
+[HeilikarLab]: https://github.com/HelikarLab/ccNetViz
+
+
+Notes:
+* If the file tree does not get updated, there might be issues with the files you are trying to update.
+You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
+* You have to build the package (e.g. into dist/) to run new code, i.e. you cannot make changes to src/ tree and load them to the browser.
+* E.g. in Chrome, it always reused the package from cache
+(ctrl+shift+r does not force it to reload recently built package),
+i.e. you have to clear the cache.
