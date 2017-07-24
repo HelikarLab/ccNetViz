@@ -1,5 +1,10 @@
+* see ales comments about the roadmap
+* tackle (probably) the insertion of optional arguments to layouts
+
+===========
+
 * resolver getDepth OK
-* implementar versinus e grid
+* implementar versinus e grid OK
 * 
 
 eigv[0-7] == foo_[52-45]

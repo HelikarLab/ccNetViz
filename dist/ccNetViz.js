@@ -354,6 +354,8 @@
 	  };
 	
 	  this.set = function (n, e, layout) {
+	    var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+	
 	    if (checkRemoved()) return _this;
 	
 	    nodes = n || [];
@@ -362,8 +364,8 @@
 	    nodes.forEach(checkUniqId);
 	    edges.forEach(checkUniqId);
 	
-	    layers.temp && layers.temp.set([], [], layout);
-	    layers.main.set(nodes, edges, layout);
+	    layers.temp && layers.temp.set([], [], layout, layout_options);
+	    layers.main.set(nodes, edges, layout, layout_options);
 	
 	    //reset batch
 	    batch = undefined;
@@ -1195,7 +1197,7 @@
 	        enableLazyRedraw = true;
 	    };
 	
-	    this.set = function (nodes, edges, layout) {
+	    this.set = function (nodes, edges, layout, layout_options) {
 	        removedNodes = 0;
 	        removedEdges = 0;
 	
@@ -1308,7 +1310,7 @@
 	            return spatialSearch;
 	        };
 	
-	        layout && new _layout2.default[layout](nodes, edges).apply() && _layout2.default.normalize(nodes);
+	        layout && new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
 	
@@ -3058,7 +3060,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
@@ -3074,37 +3076,38 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	  // get degree of all nodes
-	  // let user define at least: starting angle and radius and
-	  // clock/cclock direction
-	  // size of vertices
-	  // more: a ratio of compactness for the more/less connected nodes
-	  // a spiral ratio with a rotation ratio for having more than 2pi
-	  // distribution of nodes when spiriling
-	  // use some other ordering criterion than degree? Strength?
-	  // defined by user and found as attribute of each node?
-	  // random ordering, minimal crossing of edges?
-	  function _class(nodes, edges) {
-	    _classCallCheck(this, _class);
+	    // get degree of all nodes
+	    // let user define at least: starting angle and radius and
+	    // clock/cclock direction
+	    // size of vertices
+	    // more: a ratio of compactness for the more/less connected nodes
+	    // a spiral ratio with a rotation ratio for having more than 2pi
+	    // distribution of nodes when spiriling
+	    // use some other ordering criterion than degree? Strength?
+	    // defined by user and found as attribute of each node?
+	    // random ordering, minimal crossing of edges?
+	    function _class(nodes, edges, layout_options) {
+	        _classCallCheck(this, _class);
 	
-	    this._nodes = nodes;
-	    this._edges = edges;
-	    this._angle = 2 * Math.PI / nodes.length;
-	  }
-	
-	  _createClass(_class, [{
-	    key: 'apply',
-	    value: function apply() {
-	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	      for (var i = 0; i < this._nodes.length; ++i) {
-	        this._nodes[nd.nodes[i].index].x = (1 + Math.cos(i * this._angle)) * .5;
-	        this._nodes[nd.nodes[i].index].y = (1 + Math.sin(i * this._angle)) * .5;
-	        this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
-	      }
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        this._angle_step = 2 * Math.PI / nodes.length;
+	        if (layout_options.starting_angle == null) this._starting_angle = 0;else this._starting_angle = layout_options.starting_angle;
 	    }
-	  }]);
 	
-	  return _class;
+	    _createClass(_class, [{
+	        key: 'apply',
+	        value: function apply() {
+	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	            for (var i = 0; i < this._nodes.length; ++i) {
+	                this._nodes[nd.nodes[i].index].x = 0.05 + (1 + Math.cos(this._starting_angle + i * this._angle_step)) * .45;
+	                this._nodes[nd.nodes[i].index].y = 0.05 + (1 + Math.sin(this._starting_angle + i * this._angle_step)) * .45;
+	                this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+	            }
+	        }
+	    }]);
+	
+	    return _class;
 	}();
 	
 	exports.default = _class;
@@ -8703,6 +8706,7 @@
 	  // further versions should enable the choice of other
 	  // fractions of hubs, intermediary and peripheral vertices
 	  // or the Erdös sectioning.
+	  // maybe also let the user set the endpoints of the periphery segment
 	  function _class(nodes, edges) {
 	    _classCallCheck(this, _class);
 	
