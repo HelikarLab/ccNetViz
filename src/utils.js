@@ -33,7 +33,6 @@ export default class Utils {
     var xmlhttp;
     // compatible with IE7+, Firefox, Chrome, Opera, Safari
     xmlhttp = new XMLHttpRequest();
-    if(type) xmlhttp.responseType=type;
     xmlhttp.onreadystatechange = (function(cbk){
       return function(){
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
@@ -41,6 +40,7 @@ export default class Utils {
         }
       }
     })(callback);
+    if(type) xmlhttp.responseType=type;
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }
