@@ -7,6 +7,7 @@
  */
 
 import {degrees} from './utils';
+import ccNetViz_utils from '../utils';
 
 export default class {
   // get degree of all nodes
@@ -22,17 +23,34 @@ export default class {
   constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
-    this._angle_step = 2*Math.PI/nodes.length;
-    if (layout_options.starting_angle == null)
-	this._starting_angle = 0;
-    else
-	this._starting_angle = layout_options.starting_angle;
+    const margin = 0.05;
+    const center = [0.5, 0.5];
+    let defaults = {
+        "angle_step": 2*Math.PI/nodes.length,
+        "starting_angle": 0,
+        "center": center,
+        "radius": Math.max.apply(null, center) - margin,
+        "angle_ratio": 1,
+        "radius_ratio": 1,
+        "divisions": 1
+    }
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
   apply () {
-      let nd = degrees(this._nodes, this._edges);
-      for (let i=0; i<this._nodes.length; ++i){
-          this._nodes[nd.nodes[i].index].x = 0.05+(1+Math.cos(this._starting_angle+i*this._angle_step))*.45;
-          this._nodes[nd.nodes[i].index].y = 0.05+(1+Math.sin(this._starting_angle+i*this._angle_step))*.45;
+      const nd = degrees(this._nodes, this._edges);
+      const angle0 = this._options.starting_angle;
+      const astep = this._options.angle_step*this._options.angle_ratio;
+      const center = this._options.center;
+      const ri = this._options.radius; // initial
+      const rf = this._options.radius_ratio*this._options.radius; // final
+      const divisions = this._options.divisions;
+      const nnodes = this._nodes.length;
+      for (let i=0; i<nnodes; ++i){
+          const radius = ri + i*(rf-ri)/(nnodes-1);
+          const angle = angle0+ Math.floor(i/divisions) * astep + (2*Math.PI/divisions) * (i%divisions);
+          this._nodes[nd.nodes[i].index].x = center[0]+Math.cos(angle)*radius;
+          this._nodes[nd.nodes[i].index].y = center[1]+Math.sin(angle)*radius;
           this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
       }
   }

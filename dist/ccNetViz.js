@@ -3073,6 +3073,12 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
@@ -3091,17 +3097,37 @@
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this._angle_step = 2 * Math.PI / nodes.length;
-	        if (layout_options.starting_angle == null) this._starting_angle = 0;else this._starting_angle = layout_options.starting_angle;
+	        var margin = 0.05;
+	        var center = [0.5, 0.5];
+	        var defaults = {
+	            "angle_step": 2 * Math.PI / nodes.length,
+	            "starting_angle": 0,
+	            "center": center,
+	            "radius": Math.max.apply(null, center) - margin,
+	            "angle_ratio": 1,
+	            "radius_ratio": 1,
+	            "divisions": 1
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
 	        key: 'apply',
 	        value: function apply() {
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	            for (var i = 0; i < this._nodes.length; ++i) {
-	                this._nodes[nd.nodes[i].index].x = 0.05 + (1 + Math.cos(this._starting_angle + i * this._angle_step)) * .45;
-	                this._nodes[nd.nodes[i].index].y = 0.05 + (1 + Math.sin(this._starting_angle + i * this._angle_step)) * .45;
+	            var angle0 = this._options.starting_angle;
+	            var astep = this._options.angle_step * this._options.angle_ratio;
+	            var center = this._options.center;
+	            var ri = this._options.radius; // initial
+	            var rf = this._options.radius_ratio * this._options.radius; // final
+	            var divisions = this._options.divisions;
+	            var nnodes = this._nodes.length;
+	            for (var i = 0; i < nnodes; ++i) {
+	                var radius = ri + i * (rf - ri) / (nnodes - 1);
+	                var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
+	                this._nodes[nd.nodes[i].index].x = center[0] + Math.cos(angle) * radius;
+	                this._nodes[nd.nodes[i].index].y = center[1] + Math.sin(angle) * radius;
 	                this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
 	            }
 	        }
