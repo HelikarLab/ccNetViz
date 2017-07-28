@@ -1,3 +1,7 @@
++ revisar código dos layouts
++ fazer pull request
+
+
 dar conta dos casos em que o cálculo dos eigens não convege.
 implement spectral layouts that use the edge weights
 I summed 1 to the degrees to avoid division by zero (and handle disconnected graphs).
