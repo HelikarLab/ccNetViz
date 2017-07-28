@@ -1310,7 +1310,7 @@
 	            return spatialSearch;
 	        };
 	
-	        layout && new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);
+	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);else throw new Error("The layout can only be a string or a function or a class");
 	
 	        if (!gl) return;
 	

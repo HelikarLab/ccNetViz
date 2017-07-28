@@ -353,8 +353,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           }
           return spatialSearch;
         }        
-
-        layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+        
+        if (typeof(layout) == "string")
+            new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+        else if (typeof(layout) == "function")
+            new layout(nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+        else
+            throw new Error("The layout can only be a string or a function or a class");
         
         if(!gl) return;
         
