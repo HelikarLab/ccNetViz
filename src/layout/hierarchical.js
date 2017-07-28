@@ -6,19 +6,6 @@
  *  Author: Renato Fabbri
  */
 
-function getDepth(obj) {
-    var depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-            var tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth
-}
-
 export default class {
   // this layout should handle any digraph
   constructor(nodes, edges) {
@@ -30,8 +17,8 @@ export default class {
 
   makeLayers(nodes, layer){
       if (nodes.length > 1){
-          var stepy = (1 - 2*this.alphay)/(nodes.length-1);
-          for (var i=0; i<nodes.length; ++i){
+          const stepy = (1 - 2*this.alphay)/(nodes.length-1);
+          for (let i=0; i<nodes.length; ++i){
               nodes[i].visited = true;
               nodes[i].layer = layer; // makes x afterwards
               nodes[i].y = this.alphay + i*stepy;
@@ -42,10 +29,10 @@ export default class {
           nodes[0].layer = layer; // makes x afterwards
           nodes[0].y = 0.5;
       }
-      var next_layer = [];
-      for (var i=0; i<nodes.length; i++){
-          var neighbors = nodes[i].parents.concat(nodes[i].children);
-          for (var j=0; j < neighbors.length; j++){
+      let next_layer = [];
+      for (let i=0; i<nodes.length; i++){
+          let neighbors = nodes[i].parents.concat(nodes[i].children);
+          for (let j=0; j < neighbors.length; j++){
               if (neighbors[j].visited == false && !next_layer.includes(neighbors[j])){
                   next_layer.push(neighbors[j]);
               }
@@ -64,7 +51,7 @@ export default class {
       // top-down, bottom-top, right-left in subsequent versions
       // hierarchical layouts for trees (acyclic graphs) are
       // implemented separately for now
-      var nodes = this._nodes;
+      let nodes = this._nodes;
       nodes.forEach(function(n,i){
           n.parents = [];
           n.children = [];
@@ -78,14 +65,14 @@ export default class {
       // nodes defined by the user as roots OR
       // nodes with in-degree == 0 OR
       // nodes with greatest in-degree (or degree if undirected graph)
-      var roots = [];
-      for (var i = 0; i < nodes.length; i++){
+      let roots = [];
+      for (let i = 0; i < nodes.length; i++){
           if (nodes[i].isroot == true){ // has to be on the json file of the graph
               roots.push(nodes[i]);
           }
       }
       if (roots.length == 0){
-          for (var i = 0; i < nodes.length; i++){
+          for (let i = 0; i < nodes.length; i++){
               if (nodes[i].parents.length == 0){
                   roots.push(nodes[i]);
               }
@@ -93,7 +80,7 @@ export default class {
       }
       if (roots.length == 0){
           // calculate max out-degree
-          var max_outdegree = 0;
+          let max_outdegree = 0;
           nodes.forEach(function(node){
               if (node.children.length > max_outdegree){
                   max_outdegree = node.children.length;
@@ -112,11 +99,11 @@ export default class {
       // 1) each layer has all the neighbors of the nodes in the previous layer
       // 2) follow links and then place non visited nodes on the layer of neighbors OR
       // this layout implements the first of these approaches.
-      var depth = this.makeLayers(roots, 1);
+      const depth = this.makeLayers(roots, 1);
       // each layer of tree x = [0+alpha,1-alpha]
-      var stepx = (1-2*this.alphax)/(depth-1);
+      const stepx = (1-2*this.alphax)/(depth-1);
       // posx = alphax + stepx*(depth-1)
-      for (var i=0; i<this._nodes.length; ++i){
+      for (let i=0; i<this._nodes.length; ++i){
           this._nodes[i].x = this.alphax + stepx*(this._nodes[i].layer - 1);
       }
   }

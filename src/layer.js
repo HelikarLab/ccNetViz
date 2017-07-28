@@ -241,7 +241,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       enableLazyRedraw = true;
     };    
 
-    this.set = function(nodes, edges, layout) {
+    this.set = function(nodes, edges, layout, layout_options) {
         removedNodes = 0;
         removedEdges = 0;
       
@@ -354,7 +354,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           return spatialSearch;
         }        
 
-        layout && new ccNetViz_layout[layout](nodes, edges).apply() && ccNetViz_layout.normalize(nodes);
+        layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
         
         if(!gl) return;
         

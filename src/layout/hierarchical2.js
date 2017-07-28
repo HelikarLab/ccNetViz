@@ -6,28 +6,15 @@
  *  Author: Renato Fabbri
  */
 
-function getDepth(obj) {
-    var depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-            var tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth
-}
-
 function isOrphan(node){
-    var orphan = true;
+    let orphan = true;
     for (let i=0; i<node.parents.length; ++i){
-        var parent_ = node.parents[i];
+        let parent_ = node.parents[i];
         if (parent_ != node)
             orphan = false;
     }
     for (let i=0; i<node.children.length; ++i){
-        var child = node.parents[i];
+        let child = node.children[i];
         if (child != node)
             orphan = false;
     }
@@ -58,10 +45,10 @@ export default class {
   }
 
   separateOrphans(){
-      var orphans = [];
-      var nodes = [];
+      let orphans = [];
+      let nodes = [];
       for (let i=0; i< this._nodes.length; ++i){
-          var node = this._nodes[i];
+          let node = this._nodes[i];
           if (isOrphan(node))
               orphans.push(node);
           else
@@ -69,19 +56,20 @@ export default class {
       }
       return orphans;
   }
+
   findRoots(nodes){
       // find the roots:
       // nodes defined by the user as roots OR
       // nodes with in-degree == 0 OR
       // nodes with greatest in-degree (or degree if undirected graph)
-      var roots = [];
-      for (var i = 0; i < nodes.length; i++){
+      let roots = [];
+      for (let i = 0; i < nodes.length; i++){
           if (nodes[i].isroot == true){ // has to be on the json file of the graph
               roots.push(nodes[i]);
           }
       }
       if (roots.length == 0){
-          for (var i = 0; i < nodes.length; i++){
+          for (let i = 0; i < nodes.length; i++){
               if (nodes[i].parents.length == 0){
                   roots.push(nodes[i]);
               }
@@ -89,7 +77,7 @@ export default class {
       }
       if (roots.length == 0){
           // calculate max out-degree
-          var max_outdegree = 0;
+          let max_outdegree = 0;
           nodes.forEach(function(node){
               if (node.children.length > max_outdegree){
                   max_outdegree = node.children.length;
@@ -106,7 +94,7 @@ export default class {
   }
 
   placeOrphans(nodes, max_layer){
-      var stepy = (1 - 2*this.alphay)/(nodes.length-1);
+      const stepy = (1 - 2*this.alphay)/(nodes.length-1);
       for (let i=0; i<nodes.length; ++i){
           nodes[i].y = this.alphay + i*stepy;
           nodes[i].x = max_layer+1;
@@ -118,8 +106,8 @@ export default class {
   }
 
   unvisitedNodes(){
-      var nodes = [];
-      var orphans = this.orphans;
+      let nodes = [];
+      let orphans = this.orphans;
       this.unvisited.forEach(function(node){
           if (node.visited == false && !(node in orphans))
               nodes.push(node);
@@ -132,15 +120,15 @@ export default class {
 
   placeAdditional(){
       // place non-visited nodes in between layers
-      var aux_layers = {};
-      var c = this.components[this.components.current_component];
-      var layers = c.layers;
+      let aux_layers = {};
+      let c = this.components[this.components.current_component];
+      let layers = c.layers;
       for (let i=0; i<this.unvisited.length; ++i){
-          var node = this.unvisited[i];
-          var lowest_layer = this.components.depth;
-          var child_found = false;
+          let node = this.unvisited[i];
+          let lowest_layer = this.components.depth;
+          let child_found = false;
           for(let j=0; j<node.children.length; ++j){
-              var child = node.children[j];
+              let child = node.children[j];
               if (child.visited == true){
                   child_found = true;
                   if(child.layer <= lowest_layer){ // child has to be visited to have a layer
@@ -157,10 +145,10 @@ export default class {
               layers[lowest_layer-sep].push(node)
           }
           else {
-              var lowest_layer = max_layer;
-              var parent_found = false;
+              let lowest_layer = max_layer;
+              let parent_found = false;
               for(let j=0; j<node.parents.length; ++j){
-                  var parent_ = node.parents[j];
+                  let parent_ = node.parents[j];
                   if (parent_.visited == true){
                       parent_found = true;
                       if(parent_.layer <= lowest_layer){ // child has to be visited to have a layer
@@ -195,7 +183,7 @@ export default class {
   layerNodes(nodes){
       if (!(this.components.current_component in this.components))
           this.initializeComponent(this.components.current_component);
-      var c = this.components[this.components.current_component];
+      let c = this.components[this.components.current_component];
       if (nodes.length > c.vertical_nodes)
           c.vertical_nodes = nodes.length;
       c.layers[c.current_layer] = [];
@@ -203,10 +191,10 @@ export default class {
           nodes[i].visited = true;
           c.layers[c.current_layer].push(nodes[i]);
       }
-      var next_layer = [];
+      let next_layer = [];
       for (let i=0; i<nodes.length; i++){
-          var candidates = nodes[i].children;
-          for (var j=0; j < candidates.length; j++){
+          let candidates = nodes[i].children;
+          for (let j=0; j < candidates.length; j++){
               if (candidates[j].visited == false && !next_layer.includes(candidates[j])){
                   next_layer.push(candidates[j]);
               }
@@ -248,7 +236,7 @@ export default class {
           this.components.current_component++;
       }
       this.components.vertical_nodes = 0;
-      for (var i=0; i<this.components.current_component; i++){
+      for (let i=0; i<this.components.current_component; i++){
           this.components.vertical_nodes += this.components[i].vertical_nodes;
       }
 
@@ -262,19 +250,19 @@ export default class {
       // components.depth is the maximum number of layers
 
       // each layer of tree xy = [0+alpha,1-alpha]
-      var stepx = (1-2*this.alphax)/(this.components.depth);
-      var stepy = (1-2*this.alphay)/(this.components.vertical_nodes);
-      for (var i=0; i<this.components.current_component; i++){
-          var component = this.components[i];
-          for (var layer_val in component.layers){
-              var layer = component.layers[layer_val];
+      const stepx = (1-2*this.alphax)/(this.components.depth);
+      const stepy = (1-2*this.alphay)/(this.components.vertical_nodes);
+      for (let i=0; i<this.components.current_component; i++){
+          let component = this.components[i];
+          for (let layer_val in component.layers){
+              let layer = component.layers[layer_val];
               if (layer.length == 1){
-                  var node = layer[0];
+                  let node = layer[0];
                   node.x = this.alphax + stepx*layer_val;
                   node.y = this.alphay + stepy*(component.index_offset + component.vertical_nodes/2);
               } else {
                   for (let k=0; k<layer.length; ++k){
-                      var node = layer[k];
+                      let node = layer[k];
                       node.x = this.alphax + stepx*layer_val;
                       node.y = this.alphay + stepy*(component.index_offset + k);
                   }

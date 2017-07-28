@@ -6,27 +6,18 @@
  *  Author: Renato Fabbri
  */
 
-import numeric from 'numeric';
-
-function create2dArray (rows, columns) {
-    return [...Array(rows).keys()].map(i => Array(columns).fill(0));
-}
+import {EigenvalueDecomposition} from 'ml-matrix';
+import {create2dArray} from './utils';
 
 function twoSmallest (arr) {
-    // var max = Math.max.apply(null, arr), // get the max of the array
-    //     maxi = arr.indexOf(max);
-    // arr[maxi] = -Infinity; // replace max in the array with -infinity
-    // var second_max = Math.max.apply(null, arr), // get the new max 
-    //     second_maxi = arr.indexOf(second_max);
-    var min = Math.min.apply(null, arr), // get the max of the array
+    const min = Math.min.apply(null, arr), // get the max of the array
         mini = arr.indexOf(min);
     arr[mini] = Infinity; // replace max in the array with -infinity
-    var second_min = Math.min.apply(null, arr), // get the new max 
+    const second_min = Math.min.apply(null, arr), // get the new max 
         second_mini = arr.indexOf(second_min);
     arr[second_mini] = Infinity; // replace max in the array with -infinity
-    var third_min = Math.min.apply(null, arr), // get the new max 
+    const third_min = Math.min.apply(null, arr), // get the new max 
         third_mini = arr.indexOf(third_min);
-    // return [maxi, second_maxi];
     return [second_mini, third_mini];
 }
 
@@ -57,8 +48,9 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
   }
+
   apply () {
-      var A = create2dArray(this._nodes.length, this._nodes.length);
+      let A = create2dArray(this._nodes.length, this._nodes.length);
       // build the adjacency matrix
       for (let i=0; i<this._edges.length; ++i){
           let ii = this._edges[i].source.index;
@@ -72,22 +64,19 @@ export default class {
       for (let i=0; i<this._nodes.length; ++i){
           A[i][i] = -A[i].reduce((a, b) => a+b, 0);
       }
-      var eig = numeric.eig(A);
-      // use eigenvectors with greatest values for x,y
-      var ii = twoSmallest(eig.lambda.abs().x);
-      // var x = eig.E.transpose().x[ii[0]];
-      // var y = eig.E.transpose().x[ii[1]];
-      // or
-      var eigv = eig.E.transpose().x;
-      var x = eigv[ii[0]];
-      var y = eigv[ii[1]];
-      var xy = normalize(x, y);
+      let foo = new EigenvalueDecomposition(A);
+      const iii = twoSmallest(foo.realEigenvalues);
+      const foo_ = foo.eigenvectorMatrix.transpose();
+      const x = foo_[iii[0]];
+      const y = foo_[iii[1]];
+      const xy = normalize(x, y);
+      // var fooo = new Matrix.EigenvalueDecomposition(A);
+      // var fooo = new Matrix.EigenvalueDecomposition(A);
       // recipe from http://www.sfu.ca/personal/archives/richards/Pages/NAS.AJS-WDR.pdf
       // and implemented in networkx/drawing/layout.py
       this._nodes.forEach(function(node, i){
           node.x = xy[0][i];
           node.y = xy[1][i];
       }); 
-      console.log(this._nodes);
   }
 };

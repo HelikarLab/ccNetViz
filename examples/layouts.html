@@ -60,7 +60,7 @@
       //fill in layout names
       var select2 = $("#listLayouts");
       $.each(["force", "hierarchical", "hierarchical2", "circular",
-              "random", "tree", "tree2"], function(index,val){
+              "random", "tree", "tree2", "spectral", "spectral2", "hive", "grid", "versinus"], function(index,val){
         select2.append($("<option />", {'value': val}).text(val));
       });
       select2.change(onChange2);
