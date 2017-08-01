@@ -355,11 +355,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         }        
         
         if (typeof(layout) == "string")
-            new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+            new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
         else if (typeof(layout) == "function")
-            new layout(nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+            new layout(nodes, edges, layout_options).apply();
         else
             throw new Error("The layout can only be a string or a function or a class");
+        ccNetViz_layout.normalize(nodes);
         
         if(!gl) return;
         

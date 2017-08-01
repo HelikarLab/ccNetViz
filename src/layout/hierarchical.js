@@ -6,22 +6,29 @@
  *  Author: Renato Fabbri
  */
 
+import ccNetViz_utils from '../utils';
+
 export default class {
   // this layout should handle any digraph
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
-    this.alphay = 0.05; // y margin
-    this.alphax = 0.05; // x margin
+    let defaults = {
+        "marginx": 0.05, // x margin
+        "marginy": 0.05, // y margin
+        "direction": "left-right", // other options: right-left, top-down, bottom-up
+    };
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
 
   makeLayers(nodes, layer){
       if (nodes.length > 1){
-          const stepy = (1 - 2*this.alphay)/(nodes.length-1);
+          const stepy = (1 - 2*this._options.marginy)/(nodes.length-1);
           for (let i=0; i<nodes.length; ++i){
               nodes[i].visited = true;
               nodes[i].layer = layer; // makes x afterwards
-              nodes[i].y = this.alphay + i*stepy;
+              nodes[i].y = this._options.marginy + i*stepy;
           }
       }
       else {
@@ -101,10 +108,29 @@ export default class {
       // this layout implements the first of these approaches.
       const depth = this.makeLayers(roots, 1);
       // each layer of tree x = [0+alpha,1-alpha]
-      const stepx = (1-2*this.alphax)/(depth-1);
-      // posx = alphax + stepx*(depth-1)
+      const stepx = (1-2*this._options.marginx)/(depth-1);
+      // posx = marginx + stepx*(depth-1)
       for (let i=0; i<this._nodes.length; ++i){
-          this._nodes[i].x = this.alphax + stepx*(this._nodes[i].layer - 1);
+          this._nodes[i].x = this._options.marginx + stepx*(this._nodes[i].layer - 1);
+      }
+      if (this._options.direction == "right-left"){
+          for (let i=0; i<this._nodes.length; ++i){
+              this._nodes[i].x = 1 - this._nodes[i].x;
+          }
+      } else if (this._options.direction == "top-down"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = 1 - this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction == "bottom-up"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction != "left-right"){ 
+          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
       }
   }
 };

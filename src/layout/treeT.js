@@ -7,11 +7,17 @@
  */
 
 import {getDepth} from './utils';
+import ccNetViz_utils from '../utils';
 
 export default class {
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
+    let defaults = {
+        "direction": "left-right", // other options: right-left, top-down, bottom-up
+    };
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
 
   drawTreeTop(root, visited_leafs_parent=0, layer=1){
@@ -80,5 +86,25 @@ export default class {
       // and decide if parent is visited (always in tree layout)
 
       this.drawTreeTop(root);
+
+      if (this._options.direction == "right-left"){
+          for (let i=0; i<this._nodes.length; ++i){
+              this._nodes[i].x = 1 - this._nodes[i].x;
+          }
+      } else if (this._options.direction == "top-down"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = 1 - this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction == "bottom-up"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction != "left-right"){ 
+          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+      }
   }
 };

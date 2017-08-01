@@ -72,14 +72,12 @@
 	  edge: { arrow: { texture: "images/arrow.png" } }
 	}});
       let layout_options = {
-         "starting_angle": Math.PI/2,
-         "radius_ratio": 0.2,
-         "angle_ratio": 2,
-         "radius":.4,
-         "center": [.55,.45],
-         "divisions": 8,
+         // "direction": "top-down",
+         // "direction": "bottom-up",
+         // "direction": "right-left",
+         // "direction": "banana",
       }
-      graph.set(data.nodes, data.edges, "circular", layout_options);
+      graph.set(data.nodes, data.edges, "hierarchical2", layout_options);
       graph.draw();
       
       $('#nodesCnt').text(data.nodes.length);

@@ -1310,7 +1310,8 @@
 	            return spatialSearch;
 	        };
 	
-	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);else throw new Error("The layout can only be a string or a function or a class");
+	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply();else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply();else throw new Error("The layout can only be a string or a function or a class");
+	        _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
 	
@@ -3226,14 +3227,25 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3305,6 +3317,26 @@
 	            // posy = alphay + stepy*(leafn-1)
 	
 	            this.drawTreeCentered(root);
+	
+	            if (this._options.direction == "right-left") {
+	                for (var _i = 0; _i < this._nodes.length; ++_i) {
+	                    this._nodes[_i].x = 1 - this._nodes[_i].x;
+	                }
+	            } else if (this._options.direction == "top-down") {
+	                for (var _i2 = 0; _i2 < this._nodes.length; ++_i2) {
+	                    var foo = 1 - this._nodes[_i2].x;
+	                    this._nodes[_i2].x = this._nodes[_i2].y;
+	                    this._nodes[_i2].y = foo;
+	                }
+	            } else if (this._options.direction == "bottom-up") {
+	                for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
+	                    var _foo = this._nodes[_i3].x;
+	                    this._nodes[_i3].x = this._nodes[_i3].y;
+	                    this._nodes[_i3].y = _foo;
+	                }
+	            } else if (this._options.direction != "left-right") {
+	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+	            }
 	        }
 	    }]);
 	
@@ -3334,14 +3366,25 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3417,6 +3460,26 @@
 	            // and decide if parent is visited (always in tree layout)
 	
 	            this.drawTreeTop(root);
+	
+	            if (this._options.direction == "right-left") {
+	                for (var _i = 0; _i < this._nodes.length; ++_i) {
+	                    this._nodes[_i].x = 1 - this._nodes[_i].x;
+	                }
+	            } else if (this._options.direction == "top-down") {
+	                for (var _i2 = 0; _i2 < this._nodes.length; ++_i2) {
+	                    var foo = 1 - this._nodes[_i2].x;
+	                    this._nodes[_i2].x = this._nodes[_i2].y;
+	                    this._nodes[_i2].y = foo;
+	                }
+	            } else if (this._options.direction == "bottom-up") {
+	                for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
+	                    var _foo = this._nodes[_i3].x;
+	                    this._nodes[_i3].x = this._nodes[_i3].y;
+	                    this._nodes[_i3].y = _foo;
+	                }
+	            } else if (this._options.direction != "left-right") {
+	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+	            }
 	        }
 	    }]);
 	
@@ -3428,7 +3491,7 @@
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -3436,38 +3499,47 @@
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this.alphay = 0.05; // y margin
-	        this.alphax = 0.05; // x margin
+	        var defaults = {
+	            "marginx": 0.05, // x margin
+	            "marginy": 0.05, // y margin
+	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	        };
+	        _utils2.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
 	        key: "makeLayers",
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
-	                var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	                var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
 	                for (var i = 0; i < nodes.length; ++i) {
 	                    nodes[i].visited = true;
 	                    nodes[i].layer = layer; // makes x afterwards
-	                    nodes[i].y = this.alphay + i * stepy;
+	                    nodes[i].y = this._options.marginy + i * stepy;
 	                }
 	            } else {
 	                nodes[0].visited = true;
@@ -3547,10 +3619,29 @@
 	            // this layout implements the first of these approaches.
 	            var depth = this.makeLayers(roots, 1);
 	            // each layer of tree x = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this.alphax) / (depth - 1);
-	            // posx = alphax + stepx*(depth-1)
+	            var stepx = (1 - 2 * this._options.marginx) / (depth - 1);
+	            // posx = marginx + stepx*(depth-1)
 	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                this._nodes[_i3].x = this.alphax + stepx * (this._nodes[_i3].layer - 1);
+	                this._nodes[_i3].x = this._options.marginx + stepx * (this._nodes[_i3].layer - 1);
+	            }
+	            if (this._options.direction == "right-left") {
+	                for (var _i4 = 0; _i4 < this._nodes.length; ++_i4) {
+	                    this._nodes[_i4].x = 1 - this._nodes[_i4].x;
+	                }
+	            } else if (this._options.direction == "top-down") {
+	                for (var _i5 = 0; _i5 < this._nodes.length; ++_i5) {
+	                    var foo = 1 - this._nodes[_i5].x;
+	                    this._nodes[_i5].x = this._nodes[_i5].y;
+	                    this._nodes[_i5].y = foo;
+	                }
+	            } else if (this._options.direction == "bottom-up") {
+	                for (var _i6 = 0; _i6 < this._nodes.length; ++_i6) {
+	                    var _foo = this._nodes[_i6].x;
+	                    this._nodes[_i6].x = this._nodes[_i6].y;
+	                    this._nodes[_i6].y = _foo;
+	                }
+	            } else if (this._options.direction != "left-right") {
+	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
 	            }
 	        }
 	    }]);
@@ -3563,7 +3654,7 @@
 
 /***/ }),
 /* 18 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -3571,17 +3662,21 @@
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
 	
 	function isOrphan(node) {
 	    var orphan = true;
@@ -3598,15 +3693,20 @@
 	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this.alphay = 0.05; // y margin
-	        this.alphax = 0.05; // x margin
 	        this.components = { "current_component": 0, "depth": 1 };
 	        this.unvisited = nodes;
+	        var defaults = {
+	            "marginx": 0.05, // x margin
+	            "marginy": 0.05, // y margin
+	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	        };
+	        _utils2.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3674,9 +3774,9 @@
 	    }, {
 	        key: "placeOrphans",
 	        value: function placeOrphans(nodes, max_layer) {
-	            var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	            var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
 	            for (var i = 0; i < nodes.length; ++i) {
-	                nodes[i].y = this.alphay + i * stepy;
+	                nodes[i].y = this._options.marginy + i * stepy;
 	                nodes[i].x = max_layer + 1;
 	            }
 	            if (nodes.length > 0) return max_layer + 1;else return max_layer;
@@ -3824,26 +3924,45 @@
 	            // components.depth is the maximum number of layers
 	
 	            // each layer of tree xy = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this.alphax) / this.components.depth;
-	            var stepy = (1 - 2 * this.alphay) / this.components.vertical_nodes;
+	            var stepx = (1 - 2 * this._options.marginx) / this.components.depth;
+	            var stepy = (1 - 2 * this._options.marginy) / this.components.vertical_nodes;
 	            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
 	                var component = this.components[_i4];
 	                for (var layer_val in component.layers) {
 	                    var layer = component.layers[layer_val];
 	                    if (layer.length == 1) {
 	                        var node = layer[0];
-	                        node.x = this.alphax + stepx * layer_val;
-	                        node.y = this.alphay + stepy * (component.index_offset + component.vertical_nodes / 2);
+	                        node.x = this._options.marginx + stepx * layer_val;
+	                        node.y = this._options.marginy + stepy * (component.index_offset + component.vertical_nodes / 2);
 	                    } else {
 	                        for (var k = 0; k < layer.length; ++k) {
 	                            var _node = layer[k];
-	                            _node.x = this.alphax + stepx * layer_val;
-	                            _node.y = this.alphay + stepy * (component.index_offset + k);
+	                            _node.x = this._options.marginx + stepx * layer_val;
+	                            _node.y = this._options.marginy + stepy * (component.index_offset + k);
 	                        }
 	                    }
 	                }
 	            }
 	            this.placeOrphans(this.orphans);
+	            if (this._options.direction == "right-left") {
+	                for (var _i5 = 0; _i5 < this._nodes.length; ++_i5) {
+	                    this._nodes[_i5].x = 1 - this._nodes[_i5].x;
+	                }
+	            } else if (this._options.direction == "top-down") {
+	                for (var _i6 = 0; _i6 < this._nodes.length; ++_i6) {
+	                    var foo = 1 - this._nodes[_i6].x;
+	                    this._nodes[_i6].x = this._nodes[_i6].y;
+	                    this._nodes[_i6].y = foo;
+	                }
+	            } else if (this._options.direction == "bottom-up") {
+	                for (var _i7 = 0; _i7 < this._nodes.length; ++_i7) {
+	                    var _foo = this._nodes[_i7].x;
+	                    this._nodes[_i7].x = this._nodes[_i7].y;
+	                    this._nodes[_i7].y = _foo;
+	                }
+	            } else if (this._options.direction != "left-right") {
+	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+	            }
 	        }
 	    }]);
 	

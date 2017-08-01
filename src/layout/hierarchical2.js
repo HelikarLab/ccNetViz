@@ -6,6 +6,8 @@
  *  Author: Renato Fabbri
  */
 
+import ccNetViz_utils from '../utils';
+
 function isOrphan(node){
     let orphan = true;
     for (let i=0; i<node.parents.length; ++i){
@@ -23,13 +25,18 @@ function isOrphan(node){
 
 export default class {
   // this layout should handle any digraph
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
-    this.alphay = 0.05; // y margin
-    this.alphax = 0.05; // x margin
     this.components = {"current_component": 0, "depth": 1};
     this.unvisited = nodes;
+    let defaults = {
+        "marginx": 0.05, // x margin
+        "marginy": 0.05, // y margin
+        "direction": "left-right", // other options: right-left, top-down, bottom-up
+    };
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
   
   initHierarchy(){
@@ -94,9 +101,9 @@ export default class {
   }
 
   placeOrphans(nodes, max_layer){
-      const stepy = (1 - 2*this.alphay)/(nodes.length-1);
+      const stepy = (1 - 2*this._options.marginy)/(nodes.length-1);
       for (let i=0; i<nodes.length; ++i){
-          nodes[i].y = this.alphay + i*stepy;
+          nodes[i].y = this._options.marginy + i*stepy;
           nodes[i].x = max_layer+1;
       }
       if (nodes.length > 0)
@@ -250,25 +257,44 @@ export default class {
       // components.depth is the maximum number of layers
 
       // each layer of tree xy = [0+alpha,1-alpha]
-      const stepx = (1-2*this.alphax)/(this.components.depth);
-      const stepy = (1-2*this.alphay)/(this.components.vertical_nodes);
+      const stepx = (1-2*this._options.marginx)/(this.components.depth);
+      const stepy = (1-2*this._options.marginy)/(this.components.vertical_nodes);
       for (let i=0; i<this.components.current_component; i++){
           let component = this.components[i];
           for (let layer_val in component.layers){
               let layer = component.layers[layer_val];
               if (layer.length == 1){
                   let node = layer[0];
-                  node.x = this.alphax + stepx*layer_val;
-                  node.y = this.alphay + stepy*(component.index_offset + component.vertical_nodes/2);
+                  node.x = this._options.marginx + stepx*layer_val;
+                  node.y = this._options.marginy + stepy*(component.index_offset + component.vertical_nodes/2);
               } else {
                   for (let k=0; k<layer.length; ++k){
                       let node = layer[k];
-                      node.x = this.alphax + stepx*layer_val;
-                      node.y = this.alphay + stepy*(component.index_offset + k);
+                      node.x = this._options.marginx + stepx*layer_val;
+                      node.y = this._options.marginy + stepy*(component.index_offset + k);
                   }
               }
           }
       }
       this.placeOrphans(this.orphans);
+      if (this._options.direction == "right-left"){
+          for (let i=0; i<this._nodes.length; ++i){
+              this._nodes[i].x = 1 - this._nodes[i].x;
+          }
+      } else if (this._options.direction == "top-down"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = 1 - this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction == "bottom-up"){ 
+          for (let i=0; i<this._nodes.length; ++i){
+              const foo = this._nodes[i].x;
+              this._nodes[i].x = this._nodes[i].y;
+              this._nodes[i].y = foo;
+          }
+      } else if (this._options.direction != "left-right"){ 
+          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+      }
   }
 };

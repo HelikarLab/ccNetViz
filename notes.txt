@@ -1,3 +1,14 @@
+1) Implement ability to switch direction ( top-bottom, right-left etc. )
+         This should be done in the generic parent class for all of your layouts as I suggested you before
+2) Implement various user configuration options of the layouts.
+         These vary from layout to layout.
+3) Enchance layouts
+         It would be nice to have option to show more than 1 roots etc. But don't waste on this a lot of time ( I think ca. 4 days max are enough )
+4) Performance and feature comparsion with other libraries
+
+in future
+*) All of the missing above
+=========
 + revisar código dos layouts
 + fazer pull request
 
