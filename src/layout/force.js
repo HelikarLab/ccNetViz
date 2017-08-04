@@ -8,15 +8,15 @@ import ccNetViz_quadtree from '../quadTree' ;
  *  Author: David Tichy
  */
 
-export default function(nodes, edges) {
-    const edgeDistance = 15,
-          edgeStrength = 1,
-          friction = 0.9,
-          charge = -30,
-          gravity = 0.4,
-          theta2 = .64,
-          size = [1,1],
-          chargeDistance2 = Infinity;
+export default function(nodes, edges, layout_options) {
+    const edgeDistance =    layout_options.edgeDistace || 15,
+          edgeStrength =    layout_options.edgeStrength || 1,
+          friction =        layout_options.friction || 0.9,
+          charge =          layout_options.charge || -30,
+          gravity =         layout_options.gravity || 0.4,
+          theta2 =          layout_options.theta2 || .64,
+          size =            layout_options.size || [1,1],
+          chargeDistance2 = layout_options.chargeDistance2 || Infinity;
 
     let   alpha,
           distances = [],

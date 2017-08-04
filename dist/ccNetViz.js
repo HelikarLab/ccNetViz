@@ -1311,7 +1311,7 @@
 	        };
 	
 	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply();else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply();else throw new Error("The layout can only be a string or a function or a class");
-	        // layout && ccNetViz_layout.normalize(nodes);
+	        layout && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
 	
@@ -8816,71 +8816,88 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	  // the hubs are on the first half of the sinusoid period
-	  // the intermediary are on the second half
-	  // and the periphery are on the upper straight line
-	  // further versions should enable the choice of other
-	  // fractions of hubs, intermediary and peripheral vertices
-	  // or the Erdös sectioning.
-	  // maybe also let the user set the endpoints of the periphery segment
-	  function _class(nodes, edges) {
-	    _classCallCheck(this, _class);
+	    // the hubs are on the first half of the sinusoid period
+	    // the intermediary are on the second half
+	    // and the periphery are on the upper straight line
+	    // further versions should enable the choice of other
+	    // fractions of hubs, intermediary and peripheral vertices
+	    // or the Erdös sectioning.
+	    // maybe also let the user set the endpoints of the periphery segment
+	    function _class(nodes, edges, layout_options) {
+	        _classCallCheck(this, _class);
 	
-	    this._nodes = nodes;
-	    this._edges = edges;
-	    this._margin = 0.05;
-	    this._hubs = 0.1; // 10%
-	    this._intermediary = 0.2;
-	  }
-	
-	  _createClass(_class, [{
-	    key: 'apply',
-	    value: function apply() {
-	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	      var nhubs_intermediary = Math.floor(this._nodes.length * (this._hubs + this._intermediary));
-	      var nhubs = Math.floor(this._nodes.length * this._hubs);
-	      var stepx1 = (1 - 2 * this._margin) / 2 / (nhubs - 1);
-	      var steprad = Math.PI / (nhubs - 1);
-	      var i = 0;
-	      while (i < nhubs) {
-	        this._nodes[nd.nodes[i].index].x = this._margin + stepx1 * i;
-	        this._nodes[nd.nodes[i].index].y = this._margin + 0.4 + 0.4 * Math.sin(i * steprad);
-	        ++i;
-	      }
-	      var nintermediary = nhubs_intermediary - nhubs;
-	      var steprad2 = Math.PI / nintermediary;
-	      var stepx2 = (1 - 2 * this._margin) / 2 / nintermediary;
-	      i = 0;
-	      while (i < nintermediary) {
-	        this._nodes[nd.nodes[i + nhubs].index].x = 0.5 + stepx2 * (i + 1);
-	        this._nodes[nd.nodes[i + nhubs].index].y = this._margin + 0.4 + 0.4 * Math.sin(Math.PI + (i + 1) * steprad2);
-	        ++i;
-	      }
-	      var p0 = [0.85, 0.75];
-	      var p1 = [0.4, 1 - this._margin];
-	      var nperipheral = this._nodes.length - nhubs_intermediary;
-	      var stepxx = (p1[0] - p0[0]) / (nperipheral - 1);
-	      var stepy = (p1[1] - p0[1]) / (nperipheral - 1);
-	      i = 0;
-	      while (i < nperipheral) {
-	        this._nodes[nd.nodes[i + nhubs_intermediary].index].x = p0[0] + stepxx * i;
-	        this._nodes[nd.nodes[i + nhubs_intermediary].index].y = p0[1] + stepy * i;
-	        ++i;
-	      }
+	        this._nodes = nodes;
+	        this._edges = edges;
+	        var defaults = {
+	            "center": [0.5, 0.5],
+	            "margin": 0.05,
+	            "hubs": 0.1, // fraction of hubs
+	            "intermediary": 0.2, // fraction of intermediary
+	            "method": "fixed_fractions" // or "erdos_sectioning"
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
-	  }]);
 	
-	  return _class;
+	    _createClass(_class, [{
+	        key: 'apply',
+	        value: function apply() {
+	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	            var nhubs_intermediary = Math.floor(this._nodes.length * (this._options.hubs + this._options.intermediary));
+	            var nhubs = Math.floor(this._nodes.length * this._options.hubs);
+	            var stepx1 = (1 - 2 * this._options.margin) / 2 / (nhubs - 1);
+	            var steprad = Math.PI / (nhubs - 1);
+	            var i = 0;
+	            while (i < nhubs) {
+	                if (nhubs > 1) {
+	                    this._nodes[nd.nodes[i].index].x = this._options.margin + stepx1 * i;
+	                    this._nodes[nd.nodes[i].index].y = this._options.margin + 0.4 + 0.4 * Math.sin(i * steprad);
+	                } else {
+	                    this._nodes[nd.nodes[i].index].x = (1 - 2 * this._options.margin) / 4;
+	                    this._nodes[nd.nodes[i].index].y = this._options.margin + 0.4 + 0.4;
+	                }
+	                ++i;
+	            }
+	            var nintermediary = nhubs_intermediary - nhubs;
+	            var steprad2 = Math.PI / nintermediary;
+	            var stepx2 = (1 - 2 * this._options.margin) / 2 / nintermediary;
+	            i = 0;
+	            while (i < nintermediary) {
+	                this._nodes[nd.nodes[i + nhubs].index].x = 0.5 + stepx2 * (i + 1);
+	                this._nodes[nd.nodes[i + nhubs].index].y = this._options.margin + 0.4 + 0.4 * Math.sin(Math.PI + (i + 1) * steprad2);
+	                ++i;
+	            }
+	            var p0 = [0.85, 0.75];
+	            var p1 = [0.4, 1 - this._options.margin];
+	            var nperipheral = this._nodes.length - nhubs_intermediary;
+	            var stepxx = (p1[0] - p0[0]) / (nperipheral - 1);
+	            var stepy = (p1[1] - p0[1]) / (nperipheral - 1);
+	            i = 0;
+	            while (i < nperipheral) {
+	                this._nodes[nd.nodes[i + nhubs_intermediary].index].x = p0[0] + stepxx * i;
+	                this._nodes[nd.nodes[i + nhubs_intermediary].index].y = p0[1] + stepy * i;
+	                ++i;
+	            }
+	        }
+	    }]);
+	
+	    return _class;
 	}();
 	
 	exports.default = _class;
