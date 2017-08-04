@@ -360,7 +360,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             new layout(nodes, edges, layout_options).apply();
         else
             throw new Error("The layout can only be a string or a function or a class");
-        ccNetViz_layout.normalize(nodes);
+        layout && ccNetViz_layout.normalize(nodes);
         
         if(!gl) return;
         
