@@ -29,10 +29,12 @@ export default class {
         "angle_step": 2*Math.PI/nodes.length,
         "starting_angle": 0,
         "center": center,
-        "radius": Math.max.apply(null, center) - margin,
-        "angle_ratio": 1,
-        "radius_ratio": 1,
-        "divisions": 1
+        "radius": Math.max.apply(null, center) - margin, // initial radius
+        "angle_ratio": 1, // how many 2*pi from first to last nodes
+        "radius_ratio": 1, // factor that radius changes after 2*pi
+        "divisions": 1 // how many partitions of the circle are used.
+            // I.e. each partition has angle 2*pi/divisions;
+            // and each successive node is placed in each successive partition
     }
     ccNetViz_utils.extend(defaults, layout_options);
     this._options = defaults;

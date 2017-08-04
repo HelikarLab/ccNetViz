@@ -1311,7 +1311,7 @@
 	        };
 	
 	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply();else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply();else throw new Error("The layout can only be a string or a function or a class");
-	        _layout2.default.normalize(nodes);
+	        // layout && ccNetViz_layout.normalize(nodes);
 	
 	        if (!gl) return;
 	
@@ -3104,10 +3104,12 @@
 	            "angle_step": 2 * Math.PI / nodes.length,
 	            "starting_angle": 0,
 	            "center": center,
-	            "radius": Math.max.apply(null, center) - margin,
-	            "angle_ratio": 1,
-	            "radius_ratio": 1,
-	            "divisions": 1
+	            "radius": Math.max.apply(null, center) - margin, // initial radius
+	            "angle_ratio": 1, // how many 2*pi from first to last nodes
+	            "radius_ratio": 1, // factor that radius changes after 2*pi
+	            "divisions": 1 // how many partitions of the circle are used.
+	            // I.e. each partition has angle 2*pi/divisions;
+	            // and each successive node is placed in each successive partition
 	        };
 	        _utils3.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -8690,34 +8692,60 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
 	    // get degree of all nodes
-	    function _class(nodes, edges) {
+	    // mode: fill_segment or alternate_segment
+	    // wiggle segment (cycles and amplitude)
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this._margin = 0.05; // from [0,1] borders
-	        this._radius = 0.05; // of the empty circle on the center
-	        this._nlines = 5;
+	        // this._margin = 0.05; // from [0,1] borders
+	        // this._radius = 0.05; // of the empty circle on the center
+	        // this._nlines = 5;
+	        var center = [0.5, 0.5];
+	        var defaults = {
+	            "starting_angle": Math.PI / 2,
+	            "center": center,
+	            "radius": 0.05,
+	            "margin": 0.05,
+	            "nlines": 5
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
 	        key: 'apply',
 	        value: function apply() {
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	            var nodes_segment = this._nodes.length / this._nlines;
-	            var segment = 0.5 - (this._margin + this._radius);
+	            var nodes_segment = Math.ceil(this._nodes.length / this._options.nlines);
+	            var center = this._options.center;
+	            var segment = Math.max.apply(null, center) - (this._options.margin + this._options.radius);
 	            var step = segment / nodes_segment;
-	            var angle = 2 * Math.PI / this._nlines;
+	            var angle = 2 * Math.PI / this._options.nlines;
+	            var sangle = this._options.starting_angle;
+	            var radius = this._options.radius;
 	            var j = 0;
 	            for (var i = 0; i < this._nodes.length; ++i) {
 	                var ii = nd.nodes[i].index;
-	                this._nodes[ii].x = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + Math.PI / 2);
-	                this._nodes[ii].y = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + Math.PI / 2);
+	                this._nodes[ii].x = center[0] + (radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + sangle);
+	                this._nodes[ii].y = center[1] + (radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + sangle);
 	                j = Math.floor(i / nodes_segment);
+	            }
+	            var od = [];
+	            for (var _i = 0; _i < this._nodes.length; ++_i) {
+	                var _ii = nd.nodes[_i].index;
+	                od.push(this._nodes[_ii]);
 	            }
 	        }
 	    }]);

@@ -1,4 +1,5 @@
 import {degrees} from './utils';
+import ccNetViz_utils from '../utils';
 
 export default class {
   // the hubs are on the first half of the sinusoid period
@@ -8,12 +9,21 @@ export default class {
   // fractions of hubs, intermediary and peripheral vertices
   // or the Erdös sectioning.
   // maybe also let the user set the endpoints of the periphery segment
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
     this._margin = 0.05;
     this._hubs = 0.1; // 10%
     this._intermediary = 0.2;
+    let defaults = {
+        "center": center,
+        "margin": 0.05,
+        "divisions": 1 // how many partitions of the circle are used.
+            // I.e. each partition has angle 2*pi/divisions;
+            // and each successive node is placed in each successive partition
+    }
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
   apply () {
       let nd = degrees(this._nodes, this._edges);

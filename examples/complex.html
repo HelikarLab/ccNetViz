@@ -72,12 +72,13 @@
 	  edge: { arrow: { texture: "images/arrow.png" } }
 	}});
       let layout_options = {
-         // "direction": "top-down",
-         // "direction": "bottom-up",
-         // "direction": "right-left",
-         // "direction": "banana",
-      }
-      graph.set(data.nodes, data.edges, "hierarchical2", layout_options);
+        "starting_angle": Math.PI/2,
+        "center": [.5, .5],
+        "radius": 0.35,
+        "margin": 0.05,
+        "nlines": 3,
+      };
+      graph.set(data.nodes, data.edges, "hive", layout_options);
       graph.draw();
       
       $('#nodesCnt').text(data.nodes.length);
