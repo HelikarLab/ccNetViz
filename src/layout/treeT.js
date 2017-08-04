@@ -6,7 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth} from './utils';
+import {getDepth, hierarchicalDirection} from './utils';
 import ccNetViz_utils from '../utils';
 
 export default class {
@@ -86,25 +86,6 @@ export default class {
       // and decide if parent is visited (always in tree layout)
 
       this.drawTreeTop(root);
-
-      if (this._options.direction == "right-left"){
-          for (let i=0; i<this._nodes.length; ++i){
-              this._nodes[i].x = 1 - this._nodes[i].x;
-          }
-      } else if (this._options.direction == "top-down"){ 
-          for (let i=0; i<this._nodes.length; ++i){
-              const foo = 1 - this._nodes[i].x;
-              this._nodes[i].x = this._nodes[i].y;
-              this._nodes[i].y = foo;
-          }
-      } else if (this._options.direction == "bottom-up"){ 
-          for (let i=0; i<this._nodes.length; ++i){
-              const foo = this._nodes[i].x;
-              this._nodes[i].x = this._nodes[i].y;
-              this._nodes[i].y = foo;
-          }
-      } else if (this._options.direction != "left-right"){ 
-          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
-      }
+      hierarchicalDirection(this._nodes, this._options.direction);
   }
 };

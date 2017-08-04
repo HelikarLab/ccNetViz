@@ -48,3 +48,24 @@ export function getDepth(obj) {
     return 1 + depth;
 }
 
+export function hierarchicalDirection (nodes, direction) {
+      if (direction == "right-left"){
+          for (let i=0; i<nodes.length; ++i){
+              nodes[i].x = 1 - nodes[i].x;
+          }
+      } else if (direction == "top-down"){ 
+          for (let i=0; i<nodes.length; ++i){
+              const foo = 1 - nodes[i].x;
+              nodes[i].x = nodes[i].y;
+              nodes[i].y = foo;
+          }
+      } else if (direction == "bottom-up"){ 
+          for (let i=0; i<nodes.length; ++i){
+              const foo = nodes[i].x;
+              nodes[i].x = nodes[i].y;
+              nodes[i].y = foo;
+          }
+      } else if (direction != "left-right"){ 
+          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+      }
+}

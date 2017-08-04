@@ -3152,6 +3152,7 @@
 	exports.create2dArray = create2dArray;
 	exports.degrees = degrees;
 	exports.getDepth = getDepth;
+	exports.hierarchicalDirection = hierarchicalDirection;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3205,6 +3206,28 @@
 	        });
 	    }
 	    return 1 + depth;
+	}
+	
+	function hierarchicalDirection(nodes, direction) {
+	    if (direction == "right-left") {
+	        for (var i = 0; i < nodes.length; ++i) {
+	            nodes[i].x = 1 - nodes[i].x;
+	        }
+	    } else if (direction == "top-down") {
+	        for (var _i = 0; _i < nodes.length; ++_i) {
+	            var foo = 1 - nodes[_i].x;
+	            nodes[_i].x = nodes[_i].y;
+	            nodes[_i].y = foo;
+	        }
+	    } else if (direction == "bottom-up") {
+	        for (var _i2 = 0; _i2 < nodes.length; ++_i2) {
+	            var _foo = nodes[_i2].x;
+	            nodes[_i2].x = nodes[_i2].y;
+	            nodes[_i2].y = _foo;
+	        }
+	    } else if (direction != "left-right") {
+	        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+	    }
 	}
 
 /***/ }),
@@ -3317,26 +3340,7 @@
 	            // posy = alphay + stepy*(leafn-1)
 	
 	            this.drawTreeCentered(root);
-	
-	            if (this._options.direction == "right-left") {
-	                for (var _i = 0; _i < this._nodes.length; ++_i) {
-	                    this._nodes[_i].x = 1 - this._nodes[_i].x;
-	                }
-	            } else if (this._options.direction == "top-down") {
-	                for (var _i2 = 0; _i2 < this._nodes.length; ++_i2) {
-	                    var foo = 1 - this._nodes[_i2].x;
-	                    this._nodes[_i2].x = this._nodes[_i2].y;
-	                    this._nodes[_i2].y = foo;
-	                }
-	            } else if (this._options.direction == "bottom-up") {
-	                for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                    var _foo = this._nodes[_i3].x;
-	                    this._nodes[_i3].x = this._nodes[_i3].y;
-	                    this._nodes[_i3].y = _foo;
-	                }
-	            } else if (this._options.direction != "left-right") {
-	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
-	            }
+	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
 	        }
 	    }]);
 	
@@ -3460,26 +3464,7 @@
 	            // and decide if parent is visited (always in tree layout)
 	
 	            this.drawTreeTop(root);
-	
-	            if (this._options.direction == "right-left") {
-	                for (var _i = 0; _i < this._nodes.length; ++_i) {
-	                    this._nodes[_i].x = 1 - this._nodes[_i].x;
-	                }
-	            } else if (this._options.direction == "top-down") {
-	                for (var _i2 = 0; _i2 < this._nodes.length; ++_i2) {
-	                    var foo = 1 - this._nodes[_i2].x;
-	                    this._nodes[_i2].x = this._nodes[_i2].y;
-	                    this._nodes[_i2].y = foo;
-	                }
-	            } else if (this._options.direction == "bottom-up") {
-	                for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                    var _foo = this._nodes[_i3].x;
-	                    this._nodes[_i3].x = this._nodes[_i3].y;
-	                    this._nodes[_i3].y = _foo;
-	                }
-	            } else if (this._options.direction != "left-right") {
-	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
-	            }
+	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
 	        }
 	    }]);
 	
@@ -3493,7 +3478,7 @@
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -3510,6 +3495,8 @@
 	var _utils = __webpack_require__(7);
 	
 	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3532,7 +3519,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "makeLayers",
+	        key: 'makeLayers',
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
 	                var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
@@ -3562,7 +3549,7 @@
 	            }
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3624,25 +3611,7 @@
 	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
 	                this._nodes[_i3].x = this._options.marginx + stepx * (this._nodes[_i3].layer - 1);
 	            }
-	            if (this._options.direction == "right-left") {
-	                for (var _i4 = 0; _i4 < this._nodes.length; ++_i4) {
-	                    this._nodes[_i4].x = 1 - this._nodes[_i4].x;
-	                }
-	            } else if (this._options.direction == "top-down") {
-	                for (var _i5 = 0; _i5 < this._nodes.length; ++_i5) {
-	                    var foo = 1 - this._nodes[_i5].x;
-	                    this._nodes[_i5].x = this._nodes[_i5].y;
-	                    this._nodes[_i5].y = foo;
-	                }
-	            } else if (this._options.direction == "bottom-up") {
-	                for (var _i6 = 0; _i6 < this._nodes.length; ++_i6) {
-	                    var _foo = this._nodes[_i6].x;
-	                    this._nodes[_i6].x = this._nodes[_i6].y;
-	                    this._nodes[_i6].y = _foo;
-	                }
-	            } else if (this._options.direction != "left-right") {
-	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
-	            }
+	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
 	        }
 	    }]);
 	
@@ -3656,7 +3625,7 @@
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -3673,6 +3642,8 @@
 	var _utils = __webpack_require__(7);
 	
 	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -3710,7 +3681,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: "initHierarchy",
+	        key: 'initHierarchy',
 	        value: function initHierarchy() {
 	            this._nodes.forEach(function (n, i) {
 	                n.parents = [];
@@ -3723,7 +3694,7 @@
 	            });
 	        }
 	    }, {
-	        key: "separateOrphans",
+	        key: 'separateOrphans',
 	        value: function separateOrphans() {
 	            var orphans = [];
 	            var nodes = [];
@@ -3734,7 +3705,7 @@
 	            return orphans;
 	        }
 	    }, {
-	        key: "findRoots",
+	        key: 'findRoots',
 	        value: function findRoots(nodes) {
 	            // find the roots:
 	            // nodes defined by the user as roots OR
@@ -3772,7 +3743,7 @@
 	            return roots;
 	        }
 	    }, {
-	        key: "placeOrphans",
+	        key: 'placeOrphans',
 	        value: function placeOrphans(nodes, max_layer) {
 	            var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
 	            for (var i = 0; i < nodes.length; ++i) {
@@ -3782,7 +3753,7 @@
 	            if (nodes.length > 0) return max_layer + 1;else return max_layer;
 	        }
 	    }, {
-	        key: "unvisitedNodes",
+	        key: 'unvisitedNodes',
 	        value: function unvisitedNodes() {
 	            var nodes = [];
 	            var orphans = this.orphans;
@@ -3795,7 +3766,7 @@
 	            } else this.maybe_more = false;
 	        }
 	    }, {
-	        key: "placeAdditional",
+	        key: 'placeAdditional',
 	        value: function placeAdditional() {
 	            // place non-visited nodes in between layers
 	            var aux_layers = {};
@@ -3844,7 +3815,7 @@
 	            }
 	        }
 	    }, {
-	        key: "initializeComponent",
+	        key: 'initializeComponent',
 	        value: function initializeComponent(component) {
 	            this.components[component] = {};
 	            this.components[component].max_nodes_layer = 0;
@@ -3855,7 +3826,7 @@
 	            this.components[component].vertical_nodes = 0;
 	        }
 	    }, {
-	        key: "layerNodes",
+	        key: 'layerNodes',
 	        value: function layerNodes(nodes) {
 	            if (!(this.components.current_component in this.components)) this.initializeComponent(this.components.current_component);
 	            var c = this.components[this.components.current_component];
@@ -3881,7 +3852,7 @@
 	            }
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3944,25 +3915,7 @@
 	                }
 	            }
 	            this.placeOrphans(this.orphans);
-	            if (this._options.direction == "right-left") {
-	                for (var _i5 = 0; _i5 < this._nodes.length; ++_i5) {
-	                    this._nodes[_i5].x = 1 - this._nodes[_i5].x;
-	                }
-	            } else if (this._options.direction == "top-down") {
-	                for (var _i6 = 0; _i6 < this._nodes.length; ++_i6) {
-	                    var foo = 1 - this._nodes[_i6].x;
-	                    this._nodes[_i6].x = this._nodes[_i6].y;
-	                    this._nodes[_i6].y = foo;
-	                }
-	            } else if (this._options.direction == "bottom-up") {
-	                for (var _i7 = 0; _i7 < this._nodes.length; ++_i7) {
-	                    var _foo = this._nodes[_i7].x;
-	                    this._nodes[_i7].x = this._nodes[_i7].y;
-	                    this._nodes[_i7].y = _foo;
-	                }
-	            } else if (this._options.direction != "left-right") {
-	                throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
-	            }
+	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
 	        }
 	    }]);
 	
