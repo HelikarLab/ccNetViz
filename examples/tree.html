@@ -81,11 +81,11 @@
       if(graph) graph.remove();	//if there was an old graph, remove its handlers from DOM content
 
       graph = new ccNetViz(el, {
-	styles: {
-	  node: { texture: "images/node.png", label: { hideSize: 16 } },
-	  node: { label: { hideSize: 16 } },
-	  edge: { arrow: { texture: "images/arrow.png" } }
-	}});
+        styles: {
+          node: { texture: "images/node.png", label: { hideSize: 16 } },
+          edge: { arrow: { texture: "images/arrow.png" } }
+        }}
+      );
       if (layout == null){
           layout = "tree";
       }
