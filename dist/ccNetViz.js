@@ -1310,7 +1310,14 @@
 	            return spatialSearch;
 	        };
 	
-	        if (typeof layout == "string") new _layout2.default[layout](nodes, edges, layout_options).apply();else if (typeof layout == "function") new layout(nodes, edges, layout_options).apply();else throw new Error("The layout can only be a string or a function or a class");
+	        if (typeof layout == "string") {
+	            var options_ = new _layout2.default[layout](nodes, edges, layout_options).apply();
+	        } else if (typeof layout == "function") {
+	            var options_ = new layout(nodes, edges, layout_options).apply();
+	        } else {
+	            throw new Error("The layout can only be a string or a function or a class");
+	        }
+	        _layout2.default._options = options_;
 	        layout && _layout2.default.normalize(nodes);
 	
 	        if (!gl) return;
@@ -2518,6 +2525,10 @@
 	
 	var _versinus2 = _interopRequireDefault(_versinus);
 	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2565,17 +2576,41 @@
 	          minY: minY
 	        };
 	      }
+	      var factor = 1 - 2 * this._options.margin;
+	      var scX = minX !== dim.maxX ? factor / (dim.maxX - minX) : (minX -= 0.5, 1);
+	      var scY = minY !== dim.maxY ? factor / (dim.maxY - minY) : (minY -= 0.5, 1);
 	
-	      var scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : (minX -= 0.5, 1);
-	      var scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : (minY -= 0.5, 1);
-	
-	      for (var _i = 0; _i < n; _i++) {
-	        var _o = nodes[_i];
-	        _o.x = scX * (_o.x - minX);
-	        _o.y = scY * (_o.y - minY);
+	      var direction = this._options.direction;
+	      if (direction == "left-right") {
+	        for (var _i = 0; _i < n; ++_i) {
+	          var _o = nodes[_i];
+	          _o.x = scX * (_o.x - minX) + this._options.margin;
+	          _o.y = scY * (_o.y - minY) + this._options.margin;
+	        }
+	      } else if (direction == "right-left") {
+	        for (var _i2 = 0; _i2 < n; ++_i2) {
+	          var _o2 = nodes[_i2];
+	          _o2.x = 1 - (scX * (_o2.x - minX) + this._options.margin);
+	          _o2.y = scY * (_o2.y - minY) + this._options.margin;
+	        }
+	      } else if (direction == "top-down") {
+	        for (var _i3 = 0; _i3 < n; ++_i3) {
+	          var _o3 = nodes[_i3];
+	          var foo = 1 - scX * (_o3.x - minX) + this._options.margin;
+	          _o3.x = scY * (_o3.y - minY) + this._options.margin;
+	          _o3.y = foo;
+	        }
+	      } else if (direction == "bottom-up") {
+	        for (var _i4 = 0; _i4 < nodes.length; ++_i4) {
+	          var _o4 = nodes[_i4];
+	          var _foo = scX * (_o4.x - minX) + this._options.margin;
+	          _o4.x = scY * (_o4.y - minY) + this._options.margin;
+	          _o4.y = _foo;
+	        }
+	      } else {
+	        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
 	      }
-	
-	      return dim;
+	      return dim; // any use for this return? Should we remove it?
 	    }
 	  }, {
 	    key: 'force',
@@ -3061,7 +3096,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
@@ -3082,61 +3117,115 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _class = function () {
-	    // get degree of all nodes
-	    // let user define at least: starting angle and radius and
-	    // clock/cclock direction
-	    // size of vertices
-	    // more: a ratio of compactness for the more/less connected nodes
-	    // a spiral ratio with a rotation ratio for having more than 2pi
-	    // distribution of nodes when spiriling
-	    // use some other ordering criterion than degree? Strength?
-	    // defined by user and found as attribute of each node?
-	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges, layout_options) {
-	        _classCallCheck(this, _class);
+	function topological(nd, nodes) {
+	  var nd_ = {};
+	  nd_.nodes = [nd.nodes[0]];
+	  var nodes_ = [];
+	  for (var i = 1; i < nd.nodes.length; ++i) {
+	    nodes[i].degree = nd.degrees[i];
+	  }
 	
-	        this._nodes = nodes;
-	        this._edges = edges;
-	        var margin = 0.05;
-	        var center = [0.5, 0.5];
-	        var defaults = {
-	            "angle_step": 2 * Math.PI / nodes.length,
-	            "starting_angle": 0,
-	            "center": center,
-	            "radius": Math.max.apply(null, center) - margin, // initial radius
-	            "angle_ratio": 1, // how many 2*pi from first to last nodes
-	            "radius_ratio": 1, // factor that radius changes after 2*pi
-	            "divisions": 1 // how many partitions of the circle are used.
-	            // I.e. each partition has angle 2*pi/divisions;
-	            // and each successive node is placed in each successive partition
-	        };
-	        _utils3.default.extend(defaults, layout_options);
-	        this._options = defaults;
-	    }
-	
-	    _createClass(_class, [{
-	        key: 'apply',
-	        value: function apply() {
-	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	            var angle0 = this._options.starting_angle;
-	            var astep = this._options.angle_step * this._options.angle_ratio;
-	            var center = this._options.center;
-	            var ri = this._options.radius; // initial
-	            var rf = this._options.radius_ratio * this._options.radius; // final
-	            var divisions = this._options.divisions;
-	            var nnodes = this._nodes.length;
-	            for (var i = 0; i < nnodes; ++i) {
-	                var radius = ri + i * (rf - ri) / (nnodes - 1);
-	                var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
-	                this._nodes[nd.nodes[i].index].x = center[0] + Math.cos(angle) * radius;
-	                this._nodes[nd.nodes[i].index].y = center[1] + Math.sin(angle) * radius;
-	                this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
-	            }
+	  for (var _i = 1; _i < nodes.length; ++_i) {
+	    var degree = nodes[_i].degree;
+	    if ((_i == nodes.length - 1 || degree != nodes[_i + 1].degree || fromTo(nodes[_i - 1], nodes[_i])) && nodes[_i].picked != true) {
+	      nodes_.push(nodes[_i]);
+	      nodes[_i].picked = true;
+	    } else {
+	      // get all children of last node and see if one of them has degree == degree
+	      // if true, pick the node, else pick any node with degree == degree
+	      var children = nodes[_i - 1].children;
+	      var found_child = false;
+	      for (var j = 0; j < children.length; ++j) {
+	        if (children[j].degree == degree) {
+	          nodes_.push(children[j]);
+	          children[j].picked = true;
+	          found_child = true;
+	          break;
 	        }
-	    }]);
+	      }
+	      if (found_child == false) {
+	        nodes_.push(nodes[_i]);
+	        nodes[_i].picked = true;
+	      }
+	    }
+	  }
+	  return nodes_;
+	}
 	
-	    return _class;
+	var _class = function () {
+	  // get degree of all nodes
+	  // let user define at least: starting angle and radius and
+	  // clock/cclock direction
+	  // size of vertices
+	  // more: a ratio of compactness for the more/less connected nodes
+	  // a spiral ratio with a rotation ratio for having more than 2pi
+	  // distribution of nodes when spiriling
+	  // use some other ordering criterion than degree? Strength?
+	  // defined by user and found as attribute of each node?
+	  // random ordering, minimal crossing of edges?
+	  function _class(nodes, edges, layout_options) {
+	    _classCallCheck(this, _class);
+	
+	    this._nodes = nodes;
+	    this._edges = edges;
+	    var margin = 0.05;
+	    var center = [0.5, 0.5];
+	    var defaults = {
+	      margin: 0.05,
+	      direction: "left-right",
+	      ordering: "degree", // "topological" for degree which also considers the topological order
+	      "angle_step": 2 * Math.PI / nodes.length,
+	      "starting_angle": 0,
+	      "center": center,
+	      "radius": Math.max.apply(null, center) - margin, // initial radius
+	      "angle_ratio": 1, // how many 2*pi from first to last nodes
+	      "radius_ratio": 1, // factor that radius changes after 2*pi
+	      "divisions": 1 // how many partitions of the circle are used.
+	      // I.e. each partition has angle 2*pi/divisions;
+	      // and each successive node is placed in each successive partition
+	    };
+	    _utils3.default.extend(defaults, layout_options);
+	    this._options = defaults;
+	  }
+	
+	  _createClass(_class, [{
+	    key: 'apply',
+	    value: function apply() {
+	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	      var angle0 = this._options.starting_angle;
+	      var astep = this._options.angle_step * this._options.angle_ratio;
+	      var center = this._options.center;
+	      var ri = this._options.radius; // initial
+	      var rf = this._options.radius_ratio * this._options.radius; // final
+	      var divisions = this._options.divisions;
+	      var nnodes = this._nodes.length;
+	      if (this._options.ordering == "topological") {
+	        (0, _utils.initHierarchy)(this._nodes, this._edges);
+	        var nodes = nd.nodes.map(function (el) {
+	          return this._nodes[el.index];
+	        });
+	        var nodes_ = topological(nd, nodes);
+	        for (var i = 0; i < nnodes; ++i) {
+	          var radius = ri + i * (rf - ri) / (nnodes - 1);
+	          var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
+	          nodes_[i].x = center[0] + Math.cos(angle) * radius;
+	          nodes_[i].y = center[1] + Math.sin(angle) * radius;
+	          nodes_[i].weight = nodes_.degrees[i];
+	        }
+	      } else {
+	        for (var _i2 = 0; _i2 < nnodes; ++_i2) {
+	          var _radius = ri + _i2 * (rf - ri) / (nnodes - 1);
+	          var _angle = angle0 + Math.floor(_i2 / divisions) * astep + 2 * Math.PI / divisions * (_i2 % divisions);
+	          this._nodes[nd.nodes[_i2].index].x = center[0] + Math.cos(_angle) * _radius;
+	          this._nodes[nd.nodes[_i2].index].y = center[1] + Math.sin(_angle) * _radius;
+	          this._nodes[nd.nodes[_i2].index].weight = nd.degrees[_i2];
+	        }
+	      }
+	      return this._options;
+	    }
+	  }]);
+	
+	  return _class;
 	}();
 	
 	exports.default = _class;
@@ -3155,6 +3244,7 @@
 	exports.degrees = degrees;
 	exports.getDepth = getDepth;
 	exports.hierarchicalDirection = hierarchicalDirection;
+	exports.initHierarchy = initHierarchy;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3230,6 +3320,18 @@
 	    } else if (direction != "left-right") {
 	        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
 	    }
+	}
+	
+	function initHierarchy(nodes, edges) {
+	    nodes.forEach(function (n, i) {
+	        n.parents = [];
+	        n.children = [];
+	        n.visited = false;
+	    });
+	    edges.forEach(function (e, i) {
+	        e.source.children.push(e.target);
+	        e.target.parents.push(e.source);
+	    });
 	}
 
 /***/ }),

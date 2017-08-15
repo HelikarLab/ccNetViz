@@ -69,3 +69,15 @@ export function hierarchicalDirection (nodes, direction) {
           throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
       }
 }
+
+export function  initHierarchy(nodes, edges){
+      nodes.forEach(function(n,i){
+          n.parents = [];
+          n.children = [];
+          n.visited = false;
+      });
+      edges.forEach(function(e,i){
+          e.source.children.push(e.target);
+          e.target.parents.push(e.source);
+      });
+}

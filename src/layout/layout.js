@@ -11,6 +11,8 @@ import layoutHive from './hive' ;
 import layoutGrid from './grid' ;
 import layoutVersinus from './versinus' ;
 
+import ccNetViz_utils from '../utils';
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -52,7 +54,8 @@ export default class {
   }
   static get grid(){
     return layoutGrid;
-  }static get versinus(){
+  }
+  static get versinus(){
     return layoutVersinus;
   }
   
@@ -81,19 +84,42 @@ export default class {
             maxY: maxY,
             minX: minX,
             minY: minY
-        }
+        };
     }
+    const factor = 1 - 2*this._options.margin;
+    let scX = minX !== dim.maxX ? factor / (dim.maxX - minX) : ((minX -= 0.5), 1);
+    let scY = minY !== dim.maxY ? factor / (dim.maxY - minY) : ((minY -= 0.5), 1);
 
-    let scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : ((minX -= 0.5), 1);
-    let scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : ((minY -= 0.5), 1);
-
-    for (let i = 0; i < n; i++) {
-        let o = nodes[i];
-        o.x = scX * (o.x - minX);
-        o.y = scY * (o.y - minY);
-    }
-    
-    return dim;
+    const direction = this._options.direction;
+    if (direction == "left-right"){
+	  for (let i = 0; i < n; ++i) {
+	      let o = nodes[i];
+	      o.x = scX * (o.x - minX) + this._options.margin;
+	      o.y = scY * (o.y - minY) + this._options.margin;
+	  }
+    } else if (direction == "right-left"){
+          for (let i=0; i<n; ++i){
+	      let o = nodes[i];
+	      o.x = 1 - (scX * (o.x - minX) + this._options.margin);
+	      o.y = scY * (o.y - minY) + this._options.margin;
+          }
+    } else if (direction == "top-down"){ 
+          for (let i=0; i<n; ++i){
+	      let o = nodes[i];
+              const foo = 1 - scX * (o.x - minX) + this._options.margin;
+	      o.x = scY * (o.y - minY) + this._options.margin;
+	      o.y = foo;
+          }
+    } else if (direction == "bottom-up"){ 
+          for (let i=0; i<nodes.length; ++i){
+	      let o = nodes[i];
+              const foo = scX * (o.x - minX) + this._options.margin;
+	      o.x = scY * (o.y - minY) + this._options.margin;
+	      o.y = foo;
+          }
+    } else { 
+          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+    }    
+    return dim; // any use for this return? Should we remove it?
   }
-  
 }

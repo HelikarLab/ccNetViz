@@ -6,8 +6,43 @@
  *  Author: Renato Fabbri
  */
 
-import {degrees} from './utils';
+import {degrees, initHierarchy} from './utils';
 import ccNetViz_utils from '../utils';
+
+function topological (nd, nodes){
+	let nd_ = {};
+	nd_.nodes = [nd.nodes[0]];
+	let nodes_ = [];
+	for (let i=1; i<nd.nodes.length; ++i){
+		nodes[i].degree = nd.degrees[i];
+	}
+
+	for (let i=1; i<nodes.length; ++i){
+		let degree = nodes[i].degree;
+		if ( ( i == (nodes.length -1) || degree != nodes[i+1].degree || fromTo(nodes[i-1], nodes[i]) ) && (nodes[i].picked != true) ){
+			nodes_.push(nodes[i]);
+			nodes[i].picked=true;
+		} else {
+			// get all children of last node and see if one of them has degree == degree
+			// if true, pick the node, else pick any node with degree == degree
+			let children = nodes[i-1].children;
+			let found_child = false;
+                        for (let j=0; j<children.length; ++j){
+				if (children[j].degree == degree){
+					nodes_.push(children[j]);
+					children[j].picked = true;
+					found_child = true;
+					break;
+				}
+			}
+			if (found_child == false){
+				nodes_.push(nodes[i]);
+				nodes[i].picked = true;
+			}
+		}
+	}
+	return nodes_;
+}
 
 export default class {
   // get degree of all nodes
@@ -26,6 +61,9 @@ export default class {
     const margin = 0.05;
     const center = [0.5, 0.5];
     let defaults = {
+	    margin: 0.05,
+	    direction: "left-right",
+	    ordering: "degree", // "topological" for degree which also considers the topological order
         "angle_step": 2*Math.PI/nodes.length,
         "starting_angle": 0,
         "center": center,
@@ -48,12 +86,28 @@ export default class {
       const rf = this._options.radius_ratio*this._options.radius; // final
       const divisions = this._options.divisions;
       const nnodes = this._nodes.length;
-      for (let i=0; i<nnodes; ++i){
-          const radius = ri + i*(rf-ri)/(nnodes-1);
-          const angle = angle0+ Math.floor(i/divisions) * astep + (2*Math.PI/divisions) * (i%divisions);
-          this._nodes[nd.nodes[i].index].x = center[0]+Math.cos(angle)*radius;
-          this._nodes[nd.nodes[i].index].y = center[1]+Math.sin(angle)*radius;
-          this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+      if (this._options.ordering == "topological") {
+	      initHierarchy(this._nodes, this._edges);
+              let nodes = nd.nodes.map(function(el){
+                  return this._nodes[el.index];
+              });
+	      let nodes_ = topological(nd, nodes);
+	      for (let i=0; i<nnodes; ++i){
+		  const radius = ri + i*(rf-ri)/(nnodes-1);
+		  const angle = angle0+ Math.floor(i/divisions) * astep + (2*Math.PI/divisions) * (i%divisions);
+		  nodes_[i].x = center[0]+Math.cos(angle)*radius;
+		  nodes_[i].y = center[1]+Math.sin(angle)*radius;
+		  nodes_[i].weight = nodes_.degrees[i];
+	      }
+      } else {
+	      for (let i=0; i<nnodes; ++i){
+		  const radius = ri + i*(rf-ri)/(nnodes-1);
+		  const angle = angle0+ Math.floor(i/divisions) * astep + (2*Math.PI/divisions) * (i%divisions);
+		  this._nodes[nd.nodes[i].index].x = center[0]+Math.cos(angle)*radius;
+		  this._nodes[nd.nodes[i].index].y = center[1]+Math.sin(angle)*radius;
+		  this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+	      }
       }
+      return this._options;
   }
 };
