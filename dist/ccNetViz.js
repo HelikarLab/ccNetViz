@@ -3274,6 +3274,7 @@
 	exports.getDepth = getDepth;
 	exports.hierarchicalDirection = hierarchicalDirection;
 	exports.initHierarchy = initHierarchy;
+	exports.findRoots = findRoots;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3361,6 +3362,50 @@
 	        e.source.children.push(e.target);
 	        e.target.parents.push(e.source);
 	    });
+	}
+	
+	function findRoots(nodes) {
+	    var root_option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "auto";
+	
+	    // find the roots:
+	    // nodes defined by the user as roots OR
+	    // nodes with in-degree == 0 OR
+	    // nodes with greatest in-degree (or degree if undirected graph)
+	    var roots = [];
+	    if (root_option == "user-defined" || root_option == "auto") {
+	        for (var i = 0; i < nodes.length; i++) {
+	            if (nodes[i].isroot == true) {
+	                // has to be on the json file of the graph
+	                roots.push(nodes[i]);
+	            }
+	        }
+	    }
+	    if (root_option == "no-in-degree" || root_option == "auto" && roots.length == 0) {
+	        if (roots.length == 0) {
+	            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
+	                if (nodes[_i3].parents.length == 0) {
+	                    roots.push(nodes[_i3]);
+	                }
+	            }
+	        }
+	    }
+	    if (root_option == "degree" || root_option == "auto" && roots.length == 0) {
+	        // calculate max out-degree
+	        var max_outdegree = 0;
+	        nodes.forEach(function (node) {
+	            if (node.children.length > max_outdegree) {
+	                max_outdegree = node.children.length;
+	            }
+	        });
+	        // choose vertices with greatest out-degree
+	        nodes.forEach(function (node) {
+	            if (node.children.length == max_outdegree) {
+	                roots.push(node);
+	            }
+	        });
+	    }
+	
+	    return roots;
 	}
 
 /***/ }),
@@ -3647,8 +3692,10 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        var defaults = {
-	            "margin": 0.05,
-	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	            margin: 0.05,
+	            direction: "left-right", // other options: right-left, top-down, bottom-up
+	            roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
+	
 	        };
 	        _utils2.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -3705,35 +3752,7 @@
 	            // nodes defined by the user as roots OR
 	            // nodes with in-degree == 0 OR
 	            // nodes with greatest in-degree (or degree if undirected graph)
-	            var roots = [];
-	            for (var i = 0; i < nodes.length; i++) {
-	                if (nodes[i].isroot == true) {
-	                    // has to be on the json file of the graph
-	                    roots.push(nodes[i]);
-	                }
-	            }
-	            if (roots.length == 0) {
-	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
-	                    if (nodes[_i2].parents.length == 0) {
-	                        roots.push(nodes[_i2]);
-	                    }
-	                }
-	            }
-	            if (roots.length == 0) {
-	                // calculate max out-degree
-	                var max_outdegree = 0;
-	                nodes.forEach(function (node) {
-	                    if (node.children.length > max_outdegree) {
-	                        max_outdegree = node.children.length;
-	                    }
-	                });
-	                // choose vertices with greatest out-degree
-	                nodes.forEach(function (node) {
-	                    if (node.children.length == max_outdegree) {
-	                        roots.push(node);
-	                    }
-	                });
-	            }
+	            var roots = (0, _utils3.findRoots)(nodes, this._options.roots);
 	            // number of layers and max number of nodes in each layer
 	            // has to be found by making the layout
 	            // there are two approaches to finding the nodes in each layer:
@@ -3744,8 +3763,8 @@
 	            // each layer of tree x = [0+alpha,1-alpha]
 	            var stepx = 1 / (depth - 1);
 	            // posx = marginx + stepx*(depth-1)
-	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                this._nodes[_i3].x = stepx * (this._nodes[_i3].layer - 1);
+	            for (var i = 0; i < this._nodes.length; ++i) {
+	                this._nodes[i].x = stepx * (this._nodes[i].layer - 1);
 	            }
 	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
 	            return this._options;
@@ -3810,7 +3829,8 @@
 	        this.unvisited = nodes;
 	        var defaults = {
 	            "margin": 0.05,
-	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	            "direction": "left-right", // other options: right-left, top-down, bottom-up
+	            roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
 	        };
 	        _utils2.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -3839,44 +3859,6 @@
 	                if (isOrphan(node)) orphans.push(node);else nodes.push(node);
 	            }
 	            return orphans;
-	        }
-	    }, {
-	        key: 'findRoots',
-	        value: function findRoots(nodes) {
-	            // find the roots:
-	            // nodes defined by the user as roots OR
-	            // nodes with in-degree == 0 OR
-	            // nodes with greatest in-degree (or degree if undirected graph)
-	            var roots = [];
-	            for (var i = 0; i < nodes.length; i++) {
-	                if (nodes[i].isroot == true) {
-	                    // has to be on the json file of the graph
-	                    roots.push(nodes[i]);
-	                }
-	            }
-	            if (roots.length == 0) {
-	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
-	                    if (nodes[_i2].parents.length == 0) {
-	                        roots.push(nodes[_i2]);
-	                    }
-	                }
-	            }
-	            if (roots.length == 0) {
-	                // calculate max out-degree
-	                var max_outdegree = 0;
-	                nodes.forEach(function (node) {
-	                    if (node.children.length > max_outdegree) {
-	                        max_outdegree = node.children.length;
-	                    }
-	                });
-	                // choose vertices with greatest out-degree
-	                nodes.forEach(function (node) {
-	                    if (node.children.length == max_outdegree) {
-	                        roots.push(node);
-	                    }
-	                });
-	            }
-	            return roots;
 	        }
 	    }, {
 	        key: 'placeOrphans',
@@ -3973,8 +3955,8 @@
 	                c.layers[c.current_layer].push(nodes[i]);
 	            }
 	            var next_layer = [];
-	            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
-	                var candidates = nodes[_i3].children;
+	            for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+	                var candidates = nodes[_i2].children;
 	                for (var j = 0; j < candidates.length; j++) {
 	                    if (candidates[j].visited == false && !next_layer.includes(candidates[j])) {
 	                        next_layer.push(candidates[j]);
@@ -4033,8 +4015,8 @@
 	            // each layer of tree xy = [0+alpha,1-alpha]
 	            var stepx = 1 / this.components.depth;
 	            var stepy = 1 / this.components.vertical_nodes;
-	            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
-	                var component = this.components[_i4];
+	            for (var _i3 = 0; _i3 < this.components.current_component; _i3++) {
+	                var component = this.components[_i3];
 	                for (var layer_val in component.layers) {
 	                    var layer = component.layers[layer_val];
 	                    if (layer.length == 1) {

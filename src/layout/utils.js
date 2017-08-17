@@ -123,3 +123,20 @@ export function findRoots (nodes, root_option = "auto") {
    return roots;
 }
 
+export function erdosSectioning (degrees, min_incidence) {
+    // Returns fractions of hubs, intermediary and peripheral vertices
+    // given their degrees and a minimum incidence of histogram bin
+    // by comparing the distribution against that of an Erdös-Rényi network.
+    // Only basic partitioning using degree is implemented.
+    // For other possibilities (using in-out degrees and strengths) see:
+    // http://dx.doi.org/10.1016/j.physa.2017.04.109
+    
+    // get maximum degree
+    // make list of distinct degree values
+    // make binomial distribution considering probability of edge and max degree
+    // derive sectors by comparing the empirical distribution against the binomial
+    // model implementation:
+    // https://github.com/ttm/percolation/blob/master/percolation/measures/topology/erdosSectors.py
+
+    // not implemented now because it requires an external package (to build the binomial)
+}
