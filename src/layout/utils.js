@@ -81,3 +81,45 @@ export function  initHierarchy(nodes, edges){
           e.target.parents.push(e.source);
       });
 }
+
+export function findRoots (nodes, root_option = "auto") {
+   // find the roots:
+   // nodes defined by the user as roots OR
+   // nodes with in-degree == 0 OR
+   // nodes with greatest in-degree (or degree if undirected graph)
+   let roots = [];
+   if (root_option == "user-defined" || root_option == "auto"){
+       for (let i = 0; i < nodes.length; i++){
+           if (nodes[i].isroot == true){ // has to be on the json file of the graph
+               roots.push(nodes[i]);
+           }
+       }
+   }
+   if (root_option == "no-in-degree" || (root_option == "auto" && roots.length == 0) ){
+       if (roots.length == 0){
+           for (let i = 0; i < nodes.length; i++){
+               if (nodes[i].parents.length == 0){
+                   roots.push(nodes[i]);
+               }
+           }
+       }
+   }
+   if (root_option == "degree" || (root_option == "auto" && roots.length == 0) ){
+       // calculate max out-degree
+       let max_outdegree = 0;
+       nodes.forEach(function(node){
+           if (node.children.length > max_outdegree){
+               max_outdegree = node.children.length;
+           }
+       });
+       // choose vertices with greatest out-degree
+       nodes.forEach(function(node){
+           if (node.children.length == max_outdegree){
+               roots.push(node);
+           }
+       });
+   }
+
+   return roots;
+}
+

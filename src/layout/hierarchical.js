@@ -7,7 +7,7 @@
  */
 
 import ccNetViz_utils from '../utils';
-import {hierarchicalDirection} from './utils';
+import {hierarchicalDirection,findRoots} from './utils';
 
 export default class {
   // this layout should handle any digraph
@@ -15,8 +15,10 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {
-        "margin": 0.05,
-        "direction": "left-right", // other options: right-left, top-down, bottom-up
+        margin: 0.05,
+        direction: "left-right", // other options: right-left, top-down, bottom-up
+        roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
+
     };
     ccNetViz_utils.extend(defaults, layout_options);
     this._options = defaults;
@@ -72,34 +74,7 @@ export default class {
       // nodes defined by the user as roots OR
       // nodes with in-degree == 0 OR
       // nodes with greatest in-degree (or degree if undirected graph)
-      let roots = [];
-      for (let i = 0; i < nodes.length; i++){
-          if (nodes[i].isroot == true){ // has to be on the json file of the graph
-              roots.push(nodes[i]);
-          }
-      }
-      if (roots.length == 0){
-          for (let i = 0; i < nodes.length; i++){
-              if (nodes[i].parents.length == 0){
-                  roots.push(nodes[i]);
-              }
-          }
-      }
-      if (roots.length == 0){
-          // calculate max out-degree
-          let max_outdegree = 0;
-          nodes.forEach(function(node){
-              if (node.children.length > max_outdegree){
-                  max_outdegree = node.children.length;
-              }
-          });
-          // choose vertices with greatest out-degree
-          nodes.forEach(function(node){
-              if (node.children.length == max_outdegree){
-                  roots.push(node);
-              }
-          });
-      }
+      let roots = findRoots(nodes, this._options.roots);
       // number of layers and max number of nodes in each layer
       // has to be found by making the layout
       // there are two approaches to finding the nodes in each layer:

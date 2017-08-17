@@ -1,7 +1,8 @@
 
-* comply all layouts with new normalize
-* assert circular is working fine with topological ordering
+* comply all layouts with new normalize OK
+* assert circular is working fine with topological ordering OK
 * review hierarquical to assert ability to deal with multiple components
+	and manage roots defined by the user LEAVE IT!
 * put erdos sectioning into vesinus
 * make d3 gadget
 * start table of comparisons

@@ -7,7 +7,7 @@
  */
 
 import ccNetViz_utils from '../utils';
-import {hierarchicalDirection} from './utils';
+import {hierarchicalDirection,findRoots} from './utils';
 
 function isOrphan(node){
     let orphan = true;
@@ -34,6 +34,7 @@ export default class {
     let defaults = {
         "margin": 0.05,
         "direction": "left-right", // other options: right-left, top-down, bottom-up
+        roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
     };
     ccNetViz_utils.extend(defaults, layout_options);
     this._options = defaults;
@@ -62,42 +63,6 @@ export default class {
               nodes.push(node);
       }
       return orphans;
-  }
-
-  findRoots(nodes){
-      // find the roots:
-      // nodes defined by the user as roots OR
-      // nodes with in-degree == 0 OR
-      // nodes with greatest in-degree (or degree if undirected graph)
-      let roots = [];
-      for (let i = 0; i < nodes.length; i++){
-          if (nodes[i].isroot == true){ // has to be on the json file of the graph
-              roots.push(nodes[i]);
-          }
-      }
-      if (roots.length == 0){
-          for (let i = 0; i < nodes.length; i++){
-              if (nodes[i].parents.length == 0){
-                  roots.push(nodes[i]);
-              }
-          }
-      }
-      if (roots.length == 0){
-          // calculate max out-degree
-          let max_outdegree = 0;
-          nodes.forEach(function(node){
-              if (node.children.length > max_outdegree){
-                  max_outdegree = node.children.length;
-              }
-          });
-          // choose vertices with greatest out-degree
-          nodes.forEach(function(node){
-              if (node.children.length == max_outdegree){
-                  roots.push(node);
-              }
-          });
-      }
-      return roots;
   }
 
   placeOrphans(nodes, max_layer){
@@ -257,8 +222,8 @@ export default class {
       // components.depth is the maximum number of layers
 
       // each layer of tree xy = [0+alpha,1-alpha]
-      const stepx = 1/(this.components.depth);
-      const stepy = 1/(this.components.vertical_nodes);
+      const stepx = 1/this.components.depth;
+      const stepy = 1/this.components.vertical_nodes;
       for (let i=0; i<this.components.current_component; i++){
           let component = this.components[i];
           for (let layer_val in component.layers){
