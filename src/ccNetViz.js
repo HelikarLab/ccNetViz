@@ -413,7 +413,7 @@ var ccNetViz = function(canvas, options){
   
   let addEvts = (el, evts) => {
     for(var k in (evts || {})){
-      evts[k] && el.addEventListener(k, evts[k]);
+      evts[k] && el.addEventListener(k, evts[k], {passive: true});
     }
   }
   
