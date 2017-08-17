@@ -16,7 +16,13 @@ export default function(nodes, edges, layout_options) {
           gravity =         layout_options.gravity || 0.4,
           theta2 =          layout_options.theta2 || .64,
           size =            layout_options.size || [1,1],
+          margin =            layout_options.margin || 0.05,
+          direction =            layout_options.direction || "left-right",
           chargeDistance2 = layout_options.chargeDistance2 || Infinity;
+    this._options = {
+        margin: margin,
+        direction: direction
+    };
 
     let   alpha,
           distances = [],
@@ -167,6 +173,6 @@ export default function(nodes, edges, layout_options) {
         alpha = 0.1;
         while (!step());
 
-        return true;
+        return this._options;
     };
 };

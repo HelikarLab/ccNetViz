@@ -32,8 +32,7 @@ export default class {
     this.components = {"current_component": 0, "depth": 1};
     this.unvisited = nodes;
     let defaults = {
-        "marginx": 0.05, // x margin
-        "marginy": 0.05, // y margin
+        "margin": 0.05,
         "direction": "left-right", // other options: right-left, top-down, bottom-up
     };
     ccNetViz_utils.extend(defaults, layout_options);
@@ -102,9 +101,9 @@ export default class {
   }
 
   placeOrphans(nodes, max_layer){
-      const stepy = (1 - 2*this._options.marginy)/(nodes.length-1);
+      const stepy = 1/(nodes.length-1);
       for (let i=0; i<nodes.length; ++i){
-          nodes[i].y = this._options.marginy + i*stepy;
+          nodes[i].y = i*stepy;
           nodes[i].x = max_layer+1;
       }
       if (nodes.length > 0)
@@ -258,26 +257,27 @@ export default class {
       // components.depth is the maximum number of layers
 
       // each layer of tree xy = [0+alpha,1-alpha]
-      const stepx = (1-2*this._options.marginx)/(this.components.depth);
-      const stepy = (1-2*this._options.marginy)/(this.components.vertical_nodes);
+      const stepx = 1/(this.components.depth);
+      const stepy = 1/(this.components.vertical_nodes);
       for (let i=0; i<this.components.current_component; i++){
           let component = this.components[i];
           for (let layer_val in component.layers){
               let layer = component.layers[layer_val];
               if (layer.length == 1){
                   let node = layer[0];
-                  node.x = this._options.marginx + stepx*layer_val;
-                  node.y = this._options.marginy + stepy*(component.index_offset + component.vertical_nodes/2);
+                  node.x = stepx*layer_val;
+                  node.y = stepy*(component.index_offset + component.vertical_nodes/2);
               } else {
                   for (let k=0; k<layer.length; ++k){
                       let node = layer[k];
-                      node.x = this._options.marginx + stepx*layer_val;
-                      node.y = this._options.marginy + stepy*(component.index_offset + k);
+                      node.x = stepx*layer_val;
+                      node.y = stepy*(component.index_offset + k);
                   }
               }
           }
       }
       this.placeOrphans(this.orphans);
       hierarchicalDirection(this._nodes, this._options.direction);
+      return this._options;
   }
 };

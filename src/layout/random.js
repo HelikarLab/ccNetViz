@@ -6,9 +6,17 @@
  *  Author: David Tichy
  */
 
+import ccNetViz_utils from '../utils';
+
 export default class {
-  constructor(nodes){
+  constructor(nodes, layout_options){
     this._nodes = nodes;
+    let defaults = {
+        margin: 0.05,
+        direction: "left-right",
+    }
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
   
   apply () {
@@ -17,5 +25,6 @@ export default class {
       o.x = Math.random();
       o.y = Math.random();
     }
+    return this._options;
   }
 };

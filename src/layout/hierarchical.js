@@ -15,8 +15,7 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {
-        "marginx": 0.05, // x margin
-        "marginy": 0.05, // y margin
+        "margin": 0.05,
         "direction": "left-right", // other options: right-left, top-down, bottom-up
     };
     ccNetViz_utils.extend(defaults, layout_options);
@@ -25,11 +24,11 @@ export default class {
 
   makeLayers(nodes, layer){
       if (nodes.length > 1){
-          const stepy = (1 - 2*this._options.marginy)/(nodes.length-1);
+          const stepy = 1/(nodes.length-1);
           for (let i=0; i<nodes.length; ++i){
               nodes[i].visited = true;
               nodes[i].layer = layer; // makes x afterwards
-              nodes[i].y = this._options.marginy + i*stepy;
+              nodes[i].y = i*stepy;
           }
       }
       else {
@@ -109,11 +108,12 @@ export default class {
       // this layout implements the first of these approaches.
       const depth = this.makeLayers(roots, 1);
       // each layer of tree x = [0+alpha,1-alpha]
-      const stepx = (1-2*this._options.marginx)/(depth-1);
+      const stepx = 1/(depth-1);
       // posx = marginx + stepx*(depth-1)
       for (let i=0; i<this._nodes.length; ++i){
-          this._nodes[i].x = this._options.marginx + stepx*(this._nodes[i].layer - 1);
+          this._nodes[i].x = stepx*(this._nodes[i].layer - 1);
       }
       hierarchicalDirection(this._nodes, this._options.direction);
+      return this._options;
   }
 };

@@ -1,3 +1,13 @@
+
+* comply all layouts with new normalize
+* assert circular is working fine with topological ordering
+* review hierarquical to assert ability to deal with multiple components
+* put erdos sectioning into vesinus
+* make d3 gadget
+* start table of comparisons
+
+
+================
 1) Implement ability to switch direction ( top-bottom, right-left etc. )
          This should be done in the generic parent class for all of your layouts as I suggested you before
 2) Implement various user configuration options of the layouts.

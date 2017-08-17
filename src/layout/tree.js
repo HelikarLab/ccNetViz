@@ -14,7 +14,8 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {
-        "direction": "left-right", // other options: right-left, top-down, bottom-up
+        margin: 0.05,
+        direction: "left-right", // other options: right-left, top-down, bottom-up
     };
     ccNetViz_utils.extend(defaults, layout_options);
     this._options = defaults;
@@ -84,5 +85,6 @@ export default class {
 
       this.drawTreeCentered(root);
       hierarchicalDirection(this._nodes, this._options.direction);
+      return this._options;
   }
 };

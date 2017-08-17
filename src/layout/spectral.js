@@ -8,6 +8,7 @@
 
 import {EigenvalueDecomposition} from 'ml-matrix';
 import {create2dArray} from './utils';
+import ccNetViz_utils from '../utils';
 
 function twoSmallest (arr) {
     const min = Math.min.apply(null, arr), // get the max of the array
@@ -44,9 +45,15 @@ export default class {
   // use some other ordering criterion than degree? Strength?
   // defined by user and found as attribute of each node?
   // random ordering, minimal crossing of edges?
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
+    let defaults = {
+        margin: 0.05,
+        direction: "left-right",
+    }
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
 
   apply () {
@@ -78,5 +85,6 @@ export default class {
           node.x = xy[0][i];
           node.y = xy[1][i];
       }); 
+      return this._options;
   }
 };

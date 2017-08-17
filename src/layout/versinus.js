@@ -13,11 +13,11 @@ export default class {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {
-        "center": [0.5, 0.5],
-        "margin": 0.05,
-        "hubs": 0.1, // fraction of hubs
-        "intermediary": 0.2, // fraction of intermediary
-        "method": "fixed_fractions" // or "erdos_sectioning"
+        margin: 0.05,
+        direction: "left-right",
+        hubs: 0.1, // fraction of hubs
+        intermediary: 0.2, // fraction of intermediary
+        method: "fixed_fractions" // or "erdos_sectioning"
     }
     ccNetViz_utils.extend(defaults, layout_options);
     this._options = defaults;
