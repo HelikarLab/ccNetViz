@@ -9,36 +9,48 @@
 import {degrees, initHierarchy} from './utils';
 import ccNetViz_utils from '../utils';
 
+function fromTo (node1, node2){
+    let children = node1.children;
+    for (let i=0; i<children.length; ++i){
+        if (children[i].uniqid == node2.uniqid)
+            return true;
+    }
+    return false;
+}
 function topological (nd, nodes){
-	let nd_ = {};
-	nd_.nodes = [nd.nodes[0]];
-	let nodes_ = [];
+	let nodes_ = [nodes[0]];
+        nodes[0].picked = true;
 	for (let i=1; i<nd.nodes.length; ++i){
 		nodes[i].degree = nd.degrees[i];
 	}
 
 	for (let i=1; i<nodes.length; ++i){
 		let degree = nodes[i].degree;
-		if ( ( i == (nodes.length -1) || degree != nodes[i+1].degree || fromTo(nodes[i-1], nodes[i]) ) && (nodes[i].picked != true) ){
+		if ( ( i == (nodes.length -1) || degree != nodes[i+1].degree || fromTo(nodes_[i-1], nodes[i]) ) && (nodes[i].picked != true) ){
 			nodes_.push(nodes[i]);
 			nodes[i].picked=true;
 		} else {
 			// get all children of last node and see if one of them has degree == degree
 			// if true, pick the node, else pick any node with degree == degree
-			let children = nodes[i-1].children;
+			let children = nodes_[i-1].children;
 			let found_child = false;
                         for (let j=0; j<children.length; ++j){
-				if (children[j].degree == degree){
+				if ((children[j].degree == degree) && (children[j].picked != true)){
 					nodes_.push(children[j]);
 					children[j].picked = true;
 					found_child = true;
 					break;
 				}
 			}
-			if (found_child == false){
-				nodes_.push(nodes[i]);
-				nodes[i].picked = true;
-			}
+                        let ii = 0;
+                        while (found_child != true){
+                                if (nodes[ii].picked != true){
+                                    nodes_.push(nodes[ii]);
+                                    nodes[ii].picked = true;
+                                    found_child = true;
+                                }
+                                ii++;
+                        }
 		}
 	}
 	return nodes_;
@@ -88,8 +100,9 @@ export default class {
       const nnodes = this._nodes.length;
       if (this._options.ordering == "topological") {
 	      initHierarchy(this._nodes, this._edges);
+              let this_ = this;
               let nodes = nd.nodes.map(function(el){
-                  return this._nodes[el.index];
+                  return this_._nodes[el.index];
               });
 	      let nodes_ = topological(nd, nodes);
 	      for (let i=0; i<nnodes; ++i){
@@ -97,7 +110,7 @@ export default class {
 		  const angle = angle0+ Math.floor(i/divisions) * astep + (2*Math.PI/divisions) * (i%divisions);
 		  nodes_[i].x = center[0]+Math.cos(angle)*radius;
 		  nodes_[i].y = center[1]+Math.sin(angle)*radius;
-		  nodes_[i].weight = nodes_.degrees[i];
+		  nodes_[i].weight = nodes_[i].degree;
 	      }
       } else {
 	      for (let i=0; i<nnodes; ++i){

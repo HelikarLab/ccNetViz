@@ -2683,7 +2683,7 @@
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -2697,7 +2697,13 @@
 	        gravity = layout_options.gravity || 0.4,
 	        theta2 = layout_options.theta2 || .64,
 	        size = layout_options.size || [1, 1],
+	        margin = layout_options.margin || 0.05,
+	        direction = layout_options.direction || "left-right",
 	        chargeDistance2 = layout_options.chargeDistance2 || Infinity;
+	    this._options = {
+	        margin: margin,
+	        direction: direction
+	    };
 	
 	    var alpha = void 0,
 	        distances = [],
@@ -2855,7 +2861,7 @@
 	        alpha = 0.1;
 	        while (!step()) {}
 	
-	        return true;
+	        return this._options;
 	    };
 	};
 	
@@ -3045,7 +3051,7 @@
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -3053,23 +3059,33 @@
 	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2016, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: David Tichy
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
-	 */
-	
 	var _class = function () {
-	  function _class(nodes) {
+	  function _class(nodes, layout_options) {
 	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
+	    var defaults = {
+	      margin: 0.05,
+	      direction: "left-right"
+	    };
+	    _utils2.default.extend(defaults, layout_options);
+	    this._options = defaults;
 	  }
 	
 	  _createClass(_class, [{
@@ -3080,6 +3096,7 @@
 	        o.x = Math.random();
 	        o.y = Math.random();
 	      }
+	      return this._options;
 	    }
 	  }]);
 	
@@ -3117,35 +3134,46 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
+	function fromTo(node1, node2) {
+	  var children = node1.children;
+	  for (var i = 0; i < children.length; ++i) {
+	    if (children[i].uniqid == node2.uniqid) return true;
+	  }
+	  return false;
+	}
 	function topological(nd, nodes) {
-	  var nd_ = {};
-	  nd_.nodes = [nd.nodes[0]];
-	  var nodes_ = [];
+	  var nodes_ = [nodes[0]];
+	  nodes[0].picked = true;
 	  for (var i = 1; i < nd.nodes.length; ++i) {
 	    nodes[i].degree = nd.degrees[i];
 	  }
 	
 	  for (var _i = 1; _i < nodes.length; ++_i) {
 	    var degree = nodes[_i].degree;
-	    if ((_i == nodes.length - 1 || degree != nodes[_i + 1].degree || fromTo(nodes[_i - 1], nodes[_i])) && nodes[_i].picked != true) {
+	    if ((_i == nodes.length - 1 || degree != nodes[_i + 1].degree || fromTo(nodes_[_i - 1], nodes[_i])) && nodes[_i].picked != true) {
 	      nodes_.push(nodes[_i]);
 	      nodes[_i].picked = true;
 	    } else {
 	      // get all children of last node and see if one of them has degree == degree
 	      // if true, pick the node, else pick any node with degree == degree
-	      var children = nodes[_i - 1].children;
+	      var children = nodes_[_i - 1].children;
 	      var found_child = false;
 	      for (var j = 0; j < children.length; ++j) {
-	        if (children[j].degree == degree) {
+	        if (children[j].degree == degree && children[j].picked != true) {
 	          nodes_.push(children[j]);
 	          children[j].picked = true;
 	          found_child = true;
 	          break;
 	        }
 	      }
-	      if (found_child == false) {
-	        nodes_.push(nodes[_i]);
-	        nodes[_i].picked = true;
+	      var ii = 0;
+	      while (found_child != true) {
+	        if (nodes[ii].picked != true) {
+	          nodes_.push(nodes[ii]);
+	          nodes[ii].picked = true;
+	          found_child = true;
+	        }
+	        ii++;
 	      }
 	    }
 	  }
@@ -3201,8 +3229,9 @@
 	      var nnodes = this._nodes.length;
 	      if (this._options.ordering == "topological") {
 	        (0, _utils.initHierarchy)(this._nodes, this._edges);
+	        var this_ = this;
 	        var nodes = nd.nodes.map(function (el) {
-	          return this._nodes[el.index];
+	          return this_._nodes[el.index];
 	        });
 	        var nodes_ = topological(nd, nodes);
 	        for (var i = 0; i < nnodes; ++i) {
@@ -3210,7 +3239,7 @@
 	          var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
 	          nodes_[i].x = center[0] + Math.cos(angle) * radius;
 	          nodes_[i].y = center[1] + Math.sin(angle) * radius;
-	          nodes_[i].weight = nodes_.degrees[i];
+	          nodes_[i].weight = nodes_[i].degree;
 	        }
 	      } else {
 	        for (var _i2 = 0; _i2 < nnodes; ++_i2) {
@@ -3369,7 +3398,8 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        var defaults = {
-	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	            margin: 0.05,
+	            direction: "left-right" // other options: right-left, top-down, bottom-up
 	        };
 	        _utils3.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -3445,6 +3475,7 @@
 	
 	            this.drawTreeCentered(root);
 	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3489,7 +3520,8 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        var defaults = {
-	            "direction": "left-right" // other options: right-left, top-down, bottom-up
+	            margin: 0.05,
+	            direction: "left-right" // other options: right-left, top-down, bottom-up
 	        };
 	        _utils3.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -3569,6 +3601,7 @@
 	
 	            this.drawTreeTop(root);
 	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3614,8 +3647,7 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        var defaults = {
-	            "marginx": 0.05, // x margin
-	            "marginy": 0.05, // y margin
+	            "margin": 0.05,
 	            "direction": "left-right" // other options: right-left, top-down, bottom-up
 	        };
 	        _utils2.default.extend(defaults, layout_options);
@@ -3626,11 +3658,11 @@
 	        key: 'makeLayers',
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
-	                var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
+	                var stepy = 1 / (nodes.length - 1);
 	                for (var i = 0; i < nodes.length; ++i) {
 	                    nodes[i].visited = true;
 	                    nodes[i].layer = layer; // makes x afterwards
-	                    nodes[i].y = this._options.marginy + i * stepy;
+	                    nodes[i].y = i * stepy;
 	                }
 	            } else {
 	                nodes[0].visited = true;
@@ -3710,12 +3742,13 @@
 	            // this layout implements the first of these approaches.
 	            var depth = this.makeLayers(roots, 1);
 	            // each layer of tree x = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this._options.marginx) / (depth - 1);
+	            var stepx = 1 / (depth - 1);
 	            // posx = marginx + stepx*(depth-1)
 	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                this._nodes[_i3].x = this._options.marginx + stepx * (this._nodes[_i3].layer - 1);
+	                this._nodes[_i3].x = stepx * (this._nodes[_i3].layer - 1);
 	            }
 	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3776,8 +3809,7 @@
 	        this.components = { "current_component": 0, "depth": 1 };
 	        this.unvisited = nodes;
 	        var defaults = {
-	            "marginx": 0.05, // x margin
-	            "marginy": 0.05, // y margin
+	            "margin": 0.05,
 	            "direction": "left-right" // other options: right-left, top-down, bottom-up
 	        };
 	        _utils2.default.extend(defaults, layout_options);
@@ -3849,9 +3881,9 @@
 	    }, {
 	        key: 'placeOrphans',
 	        value: function placeOrphans(nodes, max_layer) {
-	            var stepy = (1 - 2 * this._options.marginy) / (nodes.length - 1);
+	            var stepy = 1 / (nodes.length - 1);
 	            for (var i = 0; i < nodes.length; ++i) {
-	                nodes[i].y = this._options.marginy + i * stepy;
+	                nodes[i].y = i * stepy;
 	                nodes[i].x = max_layer + 1;
 	            }
 	            if (nodes.length > 0) return max_layer + 1;else return max_layer;
@@ -3999,27 +4031,28 @@
 	            // components.depth is the maximum number of layers
 	
 	            // each layer of tree xy = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this._options.marginx) / this.components.depth;
-	            var stepy = (1 - 2 * this._options.marginy) / this.components.vertical_nodes;
+	            var stepx = 1 / this.components.depth;
+	            var stepy = 1 / this.components.vertical_nodes;
 	            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
 	                var component = this.components[_i4];
 	                for (var layer_val in component.layers) {
 	                    var layer = component.layers[layer_val];
 	                    if (layer.length == 1) {
 	                        var node = layer[0];
-	                        node.x = this._options.marginx + stepx * layer_val;
-	                        node.y = this._options.marginy + stepy * (component.index_offset + component.vertical_nodes / 2);
+	                        node.x = stepx * layer_val;
+	                        node.y = stepy * (component.index_offset + component.vertical_nodes / 2);
 	                    } else {
 	                        for (var k = 0; k < layer.length; ++k) {
 	                            var _node = layer[k];
-	                            _node.x = this._options.marginx + stepx * layer_val;
-	                            _node.y = this._options.marginy + stepy * (component.index_offset + k);
+	                            _node.x = stepx * layer_val;
+	                            _node.y = stepy * (component.index_offset + k);
 	                        }
 	                    }
 	                }
 	            }
 	            this.placeOrphans(this.orphans);
 	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -4050,6 +4083,12 @@
 	var _mlMatrix = __webpack_require__(20);
 	
 	var _utils = __webpack_require__(14);
+	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -4091,11 +4130,17 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right"
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -4131,6 +4176,7 @@
 	                node.x = xy[0][i];
 	                node.y = xy[1][i];
 	            });
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8570,10 +8616,16 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -8582,6 +8634,12 @@
 	        this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
 	        this._num_elements = nodes.length; //number of nodes in graph
 	        this._dims = 2;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right"
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -8659,6 +8717,7 @@
 	                node.x = x[i];
 	                node.y = y[i];
 	            });
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8811,16 +8870,12 @@
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        // this._margin = 0.05; // from [0,1] borders
-	        // this._radius = 0.05; // of the empty circle on the center
-	        // this._nlines = 5;
-	        var center = [0.5, 0.5];
 	        var defaults = {
-	            "starting_angle": Math.PI / 2,
-	            "center": center,
-	            "radius": 0.05,
-	            "margin": 0.05,
-	            "nlines": 5
+	            starting_angle: Math.PI / 2,
+	            radius: 0.05, // internal radious without nodes
+	            margin: 0.05,
+	            direction: "left-right",
+	            nlines: 5
 	        };
 	        _utils3.default.extend(defaults, layout_options);
 	        this._options = defaults;
@@ -8831,8 +8886,7 @@
 	        value: function apply() {
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
 	            var nodes_segment = Math.ceil(this._nodes.length / this._options.nlines);
-	            var center = this._options.center;
-	            var segment = Math.max.apply(null, center) - (this._options.margin + this._options.radius);
+	            var segment = 0.05 - this._options.radius;
 	            var step = segment / nodes_segment;
 	            var angle = 2 * Math.PI / this._options.nlines;
 	            var sangle = this._options.starting_angle;
@@ -8840,8 +8894,8 @@
 	            var j = 0;
 	            for (var i = 0; i < this._nodes.length; ++i) {
 	                var ii = nd.nodes[i].index;
-	                this._nodes[ii].x = center[0] + (radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + sangle);
-	                this._nodes[ii].y = center[1] + (radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + sangle);
+	                this._nodes[ii].x = 0.05 + (radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + sangle);
+	                this._nodes[ii].y = 0.05 + (radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + sangle);
 	                j = Math.floor(i / nodes_segment);
 	            }
 	            var od = [];
@@ -8849,6 +8903,7 @@
 	                var _ii = nd.nodes[_i].index;
 	                od.push(this._nodes[_ii]);
 	            }
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8862,7 +8917,7 @@
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	     value: true
@@ -8875,33 +8930,39 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	     function _class(nodes, edges) {
+	     function _class(nodes, edges, layout_options) {
 	          _classCallCheck(this, _class);
 	
 	          this._nodes = nodes;
 	          this._edges = edges;
-	          this._margin = 0.05;
+	          var defaults = {
+	               margin: 0.05,
+	               direction: "left-right"
+	          };
+	          ccNetViz_utils.extend(defaults, layout_options);
+	          this._options = defaults;
 	     }
 	
 	     _createClass(_class, [{
-	          key: 'apply',
+	          key: "apply",
 	          value: function apply() {
 	               var nd = (0, _utils.degrees)(this._nodes, this._edges);
 	               var sq = Math.sqrt(this._nodes.length);
 	               var reminder = sq - Math.floor(sq);
 	               if (reminder > 0) var nnodes = Math.floor(sq) + 1;else var nnodes = sq;
-	               var step = (1 - this._margin * 2) / nnodes;
+	               var step = 1 / nnodes;
 	
 	               var nlines = this._nodes.length / nnodes;
 	               var reminder2 = nlines - Math.floor(nlines);
 	               if (reminder2 > 0) var nlines2 = Math.floor(nlines) + 1;else var nlines2 = nlines;
-	               var stepy = (1 - 2 * this._margin) / (nlines2 - 2);
+	               var stepy = 1 / (nlines2 - 2);
 	               for (var i = 0; i < this._nodes.length; ++i) {
 	                    var j = Math.floor(i / (nnodes + 1));
-	                    this._nodes[nd.nodes[i].index].x = this._margin + step * (i - j * (nnodes + 1));
-	                    this._nodes[nd.nodes[i].index].y = this._margin + stepy * j;
+	                    this._nodes[nd.nodes[i].index].x = step * (i - j * (nnodes + 1));
+	                    this._nodes[nd.nodes[i].index].y = stepy * j;
 	                    this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
 	               }
+	               return this._options;
 	          }
 	     }]);
 	
@@ -8947,11 +9008,11 @@
 	        this._nodes = nodes;
 	        this._edges = edges;
 	        var defaults = {
-	            "center": [0.5, 0.5],
-	            "margin": 0.05,
-	            "hubs": 0.1, // fraction of hubs
-	            "intermediary": 0.2, // fraction of intermediary
-	            "method": "fixed_fractions" // or "erdos_sectioning"
+	            margin: 0.05,
+	            direction: "left-right",
+	            hubs: 0.1, // fraction of hubs
+	            intermediary: 0.2, // fraction of intermediary
+	            method: "fixed_fractions" // or "erdos_sectioning"
 	        };
 	        _utils3.default.extend(defaults, layout_options);
 	        this._options = defaults;
