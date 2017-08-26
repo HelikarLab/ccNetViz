@@ -1,3 +1,4 @@
+import ccNetViz_utils from '../utils';
 import {degrees} from './utils';
 
 export default class {

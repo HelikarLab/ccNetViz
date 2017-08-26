@@ -3274,8 +3274,8 @@
 	exports.getDepth = getDepth;
 	exports.hierarchicalDirection = hierarchicalDirection;
 	exports.initHierarchy = initHierarchy;
-	exports.findRoots = findRoots;
-	exports.erdosSectioning = erdosSectioning;
+	exports.findRoots_ = findRoots_;
+	exports.erdosSectorialization = erdosSectorialization;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3365,9 +3365,7 @@
 	    });
 	}
 	
-	function findRoots(nodes) {
-	    var root_option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "auto";
-	
+	function findRoots_(nodes, root_option) {
 	    // find the roots:
 	    // nodes defined by the user as roots OR
 	    // nodes with in-degree == 0 OR
@@ -3409,7 +3407,8 @@
 	    return roots;
 	}
 	
-	function erdosSectioning(degrees, min_incidence) {
+	function erdosSectorialization(degrees, min_incidence) {
+	    var sectorialization = "classification of vertices into hubs, intermediary and peripheral";
 	    // Returns fractions of hubs, intermediary and peripheral vertices
 	    // given their degrees and a minimum incidence of histogram bin
 	    // by comparing the distribution against that of an Erdös-Rényi network.
@@ -3679,7 +3678,7 @@
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -3697,11 +3696,11 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _utils3 = __webpack_require__(14);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	// import findRoots_ from './utils';
 	
 	var _class = function () {
 	    // this layout should handle any digraph
@@ -3721,7 +3720,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: 'makeLayers',
+	        key: "makeLayers",
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
 	                var stepy = 1 / (nodes.length - 1);
@@ -3751,7 +3750,7 @@
 	            }
 	        }
 	    }, {
-	        key: 'apply',
+	        key: "apply",
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3771,7 +3770,7 @@
 	            // nodes defined by the user as roots OR
 	            // nodes with in-degree == 0 OR
 	            // nodes with greatest in-degree (or degree if undirected graph)
-	            var roots = (0, _utils3.findRoots)(nodes, this._options.roots);
+	            var roots = findRoots_(nodes, this._options.roots);
 	            // number of layers and max number of nodes in each layer
 	            // has to be found by making the layout
 	            // there are two approaches to finding the nodes in each layer:
@@ -3785,7 +3784,6 @@
 	            for (var i = 0; i < this._nodes.length; ++i) {
 	                this._nodes[i].x = stepx * (this._nodes[i].layer - 1);
 	            }
-	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
 	            return this._options;
 	        }
 	    }]);
@@ -3795,12 +3793,54 @@
 	
 	exports.default = _class;
 	;
+	
+	function findRoots_(nodes, root_option) {
+	    // find the roots:
+	    // nodes defined by the user as roots OR
+	    // nodes with in-degree == 0 OR
+	    // nodes with greatest in-degree (or degree if undirected graph)
+	    var roots = [];
+	    if (root_option == "user-defined" || root_option == "auto") {
+	        for (var i = 0; i < nodes.length; i++) {
+	            if (nodes[i].isroot == true) {
+	                // has to be on the json file of the graph
+	                roots.push(nodes[i]);
+	            }
+	        }
+	    }
+	    if (root_option == "no-in-degree" || root_option == "auto" && roots.length == 0) {
+	        if (roots.length == 0) {
+	            for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+	                if (nodes[_i2].parents.length == 0) {
+	                    roots.push(nodes[_i2]);
+	                }
+	            }
+	        }
+	    }
+	    if (root_option == "degree" || root_option == "auto" && roots.length == 0) {
+	        // calculate max out-degree
+	        var max_outdegree = 0;
+	        nodes.forEach(function (node) {
+	            if (node.children.length > max_outdegree) {
+	                max_outdegree = node.children.length;
+	            }
+	        });
+	        // choose vertices with greatest out-degree
+	        nodes.forEach(function (node) {
+	            if (node.children.length == max_outdegree) {
+	                roots.push(node);
+	            }
+	        });
+	    }
+	
+	    return roots;
+	}
 
 /***/ }),
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -3818,11 +3858,11 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
-	var _utils3 = __webpack_require__(14);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	// import findRoots_ from './utils';
 	
 	function isOrphan(node) {
 	    var orphan = true;
@@ -3856,7 +3896,7 @@
 	    }
 	
 	    _createClass(_class, [{
-	        key: 'initHierarchy',
+	        key: "initHierarchy",
 	        value: function initHierarchy() {
 	            this._nodes.forEach(function (n, i) {
 	                n.parents = [];
@@ -3869,7 +3909,7 @@
 	            });
 	        }
 	    }, {
-	        key: 'separateOrphans',
+	        key: "separateOrphans",
 	        value: function separateOrphans() {
 	            var orphans = [];
 	            var nodes = [];
@@ -3880,7 +3920,7 @@
 	            return orphans;
 	        }
 	    }, {
-	        key: 'placeOrphans',
+	        key: "placeOrphans",
 	        value: function placeOrphans(nodes, max_layer) {
 	            var stepy = 1 / (nodes.length - 1);
 	            for (var i = 0; i < nodes.length; ++i) {
@@ -3890,7 +3930,7 @@
 	            if (nodes.length > 0) return max_layer + 1;else return max_layer;
 	        }
 	    }, {
-	        key: 'unvisitedNodes',
+	        key: "unvisitedNodes",
 	        value: function unvisitedNodes() {
 	            var nodes = [];
 	            var orphans = this.orphans;
@@ -3903,7 +3943,7 @@
 	            } else this.maybe_more = false;
 	        }
 	    }, {
-	        key: 'placeAdditional',
+	        key: "placeAdditional",
 	        value: function placeAdditional() {
 	            // place non-visited nodes in between layers
 	            var aux_layers = {};
@@ -3952,7 +3992,7 @@
 	            }
 	        }
 	    }, {
-	        key: 'initializeComponent',
+	        key: "initializeComponent",
 	        value: function initializeComponent(component) {
 	            this.components[component] = {};
 	            this.components[component].max_nodes_layer = 0;
@@ -3963,7 +4003,7 @@
 	            this.components[component].vertical_nodes = 0;
 	        }
 	    }, {
-	        key: 'layerNodes',
+	        key: "layerNodes",
 	        value: function layerNodes(nodes) {
 	            if (!(this.components.current_component in this.components)) this.initializeComponent(this.components.current_component);
 	            var c = this.components[this.components.current_component];
@@ -3989,7 +4029,7 @@
 	            }
 	        }
 	    }, {
-	        key: 'apply',
+	        key: "apply",
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -4007,7 +4047,7 @@
 	            this.orphans = this.separateOrphans();
 	            this.unvisitedNodes();
 	            while (this.unvisited.length > 0) {
-	                var roots = this.findRoots(this.unvisited);
+	                var roots = findRoots_(this.unvisited, "auto");
 	                this.layerNodes(roots);
 	                this.unvisitedNodes(); // update unvisited nodes
 	                this.maybe_mode = true;
@@ -4052,7 +4092,6 @@
 	                }
 	            }
 	            this.placeOrphans(this.orphans);
-	            (0, _utils3.hierarchicalDirection)(this._nodes, this._options.direction);
 	            return this._options;
 	        }
 	    }]);
@@ -4062,6 +4101,48 @@
 	
 	exports.default = _class;
 	;
+	
+	function findRoots_(nodes, root_option) {
+	    // find the roots:
+	    // nodes defined by the user as roots OR
+	    // nodes with in-degree == 0 OR
+	    // nodes with greatest in-degree (or degree if undirected graph)
+	    var roots = [];
+	    if (root_option == "user-defined" || root_option == "auto") {
+	        for (var i = 0; i < nodes.length; i++) {
+	            if (nodes[i].isroot == true) {
+	                // has to be on the json file of the graph
+	                roots.push(nodes[i]);
+	            }
+	        }
+	    }
+	    if (root_option == "no-in-degree" || root_option == "auto" && roots.length == 0) {
+	        if (roots.length == 0) {
+	            for (var _i4 = 0; _i4 < nodes.length; _i4++) {
+	                if (nodes[_i4].parents.length == 0) {
+	                    roots.push(nodes[_i4]);
+	                }
+	            }
+	        }
+	    }
+	    if (root_option == "degree" || root_option == "auto" && roots.length == 0) {
+	        // calculate max out-degree
+	        var max_outdegree = 0;
+	        nodes.forEach(function (node) {
+	            if (node.children.length > max_outdegree) {
+	                max_outdegree = node.children.length;
+	            }
+	        });
+	        // choose vertices with greatest out-degree
+	        nodes.forEach(function (node) {
+	            if (node.children.length == max_outdegree) {
+	                roots.push(node);
+	            }
+	        });
+	    }
+	
+	    return roots;
+	}
 
 /***/ }),
 /* 19 */
@@ -8918,7 +8999,7 @@
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	     value: true
@@ -8926,7 +9007,13 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _utils = __webpack_require__(14);
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -8940,14 +9027,14 @@
 	               margin: 0.05,
 	               direction: "left-right"
 	          };
-	          ccNetViz_utils.extend(defaults, layout_options);
+	          _utils2.default.extend(defaults, layout_options);
 	          this._options = defaults;
 	     }
 	
 	     _createClass(_class, [{
-	          key: "apply",
+	          key: 'apply',
 	          value: function apply() {
-	               var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	               var nd = (0, _utils3.degrees)(this._nodes, this._edges);
 	               var sq = Math.sqrt(this._nodes.length);
 	               var reminder = sq - Math.floor(sq);
 	               if (reminder > 0) var nnodes = Math.floor(sq) + 1;else var nnodes = sq;

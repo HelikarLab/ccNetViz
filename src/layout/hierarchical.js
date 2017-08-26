@@ -7,7 +7,7 @@
  */
 
 import ccNetViz_utils from '../utils';
-import {hierarchicalDirection,findRoots} from './utils';
+// import findRoots_ from './utils';
 
 export default class {
   // this layout should handle any digraph
@@ -74,7 +74,7 @@ export default class {
       // nodes defined by the user as roots OR
       // nodes with in-degree == 0 OR
       // nodes with greatest in-degree (or degree if undirected graph)
-      let roots = findRoots(nodes, this._options.roots);
+      let roots = findRoots_(nodes, this._options.roots);
       // number of layers and max number of nodes in each layer
       // has to be found by making the layout
       // there are two approaches to finding the nodes in each layer:
@@ -88,7 +88,47 @@ export default class {
       for (let i=0; i<this._nodes.length; ++i){
           this._nodes[i].x = stepx*(this._nodes[i].layer - 1);
       }
-      hierarchicalDirection(this._nodes, this._options.direction);
       return this._options;
   }
 };
+
+function findRoots_(nodes, root_option) {
+   // find the roots:
+   // nodes defined by the user as roots OR
+   // nodes with in-degree == 0 OR
+   // nodes with greatest in-degree (or degree if undirected graph)
+   let roots = [];
+   if (root_option == "user-defined" || root_option == "auto"){
+       for (let i = 0; i < nodes.length; i++){
+           if (nodes[i].isroot == true){ // has to be on the json file of the graph
+               roots.push(nodes[i]);
+           }
+       }
+   }
+   if (root_option == "no-in-degree" || (root_option == "auto" && roots.length == 0) ){
+       if (roots.length == 0){
+           for (let i = 0; i < nodes.length; i++){
+               if (nodes[i].parents.length == 0){
+                   roots.push(nodes[i]);
+               }
+           }
+       }
+   }
+   if (root_option == "degree" || (root_option == "auto" && roots.length == 0) ){
+       // calculate max out-degree
+       let max_outdegree = 0;
+       nodes.forEach(function(node){
+           if (node.children.length > max_outdegree){
+               max_outdegree = node.children.length;
+           }
+       });
+       // choose vertices with greatest out-degree
+       nodes.forEach(function(node){
+           if (node.children.length == max_outdegree){
+               roots.push(node);
+           }
+       });
+   }
+
+   return roots;
+}

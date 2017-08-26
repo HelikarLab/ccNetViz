@@ -82,7 +82,7 @@ export function  initHierarchy(nodes, edges){
       });
 }
 
-export function findRoots (nodes, root_option = "auto") {
+export function findRoots_(nodes, root_option) {
    // find the roots:
    // nodes defined by the user as roots OR
    // nodes with in-degree == 0 OR
@@ -123,7 +123,8 @@ export function findRoots (nodes, root_option = "auto") {
    return roots;
 }
 
-export function erdosSectioning (degrees, min_incidence) {
+export function erdosSectorialization (degrees, min_incidence) {
+    let sectorialization = "classification of vertices into hubs, intermediary and peripheral";
     // Returns fractions of hubs, intermediary and peripheral vertices
     // given their degrees and a minimum incidence of histogram bin
     // by comparing the distribution against that of an Erdös-Rényi network.
