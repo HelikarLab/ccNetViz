@@ -59,5 +59,6 @@ export default class {
         this._nodes[nd.nodes[i+nhubs_intermediary].index].y = p0[1] + stepy*i;
 	++i;
       }
+      return this._options;
   }
 };
