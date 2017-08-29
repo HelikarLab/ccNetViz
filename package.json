@@ -1,6 +1,6 @@
 {
   "name": "ccnetviz",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "main": "dist/ccNetViz.js",
   "devDependencies": {
     "babel-cli": "^6.16.0",
@@ -29,6 +29,21 @@
     "shelf-pack": "^2.0.1",
     "ml-matrix": "^5.0.0"
   },
+  "contributors": [
+    {
+      "name": "HelikarLab",
+      "url": "http://helikarlab.org"
+    },
+    {
+      "name": "Ales Saska",
+      "email": "mail@alessaska.cz",
+      "url": "http://alessaska.cz"
+    },
+    {
+      "name": "Renato Fabbri",
+      "email": "renato.fabbri@gmail.com"
+    }    
+  ],
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "react-scripts start",
