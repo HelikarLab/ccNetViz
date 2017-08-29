@@ -413,7 +413,7 @@ var ccNetViz = function(canvas, options){
   
   let addEvts = (el, evts) => {
     for(var k in (evts || {})){
-      evts[k] && el.addEventListener(k, evts[k], {passive: true});
+      evts[k] && el.addEventListener(k, evts[k], {passive: options.passiveEvts});
     }
   }
   
@@ -478,7 +478,7 @@ var ccNetViz = function(canvas, options){
       let size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
       let delta = size - view.size;
 
-      e.preventDefault();
+      if(!options.passiveEvts){ e.preventDefault(); }
 
       let oldsize = view.size;
       let oldx = view.x;
@@ -571,7 +571,7 @@ var ccNetViz = function(canvas, options){
               custom && od.drag && od.drag(e);
           }
       }
-      e.preventDefault();
+      if(!options.passiveEvts){ e.preventDefault(); }
     };
 
     let up = e => {
