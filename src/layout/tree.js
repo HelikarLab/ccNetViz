@@ -72,8 +72,8 @@ export default class {
           }
       });
       // each leaf y = [0+alpha,1-alpha]
-      this.alphay =  .05;
-      this.stepy = (1-2*this.alphay)/(leafs-1);
+      this.alphay = leafs != 1 ? .05 : 0.5;
+      this.stepy = (1-2*this.alphay)/((leafs-1)||1);
       // posy = alphay + stepy*(leafn-1)
 
       this.drawTreeCentered(root);
