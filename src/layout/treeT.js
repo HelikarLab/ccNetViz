@@ -6,7 +6,7 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth} from './utils';
+import {getDepth, getRanges} from './utils';
 
 export default class {
   constructor(nodes, edges) {
@@ -57,8 +57,9 @@ export default class {
       }
       const depth = getDepth(root);
       // each layer of tree x = [0+alpha,1-alpha]
-      this.alphax = .05;
-      this.stepx = (1-2*this.alphax)/(depth-1);
+      let r = getRanges(depth);
+      this.alphax = r.start;
+      this.stepx = r.step;
       // posx = alphax + stepx*(depth-1)
 
       // find the number of leafs to distribute nodes vertically
@@ -69,8 +70,9 @@ export default class {
           }
       });
       // each leaf y = [0+alpha,1-alpha]
-      this.alphay =  .05;
-      this.stepy = (1-2*this.alphay)/(leafs-1);
+      r = getRanges(leafs);
+      this.alphay =  r.start;
+      this.stepy = r.step;
       // posy = alphay + stepy*(leafn-1)
 
       // give nodes their positions

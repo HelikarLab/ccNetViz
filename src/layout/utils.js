@@ -48,3 +48,18 @@ export function getDepth(obj) {
     return 1 + depth;
 }
 
+export function getRanges(n) {
+  n = Math.abs(n);
+  if(n <= 1){
+      return {
+        start: 0.5,
+        step: 1
+      };
+  }
+  let start = .05;
+  return {
+      start,
+      step: (1-2*start)/(n-1)
+  }
+}
+
