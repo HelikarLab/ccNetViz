@@ -3129,6 +3129,7 @@
 	exports.create2dArray = create2dArray;
 	exports.degrees = degrees;
 	exports.getDepth = getDepth;
+	exports.getRanges = getRanges;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3182,6 +3183,21 @@
 	        });
 	    }
 	    return 1 + depth;
+	}
+	
+	function getRanges(n) {
+	    n = Math.abs(n);
+	    if (n <= 1) {
+	        return {
+	            start: 0.5,
+	            step: 1
+	        };
+	    }
+	    var start = .05;
+	    return {
+	        start: start,
+	        step: (1 - 2 * start) / (n - 1)
+	    };
 	}
 
 /***/ },
@@ -3266,8 +3282,9 @@
 	            }
 	            var depth = (0, _utils.getDepth)(root);
 	            // each layer of tree x = [0+alpha,1-alpha]
-	            this.alphax = .05;
-	            this.stepx = (1 - 2 * this.alphax) / (depth - 1);
+	            var r = (0, _utils.getRanges)(depth);
+	            this.alphax = r.start;
+	            this.stepx = r.step;
 	            // posx = alphax + stepx*(depth-1)
 	
 	            // find the number of leafs to distribute nodes vertically
@@ -3277,9 +3294,10 @@
 	                    leafs++;
 	                }
 	            });
+	            r = (0, _utils.getRanges)(leafs);
 	            // each leaf y = [0+alpha,1-alpha]
-	            this.alphay = leafs != 1 ? .05 : 0.5;
-	            this.stepy = (1 - 2 * this.alphay) / (leafs - 1 || 1);
+	            this.alphay = r.start;
+	            this.stepy = r.step;
 	            // posy = alphay + stepy*(leafn-1)
 	
 	            this.drawTreeCentered(root);
@@ -3372,8 +3390,9 @@
 	            }
 	            var depth = (0, _utils.getDepth)(root);
 	            // each layer of tree x = [0+alpha,1-alpha]
-	            this.alphax = .05;
-	            this.stepx = (1 - 2 * this.alphax) / (depth - 1);
+	            var r = (0, _utils.getRanges)(depth);
+	            this.alphax = r.start;
+	            this.stepx = r.step;
 	            // posx = alphax + stepx*(depth-1)
 	
 	            // find the number of leafs to distribute nodes vertically
@@ -3384,8 +3403,9 @@
 	                }
 	            });
 	            // each leaf y = [0+alpha,1-alpha]
-	            this.alphay = .05;
-	            this.stepy = (1 - 2 * this.alphay) / (leafs - 1);
+	            r = (0, _utils.getRanges)(leafs);
+	            this.alphay = r.start;
+	            this.stepy = r.step;
 	            // posy = alphay + stepy*(leafn-1)
 	
 	            // give nodes their positions
