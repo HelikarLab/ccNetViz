@@ -20,9 +20,27 @@
   },
   "keywords": [
     "graph",
+    "graph-theory",
     "visualization",
+    "network",
+    "node",
+    "edge",
+    "vertex",
+    "link",
+    "analysis",
     "efficiency",
+    "performance",
+    "fast",
+    "speed",
+    "visualisation",
+    "visualization",
+    "draw",
+    "render",
+    "biojs",
+    "cytoscape",
     "WebGL"
+  ],
+  "keywords": [
   ],
   "dependencies": {
     "pbf": "^3.0.5",
