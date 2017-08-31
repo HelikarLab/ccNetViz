@@ -40,9 +40,7 @@
     "cytoscape",
     "WebGL"
   ],
-  "keywords": [
-  ],
-  "dependencies": {
+   "dependencies": {
     "pbf": "^3.0.5",
     "shelf-pack": "^2.0.1",
     "ml-matrix": "^5.0.0"
