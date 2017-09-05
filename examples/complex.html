@@ -66,10 +66,22 @@
       if(graph) graph.remove();	//if there was old graph, remove its handlers from DOM content
 
       graph = new ccNetViz(el, {
-	styles: {
-	  node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
-	  edge: { arrow: { texture: "images/arrow.png" } }
-	}});
+        styles: {
+          node: { 
+            texture: "images/node_bw.png", 
+//            label: { hideSize: 16 },
+            label: {
+                color: "rgb(120, 120, 120)",
+                size:    14,
+                font: {
+                    type:    "sdf",
+                    pbf: "http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf",
+                }
+            }
+          },
+          edge: { arrow: { texture: "images/arrow.png" } }
+        }}
+      );
       graph.set(data.nodes, data.edges, "circular", {"starting_angle": Math.PI/4});
       graph.draw();
       
