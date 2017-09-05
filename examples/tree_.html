@@ -25,8 +25,7 @@
   <div id='body'>
   </div>
   <div id='info' />
-    file:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select id='listExamples'></select><br />
-    layout:&nbsp;<select id='listLayouts'></select>
+    <select id='listExamples'></select>
     <div id='report'>
       Nodes: <span id='nodesCnt'></span><br />
       Edges: <span id='edgesCnt'></span><br />
@@ -34,35 +33,26 @@
     </div>
   </div>
   <script>
-
+  
+    var examples = 'tree1.json,tree2.json'.split(',');
     var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(',');
-    var layouts = 'force,spectral,spectral2,hierarchical,hierarchical2,hive,versinus'.split(',');
-    var layout  = layouts[0];
-
+    
     function init(){
-      var select = $("#listExamples");
-      var lSelect = $("#listLayouts");
-
       function onChange(e){
-        var file = select.val();
-        layout = lSelect.val();
-        $.ajax({url: 'data/'+file, dataType: 'json'}).done(showGraph);
+        var v = $(this).val();
+        
+        $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
       }
-
+    
       //fill in graph names
+      var select = $("#listExamples");
       $.each(examples, function(index,val){
         select.append($("<option />", {'value': val}).text(val));
       });
       select.change(onChange);
-
-      //fill in layout names
-      $.each(layouts, function(index,val){
-            lSelect.append($("<option />", {'value': val}).text(val));
-      });
-      lSelect.change(onChange);
-
+      
       //init graph with currently selected data
-      onChange();
+      onChange.call(select);
     };
 
     var graph;
@@ -80,16 +70,16 @@
       graph = new ccNetViz(el, {
 	styles: {
 	  node: { texture: "images/node.png", label: { hideSize: 16 } },
+	  node: { label: { hideSize: 16 } },
 	  edge: { arrow: { texture: "images/arrow.png" } }
 	}});
       let layout_options = {
-        "starting_angle": Math.PI/2,
-        "center": [.5, .5],
-        "radius": 0.35,
-        "margin": 0.05,
-        "nlines": 3,
-      };
-      graph.set(data.nodes, data.edges, layout, layout_options);
+         // "direction": "top-down",
+         // "direction": "bottom-up",
+         // "direction": "right-left",
+         // "direction": "banana",
+      }
+      graph.set(data.nodes, data.edges, "hierarchical2", layout_options);
       graph.draw();
       
       $('#nodesCnt').text(data.nodes.length);

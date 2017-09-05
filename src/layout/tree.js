@@ -6,12 +6,19 @@
  *  Author: Renato Fabbri
  */
 
-import {getDepth, getRanges} from './utils';
+import {getDepth, getRanges, hierarchicalDirection} from './utils';
+import ccNetViz_utils from '../utils';
 
 export default class {
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
+    let defaults = {
+        margin: 0.05,
+        direction: "left-right", // other options: right-left, top-down, bottom-up
+    };
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
 
   drawTreeCentered(root, visited_leafs_parent=0, layer=1){
@@ -79,5 +86,7 @@ export default class {
       // posy = alphay + stepy*(leafn-1)
 
       this.drawTreeCentered(root);
+      hierarchicalDirection(this._nodes, this._options.direction);
+      return this._options;
   }
 };

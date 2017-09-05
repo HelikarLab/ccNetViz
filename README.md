@@ -5,8 +5,8 @@ Graph theory (a.k.a. network) library for analysis and visualisation
 
 **Description**
 
-[ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs (see [graph theory](https://en.wikipedia.org/wiki/Graph_theory)) visualization using WebGL.
-It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.
+[ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs visualization using WebGL.
+It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, a number of layout settings (including force-directed, spectral, hierarchical, circular, versinus, grid and random) and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
@@ -59,6 +59,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 * Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
 * Using SDF fonts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/sdf.html)
 * User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
+* Advanced circular layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/circular.html)
 * Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
 
 
@@ -162,7 +163,7 @@ When you want to use SDF (signed distance field) fonts, you can use one of our p
 [our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with 
 [node-fontnik](https://github.com/mapbox/node-fontnik).
 
-***set(nodes, edges, layout)***
+***set(nodes, edges, layout, layout\_options = {})***
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
 * label (optional): text label for given node (displayed if node labels are enabled by node label style)
@@ -175,7 +176,12 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 * target: pointer to given target node object
 * style (optional): name of custom style class used for this edge
 
-Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular", "tree". If not specified, positions are taken from each node x, y properties.
+Optional "layout" argument defines layout used to render this graph.
+Possible values: "circular", "force", "grid", "hierarchical", "hierarchical2", "hive", "random", "spectral", "spectral2", "tree", "treeT", "versinus".
+If not specified, positions are taken from each node x, y properties, if these properties have values,
+or a force layout is performed.
+Special layout options, such as margin and flip, are routed through the layout\_options argument.
+See [Advanced circular layout](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/circular.html) for an example of further layout options.
 
 
 ***find(x, y, radius, nodes, edges)***
@@ -260,3 +266,10 @@ You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_ne
 * E.g. in Chrome, it always reused the package from cache
 (ctrl+shift+r does not force it to reload recently built package),
 i.e. you have to clear the cache.
+
+#### Developing new layouts
+We recommend adding new/other layouts to src/layouts/ directory
+and allowing its usage by routing in src/layouts/layouts.js
+like implemented to the builtin layouts.
+
+See the wiki pages for more information on the layouts implemented and that are possible.

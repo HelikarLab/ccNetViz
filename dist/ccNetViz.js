@@ -1314,7 +1314,17 @@
 	            return spatialSearch;
 	        };
 	
-	        layout && new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);
+	        if (layout) {
+	            if (typeof layout === "string") {
+	                var options_ = new _layout2.default[layout](nodes, edges, layout_options).apply();
+	            } else if (typeof layout === "function") {
+	                var options_ = new layout(nodes, edges, layout_options).apply();
+	            } else {
+	                throw new Error("The layout can only be a string or a function or a class");
+	            }
+	            _layout2.default._options = options_;
+	            _layout2.default.normalize(nodes);
+	        }
 	
 	        if (!gl) return;
 	
@@ -2521,6 +2531,10 @@
 	
 	var _versinus2 = _interopRequireDefault(_versinus);
 	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2568,17 +2582,41 @@
 	          minY: minY
 	        };
 	      }
+	      var factor = 1 - 2 * this._options.margin;
+	      var scX = minX !== dim.maxX ? factor / (dim.maxX - minX) : (minX -= 0.5, 1);
+	      var scY = minY !== dim.maxY ? factor / (dim.maxY - minY) : (minY -= 0.5, 1);
 	
-	      var scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : (minX -= 0.5, 1);
-	      var scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : (minY -= 0.5, 1);
-	
-	      for (var _i = 0; _i < n; _i++) {
-	        var _o = nodes[_i];
-	        _o.x = scX * (_o.x - minX);
-	        _o.y = scY * (_o.y - minY);
+	      var direction = this._options.direction;
+	      if (direction == "left-right") {
+	        for (var _i = 0; _i < n; ++_i) {
+	          var _o = nodes[_i];
+	          _o.x = scX * (_o.x - minX) + this._options.margin;
+	          _o.y = scY * (_o.y - minY) + this._options.margin;
+	        }
+	      } else if (direction == "right-left") {
+	        for (var _i2 = 0; _i2 < n; ++_i2) {
+	          var _o2 = nodes[_i2];
+	          _o2.x = 1 - (scX * (_o2.x - minX) + this._options.margin);
+	          _o2.y = scY * (_o2.y - minY) + this._options.margin;
+	        }
+	      } else if (direction == "top-down") {
+	        for (var _i3 = 0; _i3 < n; ++_i3) {
+	          var _o3 = nodes[_i3];
+	          var foo = 1 - scX * (_o3.x - minX) + this._options.margin;
+	          _o3.x = scY * (_o3.y - minY) + this._options.margin;
+	          _o3.y = foo;
+	        }
+	      } else if (direction == "bottom-up") {
+	        for (var _i4 = 0; _i4 < nodes.length; ++_i4) {
+	          var _o4 = nodes[_i4];
+	          var _foo = scX * (_o4.x - minX) + this._options.margin;
+	          _o4.x = scY * (_o4.y - minY) + this._options.margin;
+	          _o4.y = _foo;
+	        }
+	      } else {
+	        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
 	      }
-	
-	      return dim;
+	      return dim; // any use for this return? Should we remove it?
 	    }
 	  }, {
 	    key: 'force',
@@ -2651,21 +2689,27 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	exports.default = function (nodes, edges) {
-	    var edgeDistance = 15,
-	        edgeStrength = 1,
-	        friction = 0.9,
-	        charge = -30,
-	        gravity = 0.4,
-	        theta2 = .64,
-	        size = [1, 1],
-	        chargeDistance2 = Infinity;
+	exports.default = function (nodes, edges, layout_options) {
+	    var edgeDistance = layout_options.edgeDistace || 15,
+	        edgeStrength = layout_options.edgeStrength || 1,
+	        friction = layout_options.friction || 0.9,
+	        charge = layout_options.charge || -30,
+	        gravity = layout_options.gravity || 0.4,
+	        theta2 = layout_options.theta2 || .64,
+	        size = layout_options.size || [1, 1],
+	        margin = layout_options.margin || 0.05,
+	        direction = layout_options.direction || "left-right",
+	        chargeDistance2 = layout_options.chargeDistance2 || Infinity;
+	    this._options = {
+	        margin: margin,
+	        direction: direction
+	    };
 	
 	    var alpha = void 0,
 	        distances = [],
@@ -2823,7 +2867,7 @@
 	        alpha = 0.1;
 	        while (!step()) {}
 	
-	        return true;
+	        return this._options;
 	    };
 	};
 	
@@ -3013,7 +3057,7 @@
 
 /***/ },
 /* 12 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -3021,23 +3065,33 @@
 	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2016, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: David Tichy
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2016, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: David Tichy
-	 */
-	
 	var _class = function () {
-	  function _class(nodes) {
+	  function _class(nodes, layout_options) {
 	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
+	    var defaults = {
+	      margin: 0.05,
+	      direction: "left-right"
+	    };
+	    _utils2.default.extend(defaults, layout_options);
+	    this._options = defaults;
 	  }
 	
 	  _createClass(_class, [{
@@ -3048,6 +3102,7 @@
 	        o.x = Math.random();
 	        o.y = Math.random();
 	      }
+	      return this._options;
 	    }
 	  }]);
 	
@@ -3077,7 +3132,59 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function fromTo(node1, node2) {
+	    var children = node1.children;
+	    for (var i = 0; i < children.length; ++i) {
+	        if (children[i].uniqid == node2.uniqid) return true;
+	    }
+	    return false;
+	}
+	function topological(nd, nodes) {
+	    var nodes_ = [nodes[0]];
+	    nodes[0].picked = true;
+	    for (var i = 1; i < nd.nodes.length; ++i) {
+	        nodes[i].degree = nd.degrees[i];
+	    }
+	
+	    for (var _i = 1; _i < nodes.length; ++_i) {
+	        var degree = nodes[_i].degree;
+	        if ((_i == nodes.length - 1 || degree != nodes[_i + 1].degree || fromTo(nodes_[_i - 1], nodes[_i])) && nodes[_i].picked != true) {
+	            nodes_.push(nodes[_i]);
+	            nodes[_i].picked = true;
+	        } else {
+	            // get all children of last node and see if one of them has degree == degree
+	            // if true, pick the node, else pick any node with degree == degree
+	            var children = nodes_[_i - 1].children;
+	            var found_child = false;
+	            for (var j = 0; j < children.length; ++j) {
+	                if (children[j].degree == degree && children[j].picked != true) {
+	                    nodes_.push(children[j]);
+	                    children[j].picked = true;
+	                    found_child = true;
+	                    break;
+	                }
+	            }
+	            var ii = 0;
+	            while (found_child != true) {
+	                if (nodes[ii].picked != true) {
+	                    nodes_.push(nodes[ii]);
+	                    nodes[ii].picked = true;
+	                    found_child = true;
+	                }
+	                ii++;
+	            }
+	        }
+	    }
+	    return nodes_;
+	}
 	
 	var _class = function () {
 	    // get degree of all nodes
@@ -3095,19 +3202,65 @@
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this._angle_step = 2 * Math.PI / nodes.length;
-	        if (layout_options.starting_angle == null) this._starting_angle = 0;else this._starting_angle = layout_options.starting_angle;
+	        var margin = 0.05;
+	        var center = [0.5, 0.5];
+	        var defaults = {
+	            "margin": 0.05,
+	            "direction": "left-right",
+	            "ordering": "degree", // "topological" for degree which also considers the topological order
+	            "angle_step": 2 * Math.PI / nodes.length,
+	            "starting_angle": 0,
+	            "center": center,
+	            "radius": Math.max.apply(null, center) - margin, // initial radius
+	            "angle_ratio": 1, // how many 2*pi from first to last nodes
+	            "radius_ratio": 1, // factor that radius changes after 2*pi
+	            "divisions": 1 // how many partitions of the circle are used.
+	            // I.e. each partition has angle 2*pi/divisions;
+	            // and each successive node is placed in each successive partition
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
 	        key: 'apply',
 	        value: function apply() {
+	            var _this = this;
+	
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	            for (var i = 0; i < this._nodes.length; ++i) {
-	                this._nodes[nd.nodes[i].index].x = 0.05 + (1 + Math.cos(this._starting_angle + i * this._angle_step)) * .45;
-	                this._nodes[nd.nodes[i].index].y = 0.05 + (1 + Math.sin(this._starting_angle + i * this._angle_step)) * .45;
-	                this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+	            var angle0 = this._options.starting_angle;
+	            var astep = this._options.angle_step * this._options.angle_ratio;
+	            var center = this._options.center;
+	            var ri = this._options.radius; // initial
+	            var rf = this._options.radius_ratio * this._options.radius; // final
+	            var divisions = this._options.divisions;
+	            var nnodes = this._nodes.length;
+	            if (this._options.ordering == "topological") {
+	                (function () {
+	                    (0, _utils.initHierarchy)(_this._nodes, _this._edges);
+	                    var this_ = _this;
+	                    var nodes = nd.nodes.map(function (el) {
+	                        return this_._nodes[el.index];
+	                    });
+	                    var nodes_ = topological(nd, nodes);
+	                    for (var i = 0; i < nnodes; ++i) {
+	                        var radius = ri + i * (rf - ri) / (nnodes - 1);
+	                        var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
+	                        nodes_[i].x = center[0] + Math.cos(angle) * radius;
+	                        nodes_[i].y = center[1] + Math.sin(angle) * radius;
+	                        nodes_[i].weight = nodes_[i].degree;
+	                    }
+	                })();
+	            } else {
+	                for (var i = 0; i < nnodes; ++i) {
+	                    var radius = ri + i * (rf - ri) / (nnodes - 1);
+	                    var angle = angle0 + Math.floor(i / divisions) * astep + 2 * Math.PI / divisions * (i % divisions);
+	                    this._nodes[nd.nodes[i].index].x = center[0] + Math.cos(angle) * radius;
+	                    this._nodes[nd.nodes[i].index].y = center[1] + Math.sin(angle) * radius;
+	                    this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+	                }
 	            }
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3130,6 +3283,10 @@
 	exports.degrees = degrees;
 	exports.getDepth = getDepth;
 	exports.getRanges = getRanges;
+	exports.hierarchicalDirection = hierarchicalDirection;
+	exports.initHierarchy = initHierarchy;
+	exports.findRoots_ = findRoots_;
+	exports.erdosSectorialization = erdosSectorialization;
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -3199,6 +3356,103 @@
 	        step: (1 - 2 * start) / (n - 1)
 	    };
 	}
+	
+	function hierarchicalDirection(nodes, direction) {
+	    if (direction == "right-left") {
+	        for (var i = 0; i < nodes.length; ++i) {
+	            nodes[i].x = 1 - nodes[i].x;
+	        }
+	    } else if (direction == "top-down") {
+	        for (var _i = 0; _i < nodes.length; ++_i) {
+	            var foo = 1 - nodes[_i].x;
+	            nodes[_i].x = nodes[_i].y;
+	            nodes[_i].y = foo;
+	        }
+	    } else if (direction == "bottom-up") {
+	        for (var _i2 = 0; _i2 < nodes.length; ++_i2) {
+	            var _foo = nodes[_i2].x;
+	            nodes[_i2].x = nodes[_i2].y;
+	            nodes[_i2].y = _foo;
+	        }
+	    } else if (direction != "left-right") {
+	        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+	    }
+	}
+	
+	function initHierarchy(nodes, edges) {
+	    nodes.forEach(function (n, i) {
+	        n.parents = [];
+	        n.children = [];
+	        n.visited = false;
+	    });
+	    edges.forEach(function (e, i) {
+	        e.source.children.push(e.target);
+	        e.target.parents.push(e.source);
+	    });
+	}
+	
+	function findRoots_(nodes, root_option) {
+	    // find the roots:
+	    // nodes defined by the user as roots OR
+	    // nodes with in-degree == 0 OR
+	    // nodes with greatest in-degree (or degree if undirected graph)
+	    var roots = [];
+	    if (root_option == "user-defined" || root_option == "auto") {
+	        for (var i = 0; i < nodes.length; i++) {
+	            if (nodes[i].isroot == true) {
+	                // has to be on the json file of the graph
+	                roots.push(nodes[i]);
+	            }
+	        }
+	    }
+	    if (root_option == "no-in-degree" || root_option == "auto" && roots.length == 0) {
+	        if (roots.length == 0) {
+	            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
+	                if (nodes[_i3].parents.length == 0) {
+	                    roots.push(nodes[_i3]);
+	                }
+	            }
+	        }
+	    }
+	    if (root_option == "degree" || root_option == "auto" && roots.length == 0) {
+	        (function () {
+	            // calculate max out-degree
+	            var max_outdegree = 0;
+	            nodes.forEach(function (node) {
+	                if (node.children.length > max_outdegree) {
+	                    max_outdegree = node.children.length;
+	                }
+	            });
+	            // choose vertices with greatest out-degree
+	            nodes.forEach(function (node) {
+	                if (node.children.length == max_outdegree) {
+	                    roots.push(node);
+	                }
+	            });
+	        })();
+	    }
+	
+	    return roots;
+	}
+	
+	function erdosSectorialization(degrees, min_incidence) {
+	    var sectorialization = "classification of vertices into hubs, intermediary and peripheral";
+	    // Returns fractions of hubs, intermediary and peripheral vertices
+	    // given their degrees and a minimum incidence of histogram bin
+	    // by comparing the distribution against that of an Erdös-Rényi network.
+	    // Only basic partitioning using degree is implemented.
+	    // For other possibilities (using in-out degrees and strengths) see:
+	    // http://dx.doi.org/10.1016/j.physa.2017.04.109
+	
+	    // get maximum degree
+	    // make list of distinct degree values
+	    // make binomial distribution considering probability of edge and max degree
+	    // derive sectors by comparing the empirical distribution against the binomial
+	    // model implementation:
+	    // https://github.com/ttm/percolation/blob/master/percolation/measures/topology/erdosSectors.py
+	
+	    // not implemented now because it requires an external package (to build the binomial)
+	}
 
 /***/ },
 /* 15 */
@@ -3220,14 +3474,25 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right" };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3301,6 +3566,8 @@
 	            // posy = alphay + stepy*(leafn-1)
 	
 	            this.drawTreeCentered(root);
+	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3330,14 +3597,25 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right" };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3415,6 +3693,8 @@
 	            // and decide if parent is visited (always in tree layout)
 	
 	            this.drawTreeTop(root);
+	            (0, _utils.hierarchicalDirection)(this._nodes, this._options.direction);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3426,46 +3706,58 @@
 
 /***/ },
 /* 17 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
-	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this.alphay = 0.05; // y margin
-	        this.alphax = 0.05; // x margin
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right", // other options: right-left, top-down, bottom-up
+	            roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
+	
+	        };
+	        _utils2.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
-	        key: "makeLayers",
+	        key: 'makeLayers',
 	        value: function makeLayers(nodes, layer) {
 	            if (nodes.length > 1) {
-	                var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	                var stepy = 1 / (nodes.length - 1);
 	                for (var i = 0; i < nodes.length; ++i) {
 	                    nodes[i].visited = true;
 	                    nodes[i].layer = layer; // makes x afterwards
-	                    nodes[i].y = this.alphay + i * stepy;
+	                    nodes[i].y = i * stepy;
 	                }
 	            } else {
 	                nodes[0].visited = true;
@@ -3488,7 +3780,7 @@
 	            }
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3508,37 +3800,7 @@
 	            // nodes defined by the user as roots OR
 	            // nodes with in-degree == 0 OR
 	            // nodes with greatest in-degree (or degree if undirected graph)
-	            var roots = [];
-	            for (var i = 0; i < nodes.length; i++) {
-	                if (nodes[i].isroot == true) {
-	                    // has to be on the json file of the graph
-	                    roots.push(nodes[i]);
-	                }
-	            }
-	            if (roots.length == 0) {
-	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
-	                    if (nodes[_i2].parents.length == 0) {
-	                        roots.push(nodes[_i2]);
-	                    }
-	                }
-	            }
-	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
-	            }
+	            var roots = (0, _utils3.findRoots_)(nodes, this._options.roots);
 	            // number of layers and max number of nodes in each layer
 	            // has to be found by making the layout
 	            // there are two approaches to finding the nodes in each layer:
@@ -3547,11 +3809,12 @@
 	            // this layout implements the first of these approaches.
 	            var depth = this.makeLayers(roots, 1);
 	            // each layer of tree x = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this.alphax) / (depth - 1);
-	            // posx = alphax + stepx*(depth-1)
-	            for (var _i3 = 0; _i3 < this._nodes.length; ++_i3) {
-	                this._nodes[_i3].x = this.alphax + stepx * (this._nodes[_i3].layer - 1);
+	            var stepx = 1 / (depth - 1);
+	            // posx = marginx + stepx*(depth-1)
+	            for (var i = 0; i < this._nodes.length; ++i) {
+	                this._nodes[i].x = stepx * (this._nodes[i].layer - 1);
 	            }
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3563,25 +3826,31 @@
 
 /***/ },
 /* 18 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/**
-	 *  Copyright (c) 2017, Helikar Lab.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the GPLv3 License.
-	 *  Author: Renato Fabbri
-	 */
 	
 	function isOrphan(node) {
 	    var orphan = true;
@@ -3598,19 +3867,24 @@
 	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this.alphay = 0.05; // y margin
-	        this.alphax = 0.05; // x margin
 	        this.components = { "current_component": 0, "depth": 1 };
 	        this.unvisited = nodes;
+	        var defaults = {
+	            "margin": 0.05,
+	            "direction": "left-right", // other options: right-left, top-down, bottom-up
+	            roots: "auto" // other options: user-defined (in the graph define isroot = true); "no-in-degree"; "auto"
+	        };
+	        _utils2.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
-	        key: "initHierarchy",
+	        key: 'initHierarchy',
 	        value: function initHierarchy() {
 	            this._nodes.forEach(function (n, i) {
 	                n.parents = [];
@@ -3623,7 +3897,7 @@
 	            });
 	        }
 	    }, {
-	        key: "separateOrphans",
+	        key: 'separateOrphans',
 	        value: function separateOrphans() {
 	            var orphans = [];
 	            var nodes = [];
@@ -3634,57 +3908,17 @@
 	            return orphans;
 	        }
 	    }, {
-	        key: "findRoots",
-	        value: function findRoots(nodes) {
-	            // find the roots:
-	            // nodes defined by the user as roots OR
-	            // nodes with in-degree == 0 OR
-	            // nodes with greatest in-degree (or degree if undirected graph)
-	            var roots = [];
-	            for (var i = 0; i < nodes.length; i++) {
-	                if (nodes[i].isroot == true) {
-	                    // has to be on the json file of the graph
-	                    roots.push(nodes[i]);
-	                }
-	            }
-	            if (roots.length == 0) {
-	                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
-	                    if (nodes[_i2].parents.length == 0) {
-	                        roots.push(nodes[_i2]);
-	                    }
-	                }
-	            }
-	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
-	            }
-	            return roots;
-	        }
-	    }, {
-	        key: "placeOrphans",
+	        key: 'placeOrphans',
 	        value: function placeOrphans(nodes, max_layer) {
-	            var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+	            var stepy = 1 / (nodes.length - 1);
 	            for (var i = 0; i < nodes.length; ++i) {
-	                nodes[i].y = this.alphay + i * stepy;
+	                nodes[i].y = i * stepy;
 	                nodes[i].x = max_layer + 1;
 	            }
 	            if (nodes.length > 0) return max_layer + 1;else return max_layer;
 	        }
 	    }, {
-	        key: "unvisitedNodes",
+	        key: 'unvisitedNodes',
 	        value: function unvisitedNodes() {
 	            var nodes = [];
 	            var orphans = this.orphans;
@@ -3697,7 +3931,7 @@
 	            } else this.maybe_more = false;
 	        }
 	    }, {
-	        key: "placeAdditional",
+	        key: 'placeAdditional',
 	        value: function placeAdditional() {
 	            // place non-visited nodes in between layers
 	            var aux_layers = {};
@@ -3746,7 +3980,7 @@
 	            }
 	        }
 	    }, {
-	        key: "initializeComponent",
+	        key: 'initializeComponent',
 	        value: function initializeComponent(component) {
 	            this.components[component] = {};
 	            this.components[component].max_nodes_layer = 0;
@@ -3757,7 +3991,7 @@
 	            this.components[component].vertical_nodes = 0;
 	        }
 	    }, {
-	        key: "layerNodes",
+	        key: 'layerNodes',
 	        value: function layerNodes(nodes) {
 	            if (!(this.components.current_component in this.components)) this.initializeComponent(this.components.current_component);
 	            var c = this.components[this.components.current_component];
@@ -3768,8 +4002,8 @@
 	                c.layers[c.current_layer].push(nodes[i]);
 	            }
 	            var next_layer = [];
-	            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
-	                var candidates = nodes[_i3].children;
+	            for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+	                var candidates = nodes[_i2].children;
 	                for (var j = 0; j < candidates.length; j++) {
 	                    if (candidates[j].visited == false && !next_layer.includes(candidates[j])) {
 	                        next_layer.push(candidates[j]);
@@ -3783,7 +4017,7 @@
 	            }
 	        }
 	    }, {
-	        key: "apply",
+	        key: 'apply',
 	        value: function apply() {
 	            // left-right tree by default, let user choose
 	            // top-down, bottom-top, right-left in subsequent versions
@@ -3801,7 +4035,7 @@
 	            this.orphans = this.separateOrphans();
 	            this.unvisitedNodes();
 	            while (this.unvisited.length > 0) {
-	                var roots = this.findRoots(this.unvisited);
+	                var roots = (0, _utils3.findRoots_)(this.unvisited, "auto");
 	                this.layerNodes(roots);
 	                this.unvisitedNodes(); // update unvisited nodes
 	                this.maybe_mode = true;
@@ -3826,26 +4060,27 @@
 	            // components.depth is the maximum number of layers
 	
 	            // each layer of tree xy = [0+alpha,1-alpha]
-	            var stepx = (1 - 2 * this.alphax) / this.components.depth;
-	            var stepy = (1 - 2 * this.alphay) / this.components.vertical_nodes;
-	            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
-	                var component = this.components[_i4];
+	            var stepx = 1 / this.components.depth;
+	            var stepy = 1 / this.components.vertical_nodes;
+	            for (var _i3 = 0; _i3 < this.components.current_component; _i3++) {
+	                var component = this.components[_i3];
 	                for (var layer_val in component.layers) {
 	                    var layer = component.layers[layer_val];
 	                    if (layer.length == 1) {
 	                        var node = layer[0];
-	                        node.x = this.alphax + stepx * layer_val;
-	                        node.y = this.alphay + stepy * (component.index_offset + component.vertical_nodes / 2);
+	                        node.x = stepx * layer_val;
+	                        node.y = stepy * (component.index_offset + component.vertical_nodes / 2);
 	                    } else {
 	                        for (var k = 0; k < layer.length; ++k) {
 	                            var _node = layer[k];
-	                            _node.x = this.alphax + stepx * layer_val;
-	                            _node.y = this.alphay + stepy * (component.index_offset + k);
+	                            _node.x = stepx * layer_val;
+	                            _node.y = stepy * (component.index_offset + k);
 	                        }
 	                    }
 	                }
 	            }
 	            this.placeOrphans(this.orphans);
+	            return this._options;
 	        }
 	    }]);
 	
@@ -3876,6 +4111,12 @@
 	var _mlMatrix = __webpack_require__(20);
 	
 	var _utils = __webpack_require__(14);
+	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3917,11 +4158,17 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right"
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -3957,6 +4204,7 @@
 	                node.x = xy[0][i];
 	                node.y = xy[1][i];
 	            });
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8396,10 +8644,16 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges) {
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -8408,6 +8662,12 @@
 	        this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
 	        this._num_elements = nodes.length; //number of nodes in graph
 	        this._dims = 2;
+	        var defaults = {
+	            margin: 0.05,
+	            direction: "left-right"
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
@@ -8485,6 +8745,7 @@
 	                node.x = x[i];
 	                node.y = y[i];
 	            });
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8620,35 +8881,57 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
 	    // get degree of all nodes
-	    function _class(nodes, edges) {
+	    // mode: fill_segment or alternate_segment
+	    // wiggle segment (cycles and amplitude)
+	    function _class(nodes, edges, layout_options) {
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
 	        this._edges = edges;
-	        this._margin = 0.05; // from [0,1] borders
-	        this._radius = 0.05; // of the empty circle on the center
-	        this._nlines = 5;
+	        var defaults = {
+	            starting_angle: Math.PI / 2,
+	            radius: 0.05, // internal radious without nodes
+	            margin: 0.05,
+	            direction: "left-right",
+	            nlines: 5
+	        };
+	        _utils3.default.extend(defaults, layout_options);
+	        this._options = defaults;
 	    }
 	
 	    _createClass(_class, [{
 	        key: 'apply',
 	        value: function apply() {
 	            var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	            var nodes_segment = this._nodes.length / this._nlines;
-	            var segment = 0.5 - (this._margin + this._radius);
+	            var nodes_segment = Math.ceil(this._nodes.length / this._options.nlines);
+	            var segment = 0.05 - this._options.radius;
 	            var step = segment / nodes_segment;
-	            var angle = 2 * Math.PI / this._nlines;
+	            var angle = 2 * Math.PI / this._options.nlines;
+	            var sangle = this._options.starting_angle;
+	            var radius = this._options.radius;
 	            var j = 0;
 	            for (var i = 0; i < this._nodes.length; ++i) {
 	                var ii = nd.nodes[i].index;
-	                this._nodes[ii].x = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + Math.PI / 2);
-	                this._nodes[ii].y = 0.5 + (this._radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + Math.PI / 2);
+	                this._nodes[ii].x = 0.05 + (radius + step * (i - j * nodes_segment)) * Math.cos(angle * j + sangle);
+	                this._nodes[ii].y = 0.05 + (radius + step * (i - j * nodes_segment)) * Math.sin(angle * j + sangle);
 	                j = Math.floor(i / nodes_segment);
 	            }
+	            var od = [];
+	            for (var _i = 0; _i < this._nodes.length; ++_i) {
+	                var _ii = nd.nodes[_i].index;
+	                od.push(this._nodes[_ii]);
+	            }
+	            return this._options;
 	        }
 	    }]);
 	
@@ -8670,38 +8953,50 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _utils = __webpack_require__(14);
+	var _utils = __webpack_require__(7);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _utils3 = __webpack_require__(14);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	     function _class(nodes, edges) {
+	     function _class(nodes, edges, layout_options) {
 	          _classCallCheck(this, _class);
 	
 	          this._nodes = nodes;
 	          this._edges = edges;
-	          this._margin = 0.05;
+	          var defaults = {
+	               margin: 0.05,
+	               direction: "left-right"
+	          };
+	          _utils2.default.extend(defaults, layout_options);
+	          this._options = defaults;
 	     }
 	
 	     _createClass(_class, [{
 	          key: 'apply',
 	          value: function apply() {
-	               var nd = (0, _utils.degrees)(this._nodes, this._edges);
+	               var nd = (0, _utils3.degrees)(this._nodes, this._edges);
 	               var sq = Math.sqrt(this._nodes.length);
 	               var reminder = sq - Math.floor(sq);
 	               if (reminder > 0) var nnodes = Math.floor(sq) + 1;else var nnodes = sq;
-	               var step = (1 - this._margin * 2) / nnodes;
+	               var step = 1 / nnodes;
 	
 	               var nlines = this._nodes.length / nnodes;
 	               var reminder2 = nlines - Math.floor(nlines);
 	               if (reminder2 > 0) var nlines2 = Math.floor(nlines) + 1;else var nlines2 = nlines;
-	               var stepy = (1 - 2 * this._margin) / (nlines2 - 2);
+	               var stepy = 1 / (nlines2 - 2);
 	               for (var i = 0; i < this._nodes.length; ++i) {
 	                    var j = Math.floor(i / (nnodes + 1));
-	                    this._nodes[nd.nodes[i].index].x = this._margin + step * (i - j * (nnodes + 1));
-	                    this._nodes[nd.nodes[i].index].y = this._margin + stepy * j;
+	                    this._nodes[nd.nodes[i].index].x = step * (i - j * (nnodes + 1));
+	                    this._nodes[nd.nodes[i].index].y = stepy * j;
 	                    this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
 	               }
+	               return this._options;
 	          }
 	     }]);
 	
@@ -8725,6 +9020,12 @@
 	
 	var _utils = __webpack_require__(14);
 	
+	var _utils2 = __webpack_require__(7);
+	
+	var _utils3 = _interopRequireDefault(_utils2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
@@ -8735,41 +9036,52 @@
 	  // fractions of hubs, intermediary and peripheral vertices
 	  // or the Erdös sectioning.
 	  // maybe also let the user set the endpoints of the periphery segment
-	  function _class(nodes, edges) {
+	  function _class(nodes, edges, layout_options) {
 	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
 	    this._edges = edges;
-	    this._margin = 0.05;
-	    this._hubs = 0.1; // 10%
-	    this._intermediary = 0.2;
+	    var defaults = {
+	      margin: 0.05,
+	      direction: "left-right",
+	      hubs: 0.1, // fraction of hubs
+	      intermediary: 0.2, // fraction of intermediary
+	      method: "fixed_fractions" // or "erdos_sectioning"
+	    };
+	    _utils3.default.extend(defaults, layout_options);
+	    this._options = defaults;
 	  }
 	
 	  _createClass(_class, [{
 	    key: 'apply',
 	    value: function apply() {
 	      var nd = (0, _utils.degrees)(this._nodes, this._edges);
-	      var nhubs_intermediary = Math.floor(this._nodes.length * (this._hubs + this._intermediary));
-	      var nhubs = Math.floor(this._nodes.length * this._hubs);
-	      var stepx1 = (1 - 2 * this._margin) / 2 / (nhubs - 1);
+	      var nhubs_intermediary = Math.floor(this._nodes.length * (this._options.hubs + this._options.intermediary));
+	      var nhubs = Math.floor(this._nodes.length * this._options.hubs);
+	      var stepx1 = (1 - 2 * this._options.margin) / 2 / (nhubs - 1);
 	      var steprad = Math.PI / (nhubs - 1);
 	      var i = 0;
 	      while (i < nhubs) {
-	        this._nodes[nd.nodes[i].index].x = this._margin + stepx1 * i;
-	        this._nodes[nd.nodes[i].index].y = this._margin + 0.4 + 0.4 * Math.sin(i * steprad);
+	        if (nhubs > 1) {
+	          this._nodes[nd.nodes[i].index].x = this._options.margin + stepx1 * i;
+	          this._nodes[nd.nodes[i].index].y = this._options.margin + 0.4 + 0.4 * Math.sin(i * steprad);
+	        } else {
+	          this._nodes[nd.nodes[i].index].x = (1 - 2 * this._options.margin) / 4;
+	          this._nodes[nd.nodes[i].index].y = this._options.margin + 0.4 + 0.4;
+	        }
 	        ++i;
 	      }
 	      var nintermediary = nhubs_intermediary - nhubs;
 	      var steprad2 = Math.PI / nintermediary;
-	      var stepx2 = (1 - 2 * this._margin) / 2 / nintermediary;
+	      var stepx2 = (1 - 2 * this._options.margin) / 2 / nintermediary;
 	      i = 0;
 	      while (i < nintermediary) {
 	        this._nodes[nd.nodes[i + nhubs].index].x = 0.5 + stepx2 * (i + 1);
-	        this._nodes[nd.nodes[i + nhubs].index].y = this._margin + 0.4 + 0.4 * Math.sin(Math.PI + (i + 1) * steprad2);
+	        this._nodes[nd.nodes[i + nhubs].index].y = this._options.margin + 0.4 + 0.4 * Math.sin(Math.PI + (i + 1) * steprad2);
 	        ++i;
 	      }
 	      var p0 = [0.85, 0.75];
-	      var p1 = [0.4, 1 - this._margin];
+	      var p1 = [0.4, 1 - this._options.margin];
 	      var nperipheral = this._nodes.length - nhubs_intermediary;
 	      var stepxx = (p1[0] - p0[0]) / (nperipheral - 1);
 	      var stepy = (p1[1] - p0[1]) / (nperipheral - 1);
@@ -8779,6 +9091,7 @@
 	        this._nodes[nd.nodes[i + nhubs_intermediary].index].y = p0[1] + stepy * i;
 	        ++i;
 	      }
+	      return this._options;
 	    }
 	  }]);
 	

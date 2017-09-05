@@ -352,12 +352,22 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             spatialSearch = new ccNetViz_spatialSearch(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideSize);
           }
           return spatialSearch;
-        }        
+        }
 
-        layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
-        
+        if(layout) {
+            if (typeof(layout) === "string") {
+                var options_ = new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+            } else if (typeof(layout) === "function") {
+                var options_ = new layout(nodes, edges, layout_options).apply();
+            } else {
+                throw new Error("The layout can only be a string or a function or a class");
+            }
+            ccNetViz_layout._options = options_;
+            ccNetViz_layout.normalize(nodes);
+        }
+
         if(!gl) return;
-        
+
         let tryInitPrimitives = () => {
             var isDirty = false;
 

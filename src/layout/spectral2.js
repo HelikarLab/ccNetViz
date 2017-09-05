@@ -11,15 +11,22 @@
 // https://github.com/alanmeeson/spectral-graph-layout
 
 import {create2dArray} from './utils';
+import ccNetViz_utils from '../utils';
 
 export default class {
-  constructor(nodes, edges) {
+  constructor(nodes, edges, layout_options) {
     this._nodes = nodes;
     this._edges = edges;
     this._epsilon = 1e-8; // tolerance
     this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
     this._num_elements = nodes.length; //number of nodes in graph
     this._dims = 2;
+    let defaults = {
+        margin: 0.05,
+        direction: "left-right",
+    }
+    ccNetViz_utils.extend(defaults, layout_options);
+    this._options = defaults;
   }
   apply () {
       let A = create2dArray(this._nodes.length, this._nodes.length);
@@ -91,6 +98,7 @@ export default class {
           node.x = x[i];
           node.y = y[i];
       }); 
+      return this._options;
   }
 };
 
