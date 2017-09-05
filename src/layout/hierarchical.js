@@ -11,7 +11,7 @@ import {findRoots_} from './utils';
 
 export default class {
   // this layout should handle any digraph
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {

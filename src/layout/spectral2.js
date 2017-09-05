@@ -14,7 +14,7 @@ import {create2dArray} from './utils';
 import ccNetViz_utils from '../utils';
 
 export default class {
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     this._epsilon = 1e-8; // tolerance

@@ -13,7 +13,7 @@ export default class {
   // get degree of all nodes
   // mode: fill_segment or alternate_segment
   // wiggle segment (cycles and amplitude)
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {

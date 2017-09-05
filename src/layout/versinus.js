@@ -9,7 +9,7 @@ export default class {
   // fractions of hubs, intermediary and peripheral vertices
   // or the Erdös sectioning.
   // maybe also let the user set the endpoints of the periphery segment
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {

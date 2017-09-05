@@ -59,7 +59,7 @@ export default class {
     return layoutVersinus;
   }
   
-  static normalize (nodes, dim) {
+  static normalize(nodes, dim, options) {
     let minX, minY, n = nodes.length;
     
     if (dim) {
@@ -86,39 +86,40 @@ export default class {
             minY: minY
         };
     }
-    const factor = 1 - 2*this._options.margin;
+    const margin = options && options.margin || 0;
+    const factor = 1 - 2*margin;
     let scX = minX !== dim.maxX ? factor / (dim.maxX - minX) : ((minX -= 0.5), 1);
     let scY = minY !== dim.maxY ? factor / (dim.maxY - minY) : ((minY -= 0.5), 1);
 
-    const direction = this._options.direction;
+    const direction = options && options.direction || "left-right";
     if (direction == "left-right"){
-	  for (let i = 0; i < n; ++i) {
-	      let o = nodes[i];
-	      o.x = scX * (o.x - minX) + this._options.margin;
-	      o.y = scY * (o.y - minY) + this._options.margin;
-	  }
+        for (let i = 0; i < n; ++i) {
+            let o = nodes[i];
+            o.x = scX * (o.x - minX) + margin;
+            o.y = scY * (o.y - minY) + margin;
+        }
     } else if (direction == "right-left"){
-          for (let i=0; i<n; ++i){
-	      let o = nodes[i];
-	      o.x = 1 - (scX * (o.x - minX) + this._options.margin);
-	      o.y = scY * (o.y - minY) + this._options.margin;
-          }
+        for (let i=0; i<n; ++i){
+            let o = nodes[i];
+            o.x = 1 - (scX * (o.x - minX) + margin);
+            o.y = scY * (o.y - minY) + margin;
+        }
     } else if (direction == "top-down"){ 
-          for (let i=0; i<n; ++i){
-	      let o = nodes[i];
-              const foo = 1 - scX * (o.x - minX) + this._options.margin;
-	      o.x = scY * (o.y - minY) + this._options.margin;
-	      o.y = foo;
-          }
+        for (let i=0; i<n; ++i){
+            let o = nodes[i];
+            const foo = 1 - scX * (o.x - minX) + margin;
+            o.x = scY * (o.y - minY) + margin;
+            o.y = foo;
+        }
     } else if (direction == "bottom-up"){ 
-          for (let i=0; i<nodes.length; ++i){
-	      let o = nodes[i];
-              const foo = scX * (o.x - minX) + this._options.margin;
-	      o.x = scY * (o.y - minY) + this._options.margin;
-	      o.y = foo;
-          }
+        for (let i=0; i<nodes.length; ++i){
+            let o = nodes[i];
+            const foo = scX * (o.x - minX) + margin;
+            o.x = scY * (o.y - minY) + margin;
+            o.y = foo;
+        }
     } else { 
-          throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
+        throw new Error("directions can be only 'left-right' (default), 'right-left', 'top-down' or 'bottom-up'");
     }    
     return dim; // any use for this return? Should we remove it?
   }

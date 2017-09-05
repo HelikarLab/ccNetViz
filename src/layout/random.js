@@ -9,7 +9,7 @@
 import ccNetViz_utils from '../utils';
 
 export default class {
-  constructor(nodes, layout_options){
+  constructor(nodes, _, layout_options = {}){
     this._nodes = nodes;
     let defaults = {
         margin: 0.05,

@@ -45,7 +45,7 @@ export default class {
   // use some other ordering criterion than degree? Strength?
   // defined by user and found as attribute of each node?
   // random ordering, minimal crossing of edges?
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     let defaults = {

@@ -8,7 +8,7 @@ import ccNetViz_quadtree from '../quadTree' ;
  *  Author: David Tichy
  */
 
-export default function(nodes, edges, layout_options) {
+export default function(nodes, edges, layout_options = {}) {
     const edgeDistance =    layout_options.edgeDistace || 15,
           edgeStrength =    layout_options.edgeStrength || 1,
           friction =        layout_options.friction || 0.9,

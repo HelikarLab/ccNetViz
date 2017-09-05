@@ -356,14 +356,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
         if(layout) {
             if (typeof(layout) === "string") {
-                var options_ = new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+                var options_ = new ccNetViz_layout[layout](nodes, edges, layout_options || {}).apply();
             } else if (typeof(layout) === "function") {
-                var options_ = new layout(nodes, edges, layout_options).apply();
+                var options_ = new layout(nodes, edges, layout_options || {}).apply();
             } else {
                 throw new Error("The layout can only be a string or a function or a class");
             }
-            ccNetViz_layout._options = options_;
-            ccNetViz_layout.normalize(nodes);
+            ccNetViz_layout.normalize(nodes, undefined, options_);
         }
 
         if(!gl) return;

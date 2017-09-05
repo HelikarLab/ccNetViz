@@ -26,7 +26,7 @@ function isOrphan(node){
 
 export default class {
   // this layout should handle any digraph
-  constructor(nodes, edges, layout_options) {
+  constructor(nodes, edges, layout_options = {}) {
     this._nodes = nodes;
     this._edges = edges;
     this.components = {"current_component": 0, "depth": 1};

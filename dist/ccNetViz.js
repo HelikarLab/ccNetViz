@@ -1316,14 +1316,13 @@
 	
 	        if (layout) {
 	            if (typeof layout === "string") {
-	                var options_ = new _layout2.default[layout](nodes, edges, layout_options).apply();
+	                var options_ = new _layout2.default[layout](nodes, edges, layout_options || {}).apply();
 	            } else if (typeof layout === "function") {
-	                var options_ = new layout(nodes, edges, layout_options).apply();
+	                var options_ = new layout(nodes, edges, layout_options || {}).apply();
 	            } else {
 	                throw new Error("The layout can only be a string or a function or a class");
 	            }
-	            _layout2.default._options = options_;
-	            _layout2.default.normalize(nodes);
+	            _layout2.default.normalize(nodes, undefined, options_);
 	        }
 	
 	        if (!gl) return;
@@ -2554,7 +2553,7 @@
 	
 	  _createClass(_class, null, [{
 	    key: 'normalize',
-	    value: function normalize(nodes, dim) {
+	    value: function normalize(nodes, dim, options) {
 	      var minX = void 0,
 	          minY = void 0,
 	          n = nodes.length;
@@ -2582,35 +2581,36 @@
 	          minY: minY
 	        };
 	      }
-	      var factor = 1 - 2 * this._options.margin;
+	      var margin = options && options.margin || 0;
+	      var factor = 1 - 2 * margin;
 	      var scX = minX !== dim.maxX ? factor / (dim.maxX - minX) : (minX -= 0.5, 1);
 	      var scY = minY !== dim.maxY ? factor / (dim.maxY - minY) : (minY -= 0.5, 1);
 	
-	      var direction = this._options.direction;
+	      var direction = options && options.direction || "left-right";
 	      if (direction == "left-right") {
 	        for (var _i = 0; _i < n; ++_i) {
 	          var _o = nodes[_i];
-	          _o.x = scX * (_o.x - minX) + this._options.margin;
-	          _o.y = scY * (_o.y - minY) + this._options.margin;
+	          _o.x = scX * (_o.x - minX) + margin;
+	          _o.y = scY * (_o.y - minY) + margin;
 	        }
 	      } else if (direction == "right-left") {
 	        for (var _i2 = 0; _i2 < n; ++_i2) {
 	          var _o2 = nodes[_i2];
-	          _o2.x = 1 - (scX * (_o2.x - minX) + this._options.margin);
-	          _o2.y = scY * (_o2.y - minY) + this._options.margin;
+	          _o2.x = 1 - (scX * (_o2.x - minX) + margin);
+	          _o2.y = scY * (_o2.y - minY) + margin;
 	        }
 	      } else if (direction == "top-down") {
 	        for (var _i3 = 0; _i3 < n; ++_i3) {
 	          var _o3 = nodes[_i3];
-	          var foo = 1 - scX * (_o3.x - minX) + this._options.margin;
-	          _o3.x = scY * (_o3.y - minY) + this._options.margin;
+	          var foo = 1 - scX * (_o3.x - minX) + margin;
+	          _o3.x = scY * (_o3.y - minY) + margin;
 	          _o3.y = foo;
 	        }
 	      } else if (direction == "bottom-up") {
 	        for (var _i4 = 0; _i4 < nodes.length; ++_i4) {
 	          var _o4 = nodes[_i4];
-	          var _foo = scX * (_o4.x - minX) + this._options.margin;
-	          _o4.x = scY * (_o4.y - minY) + this._options.margin;
+	          var _foo = scX * (_o4.x - minX) + margin;
+	          _o4.x = scY * (_o4.y - minY) + margin;
 	          _o4.y = _foo;
 	        }
 	      } else {
@@ -2695,7 +2695,9 @@
 	    value: true
 	});
 	
-	exports.default = function (nodes, edges, layout_options) {
+	exports.default = function (nodes, edges) {
+	    var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	    var edgeDistance = layout_options.edgeDistace || 15,
 	        edgeStrength = layout_options.edgeStrength || 1,
 	        friction = layout_options.friction || 0.9,
@@ -3082,7 +3084,9 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	  function _class(nodes, layout_options) {
+	  function _class(nodes, _) {
+	    var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
@@ -3197,7 +3201,9 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -3483,7 +3489,9 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -3606,7 +3614,9 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -3734,7 +3744,9 @@
 	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -3867,7 +3879,9 @@
 	
 	var _class = function () {
 	    // this layout should handle any digraph
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -4158,7 +4172,9 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -8653,7 +8669,9 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -8893,7 +8911,9 @@
 	    // get degree of all nodes
 	    // mode: fill_segment or alternate_segment
 	    // wiggle segment (cycles and amplitude)
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -8964,7 +8984,9 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _class = function () {
-	     function _class(nodes, edges, layout_options) {
+	     function _class(nodes, edges) {
+	          var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	          _classCallCheck(this, _class);
 	
 	          this._nodes = nodes;
@@ -9036,7 +9058,9 @@
 	  // fractions of hubs, intermediary and peripheral vertices
 	  // or the Erdös sectioning.
 	  // maybe also let the user set the endpoints of the periphery segment
-	  function _class(nodes, edges, layout_options) {
+	  function _class(nodes, edges) {
+	    var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	    _classCallCheck(this, _class);
 	
 	    this._nodes = nodes;
