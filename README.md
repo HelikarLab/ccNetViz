@@ -51,7 +51,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 
 **In-built support for the multiple layouts**
 
-Default layout is **Force** based.
+Recommended layout is **Force** based.
 
 Inbuilt support for multiple layouts such as the **Force**, **Hierarchical**, **Circular**, **Spectral**, **Hive**, **Grid**, **Versinus**.
 
@@ -59,6 +59,15 @@ Inbuilt support for two modifications of **Tree** layout.
 
 * Graph layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/layouts.html)
 * Tree-specific layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/tree.html)
+
+If you want to use one of our in-built layout ( see the https://github.com/HelikarLab/ccNetViz/tree/master/src/layout for list of all available ones ),
+pass it as second parameter into the set function such as:
+
+```javascript
+  graph.set(nodes, edges, "force"); //set the force layout
+```
+
+
 
 **Advanced Examples**
 
