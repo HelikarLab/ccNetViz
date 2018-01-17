@@ -61,6 +61,17 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
 * User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
 * Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
 
+**In-built support for the multiple layouts**
+
+Default layout is **Force** based.
+
+Inbuilt support for multiple layouts such as the **Force**, **Hierarchical**, **Circular**, **Spectral**, **Hive**, **Grid**, **Versinus**.
+
+Inbuilt support for two modifications of **Tree** layout.
+
+* Graph layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/layouts.html)
+* Tree-specific layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/tree.html)
+
 
 **Documentation**
 
@@ -158,8 +169,8 @@ All default property values of these styles can be overriden (as in example abov
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
-When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from 
-[our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with 
+When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from
+[our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with
 [node-fontnik](https://github.com/mapbox/node-fontnik).
 
 ***set(nodes, edges, layout)***
@@ -169,7 +180,7 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 * x, y (optional): predefined position for given node (if "layout" argument is not specified these positions will be used for graph layout)
 * color (optional): ccNetViz.color object defining color for this given node (use this in case of coloring each node separately, for coloring groups of nodes use color property of node style)
 * style (optional): name of custom style class used for this node (for example: "nodeBlue" see above section for how to define custom styles)
- 
+
 "edges" argument is an array of objects describing directed graph edges. Each edge has following properties:
 * source: pointer to given source node object
 * target: pointer to given target node object

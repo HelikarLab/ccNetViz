@@ -7,11 +7,11 @@
       width: 500px;
       height: 500px;
     }
-    
+
     #body {
       display: inline-block;
     }
-    
+
     #info {
 /*      float: right;*/
     }
@@ -33,38 +33,38 @@
     </div>
   </div>
   <script>
-  
+
     var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json,tree1.json,tree2.json'.split(',');
-    
+
     function init(){
       function onChange(e){
         var v = $(this).val();
-        
+
         $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
       }
       function onChange2(e){
         layout = $(this).val();
         showGraph(adata);
       }
-    
+
       //fill in graph names
       var select = $("#listExamples");
       $.each(examples, function(index,val){
         select.append($("<option />", {'value': val}).text(val));
       });
       select.change(onChange);
-      
+
       //init graph with currently selected data
       onChange.call(select);
 
       //fill in layout names
       var select2 = $("#listLayouts");
       $.each(["force", "hierarchical", "hierarchical2", "circular",
-              "random", "tree", "tree2", "spectral", "spectral2", "hive", "grid", "versinus"], function(index,val){
+              "random", "spectral", "spectral2", "hive", "grid", "versinus"], function(index,val){
         select2.append($("<option />", {'value': val}).text(val));
       });
       select2.change(onChange2);
-      
+
       //init graph with currently selected layout
       onChange2.call(select2);
     };
@@ -94,7 +94,7 @@
       console.log("antes do draw");
       graph.draw();
       console.log("depois do draw");
-      
+
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
       $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
