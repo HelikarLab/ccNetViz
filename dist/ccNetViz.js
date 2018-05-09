@@ -224,7 +224,7 @@
 	
 	var sCanvas = document.createElement("canvas");
 	function getContext(canvas) {
-	  var attributes = { depth: false, antialias: false };
+	  var attributes = { depth: false, antialias: false, , preserveDrawingBuffer: true };
 	  var gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
 	
 	  return gl;
