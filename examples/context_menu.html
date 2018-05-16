@@ -127,6 +127,10 @@
                 li.appendChild(node);
                 items.appendChild(li);
                 li.classList.add("context-menu__link");
+                li.setAttribute("id", option);
+                $("#" + option).click(function() {
+                    alert(option);
+                });
             }
 
             d.style.position = "absolute";
