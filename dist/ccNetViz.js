@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -154,9 +154,9 @@
 	
 	exports.default = ccNetVizMultiLevel;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -935,9 +935,9 @@
 	window.ccNetViz = ccNetViz;
 	exports.default = ccNetViz;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1706,9 +1706,9 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1782,9 +1782,9 @@
 	exports.default = Color;
 	;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1908,9 +1908,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2235,9 +2235,9 @@
 	
 	exports.default = primitive;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2327,9 +2327,9 @@
 	exports.default = Shader;
 	;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -2403,9 +2403,9 @@
 	exports.default = Utils;
 	;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2461,9 +2461,9 @@
 	exports.partitionByStyle = partitionByStyle;
 	exports.getPartitionStyle = getPartitionStyle;
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2647,9 +2647,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2657,7 +2657,7 @@
 	    value: true
 	});
 	
-	exports.default = function (nodes, edges) {
+	exports.default = function (nodes, edges, options) {
 	    var edgeDistance = 15,
 	        edgeStrength = 1,
 	        friction = 0.9,
@@ -2785,14 +2785,26 @@
 	            }
 	        }
 	
+	        var rnd = function rnd(min, max) {
+	            return Math.random() * (max - min) + min;
+	        };
 	        for (var _i3 = 0; _i3 < n; _i3++) {
 	            o = nodes[_i3];
-	            if (o.fixed) {
+	            if (o.fixed || o.fixed2) {
 	                o.x = o.px;
 	                o.y = o.py;
 	            } else {
 	                o.x -= (o.px - (o.px = o.x)) * friction;
 	                o.y -= (o.py - (o.py = o.y)) * friction;
+	
+	                if (options && options.minX !== undefined) {
+	                    if (o.x < options.minX || o.x > options.maxX) {
+	                        o.x = rnd(options.minX, options.maxX);
+	                    }
+	                    if (o.y < options.minY || o.y > options.maxY) {
+	                        o.y = rnd(options.minY, options.maxY);
+	                    }
+	                }
 	            }
 	        }
 	    };
@@ -2843,9 +2855,9 @@
 	 *  Author: David Tichy
 	 */
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3011,9 +3023,9 @@
 	   *  Author: David Tichy
 	   */
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3057,9 +3069,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3117,9 +3129,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3200,9 +3212,9 @@
 	    };
 	}
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3310,9 +3322,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3424,9 +3436,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3523,21 +3535,19 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
+	                // calculate max out-degree
+	                var max_outdegree = 0;
+	                nodes.forEach(function (node) {
+	                    if (node.children.length > max_outdegree) {
+	                        max_outdegree = node.children.length;
+	                    }
+	                });
+	                // choose vertices with greatest out-degree
+	                nodes.forEach(function (node) {
+	                    if (node.children.length == max_outdegree) {
+	                        roots.push(node);
+	                    }
+	                });
 	            }
 	            // number of layers and max number of nodes in each layer
 	            // has to be found by making the layout
@@ -3561,9 +3571,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 18 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3655,21 +3665,19 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
+	                // calculate max out-degree
+	                var max_outdegree = 0;
+	                nodes.forEach(function (node) {
+	                    if (node.children.length > max_outdegree) {
+	                        max_outdegree = node.children.length;
+	                    }
+	                });
+	                // choose vertices with greatest out-degree
+	                nodes.forEach(function (node) {
+	                    if (node.children.length == max_outdegree) {
+	                        roots.push(node);
+	                    }
+	                });
 	            }
 	            return roots;
 	        }
@@ -3855,9 +3863,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 19 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3966,9 +3974,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 20 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8257,9 +8265,9 @@
 	exports.QR = QrDecomposition$$1;
 
 
-/***/ },
+/***/ }),
 /* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8312,9 +8320,9 @@
 	module.exports = rescale;
 
 
-/***/ },
+/***/ }),
 /* 22 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -8342,9 +8350,9 @@
 	module.exports = max;
 
 
-/***/ },
+/***/ }),
 /* 23 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -8372,9 +8380,9 @@
 	module.exports = min;
 
 
-/***/ },
+/***/ }),
 /* 24 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8600,9 +8608,9 @@
 	    return x;
 	}
 
-/***/ },
+/***/ }),
 /* 25 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8658,9 +8666,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 26 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8711,9 +8719,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 27 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8788,9 +8796,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 28 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -8888,9 +8896,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 29 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -9357,9 +9365,9 @@
 	    }
 	
 	    this.rbushtree_s = {};
-	    for (var _style in sd) {
-	      var rb = this.rbushtree_s[_style] = (0, _rbush2.default)();
-	      rb.load(sd[_style]);
+	    for (var style in sd) {
+	      var rb = this.rbushtree_s[style] = (0, _rbush2.default)();
+	      rb.load(sd[style]);
 	    }
 	
 	    //tree initialization
@@ -9481,9 +9489,9 @@
 	
 	exports.default = spatialIndex;
 
-/***/ },
+/***/ }),
 /* 30 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -10114,9 +10122,9 @@
 	
 	exports.default = rbush;
 
-/***/ },
+/***/ }),
 /* 31 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10426,9 +10434,9 @@
 	exports.eq = eq;
 	exports.neq = neq;
 
-/***/ },
+/***/ }),
 /* 32 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10512,9 +10520,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 33 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10620,9 +10628,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 34 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10713,9 +10721,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 35 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -10857,9 +10865,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 36 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -11076,9 +11084,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 37 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -11700,9 +11708,9 @@
 	}
 
 
-/***/ },
+/***/ }),
 /* 38 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 	  var e, m
@@ -11790,9 +11798,9 @@
 	}
 
 
-/***/ },
+/***/ }),
 /* 39 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -12005,9 +12013,9 @@
 	exports.default = GlyphAtlas;
 	;
 
-/***/ },
+/***/ }),
 /* 40 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
 	     true ? module.exports = factory() :
@@ -12454,9 +12462,9 @@
 	
 	}));
 
-/***/ },
+/***/ }),
 /* 41 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -12486,9 +12494,9 @@
 	    if (tag === 1) glyph.id = pbf.readVarint();else if (tag === 2) glyph.bitmap = pbf.readBytes();else if (tag === 3) glyph.width = pbf.readVarint();else if (tag === 4) glyph.height = pbf.readVarint();else if (tag === 5) glyph.left = pbf.readSVarint();else if (tag === 6) glyph.top = pbf.readSVarint();else if (tag === 7) glyph.advance = pbf.readVarint();
 	}
 
-/***/ },
+/***/ }),
 /* 42 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -12572,9 +12580,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 43 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -12838,7 +12846,7 @@
 	exports.default = _class;
 	;
 
-/***/ }
+/***/ })
 /******/ ]);
 //# sourceMappingURL=ccNetViz.js.map
 if(typeof module !== "undefined")
