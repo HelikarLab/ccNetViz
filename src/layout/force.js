@@ -8,7 +8,7 @@ import ccNetViz_quadtree from '../quadTree' ;
  *  Author: David Tichy
  */
 
-export default function(nodes, edges) {
+export default function(nodes, edges, options) {
     const edgeDistance = 15,
           edgeStrength = 1,
           friction = 0.9,
@@ -128,15 +128,25 @@ export default function(nodes, edges) {
             }
         }
 
+        const rnd = (min,max) => Math.random() * (max-min) + min;
         for (let i = 0; i < n; i++) {
             o = nodes[i];
-            if (o.fixed) {
+            if (o.fixed || o.fixed2) {
                 o.x = o.px;
                 o.y = o.py;
             }
             else {
                 o.x -= (o.px - (o.px = o.x)) * friction;
                 o.y -= (o.py - (o.py = o.y)) * friction;
+
+                if(options && options.minX !== undefined){
+                    if(o.x < options.minX || o.x > options.maxX){
+                        o.x = rnd(options.minX, options.maxX);
+                    }
+                    if(o.y < options.minY || o.y > options.maxY){
+                        o.y = rnd(options.minY, options.maxY);
+                    }
+                }
             }
         }
     };
