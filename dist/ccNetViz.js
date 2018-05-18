@@ -217,7 +217,7 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: 
+	 *  Authors:
 	 *  David Tichy
 	 *    Aleš Saska - http://alessaska.cz/
 	 */
@@ -711,20 +711,65 @@
 	
 	  function onWheel(e) {
 	    var rect = canvas.getBoundingClientRect();
-	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
-	    var delta = size - view.size;
 	
 	    if (!options.passiveEvts) {
 	      e.preventDefault();
 	    }
 	
-	    var oldsize = view.size;
-	    var oldx = view.x;
-	    var oldy = view.y;
+	    var oldsize = void 0,
+	        oldx = void 0,
+	        oldy = void 0;
+	
+	    // Mouse coordinates
+	    var mouseX = e.clientX - rect.left;
+	    var mouseY = e.clientY - rect.top;
+	    var radius = 10;
+	
+	    // if no timer found i.e. we are not in continuous phase
+	    // we are calculating the focus variables again
+	    if (!onWheel.continuosZoom) {
+	      onWheel.startView = { size: view.size, x: view.x, y: view.y };
+	
+	      var lCoords = this.getLayerCoords({ x1: mouseX - radius, y1: mouseY - radius, x2: mouseX + radius, y2: mouseY - radius });
+	      var searchNodes = this.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true);
+	      // if node found beneath mouse_ptr, zooming_focus is the center of that node
+	      if (searchNodes.nodes.length) {
+	        var node = searchNodes.nodes[0];
+	        var focus = this.getScreenCoords({
+	          x: node.node.x,
+	          y: node.node.y
+	        });
+	        onWheel.focusX = focus.x;
+	        onWheel.focusY = focus.y;
+	      }
+	      // else, it is the window co-ords of the mouse_ptr
+	      else {
+	          onWheel.focusX = mouseX;
+	          onWheel.focusY = mouseY;
+	        }
+	      onWheel.oldX = view.x;
+	      onWheel.oldY = view.y;
+	      onWheel.oldSize = view.size;
+	
+	      if (onWheel.continuosZoom) clearTimeout(onWheel.continuosZoom);
+	
+	      oldx = view.x;
+	      oldy = view.y;
+	    }
+	
+	    onWheel.continuosZoom = setTimeout(function () {
+	      onWheel.continuosZoom = undefined;
+	    }, 200);
+	
+	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
+	    var delta = size - onWheel.oldSize;
+	    //      onWheel.oldSize = size;
+	    //      onWheel.delta = onWheel.focusX;
+	
 	
 	    view.size = size;
-	    view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
-	    view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
+	    view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
+	    view.y = Math.max(0, Math.min(1 - size, onWheel.oldY - delta * (1 - onWheel.focusY / canvas.height)));
 	
 	    if (options.onZoom && options.onZoom(view) === false) {
 	      view.size = oldsize;
