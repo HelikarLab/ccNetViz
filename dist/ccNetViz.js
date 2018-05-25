@@ -756,16 +756,12 @@
 	      oldx = view.x;
 	      oldy = view.y;
 	    }
-	
 	    onWheel.continuosZoom = setTimeout(function () {
 	      onWheel.continuosZoom = undefined;
 	    }, 200);
 	
 	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
 	    var delta = size - onWheel.oldSize;
-	    //      onWheel.oldSize = size;
-	    //      onWheel.delta = onWheel.focusX;
-	
 	
 	    view.size = size;
 	    view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
@@ -2702,7 +2698,9 @@
 	    value: true
 	});
 	
-	exports.default = function (nodes, edges, options) {
+	exports.default = function (nodes, edges) {
+	    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	    var edgeDistance = 15,
 	        edgeStrength = 1,
 	        friction = 0.9,
@@ -3147,7 +3145,9 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
