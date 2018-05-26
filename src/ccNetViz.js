@@ -16,7 +16,7 @@ import {getPartitionStyle}    from './primitiveTools' ;
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Authors: 
+ *  Authors:
  *  David Tichy
  *    Aleš Saska - http://alessaska.cz/
  */
@@ -47,13 +47,13 @@ function mergeArrays(a, b, cmp){
   r.length = a.length + b.length;
 
   let i = 0,j=0,k=0;
-  
+
   while (i < a.length && j < b.length)
   {
     if (cmp(a[i],b[j]) < 0)
       r[k++] = a[i++];
-    else        
-      r[k++] = b[j++];               
+    else
+      r[k++] = b[j++];
   }
 
   while (i < a.length)
@@ -62,20 +62,20 @@ function mergeArrays(a, b, cmp){
 
   while (j < b.length)
     r[k++] = b[j++];
-  
+
   return r;
 }
 
 var ccNetViz = function(canvas, options){
   let self = this;
   canvas = canvas || sCanvas;
-  
+
   let backgroundStyle = options.styles.background = options.styles.background || {};
   let backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
-  
+
   let removed = false;
   let setted  = false;
-  
+
   let nodeStyle = options.styles.node = options.styles.node || {};
   nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
   nodeStyle.maxSize = nodeStyle.maxSize || 16;
@@ -99,13 +99,13 @@ var ccNetViz = function(canvas, options){
       s.maxSize = s.maxSize || 12;
       s.aspect = 1;
   }
-  
+
 
   let events = new ccNetViz_lazyEvents();
   let layers = {};
   let view,gl,drawFunc,textures,files,texts;
   let context = {};
-  
+
   this.cntShownNodes = () => {
     let n = 0;
     for(var k in layers)
@@ -113,7 +113,7 @@ var ccNetViz = function(canvas, options){
     return n;
   }
   let getNodesCnt = options.getNodesCnt || this.cntShownNodes;
-  
+
   this.cntShownEdges = () => {
     let e = 0;
     for(var k in layers)
@@ -126,7 +126,7 @@ var ccNetViz = function(canvas, options){
     self.draw.call(self);
     return false;
   }, 5);
-  
+
   function checkRemoved(){
     if(removed){
       console.error("Cannot call any function on graph after remove()")
@@ -134,9 +134,9 @@ var ccNetViz = function(canvas, options){
     }
     return false;
   }
-    
+
   let nodes, edges;
-  
+
   function insertTempLayer(){
     if(layers.temp)
       return;
@@ -149,7 +149,7 @@ var ccNetViz = function(canvas, options){
       batch = new ccNetViz_interactivityBatch(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
     return batch;
   };
-  
+
   this.set = (n, e, layout, layout_options={}) => {
     if(checkRemoved()) return this;
 
@@ -167,24 +167,24 @@ var ccNetViz = function(canvas, options){
     setted = true;
     return this;
   };
-  
+
   //make all dynamic changes static
   this.reflow = () => {
     if(checkRemoved()) return;
 
     getBatch().applyChanges();
-    
+
     //nodes and edges in dynamic chart are actual
     let n = layers.main.getVisibleNodes();
     if(layers.temp)  n = n.concat(layers.temp.getVisibleNodes());
-    
+
     let e = layers.main.getVisibleEdges();
     if(layers.temp) e = e.concat(layers.temp.getVisibleEdges());
-    
+
     this.set(n,e);
     this.draw();
   };
-  
+
   this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
   this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
   this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
@@ -195,14 +195,14 @@ var ccNetViz = function(canvas, options){
 
   this.addEdges = (edges) => {
     if(checkRemoved()) return this;
-    
+
     edges.forEach((e) => {
       this.addEdge(e);
     });
-    
+
     return this;
   };
-  
+
   this.addNodes = (nodes) => {
     if(checkRemoved()) return this;
 
@@ -221,7 +221,7 @@ var ccNetViz = function(canvas, options){
     });
     return this;
   };
-  
+
   this.removeNodes = (nodes) => {
     if(checkRemoved()) return this;
 
@@ -237,7 +237,7 @@ var ccNetViz = function(canvas, options){
     nodes.forEach((n) => {
       this.updateNode(n);
     });
-    
+
     return this;
   };
 
@@ -247,7 +247,7 @@ var ccNetViz = function(canvas, options){
     edges.forEach((e) => {
       this.updateEdge(e);
     });
-    
+
     return this;
   };
 
@@ -325,7 +325,7 @@ var ccNetViz = function(canvas, options){
     }
   };
   drawFunc = this.draw.bind(this);
-  
+
   this.getScreenCoords = function(conf){
     if(checkRemoved()) return;
     let ret = {};
@@ -334,11 +334,11 @@ var ccNetViz = function(canvas, options){
     if(conf.y !== undefined) ret.y = ( 1 - ( conf.y - view.y + context.offsetY) / (view.size + 2*context.offsetY) )  * canvas.height + rect.top;
     return ret;
   };
-  
+
   this.getLayerCoords = function(conf){
     if(checkRemoved()) return;
 
-    let ret = {};       
+    let ret = {};
 
     ['x','x1','x2'].forEach(k => {
       if(conf[k] !== undefined){
@@ -347,8 +347,8 @@ var ccNetViz = function(canvas, options){
         ret[k] = x;
       }
     });
-    
-    
+
+
     ['y','y1','y2'].forEach(k => {
       if(conf[k] !== undefined){
         let y = conf[k];
@@ -392,11 +392,11 @@ var ccNetViz = function(canvas, options){
 
   this.find = function(){return findMerge('find', arguments); };
   this.findArea = function(){return findMerge('findArea', arguments); };
-  
+
   this.getTextPosition = (n) => {
     if(checkRemoved() || !gl) return;
 
-    const offset = 0.5 * context.nodeSize;    
+    const offset = 0.5 * context.nodeSize;
     const offsety = (2.0 * (n.y <=  0.5 ? 0 : 1) - 1.0) * offset;
 
     let ns = getPartitionStyle(options.styles[n.style],nodeStyle,"label");
@@ -410,13 +410,13 @@ var ccNetViz = function(canvas, options){
   };
 
 
-  
+
   let addEvts = (el, evts) => {
     for(var k in (evts || {})){
       evts[k] && el.addEventListener(k, evts[k], {passive: options.passiveEvts});
     }
   }
-  
+
   let removeEvts = (el, evts) => {
     for(var k in (evts || {})){
       evts[k] && el.removeEventListener(k, evts[k]);
@@ -424,7 +424,7 @@ var ccNetViz = function(canvas, options){
   }
 
   let onDownThis = onMouseDown.bind(this);
-  
+
   let zoomevts;
   addEvts(canvas, zoomevts = {
     'mousedown': onDownThis,
@@ -435,36 +435,36 @@ var ccNetViz = function(canvas, options){
 
   this.remove = () => {
     if(checkRemoved()) return;
-    
+
     for(var k in layers){layers[k].remove();}
 
     if(gl){
       gl.viewport(0, 0, context.width*2, context.height*2);
       gl.clear(gl.COLOR_BUFFER_BIT);
-    
+
       let gl_lose = gl.getExtension('WEBGL_lose_context');
       gl_lose && gl_lose.loseContext();
     }
 
     removeEvts(canvas, zoomevts);
-    
+
     events.disable();
     texts && texts.remove();
 
     removed = true;
   }
-  
+
   let last_view = {};
   function checkChangeViewport(){
     let is_change = false;
     if(last_view){
       for(let k in view){
-        if(last_view[k] !== view[k]) 
+        if(last_view[k] !== view[k])
           is_change = true;
       }
     }
     ccNetViz_utils.extend(last_view, view);
-       
+
     if(is_change){
       options.onChangeViewport && options.onChangeViewport(view);
     }
@@ -475,19 +475,58 @@ var ccNetViz = function(canvas, options){
 
   function onWheel(e) {
       let rect = canvas.getBoundingClientRect();
-      let size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
-      let delta = size - view.size;
 
       if(!options.passiveEvts){ e.preventDefault(); }
 
-      let oldsize = view.size;
-      let oldx = view.x;
-      let oldy = view.y;
-      
-      
+      let oldsize, oldx, oldy;
+
+      // Mouse coordinates
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const radius = 10;
+
+      // if no timer found i.e. we are not in continuous phase
+      // we are calculating the focus variables again
+      if(!onWheel.continuosZoom) {
+          onWheel.startView = {size: view.size, x: view.x, y: view.y};
+
+          const lCoords = this.getLayerCoords({ x1: mouseX - radius, y1: mouseY - radius, x2: mouseX + radius, y2: mouseY - radius });
+          const searchNodes = this.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true);
+          // if node found beneath mouse_ptr, zooming_focus is the center of that node
+          if (searchNodes.nodes.length) {
+              let node = searchNodes.nodes[0];
+              let focus = this.getScreenCoords({
+                  x: node.node.x,
+                  y: node.node.y
+              });
+              onWheel.focusX = focus.x;
+              onWheel.focusY = focus.y;
+          }
+          // else, it is the window co-ords of the mouse_ptr
+          else {
+              onWheel.focusX = mouseX;
+              onWheel.focusY = mouseY;
+          }
+          onWheel.oldX = view.x;
+          onWheel.oldY = view.y;
+          onWheel.oldSize = view.size;
+
+          if(onWheel.continuosZoom)
+              clearTimeout(onWheel.continuosZoom);
+
+          oldx = view.x;
+          oldy = view.y;
+      }
+      onWheel.continuosZoom = setTimeout(() => {
+        onWheel.continuosZoom = undefined;
+      }, 200);
+
+      let size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
+      let delta = size - onWheel.oldSize;
+
       view.size = size;
-      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
-      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
+      view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
+      view.y = Math.max(0, Math.min(1 - size, onWheel.oldY - delta * (1 - onWheel.focusY / canvas.height)));
 
       if(options.onZoom && options.onZoom(view) === false){
         view.size = oldsize;
@@ -495,31 +534,31 @@ var ccNetViz = function(canvas, options){
         view.y = oldy;
         return;
       }
-      
+
       checkChangeViewport();
-      
-      this.draw();      
-  }  
-  
+
+      this.draw();
+  }
+
   let lastUpTime = 0;
   function onMouseDown(downe) {
     if(downe.which !== 1) return; //catch only 1 - left mouse button
-    
+
     let parseTouchEvts = (e) => {
       if(!e.touches) return e;
-      
+
       let x = 0,y = 0;
       for(let i = 0; i < e.touches.length; i++){ x += e.touches[i].clientX; y += e.touches[i].clientY; }
       e.clientX = x / e.touches.length;
       e.clientY = y / e.touches.length;
-      
+
       return e;
     }
-    
-    
+
+
     downe = parseTouchEvts(downe);
-    
-    
+
+
     let width = canvas.width / view.size;
     let height = canvas.height / view.size;
     let sx = downe.clientX;
@@ -531,20 +570,20 @@ var ccNetViz = function(canvas, options){
     let panning = true;
     let zooming = false;
     let evts;
-    
+
     let origdist;
     if((downe.touches || []).length === 2){
       let mx = downe.touches[0].clientX - downe.touches[1].clientX, my = downe.touches[0].clientY - downe.touches[1].clientY;
       origdist = Math.sqrt( mx * mx + my * my );
       zooming = true;
     }
-    
+
 
     let drag = e => {
       e = parseTouchEvts(e);
-      
+
       if(e.touches && e.touches.length != 1)  panning = false;
-      
+
       if (dragged) {
           if(panning){
               if (custom) {
@@ -578,10 +617,10 @@ var ccNetViz = function(canvas, options){
         e = parseTouchEvts(e);
 
         custom && od.stop && od.stop(e);
-        
+
         if(!dragged){
           options.onClick && options.onClick(e);
-        
+
           if( new Date().getTime() - lastUpTime < 250 ) {
             options.onDblClick && options.onDblClick(e);
             lastUpTime = 0;
@@ -604,7 +643,7 @@ var ccNetViz = function(canvas, options){
             origdist = dist;
         }
     };
-    
+
     addEvts(window, evts = {
       'mouseup': up,
       'touchend': up,
@@ -671,7 +710,7 @@ var ccNetViz = function(canvas, options){
   files = new ccNetViz_files(events, onLoad);
   texts = gl && (new ccNetViz_texts(gl, files, textures));
   layers.main = new ccNetViz_layer(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
-  
+
   if(!gl)
     console.warn("Cannot initialize WebGL context");
 };
