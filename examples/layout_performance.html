@@ -73,7 +73,6 @@
     <title>Layouts perfomance tests</title>
     <script src="./libs/jquery.min.js"></script>
     <script src="../dist/ccNetViz.js"></script>
-    <script src="js/layout_performance.js"></script>
 </head>
 
 <body>
@@ -93,7 +92,8 @@
     <script type="text/javascript">
     var el = document.getElementById('container');
     var data;
-    var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
+    //var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
+    var layouts = ['circular', 'grid', 'hive', 'versinus'];
     var datafiles = ['graph-100-3'];
     var el;
 
@@ -140,11 +140,16 @@
         for (var i = 0; i < layouts.length; i++) {
 
             t_start_layout = new Date().getTime();
-            graph.set(d.nodes, d.edges, layouts[i].toString());
+            //graph.set(d.nodes, d.edges, layouts[i].toString());
+
+            //layout computation 
+            var layout = new ccNetViz.layout[layouts[i]](d.nodes, d.edges, {}).apply();
+
             t_end_layout = new Date().getTime();
             t_layout = t_end_layout - t_start_layout;
 
             t_start_draw = new Date().getTime();
+            //graph.set(d.nodes, d.edges, layouts[i].toString());
             graph.draw();
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;

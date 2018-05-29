@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    <style type="text/css">
+    #container {
+        max-width: 400px;
+        height: 400px;
+        margin: auto;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/sigma.js"></script>
+    <script src="./libs/sigma.parsers.json.min.js"></script>
+    <script>
+    $.ajax({ method: 'get', url: 'data/graph-100-1.json', async: false, dataType: 'text' }).done(function(d) {
+        data = d;
+        var newJson = convertData(data);
+        let original = JSON.parse(newJson);
+
+        var blob = new Blob([JSON.stringify(original, null, 2)], { type: 'application/json' });
+        var objectURL = URL.createObjectURL(blob);
+
+        sigma.parsers.json(objectURL, {
+                container: 'container',
+                settings: {
+                    defaultNodeColor: '#ec5148'
+                }
+            },
+            function(s) {
+                //Initialize nodes as a circle
+                s.graph.nodes().forEach(function(node, i, a) {
+                    node.x = Math.cos(Math.PI * 2 * i / a.length);
+                    node.y = Math.sin(Math.PI * 2 * i / a.length);
+                });
+
+                //Call refresh to render the new graph
+                s.refresh();
+                //s.startForceAtlas2(); doesn't work
+
+            }
+        );
+    });
+
+    function convertData(data) {
+        let original = JSON.parse(data);
+        let out = {
+            nodes: [],
+            edges: []
+        }
+
+        for (let i = 0; i < original.nodes.length; i++) {
+            var rand = Math.floor((Math.random() * 10) + 1);
+            out.nodes.push({
+                id: 'n' + i,
+                label: original.nodes[i].label,
+                x: rand,
+                y: -rand 
+            });
+        }
+
+        for (let i = 0; i < original.edges.length; i++) {
+            out.edges.push({
+                id: 'e' + i,
+                source: 'n' + original.edges[i].source,
+                target: 'n' + original.edges[i].target
+            });
+        }
+
+        return JSON.stringify(out);
+    }
+    </script>
+</body>
+
+</html>
