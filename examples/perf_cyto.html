@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/cytoscape.js"></script>
+</head>
+<style>
+#cy {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+</style>
+
+<body>
+    <div id="cy"></div>
+    <script>
+    var data, d_parsed;
+    $.ajax({ method: 'get', url: 'data/graph-100-1.json', async: false, dataType: 'text' }).done(function(d) {
+        data = d;
+        d_parsed = convertData(data);
+
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: d_parsed
+        });
+
+        var layout = cy.layout({
+            name: 'circle'
+        });
+
+        layout.run();
+    });
+
+    function convertData(data) {
+        let original = JSON.parse(data);
+        let out = [];
+
+        for (let i = 0; i < original.nodes.length; i++) {
+            out.push({
+                data: {
+                    id: original.nodes[i].label
+                }
+            });
+        }
+
+        for (let i = 0; i < original.edges.length; i++) {
+            out.push({
+                data: {
+                    id: '' + original.edges[i].source + original.edges[i].target,
+                    source: original.edges[i].source,
+                    target: original.edges[i].target
+                }
+            });
+        }
+
+        return out;
+    }
+    </script>
+</body>
+
+</html>
