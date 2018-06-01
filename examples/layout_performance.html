@@ -48,8 +48,8 @@
     }
 
     #perfTable {
-      width: 90%;
-      margin-left: 30px;
+        width: 90%;
+        margin-left: 30px;
     }
 
     #divGraph {
@@ -77,7 +77,7 @@
 
 <body>
     <div id="title">
-        Performance measurement
+        Performance measurement for ccNetViz
         <br>
         <br>
     </div>
@@ -92,10 +92,23 @@
     <script type="text/javascript">
     var el = document.getElementById('container');
     var data;
-    //var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
-    var layouts = ['circular', 'grid', 'hive', 'versinus'];
+    var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
     var datafiles = ['graph-100-3'];
     var el;
+
+    function transformEdges(nodes, edges) {
+        nodes.forEach(function(node, i) {
+            node.index = i;
+        });
+        edges.forEach(function(edge) {
+            //non equal to object >> numeric index >> transform to object
+            if (edge.source !== Object(edge.source)) {
+                edge.source = nodes[edge.source];
+            }
+            if (edge.target !== Object(edge.target))
+                edge.target = nodes[edge.target];
+        });
+    }
 
     var table = document.getElementById('perfTable');
     var d; //data from the graph
@@ -111,7 +124,6 @@
         //we load data in the
         $.ajax({ method: 'get', url: 'data/graph-100-3.json', async: false, dataType: 'text' }).done(function(d) {
             data = d;
-            //console.log(data);
         });
 
         d = JSON.parse(data);
@@ -139,9 +151,9 @@
 
         for (var i = 0; i < layouts.length; i++) {
 
-            t_start_layout = new Date().getTime();
-            //graph.set(d.nodes, d.edges, layouts[i].toString());
+            transformEdges(d.nodes, d.edges);
 
+            t_start_layout = new Date().getTime();
             //layout computation 
             var layout = new ccNetViz.layout[layouts[i]](d.nodes, d.edges, {}).apply();
 
@@ -149,8 +161,7 @@
             t_layout = t_end_layout - t_start_layout;
 
             t_start_draw = new Date().getTime();
-            //graph.set(d.nodes, d.edges, layouts[i].toString());
-            graph.draw();
+            graph.set(d.nodes, d.edges, layouts[i].toString());
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;
 
@@ -187,7 +198,6 @@
                 table.rows[i].cells[0].onclick = function() {
                     $("#perfTable tr").removeClass('onClickStyle');
                     graph.set(d.nodes, d.edges, this.innerHTML);
-                    graph.draw();
                     $(this).parent().addClass('onClickStyle');
                 };
             }
@@ -196,7 +206,6 @@
 
     function setInitialSelection() {
         graph.set(d.nodes, d.edges, 'circular');
-        graph.draw();
         document.getElementById('perfTable').childNodes[1].className = "onClickStyle";
     }
 
