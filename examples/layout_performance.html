@@ -161,7 +161,7 @@
             t_layout = t_end_layout - t_start_layout;
 
             t_start_draw = new Date().getTime();
-            graph.set(d.nodes, d.edges, layouts[i].toString());
+            graph.set(d.nodes, d.edges, layout);
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;
 
