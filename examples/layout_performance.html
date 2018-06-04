@@ -3,213 +3,108 @@
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style>
-    body {
-        font-family: 'Roboto', sans-serif;
-    }
-
-    table {
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-        width: 50%;
-        font-family: 'Roboto', sans-serif;
-    }
-
-    th,
-    td {
-        text-align: center;
-        padding: 8px;
-        border: 1px solid #ddd;
-    }
-
-    th {
-        border: none;
-        background-color: #6495ED;
-        color: white;
-    }
-
-    th:nth-child(1) {
-        text-align: left;
-    }
-
-    td:nth-child(3n+1) {
-        text-align: left;
-        cursor: pointer;
-    }
-
-    .onClickStyle {
-        background-color: #f2f2f2;
-    }
-
-    #divTable,
-    #divGraph {
-        display: inline-block;
-        width: 50%;
-    }
-
-    #perfTable {
-        width: 90%;
-        margin-left: 30px;
-    }
-
-    #divGraph {
-        float: right;
-        text-align: center;
-        margin-top: 30px;
-    }
-
-    #container {
-        width: 300px;
-        height: 300px;
-    }
-
-    #title {
-        margin-top: 30px;
-        margin-left: 30px;
-        color: #6495ED;
-        font-size: 36px;
-    }
-    </style>
+    <link rel="stylesheet" type="text/css" href="./css/performance.css" />
     <title>Layouts perfomance tests</title>
     <script src="./libs/jquery.min.js"></script>
     <script src="../dist/ccNetViz.js"></script>
+    <script src="./libs/cytoscape.js"></script>
+    <script src="./libs/sigma.js"></script>
+    <script src="./libs/sigma.parsers.json.min.js"></script>
+    <script src="./js/performance.js"></script>
 </head>
 
 <body>
-    <div id="title">
+    <div id="titleViz">
         Performance measurement for ccNetViz
         <br>
         <br>
     </div>
-    <div id="divMain">
-        <div id="divTable">
-            <table id="perfTable"></table>
+    <div id="divMainViz">
+        <div id="divTableViz" class="divTable">
+            <table id="perfTableViz" class="perfTable"></table>
         </div>
-        <div id="divGraph">
-            <canvas id="container"></canvas>
+        <div id="divGraphViz" class="divGraph">
+            <canvas id="containerViz"></canvas>
         </div>
     </div>
+    <br>
+    <div id="titleCyto">
+        Performance measurement for Cytoscape
+        <br>
+        <br>
+    </div>
+    <div id="divMainCyto">
+        <div id="divTableCyto" class="divTable">
+            <table id="perfTableCyto" class="perfTable"></table>
+        </div>
+        <div id="divGraphCyto">
+            <div id="containerCyto">
+            </div>
+        </div>
+    </div>
+    <br>
+    <div id="titleSigma">
+        Performance measurement for Sigma<br>
+        <span style="font-size: 14px;">*There are no predifined layouts, ccNetViz functions were used to calculate the positions of nodes/edges</span>
+        <br>
+        <br>
+    </div>
+    <div id="divMainSigma">
+        <div id="divTableSigma" class="divTable">
+            <table id="perfTableSigma" class="perfTable"></table>
+        </div>
+        <div id="divGraphSigma" class="divGraph">
+            <div id="containerSigma"></div>
+        </div>
+    </div>
+    <br>
+    <div id="titleFeature">
+        Feature comparisons:
+    </div>
+    <br>
+    <table id="tableFeature">
+        <tr>
+            <th></th>
+            <th>ccNetViz</th>
+            <th>Cytoscape</th>
+            <th>Sigma</th>
+            <th>jsNetworxs</th>
+        </tr>
+        <tr>
+            <td>Layouts</td>
+            <td>circular, force, grid, hierarchical, hierarchical2, hive, spectral, spectral2, versinus</td>
+            <td>circle, breadthfirst, concentric, cose, grid</td>
+            <td>No predifined layouts</td>
+            <td>No predifined layouts</td>
+        </tr>
+    </table>
     <script type="text/javascript">
-    var el = document.getElementById('container');
+    var elViz = document.getElementById('containerViz');
     var data;
     var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
     var datafiles = ['graph-100-3'];
-    var el;
-
-    function transformEdges(nodes, edges) {
-        nodes.forEach(function(node, i) {
-            node.index = i;
-        });
-        edges.forEach(function(edge) {
-            //non equal to object >> numeric index >> transform to object
-            if (edge.source !== Object(edge.source)) {
-                edge.source = nodes[edge.source];
-            }
-            if (edge.target !== Object(edge.target))
-                edge.target = nodes[edge.target];
-        });
-    }
-
-    var table = document.getElementById('perfTable');
+    var tableViz = document.getElementById('perfTableViz');
     var d; //data from the graph
-    var graph = new ccNetViz(el, {
+    var graph = new ccNetViz(elViz, {
         styles: {
             node: { texture: "images/node.png", label: { hideSize: 16 } },
             edge: { arrow: { texture: "images/arrow.png" } }
         }
     });
+    initViz();
 
-    function initData() {
+    var layoutsCyto = ['circle', 'breadthfirst', 'concentric', 'cose', 'grid'];
+    var dataCyto, d_parsed;
+    var tableCyto = document.getElementById('perfTableCyto');
+    var containerCyto;
 
-        //we load data in the
-        $.ajax({ method: 'get', url: 'data/graph-100-3.json', async: false, dataType: 'text' }).done(function(d) {
-            data = d;
-        });
+    initCyto();
 
-        d = JSON.parse(data);
-        var t_start_layout, t_start_draw, t_end_layout, t_end_draw,
-            t_layout, t_draw;
+    var tableSigma = document.getElementById('perfTableSigma');
 
-        var tr_head = document.createElement('tr');
-        var th1 = document.createElement('th');
-        var th2 = document.createElement('th');
-        var th3 = document.createElement('th');
+    var dataCCNetViz, objectURL;
 
-        var text1 = document.createTextNode('Layout style');
-        var text2 = document.createTextNode('Layout computation time [ms]');
-        var text3 = document.createTextNode('Layout drawing time [ms]');
-
-        th1.appendChild(text1);
-        th2.appendChild(text2);
-        th3.appendChild(text3);
-
-        tr_head.appendChild(th1);
-        tr_head.appendChild(th2);
-        tr_head.appendChild(th3);
-
-        table.appendChild(tr_head);
-
-        for (var i = 0; i < layouts.length; i++) {
-
-            transformEdges(d.nodes, d.edges);
-
-            t_start_layout = new Date().getTime();
-            //layout computation 
-            var layout = new ccNetViz.layout[layouts[i]](d.nodes, d.edges, {}).apply();
-
-            t_end_layout = new Date().getTime();
-            t_layout = t_end_layout - t_start_layout;
-
-            t_start_draw = new Date().getTime();
-            graph.set(d.nodes, d.edges);
-            t_end_draw = new Date().getTime();
-            t_draw = t_end_draw - t_start_draw;
-
-            var tr = document.createElement('tr');
-
-            var td1 = document.createElement('td');
-            var td2 = document.createElement('td');
-            var td3 = document.createElement('td');
-
-            text1 = document.createTextNode(layouts[i]);
-            text2 = document.createTextNode(t_layout);
-            text3 = document.createTextNode(t_draw);
-
-            td1.appendChild(text1);
-            td2.appendChild(text2);
-            td3.appendChild(text3);
-            tr.appendChild(td1);
-            tr.appendChild(td2);
-            tr.appendChild(td3);
-
-            table.appendChild(tr);
-        }
-
-        //document.getElementById("divTable").appendChild(table);
-        //document.body.appendChild(table);
-
-        onElementClick();
-        setInitialSelection();
-    }
-
-    function onElementClick() {
-        if (table != null) {
-            for (var i = 0; i < table.rows.length; i++) {
-                table.rows[i].cells[0].onclick = function() {
-                    $("#perfTable tr").removeClass('onClickStyle');
-                    graph.set(d.nodes, d.edges, this.innerHTML);
-                    $(this).parent().addClass('onClickStyle');
-                };
-            }
-        }
-    }
-
-    function setInitialSelection() {
-        graph.set(d.nodes, d.edges, 'circular');
-        document.getElementById('perfTable').childNodes[1].className = "onClickStyle";
-    }
-
-    initData();
+    initSigma();
     </script>
 </body>
 
