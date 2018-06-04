@@ -1,0 +1,121 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+    width: 50%;
+    font-family: 'Roboto', sans-serif;
+}
+
+#tableFeature td,
+th,
+td {
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+th:nth-child(1) {
+    text-align: left;
+}
+
+td:nth-child(3n+1) {
+    text-align: left;
+    cursor: pointer;
+}
+
+.th_viz,
+.th_cyto,
+.th_sigma {
+    border: none;
+    color: white;
+}
+
+.th_viz {
+    background-color: #6495ED;
+}
+
+.th_cyto {
+    background-color: #FFA500;
+}
+
+.th_sigma {
+    background-color: red;
+}
+
+.onClickStyle {
+    background-color: #f2f2f2;
+}
+
+.divTable,
+.divGraph {
+    display: inline-block;
+    width: 50%;
+}
+
+.perfTable {
+    width: 90%;
+    margin-left: 30px;
+}
+
+.divGraph {
+    float: right;
+    text-align: center;
+    margin-top: 30px;
+}
+
+#divGraphCyto {
+    float: right;
+    margin-top: -40px;
+    margin-right: 150px;    
+}
+
+#containerSigma,
+#containerViz,
+#containerCyto {
+    width: 300px;
+    height: 300px;
+}
+
+#containerSigma {
+    margin-left: 50px;
+}
+
+
+#titleViz,
+#titleSigma,
+#titleCyto,
+#titleFeature {
+    margin-top: 30px;
+    margin-left: 30px;
+    font-size: 36px;
+}
+
+#titleViz {
+    color: #6495ED;
+}
+
+#titleSigma {
+    color: red;
+}
+
+#titleCyto {
+    color: #FFA500;
+}
+
+#titleFeature {
+    color: #202020;
+}
+
+#tableFeature {
+    margin-left: 30px;
+    margin-right: 30px;
+    width: auto;
+}
+
+#tableFeature th {
+    color: white;
+    background-color: #202020;
+}
