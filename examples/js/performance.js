@@ -133,13 +133,17 @@ function initSigma() {
         for (var i = 0; i < layouts.length; i++) {
 
             var layout = new ccNetViz.layout[layouts[0]](dataCCNetViz.nodes, dataCCNetViz.edges, {}).apply();
+            //time for the layout computation for sigma is unknown since
+            //sigma doesn't have predefined layouts
+            //we are using ccNetViz to determine the nodes for the layouts
+            t_layout = "-";
 
             refreshSigmaGraph();
             
-            t_start_layout = new Date().getTime();
+            t_start_draw = new Date().getTime();
             parseSigmaData(dataCCNetViz.nodes, dataCCNetViz.edges);
-            t_end_layout = new Date().getTime();
-            t_layout = t_end_layout - t_start_layout;
+            t_end_draw = new Date().getTime();
+            t_draw = t_end_draw - t_start_draw;
 
             fillTable(tableSigma, layouts[i], t_layout, t_draw);
 
