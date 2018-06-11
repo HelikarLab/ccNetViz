@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -154,9 +154,9 @@
 	
 	exports.default = ccNetVizMultiLevel;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -217,7 +217,7 @@
 	 *  All rights reserved.
 	 *
 	 *  This source code is licensed under the GPLv3 License.
-	 *  Authors: 
+	 *  Authors:
 	 *  David Tichy
 	 *    Aleš Saska - http://alessaska.cz/
 	 */
@@ -711,20 +711,61 @@
 	
 	  function onWheel(e) {
 	    var rect = canvas.getBoundingClientRect();
-	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
-	    var delta = size - view.size;
 	
 	    if (!options.passiveEvts) {
 	      e.preventDefault();
 	    }
 	
-	    var oldsize = view.size;
-	    var oldx = view.x;
-	    var oldy = view.y;
+	    var oldsize = void 0,
+	        oldx = void 0,
+	        oldy = void 0;
+	
+	    // Mouse coordinates
+	    var mouseX = e.clientX - rect.left;
+	    var mouseY = e.clientY - rect.top;
+	    var radius = 10;
+	
+	    // if no timer found i.e. we are not in continuous phase
+	    // we are calculating the focus variables again
+	    if (!onWheel.continuosZoom) {
+	      onWheel.startView = { size: view.size, x: view.x, y: view.y };
+	
+	      var lCoords = this.getLayerCoords({ x1: mouseX - radius, y1: mouseY - radius, x2: mouseX + radius, y2: mouseY - radius });
+	      var searchNodes = this.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true);
+	      // if node found beneath mouse_ptr, zooming_focus is the center of that node
+	      if (searchNodes.nodes.length) {
+	        var node = searchNodes.nodes[0];
+	        var focus = this.getScreenCoords({
+	          x: node.node.x,
+	          y: node.node.y
+	        });
+	        onWheel.focusX = focus.x;
+	        onWheel.focusY = focus.y;
+	      }
+	      // else, it is the window co-ords of the mouse_ptr
+	      else {
+	          onWheel.focusX = mouseX;
+	          onWheel.focusY = mouseY;
+	        }
+	      onWheel.oldX = view.x;
+	      onWheel.oldY = view.y;
+	      onWheel.oldSize = view.size;
+	
+	      if (onWheel.continuosZoom) clearTimeout(onWheel.continuosZoom);
+	
+	      oldx = view.x;
+	      oldy = view.y;
+	    }
+	    onWheel.continuosZoom = setTimeout(function () {
+	      onWheel.continuosZoom = undefined;
+	    }, 200);
+	
+	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
+	    var delta = size - onWheel.oldSize;
 	
 	    view.size = size;
-	    view.x = Math.max(0, Math.min(1 - size, view.x - delta * (e.clientX - rect.left) / canvas.width));
-	    view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (e.clientY - rect.top) / canvas.height)));
+	    view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
+	    view.y = Math.max(0, Math.min(1 - size, onWheel.oldY - delta * (1 - onWheel.focusY / canvas.height)));
 	
 	    if (options.onZoom && options.onZoom(view) === false) {
 	      view.size = oldsize;
@@ -935,9 +976,9 @@
 	window.ccNetViz = ccNetViz;
 	exports.default = ccNetViz;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1706,9 +1747,9 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1782,9 +1823,9 @@
 	exports.default = Color;
 	;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -1908,9 +1949,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2235,9 +2276,9 @@
 	
 	exports.default = primitive;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2327,9 +2368,9 @@
 	exports.default = Shader;
 	;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -2403,9 +2444,9 @@
 	exports.default = Utils;
 	;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2461,9 +2502,9 @@
 	exports.partitionByStyle = partitionByStyle;
 	exports.getPartitionStyle = getPartitionStyle;
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2647,9 +2688,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -2658,6 +2699,8 @@
 	});
 	
 	exports.default = function (nodes, edges) {
+	    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	    var edgeDistance = 15,
 	        edgeStrength = 1,
 	        friction = 0.9,
@@ -2785,14 +2828,26 @@
 	            }
 	        }
 	
+	        var rnd = function rnd(min, max) {
+	            return Math.random() * (max - min) + min;
+	        };
 	        for (var _i3 = 0; _i3 < n; _i3++) {
 	            o = nodes[_i3];
-	            if (o.fixed) {
+	            if (o.fixed || o.fixed2) {
 	                o.x = o.px;
 	                o.y = o.py;
 	            } else {
 	                o.x -= (o.px - (o.px = o.x)) * friction;
 	                o.y -= (o.py - (o.py = o.y)) * friction;
+	
+	                if (options && options.minX !== undefined) {
+	                    if (o.x < options.minX || o.x > options.maxX) {
+	                        o.x = rnd(options.minX, options.maxX);
+	                    }
+	                    if (o.y < options.minY || o.y > options.maxY) {
+	                        o.y = rnd(options.minY, options.maxY);
+	                    }
+	                }
 	            }
 	        }
 	    };
@@ -2843,9 +2898,9 @@
 	 *  Author: David Tichy
 	 */
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3011,9 +3066,9 @@
 	   *  Author: David Tichy
 	   */
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3057,9 +3112,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3090,7 +3145,9 @@
 	    // use some other ordering criterion than degree? Strength?
 	    // defined by user and found as attribute of each node?
 	    // random ordering, minimal crossing of edges?
-	    function _class(nodes, edges, layout_options) {
+	    function _class(nodes, edges) {
+	        var layout_options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	
 	        _classCallCheck(this, _class);
 	
 	        this._nodes = nodes;
@@ -3117,9 +3174,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3200,9 +3257,9 @@
 	    };
 	}
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3310,9 +3367,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3424,9 +3481,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3523,21 +3580,19 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
+	                // calculate max out-degree
+	                var max_outdegree = 0;
+	                nodes.forEach(function (node) {
+	                    if (node.children.length > max_outdegree) {
+	                        max_outdegree = node.children.length;
+	                    }
+	                });
+	                // choose vertices with greatest out-degree
+	                nodes.forEach(function (node) {
+	                    if (node.children.length == max_outdegree) {
+	                        roots.push(node);
+	                    }
+	                });
 	            }
 	            // number of layers and max number of nodes in each layer
 	            // has to be found by making the layout
@@ -3561,9 +3616,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 18 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -3655,21 +3710,19 @@
 	                }
 	            }
 	            if (roots.length == 0) {
-	                (function () {
-	                    // calculate max out-degree
-	                    var max_outdegree = 0;
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length > max_outdegree) {
-	                            max_outdegree = node.children.length;
-	                        }
-	                    });
-	                    // choose vertices with greatest out-degree
-	                    nodes.forEach(function (node) {
-	                        if (node.children.length == max_outdegree) {
-	                            roots.push(node);
-	                        }
-	                    });
-	                })();
+	                // calculate max out-degree
+	                var max_outdegree = 0;
+	                nodes.forEach(function (node) {
+	                    if (node.children.length > max_outdegree) {
+	                        max_outdegree = node.children.length;
+	                    }
+	                });
+	                // choose vertices with greatest out-degree
+	                nodes.forEach(function (node) {
+	                    if (node.children.length == max_outdegree) {
+	                        roots.push(node);
+	                    }
+	                });
 	            }
 	            return roots;
 	        }
@@ -3855,9 +3908,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 19 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -3966,9 +4019,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 20 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8257,9 +8310,9 @@
 	exports.QR = QrDecomposition$$1;
 
 
-/***/ },
+/***/ }),
 /* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8312,9 +8365,9 @@
 	module.exports = rescale;
 
 
-/***/ },
+/***/ }),
 /* 22 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -8342,9 +8395,9 @@
 	module.exports = max;
 
 
-/***/ },
+/***/ }),
 /* 23 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -8372,9 +8425,9 @@
 	module.exports = min;
 
 
-/***/ },
+/***/ }),
 /* 24 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8600,9 +8653,9 @@
 	    return x;
 	}
 
-/***/ },
+/***/ }),
 /* 25 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8658,9 +8711,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 26 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8711,9 +8764,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 27 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -8788,9 +8841,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 28 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -8888,9 +8941,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 29 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -9357,9 +9410,9 @@
 	    }
 	
 	    this.rbushtree_s = {};
-	    for (var _style in sd) {
-	      var rb = this.rbushtree_s[_style] = (0, _rbush2.default)();
-	      rb.load(sd[_style]);
+	    for (var style in sd) {
+	      var rb = this.rbushtree_s[style] = (0, _rbush2.default)();
+	      rb.load(sd[style]);
 	    }
 	
 	    //tree initialization
@@ -9481,9 +9534,9 @@
 	
 	exports.default = spatialIndex;
 
-/***/ },
+/***/ }),
 /* 30 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -10114,9 +10167,9 @@
 	
 	exports.default = rbush;
 
-/***/ },
+/***/ }),
 /* 31 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10426,9 +10479,9 @@
 	exports.eq = eq;
 	exports.neq = neq;
 
-/***/ },
+/***/ }),
 /* 32 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10512,9 +10565,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 33 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10620,9 +10673,9 @@
 
 	exports.default = _class;
 
-/***/ },
+/***/ }),
 /* 34 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -10713,9 +10766,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 35 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -10857,9 +10910,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 36 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -11076,9 +11129,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 37 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -11700,9 +11753,9 @@
 	}
 
 
-/***/ },
+/***/ }),
 /* 38 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 	  var e, m
@@ -11790,9 +11843,9 @@
 	}
 
 
-/***/ },
+/***/ }),
 /* 39 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -12005,9 +12058,9 @@
 	exports.default = GlyphAtlas;
 	;
 
-/***/ },
+/***/ }),
 /* 40 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
 	     true ? module.exports = factory() :
@@ -12454,9 +12507,9 @@
 	
 	}));
 
-/***/ },
+/***/ }),
 /* 41 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -12486,9 +12539,9 @@
 	    if (tag === 1) glyph.id = pbf.readVarint();else if (tag === 2) glyph.bitmap = pbf.readBytes();else if (tag === 3) glyph.width = pbf.readVarint();else if (tag === 4) glyph.height = pbf.readVarint();else if (tag === 5) glyph.left = pbf.readSVarint();else if (tag === 6) glyph.top = pbf.readSVarint();else if (tag === 7) glyph.advance = pbf.readVarint();
 	}
 
-/***/ },
+/***/ }),
 /* 42 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -12572,9 +12625,9 @@
 	exports.default = _class;
 	;
 
-/***/ },
+/***/ }),
 /* 43 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -12838,7 +12891,7 @@
 	exports.default = _class;
 	;
 
-/***/ }
+/***/ })
 /******/ ]);
 //# sourceMappingURL=ccNetViz.js.map
 if(typeof module !== "undefined")

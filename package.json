@@ -1,6 +1,6 @@
 {
   "name": "ccnetviz",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "main": "dist/ccNetViz.js",
   "devDependencies": {
     "babel-cli": "^6.16.0",
