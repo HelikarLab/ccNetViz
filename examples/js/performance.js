@@ -115,13 +115,8 @@ function fillTable(tableName, layoutI, t_layout, t_draw) {
 function initSigma() {
     $.ajax({ method: 'get', url: 'data/graph-100-3.json', async: false, dataType: 'text' }).done(function(d) {
         data = d;
-        var newJson = convertDataSigma(data);
-        let original = JSON.parse(newJson);
 
         dataCCNetViz = JSON.parse(data);
-
-        var blob = new Blob([JSON.stringify(original, null, 2)], { type: 'application/json' });
-        objectURL = URL.createObjectURL(blob);
 
         var t_start_layout, t_start_draw, t_end_layout, t_end_draw,
             t_layout, t_draw = 0;
@@ -131,17 +126,25 @@ function initSigma() {
         transformEdges(dataCCNetViz.nodes, dataCCNetViz.edges);
 
         for (var i = 0; i < layouts.length; i++) {
-
-            var layout = new ccNetViz.layout[layouts[0]](dataCCNetViz.nodes, dataCCNetViz.edges, {}).apply();
+            var sigmaGraph = {
+                nodes: [],
+                edges: []
+            };
+            var layout = new ccNetViz.layout[layouts[i]](dataCCNetViz.nodes, dataCCNetViz.edges, {}).apply();
             //time for the layout computation for sigma is unknown since
             //sigma doesn't have predefined layouts
             //we are using ccNetViz to determine the nodes for the layouts
             t_layout = "-";
 
             refreshSigmaGraph();
-            
+
+            parseSigmaData(sigmaGraph, dataCCNetViz.nodes, dataCCNetViz.edges);
+
             t_start_draw = new Date().getTime();
-            parseSigmaData(dataCCNetViz.nodes, dataCCNetViz.edges);
+            var s = new sigma({
+                graph: sigmaGraph,
+                container: 'containerSigma'
+            });
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;
 
@@ -154,42 +157,22 @@ function initSigma() {
     });
 }
 
-function convertDataSigma(data) {
-    let original = JSON.parse(data);
-    let out = {
-        nodes: [],
-        edges: []
-    }
-
-    for (let i = 0; i < original.nodes.length; i++) {
-        var rand = Math.floor((Math.random() * 10) + 1);
-        out.nodes.push({
-            id: 'n' + i,
-            label: original.nodes[i].label,
-            x: rand,
-            y: -rand
-        });
-    }
-
-    for (let i = 0; i < original.edges.length; i++) {
-        out.edges.push({
-            id: 'e' + i,
-            source: 'n' + original.edges[i].source,
-            target: 'n' + original.edges[i].target
-        });
-    }
-
-    return JSON.stringify(out);
-}
-
 function onElementClickSigma() {
     if (tableSigma != null) {
         for (var i = 0; i < tableSigma.rows.length; i++) {
             tableSigma.rows[i].cells[0].onclick = function() {
                 $("#perfTableSigma tr").removeClass('onClickStyle');
                 refreshSigmaGraph();
+                var sigmaGraph = {
+                    nodes: [],
+                    edges: []
+                }
                 var layout = new ccNetViz.layout[this.innerHTML](dataCCNetViz.nodes, dataCCNetViz.edges, {}).apply();
-                parseSigmaData(dataCCNetViz.nodes, dataCCNetViz.edges);
+                parseSigmaData(sigmaGraph, dataCCNetViz.nodes, dataCCNetViz.edges);
+                var s = new sigma({
+                    graph: sigmaGraph,
+                    container: 'containerSigma'
+                });
                 $(this).parent().addClass('onClickStyle');
             };
         }
@@ -197,8 +180,17 @@ function onElementClickSigma() {
 }
 
 function setInitialSelectionSigma() {
+    refreshSigmaGraph();
+    var sigmaGraph = {
+        nodes: [],
+        edges: []
+    };
     var layout = new ccNetViz.layout['circular'](dataCCNetViz.nodes, dataCCNetViz.edges, {}).apply();
-    parseSigmaData(dataCCNetViz.nodes, dataCCNetViz.edges);
+    parseSigmaData(sigmaGraph, dataCCNetViz.nodes, dataCCNetViz.edges);
+    s = new sigma({
+        graph: sigmaGraph,
+        container: 'containerSigma'
+    });
     document.getElementById('perfTableSigma').childNodes[1].className = "onClickStyle";
 }
 
@@ -212,29 +204,25 @@ function refreshSigmaGraph() {
     p.appendChild(c);
 }
 
-function parseSigmaData(nodes, edges) {
-    sigma.parsers.json(objectURL, {
-            container: 'containerSigma',
-            settings: {
-                defaultNodeColor: '#ec5148'
-            }
-        },
-        function(s) {
-            s.graph.nodes().forEach(function(node, i, a) {
-                node.x = nodes[i].x;
-                node.y = nodes[i].y;
-            });
+function parseSigmaData(sigmaGraph, nodes, edges) {
+    for (var j = 0; j < nodes.length; j++) {
+        sigmaGraph.nodes.push({
+            id: 'n' + j,
+            label: nodes[j].label,
+            x: nodes[j].x,
+            y: nodes[j].y,
+            color: '#ec5148'
+        });
+    }
 
-            s.graph.edges().forEach(function(node, i, a) {
-                edge = edges[i];
-            });
-
-            //Call refresh to render the new graph
-            s.refresh();
-
-        }
-    );
-
+    for (var j = 0; j < edges.length; j++) {
+        sigmaGraph.edges.push({
+            id: 'e' + j,
+            source: 'n' + edges[j].source.label,
+            target: 'n' + edges[j].target.label,
+            color: '#ec5148'
+        });
+    }
 }
 
 
