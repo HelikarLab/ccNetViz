@@ -55,7 +55,6 @@ export default class SpriteGenerator {
         let imgData = this.ctx.getImageData(0, 0, this.size, this.size);
         let alphaChannel = new Uint8ClampedArray(this.size * this.size);
 
-        // ??? I don't know what outer and inner grids are.
         for (let i = 0; i < this.size * this.size; i++) {
             let a = imgData.data[i * 4 + 3] / 255; // alpha value
             this.gridOuter[i] = a === 1 ? 0 : a === 0 ? INF : Math.pow(Math.max(0, 0.5 - a), 2);
