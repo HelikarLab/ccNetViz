@@ -1,7 +1,6 @@
 'use strict';
 
 import ShelfPack from 'shelf-pack';
-//import util from '../util/util';
 
 const SIZE_GROWTH_RATE = 4;
 const DEFAULT_SIZE = 1024;
