@@ -98,16 +98,15 @@ export default class {
     const buffer = 3;
     const range = Math.floor(glyphID / 256);
 
-    if(this._glyphs[font]){
-      const g = this._glyphs[font];
-      if(g){
-        const stack = g.stacks[range];
-        if(stack){
-          const glyph = stack.glyphs[glyphID];
-          if(!this._rects[font]) this._rects[font] = {}; 
-          
-          this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
-        }
+
+    const g = this._glyphs[font];
+    if(g){
+      const stack = g.stacks[range];
+      if(stack){
+        const glyph = stack.glyphs[glyphID];
+        if(!this._rects[font]) this._rects[font] = {}; 
+        
+        this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
       }
     }
 
