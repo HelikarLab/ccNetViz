@@ -14,16 +14,16 @@ function transformEdges(nodes, edges) {
 
 function initViz() {
 
+    var selectedGraph = "data/" + selElmnt + ".json";
+
     //we load data in the
-    $.ajax({ method: 'get', url: 'data/graph-100-3.json', async: false, dataType: 'text' }).done(function(d) {
+    $.ajax({ method: 'get', url: selectedGraph, async: false, dataType: 'text' }).done(function(d) {
         data = d;
     });
 
     d = JSON.parse(data);
     var t_start_layout, t_start_draw, t_end_layout, t_end_draw,
         t_layout, t_draw;
-
-    createTable(tableViz, "th_viz");
 
     transformEdges(d.nodes, d.edges);
 
@@ -42,20 +42,40 @@ function initViz() {
         t_end_draw = new Date().getTime();
         t_draw = t_end_draw - t_start_draw;
 
-        fillTable(tableViz, layouts[i], t_layout, t_draw);
+        fillTableViz(tableViz, layouts[i], t_layout, t_draw);
 
-        onElementClick();
-        setInitialSelection();
     }
+
+    for (var j = 0; j < layoutsAll.length; j++) {
+        if (!layouts.includes(layoutsAll[j])) {
+            fillTableViz(tableViz, layoutsAll[j], "-", "-");
+        }
+    }
+
+    onElementClick();
+    setInitialSelection();
 }
 
 function onElementClick() {
     if (tableViz != null) {
         for (var i = 0; i < tableViz.rows.length; i++) {
             tableViz.rows[i].cells[0].onclick = function() {
+                var lay = this.innerHTML;
                 $("#perfTableViz tr").removeClass('onClickStyle');
-                graph.set(d.nodes, d.edges, this.innerHTML);
-                graph.draw();
+                if (lay != "breadthfirst" && lay != "concentric" && lay != "cose") {
+                    document.getElementById("containerViz").style.display = "block";
+                    document.getElementById("containerCyto").style.display = "none";
+                    graph.set(d.nodes, d.edges, this.innerHTML);
+                    graph.draw();
+                } else {
+                    document.getElementById("containerViz").style.display = "none";
+                    document.getElementById("containerCyto").style.display = "block";
+                    var layout = containerCyto.layout({
+                        name: this.innerHTML
+                    });
+                    layout.run();
+                }
+
                 $(this).parent().addClass('onClickStyle');
             };
         }
@@ -64,64 +84,67 @@ function onElementClick() {
 
 function setInitialSelection() {
     graph.set(d.nodes, d.edges, 'circular');
-    document.getElementById('perfTableViz').childNodes[1].className = "onClickStyle";
+    graph.draw();
+    document.getElementById('perfTableViz').rows[2].className = "onClickStyle";
 }
 
 function createTable(tableName, th_class) {
-    var tr_head = document.createElement('tr');
-    var th1 = document.createElement('th');
-    th1.setAttribute("class", th_class);
-    var th2 = document.createElement('th');
-    th2.setAttribute("class", th_class);
-    var th3 = document.createElement('th');
-    th3.setAttribute("class", th_class);
+    for (var i = 0; i < layoutsAll.length; i++) {
+        var tr = document.createElement('tr');
+        tr.setAttribute("id", layoutsAll[i]);
+        var td1 = document.createElement('td');
+        var td2 = document.createElement('td');
+        var td3 = document.createElement('td');
+        var td4 = document.createElement('td');
+        var td5 = document.createElement('td');
+        var td6 = document.createElement('td');
+        var td7 = document.createElement('td');
+        text1 = document.createTextNode(layoutsAll[i]);
+        td1.appendChild(text1);
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+        tr.appendChild(td4);
+        tr.appendChild(td5);
+        tr.appendChild(td6);
+        tr.appendChild(td7);
 
-    var text1 = document.createTextNode('Layout style');
-    var text2 = document.createTextNode('Layout computation time [ms]');
-    var text3 = document.createTextNode('Layout drawing time [ms]');
+        tableName.appendChild(tr);
+    }
 
-    th1.appendChild(text1);
-    th2.appendChild(text2);
-    th3.appendChild(text3);
-
-    tr_head.appendChild(th1);
-    tr_head.appendChild(th2);
-    tr_head.appendChild(th3);
-
-    tableName.appendChild(tr_head);
 }
 
-function fillTable(tableName, layoutI, t_layout, t_draw) {
-    var tr = document.createElement('tr');
+function fillTableViz(tableName, layoutI, t_layout, t_draw) {
+    var tr = document.getElementById(layoutI);
+    var Cells = tr.getElementsByTagName("td");
+    Cells[1].innerHTML = t_layout;
+    Cells[2].innerHTML = t_draw;
+}
 
-    var td1 = document.createElement('td');
-    var td2 = document.createElement('td');
-    var td3 = document.createElement('td');
+function fillTableCyto(tableName, layoutI, t_layout, t_draw) {
+    var tr = document.getElementById(layoutI);
+    var Cells = tr.getElementsByTagName("td");
+    Cells[3].innerHTML = t_layout;
+    Cells[4].innerHTML = t_draw;
+}
 
-    text1 = document.createTextNode(layoutI);
-    text2 = document.createTextNode(t_layout);
-    text3 = document.createTextNode(t_draw);
-
-    td1.appendChild(text1);
-    td2.appendChild(text2);
-    td3.appendChild(text3);
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-    tr.appendChild(td3);
-
-    tableName.appendChild(tr);
+function fillTableSigma(tableName, layoutI, t_layout, t_draw) {
+    var tr = document.getElementById(layoutI);
+    var Cells = tr.getElementsByTagName("td");
+    Cells[5].innerHTML = t_layout;
+    Cells[6].innerHTML = t_draw;
 }
 
 function initSigma() {
-    $.ajax({ method: 'get', url: 'data/graph-100-3.json', async: false, dataType: 'text' }).done(function(d) {
+    var selectedGraph = "data/" + selElmnt + ".json";
+
+    $.ajax({ method: 'get', url: selectedGraph, async: false, dataType: 'text' }).done(function(d) {
         data = d;
 
         dataCCNetViz = JSON.parse(data);
 
         var t_start_layout, t_start_draw, t_end_layout, t_end_draw,
             t_layout, t_draw = 0;
-
-        createTable(tableSigma, "th_sigma");
 
         transformEdges(dataCCNetViz.nodes, dataCCNetViz.edges);
 
@@ -136,7 +159,7 @@ function initSigma() {
             //we are using ccNetViz to determine the nodes for the layouts
             t_layout = "-";
 
-            refreshSigmaGraph();
+            //refreshSigmaGraph();
 
             parseSigmaData(sigmaGraph, dataCCNetViz.nodes, dataCCNetViz.edges);
 
@@ -148,12 +171,18 @@ function initSigma() {
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;
 
-            fillTable(tableSigma, layouts[i], t_layout, t_draw);
+            fillTableSigma(tableViz, layouts[i], t_layout, t_draw);
 
         }
 
-        setInitialSelectionSigma();
-        onElementClickSigma();
+        for (var j = 0; j < layoutsAll.length; j++) {
+            if (!layouts.includes(layoutsAll[j])) {
+                fillTableSigma(tableViz, layoutsAll[j], "-", "-");
+            }
+        }
+
+        //setInitialSelectionSigma();
+        //onElementClickSigma();
     });
 }
 
@@ -227,14 +256,13 @@ function parseSigmaData(sigmaGraph, nodes, edges) {
 
 
 function initCyto() {
-    $.ajax({ method: 'get', url: 'data/graph-100-1.json', async: false, dataType: 'text' }).done(function(d) {
+    var selectedGraph = "data/" + selElmnt + ".json";
+    $.ajax({ method: 'get', url: selectedGraph, async: false, dataType: 'text' }).done(function(d) {
         dataCyto = d;
         d_parsed = convertDataCyto(data);
 
         var t_start_layout, t_start_draw, t_end_layout, t_end_draw,
             t_layout, t_draw;
-
-        createTable(tableCyto, "th_cyto");
 
         for (var i = 0; i < layoutsCyto.length; i++) {
 
@@ -261,11 +289,18 @@ function initCyto() {
             t_end_draw = new Date().getTime();
             t_draw = t_end_draw - t_start_draw;
 
-            fillTable(tableCyto, layoutsCyto[i], t_layout, t_draw);
+            if (layoutsCyto[i] == "circle") fillTableCyto(tableViz, "circular", t_layout, t_draw);
+            else fillTableCyto(tableViz, layoutsCyto[i], t_layout, t_draw);
         }
 
-        onElementClickCyto();
-        setInitialSelectionCyto();
+        for (var j = 0; j < layoutsAll.length; j++) {
+            if (!layoutsCyto.includes(layoutsAll[j]) && layoutsAll[j] != "circular") {
+                fillTableCyto(tableViz, layoutsAll[j], "-", "-");
+            }
+        }
+
+        //onElementClickCyto();
+        //setInitialSelectionCyto();
     });
 }
 
