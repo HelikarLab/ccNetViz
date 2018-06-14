@@ -132,14 +132,14 @@ export default class SpriteGenerator {
     }
 
     // returns the complete spritesheet for the characters provided in the global variables
-    makeSpriteSheet() {
+    make() {
         // Some initial configurations
         let canvas = document.createElement('canvas');
 
         // TODO: will have to do something about the harcoded values
         this.canvas.width = 1000;
         this.canvas.height = 200;
-        
+
         let ctx = canvas.getContext('2d');
         let h = 0,
             w = 0;
@@ -147,6 +147,9 @@ export default class SpriteGenerator {
 
         let charData = {};
 
+        charData['stacks'] = [];
+        charData['stacks'].push({ glyphs: {} });
+        charData['stacks'][0]['glyphs'] = {};
         // Drawing all Characters in a single canvas object
         for (let y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
             for (let x = 0; x + this.size <= canvas.width && i < CHARS.length; x += this.size) {
@@ -155,14 +158,15 @@ export default class SpriteGenerator {
                 SDFS[CHARS[i]] = { x: x, y: y };
 
                 let charId = CHARS[i].charCodeAt(0);
-                charData[charId] = {
+
+                charData['stacks'][0]['glyphs'][charId] = {
                     id: charId,
                     bitmap: this.draw(CHARS[i]),
                     left: y,
                     top: y,
                     width: this.size,
                     height: this.size,
-                    advance: 0,
+                    advance: 10,
                 };
 
                 i++;
