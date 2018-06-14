@@ -34,14 +34,9 @@ export default class {
   constructor(gl, files, textures) {
     this.width = DEFAULT_SIZE;
     this.height = DEFAULT_SIZE;
-
     this.clear();
-
     this._files    = files;
-    
-    this._texts;
     this._gl = gl;
-
     this.atlas = new GlyphAtlas(this._gl, () => { this._cachedGlyphs = {}; });
     this._textures = {};
     this._glyphs = {};
