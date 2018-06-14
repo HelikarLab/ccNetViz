@@ -151,8 +151,8 @@ export default class {
        * - top
        * - left
        */
-      this._curglyphs = this._glyphs[font] = data && new Glyphs(protoData);
-      // this._curglyphs = this._glyphs[font] = this.charData;
+      // this._curglyphs = this._glyphs[font] = data && new Glyphs(protoData);
+      this._curglyphs = this._glyphs[font] = this.charData;
 
       // t = this._glyphs[font];
       // console.log("this._glyphs", this._glyphs);
