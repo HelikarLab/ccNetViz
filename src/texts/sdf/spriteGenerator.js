@@ -144,9 +144,6 @@ export default class SpriteGenerator {
         let h = 0,
             w = 0;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Object that returns glyph data on 'draw(char)' call       
-        // let sdf = new TinySDF();
 
         // Drawing all Characters in a single canvas object
         for (let y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
