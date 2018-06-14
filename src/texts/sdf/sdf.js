@@ -38,7 +38,6 @@ export default class {
     this._files    = files;
     this._gl = gl;
     this.atlas = new GlyphAtlas(this._gl, () => { this._cachedGlyphs = {}; });
-    this._textures = {};
     this._glyphs = {};
     this._rects = {};
     this._cachedGlyphs = {};
