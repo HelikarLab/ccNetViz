@@ -39,7 +39,6 @@ export default class {
 
     this._files    = files;
     
-    this._rendered = {};
     this._texts;
     this._gl = gl;
 
