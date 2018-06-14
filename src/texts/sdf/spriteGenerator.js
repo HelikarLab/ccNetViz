@@ -145,19 +145,38 @@ export default class SpriteGenerator {
             w = 0;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        let ret2 = [];
+
         // Drawing all Characters in a single canvas object
         for (let y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
             for (let x = 0; x + this.size <= canvas.width && i < CHARS.length; x += this.size) {
                 let imgData = this._makeRGBAImageData(this.draw(CHARS[i]), this.size);
                 ctx.putImageData(imgData, x, y);
                 SDFS[CHARS[i]] = { x: x, y: y };
+
+                ret2.push({
+                    id: CHARS[i].charCodeAt(0),
+                    bitmap: this.draw(CHARS[i]),
+                    left: y,
+                    top: y,
+                    width: this.size,
+                    height: this.size,
+                    advance: 0,
+                });
+
                 i++;
                 w += this.size;
             }
             h += this.size;
         }
         let ret = ctx.getImageData(0, 0, w, h);
-        return ret;
+        let return_values = {
+            ret: ret,
+            ret2: ret2
+        };
+
+        console.log("return_values", return_values);
+        return return_values;
     }
 
 }
