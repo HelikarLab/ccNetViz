@@ -73,8 +73,8 @@ export default class {
     })(onLoad);
     
 
-    let font = style.pbf;
-    
+    const font = style.pbf;
+
     if(!this._glyphs[font]){
       let data = this._files.load(style.pbf, myOnLoad, 'arraybuffer');
       this._curglyphs = this._glyphs[font] = data && new Glyphs(new Protobuf(data));
