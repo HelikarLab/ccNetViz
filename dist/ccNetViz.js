@@ -196,11 +196,11 @@
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(42);
+	var _lazyEvents = __webpack_require__(43);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(43);
+	var _interactivityBatch = __webpack_require__(44);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
@@ -11052,6 +11052,10 @@
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
+	var _spriteGenerator = __webpack_require__(42);
+	
+	var _spriteGenerator2 = _interopRequireDefault(_spriteGenerator);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -11075,81 +11079,185 @@
 	  this.rect = rect;
 	};
 	
+	// Multiplication factor by which the size will grow
+	
+	
 	var SIZE_GROWTH_RATE = 4;
+	
+	// Size in which we try to contian the glyphs
 	var DEFAULT_SIZE = 512;
+	
 	// must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
+	// Maybe the maximum size allowed of the atlas
 	var MAX_SIZE = 2048;
 	
+	// Class for the text engine
+	
+	// invoked only when main configuration object, the "font" is mentioned and 
+	// the proper link to the font file is present
+	
 	var _class = function () {
+	
+	  // new text engine object takes 3 arguments
+	  // 1. gl = Webgl context
+	  // 2. files = File object programmed in src/dataSources/files.js
+	  // 3. texture = Texture object programmed in src/dataSources/textures.js
+	
 	  function _class(gl, files, textures) {
 	    var _this = this;
 	
 	    _classCallCheck(this, _class);
 	
+	    // Defines the dimensions of the texture
 	    this.width = DEFAULT_SIZE;
 	    this.height = DEFAULT_SIZE;
 	
+	    // Does nothing. Required in default.js text engine
 	    this.clear();
 	
+	    // _files contains the file object of the glyph obtained via protobuf
 	    this._files = files;
 	
-	    this._rendered = {};
-	    this._texts;
+	    // Webgl Rendering context
 	    this._gl = gl;
 	
+	    // Atlas object programmed in src/texts/sdf/atlas.js
 	    this.atlas = new _atlas2.default(this._gl, function () {
 	      _this._cachedGlyphs = {};
 	    });
-	    this._textures = {};
+	
+	    // For every char_id, contains position, properties and buffer data 
 	    this._glyphs = {};
+	
+	    // For every char_id, contains position and properties 
 	    this._rects = {};
+	
+	    // glyphs that are cached from previous draw call of label for next one
 	    this._cachedGlyphs = {};
+	
+	    // Client-Side builder of spritesheet 
+	    this.spriteGenerator = new _spriteGenerator2.default();
+	    var sprite = this.spriteGenerator.make();
+	
+	    // charData is in the same format of this._glyphs
+	    // in charData the format of image is alphachannel
+	    this.charData = sprite['charData'];
+	    var testCtx = document.getElementById("test-canvas").getContext("2d");
+	
+	    // testing formation of the spritesheet
+	    // sprite['imgData'] contains the sprite data in 'ImageData' format
+	    // which is directly drawable on canvas as below
+	    testCtx.putImageData(sprite['imgData'], 0, 0);
 	  }
+	
+	  // returns if we are using SDF TextEngine or not
+	
 	
 	  _createClass(_class, [{
 	    key: 'clear',
+	
+	
+	    // this is a dummy method to make 'interface' of sdf.js and default.js same
 	    value: function clear() {}
+	
+	    /**
+	     * style = object: {
+	     *   pbf: <url to the font file on the server>
+	     *   type: 'sdf' {Type of the font file & sdf => distance transformed spriteSheet}
+	     * }
+	     */
+	
 	  }, {
 	    key: 'setFont',
 	    value: function setFont(style) {
+	      // curFont => current_font
+	      // style.pbf examplar value = http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf
 	      this.curFont = style.pbf;
 	    }
+	
+	    // FontSize is fixed and hardcoded i.e. 24
+	
 	  }, {
 	    key: 'getTexture',
+	
+	
+	    //
 	    value: function getTexture(style, onLoad) {
 	      var _this2 = this,
 	          _arguments = arguments;
 	
 	      var myOnLoad = function (onL) {
 	        return function () {
+	
+	          // Protobuf encoded ArrayBuffer of texture saved on server
 	          var data = _this2._files.load(style.pbf, onLoad, 'arraybuffer');
 	
-	          //init first most-used ASCII chars
+	          // init with first most-used ASCII chars
 	          for (var i = 0; i < 128; i++) {
+	            // Cache the most used characters prior to the knowledge if they would be used in lables or not
+	            // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
 	            _this2._getChar(String.fromCharCode(i));
 	          }
-	
 	          onL && onL.apply(_this2, _arguments);
 	        };
 	      }(onLoad);
 	
-	      var font = style.pbf;
+	      var font = style.pbf; // 'font file url on the server'
+	
 	      if (!this._glyphs[font]) {
+	        // fetched data from server in protobuf encoded format and executing callback func 'myOnLoad'
 	        var data = this._files.load(style.pbf, myOnLoad, 'arraybuffer');
-	        this._curglyphs = this._glyphs[font] = data && new _glyphs2.default(new _pbf2.default(data));
+	
+	        // Decoding the protobuf data
+	        var protoData = new _pbf2.default(data);
+	
+	        /**
+	         * glyphs contains following info w.r.t to the character code
+	         * - advance
+	         * - width
+	         * - height
+	         * - id
+	         * - top
+	         * - left
+	         */
+	        this._curglyphs = this._glyphs[font] = data && new _glyphs2.default(protoData);
+	        // this._curglyphs = this._glyphs[font] = this.charData;
+	
+	        // t = this._glyphs[font];
+	        // console.log("this._glyphs", this._glyphs);
 	      } else {
 	        myOnLoad();
 	      }
 	
+	      // by calling this._getChar, we have updated the texture in this.atlas object
+	      // following we are returning the updated object
+	      // TODO: this code is not intuitive, we can write better
 	      return this.atlas.texture;
 	    }
+	
+	    /**
+	     * Updates the 'texture' member variable of this.atlas object
+	     * 
+	     * text = single character which is to be added to the texture of 'this.atlas'
+	     * markDirty = ??? callback to be called if the size of the texture is resized
+	     */
+	    // TODO: parameter name should be changed from 'text' to 'char'
+	
 	  }, {
 	    key: '_getChar',
 	    value: function _getChar(text, markDirty) {
+	
+	      // curFont is same as style.pbf defined above
+	      // TODO: We are doing this too many times in this code. Find a better mech.
 	      var font = this.curFont;
+	
+	      // glyphId is the character code of the glyph passed in arguments under the name 'text'
 	      var glyphID = text.charCodeAt(0);
 	
+	      // Padding around the glyph
 	      var buffer = 3;
+	
+	      // we have divided the glyphIDs in the bunch of 256 characters
 	      var range = Math.floor(glyphID / 256);
 	
 	      var g = this._glyphs[font];
@@ -11159,10 +11267,18 @@
 	          var glyph = stack.glyphs[glyphID];
 	          if (!this._rects[font]) this._rects[font] = {};
 	
-	          this._rects[font][text] = this.atlas.addGlyph(glyphID, this.curFont, glyph, buffer, markDirty);
+	          // rects are the objects returned by the library shelf-pack corresponding to
+	          // the binary rectangles it packs
+	          this._rects[font][text] = this.atlas.addGlyph(glyphID, // character id
+	          this.curFont, // contains url of the font file on server
+	          glyph, // glyph object 
+	          buffer, // padding 
+	          markDirty // callback function to be called if texture resizes
+	          );
 	        }
 	      }
 	
+	      // caching before returning rects of the spritesheet
 	      var r = void 0,
 	          rect = void 0;
 	      if ((r = this._rects[font]) && (rect = r[text])) {
@@ -11170,8 +11286,13 @@
 	        return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(this._glyphs[font].stacks[range].glyphs[glyphID], rect, buffer));
 	      }
 	
+	      // if all done well then required glyphs are added to the cache and returned otherwise,
+	      // empty object is returned
 	      return {};
 	    }
+	
+	    //
+	
 	  }, {
 	    key: 'get',
 	    value: function get(text, x, y, markDirty) {
@@ -11192,8 +11313,11 @@
 	      var dx = x <= 0.5 ? 0 : -width;
 	      var dy = y <= 0.5 ? 0 : -height;
 	
+	      // "ret" must be the return object. "ret" is always the return object
 	      var ret = [];
+	
 	      for (var _i = 0; _i < text.length; _i++) {
+	
 	        var _char = this._getChar(text[_i], markDirty);
 	        var _rect = _char.rect || {};
 	
@@ -12747,6 +12871,222 @@
 /* 42 */
 /***/ (function(module, exports) {
 
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var INF = 1e20;
+	// function getEl(id) {
+	//     return document.getElementById(id);
+	// }
+	
+	
+	// Stores the x- and y- position of glyphs in the sprite sheet so formed 
+	// format: sdfs['a'].x or sdfs['a'].y
+	var SDFS = {};
+	
+	// list of all characters to be included in the sprite sheet
+	var CHARS = "abcdefghijklmnopqrstuvwxyzH";
+	
+	var SpriteGenerator = function () {
+	    function SpriteGenerator() {
+	        _classCallCheck(this, SpriteGenerator);
+	
+	        // Member variables for configurations for font-style and box of the font
+	        this.fontSize = 24;
+	        this.buffer = this.fontSize / 8;
+	        this.radius = this.fontSize / 3;
+	        this.cutoff = 0.25;
+	        this.fontFamily = 'sans-serif';
+	        this.fontWeight = 'normal';
+	        // Size of one box of character
+	        var size = this.size = this.fontSize + this.buffer * 2;
+	
+	        // Member varaibles for single canvas element on which single character is to be drawn
+	        this.canvas = document.createElement('canvas');
+	        this.canvas.width = this.canvas.height = size;
+	        this.ctx = this.canvas.getContext('2d');
+	        this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+	        this.ctx.textBaseline = 'middle';
+	        this.ctx.fillStyle = 'black';
+	        // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
+	        this.middle = Math.round(size / 2 * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
+	
+	        // Member variables for temp arrays required for the distance transform
+	        this.gridOuter = new Float64Array(size * size);
+	        this.gridInner = new Float64Array(size * size);
+	        this.f = new Float64Array(size);
+	        this.d = new Float64Array(size);
+	        this.z = new Float64Array(size + 1);
+	        this.v = new Int16Array(size);
+	    }
+	
+	    // Returns the alpha channel for a single character
+	
+	
+	    _createClass(SpriteGenerator, [{
+	        key: 'draw',
+	        value: function draw(char) {
+	            // Clear the area and draw the glyph
+	            this.ctx.clearRect(0, 0, this.size, this.size);
+	            this.ctx.fillText(char, this.buffer, this.middle);
+	            var imgData = this.ctx.getImageData(0, 0, this.size, this.size);
+	            var alphaChannel = new Uint8ClampedArray(this.size * this.size);
+	
+	            for (var i = 0; i < this.size * this.size; i++) {
+	                var a = imgData.data[i * 4 + 3] / 255; // alpha value
+	                this.gridOuter[i] = a === 1 ? 0 : a === 0 ? INF : Math.pow(Math.max(0, 0.5 - a), 2);
+	                this.gridInner[i] = a === 1 ? INF : a === 0 ? 0 : Math.pow(Math.max(0, a - 0.5), 2);
+	            }
+	
+	            this._edt(this.gridOuter, this.size, this.size, this.f, this.d, this.v, this.z);
+	            this._edt(this.gridInner, this.size, this.size, this.f, this.d, this.v, this.z);
+	
+	            for (var _i = 0; _i < this.size * this.size; _i++) {
+	                var d = this.gridOuter[_i] - this.gridInner[_i];
+	                alphaChannel[_i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
+	            }
+	            return alphaChannel;
+	        }
+	
+	        // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
+	
+	    }, {
+	        key: '_edt',
+	        value: function _edt(data, width, height, f, d, v, z) {
+	            for (var x = 0; x < width; x++) {
+	                for (var y = 0; y < height; y++) {
+	                    f[y] = data[y * width + x];
+	                }
+	                this._edt1d(f, d, v, z, height);
+	                for (var _y = 0; _y < height; _y++) {
+	                    data[_y * width + x] = d[_y];
+	                }
+	            }
+	            for (var _y2 = 0; _y2 < height; _y2++) {
+	                for (var _x = 0; _x < width; _x++) {
+	                    f[_x] = data[_y2 * width + _x];
+	                }
+	                this._edt1d(f, d, v, z, width);
+	                for (var _x2 = 0; _x2 < width; _x2++) {
+	                    data[_y2 * width + _x2] = Math.sqrt(d[_x2]);
+	                }
+	            }
+	        }
+	
+	        // 1D squared distance transform
+	
+	    }, {
+	        key: '_edt1d',
+	        value: function _edt1d(f, d, v, z, n) {
+	            v[0] = 0;
+	            z[0] = -INF;
+	            z[1] = +INF;
+	
+	            for (var q = 1, k = 0; q < n; q++) {
+	                var s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+	                while (s <= z[k]) {
+	                    k--;
+	                    s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+	                }
+	                k++;
+	                v[k] = q;
+	                z[k] = s;
+	                z[k + 1] = +INF;
+	            }
+	
+	            for (var _q = 0, _k = 0; _q < n; _q++) {
+	                while (z[_k + 1] < _q) {
+	                    _k++;
+	                }d[_q] = (_q - v[_k]) * (_q - v[_k]) + f[v[_k]];
+	            }
+	        }
+	
+	        // Convert alpha-only to RGBA so we can use convenient
+	        // `putImageData` for building the composite bitmap
+	
+	    }, {
+	        key: '_makeRGBAImageData',
+	        value: function _makeRGBAImageData(alphaChannel, size) {
+	            var imageData = this.ctx.createImageData(size, size);
+	            var data = imageData.data;
+	            for (var i = 0; i < alphaChannel.length; i++) {
+	                data[4 * i + 0] = alphaChannel[i];
+	                data[4 * i + 1] = alphaChannel[i];
+	                data[4 * i + 2] = alphaChannel[i];
+	                data[4 * i + 3] = 255;
+	            }
+	            return imageData;
+	        }
+	
+	        // returns the complete spritesheet for the characters provided in the global variables
+	
+	    }, {
+	        key: 'makeSpriteSheet',
+	        value: function makeSpriteSheet() {
+	            // Some initial configurations
+	            var canvas = document.createElement('canvas');
+	
+	            // TODO: will have to do something about the harcoded values
+	            this.canvas.width = 1000;
+	            this.canvas.height = 200;
+	
+	            var ctx = canvas.getContext('2d');
+	            var h = 0,
+	                w = 0;
+	            ctx.clearRect(0, 0, canvas.width, canvas.height);
+	
+	            var charData = {};
+	
+	            // Drawing all Characters in a single canvas object
+	            for (var y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
+	                for (var x = 0; x + this.size <= canvas.width && i < CHARS.length; x += this.size) {
+	                    var _imgData = this._makeRGBAImageData(this.draw(CHARS[i]), this.size);
+	                    ctx.putImageData(_imgData, x, y);
+	                    SDFS[CHARS[i]] = { x: x, y: y };
+	
+	                    var charId = CHARS[i].charCodeAt(0);
+	                    charData[charId] = {
+	                        id: charId,
+	                        bitmap: this.draw(CHARS[i]),
+	                        left: y,
+	                        top: y,
+	                        width: this.size,
+	                        height: this.size,
+	                        advance: 0
+	                    };
+	
+	                    i++;
+	                    w += this.size;
+	                }
+	                h += this.size;
+	            }
+	            var imgData = ctx.getImageData(0, 0, w, h);
+	            var return_values = {
+	                imgData: imgData,
+	                charData: charData
+	            };
+	
+	            console.log("return_values", return_values);
+	            return return_values;
+	        }
+	    }]);
+	
+	    return SpriteGenerator;
+	}();
+	
+	exports.default = SpriteGenerator;
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -12830,7 +13170,7 @@
 	;
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
