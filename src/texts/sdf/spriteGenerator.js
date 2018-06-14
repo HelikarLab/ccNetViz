@@ -2,17 +2,13 @@
 
 
 var INF = 1e20;
-// function getEl(id) {
-//     return document.getElementById(id);
-// }
-
 
 // Stores the x- and y- position of glyphs in the sprite sheet so formed 
 // format: sdfs['a'].x or sdfs['a'].y
 let SDFS = {};
 
 // list of all characters to be included in the sprite sheet
-const CHARS = "abcdefghijklmnopqrstuvwxyzH";
+const CHARS = "abcdefghijklmnopqrstuvwxyzH1234567890";
 
 export default class SpriteGenerator {
 
@@ -36,7 +32,7 @@ export default class SpriteGenerator {
         this.ctx.fillStyle = 'black';
         // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
         this.middle = Math.round((size / 2) * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
-        
+
 
         // Member variables for temp arrays required for the distance transform
         this.gridOuter = new Float64Array(size * size);
@@ -44,7 +40,7 @@ export default class SpriteGenerator {
         this.f = new Float64Array(size);
         this.d = new Float64Array(size);
         this.z = new Float64Array(size + 1);
-        this.v = new Int16Array(size);       
+        this.v = new Int16Array(size);
     }
 
     // Returns the alpha channel for a single character
@@ -55,15 +51,18 @@ export default class SpriteGenerator {
         let imgData = this.ctx.getImageData(0, 0, this.size, this.size);
         let alphaChannel = new Uint8ClampedArray(this.size * this.size);
 
+        // ??? I don't know what outer and inner grids are.
         for (let i = 0; i < this.size * this.size; i++) {
             let a = imgData.data[i * 4 + 3] / 255; // alpha value
             this.gridOuter[i] = a === 1 ? 0 : a === 0 ? INF : Math.pow(Math.max(0, 0.5 - a), 2);
             this.gridInner[i] = a === 1 ? INF : a === 0 ? 0 : Math.pow(Math.max(0, a - 0.5), 2);
         }
 
+        // edt transform is working only on these grid areas. OK
         this._edt(this.gridOuter, this.size, this.size, this.f, this.d, this.v, this.z);
         this._edt(this.gridInner, this.size, this.size, this.f, this.d, this.v, this.z);
 
+        // Maybe radius is doing some gamma corrections and then storing in alpha channels
         for (let i = 0; i < this.size * this.size; i++) {
             let d = this.gridOuter[i] - this.gridInner[i];
             alphaChannel[i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
