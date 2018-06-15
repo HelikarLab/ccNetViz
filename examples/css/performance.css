@@ -66,7 +66,6 @@ td:nth-child(7n+1) {
 }
 
 .divGraph {
-    float: right;
     margin-top: 30px;
 }
 
@@ -82,6 +81,7 @@ td:nth-child(7n+1) {
     width: 300px;
     height: 300px;
     margin-right: 60px;
+    display: inline-block;
 }
 
 #containerSigma {
@@ -109,6 +109,7 @@ td:nth-child(7n+1) {
 
 #titleFeature {
     color: #202020;
+    display: inline-block;
 }
 
 #tableFeature {
@@ -145,6 +146,9 @@ td:nth-child(7n+1) {
     background-color: #6495ED;
 }
 
+#divGraphViz {
+    margin-left: 200px;
+}  
 
 /*style the arrow inside the select element:*/
 
