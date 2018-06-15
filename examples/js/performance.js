@@ -63,13 +63,39 @@ function onElementClick() {
                 var lay = this.innerHTML;
                 $("#perfTableViz tr").removeClass('onClickStyle');
                 if (lay != "breadthfirst" && lay != "concentric" && lay != "cose") {
-                    document.getElementById("containerViz").style.display = "block";
-                    document.getElementById("containerCyto").style.display = "none";
+                    document.getElementById("containerViz").style.visibility = "visible";
+                    document.getElementById("containerCyto").style.visibility = "hidden";
+                    document.getElementById("containerSigma").style.visibility = "visible";
                     graph.set(d.nodes, d.edges, this.innerHTML);
                     graph.draw();
+                    refreshSigmaGraph();
+                    var sigmaGraph = {
+                        nodes: [],
+                        edges: []
+                    }
+                    parseSigmaData(sigmaGraph, d.nodes, d.edges);
+                    var s = new sigma({
+                        graph: sigmaGraph,
+                        container: 'containerSigma'
+                    });
+                    if (lay == "grid") {
+                        document.getElementById("containerCyto").style.visibility = "visible";
+                        var layout = containerCyto.layout({
+                            name: this.innerHTML
+                        });
+                        layout.run();
+                    }
+                    if (lay == "circular") {
+                        document.getElementById("containerCyto").style.visibility = "visible";
+                        var layout = containerCyto.layout({
+                            name: "circle"
+                        });
+                        layout.run();
+                    } 
                 } else {
-                    document.getElementById("containerViz").style.display = "none";
-                    document.getElementById("containerCyto").style.display = "block";
+                    document.getElementById("containerViz").style.visibility = "hidden";
+                    document.getElementById("containerSigma").style.visibility = "hidden";
+                    document.getElementById("containerCyto").style.visibility = "visible";
                     var layout = containerCyto.layout({
                         name: this.innerHTML
                     });
@@ -159,7 +185,7 @@ function initSigma() {
             //we are using ccNetViz to determine the nodes for the layouts
             t_layout = "-";
 
-            //refreshSigmaGraph();
+            refreshSigmaGraph();
 
             parseSigmaData(sigmaGraph, dataCCNetViz.nodes, dataCCNetViz.edges);
 
@@ -181,7 +207,7 @@ function initSigma() {
             }
         }
 
-        //setInitialSelectionSigma();
+        setInitialSelectionSigma();
         //onElementClickSigma();
     });
 }
@@ -220,7 +246,6 @@ function setInitialSelectionSigma() {
         graph: sigmaGraph,
         container: 'containerSigma'
     });
-    document.getElementById('perfTableSigma').childNodes[1].className = "onClickStyle";
 }
 
 function refreshSigmaGraph() {
@@ -300,7 +325,7 @@ function initCyto() {
         }
 
         //onElementClickCyto();
-        //setInitialSelectionCyto();
+        setInitialSelectionCyto();
     });
 }
 
@@ -334,7 +359,6 @@ function setInitialSelectionCyto() {
         name: 'circle'
     });
     layout.run();
-    document.getElementById('perfTableCyto').childNodes[1].className = "onClickStyle";
 }
 
 function onElementClickCyto() {
