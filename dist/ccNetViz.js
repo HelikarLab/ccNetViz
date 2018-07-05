@@ -12820,7 +12820,7 @@
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
 	        this.fontFamily = 'sans-serif';
-	        this.fontWeight = 'normal';
+	        this.fontWeight = 'bold';
 	        // Size of one box of character
 	        var size = this.size = this.fontSize + this.buffer * 2;
 	
