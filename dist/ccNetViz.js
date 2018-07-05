@@ -13021,7 +13021,7 @@
 	            for (i = 0; i < glyphData.length; i += numCols) {
 	                // slice out the array
 	                currentRow = glyphData.slice(i, i + numCols);
-	                var res = _findRowBounds(currentRow);
+	                var res = this._findRowBounds(currentRow);
 	                lbs.push(res[0]);
 	                rbs.push(res[1]);
 	            }
@@ -13038,7 +13038,7 @@
 	            var glyphData = glyph.bitmap;
 	            var numCols = glyph.width;
 	
-	            var bounds = _findGlyphBounds(glyph);
+	            var bounds = this._findGlyphBounds(glyph);
 	            var lb = bounds[0];
 	            var rb = bounds[1];
 	            var buffer = this.buffer;

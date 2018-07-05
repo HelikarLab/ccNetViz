@@ -41,7 +41,7 @@ export default class {
         for (i = 0; i < glyphData.length; i += numCols) {
             // slice out the array
             currentRow = glyphData.slice(i, i + numCols)
-            var res = _findRowBounds(currentRow);
+            var res = this._findRowBounds(currentRow);
             lbs.push(res[0]);
             rbs.push(res[1]);
         }
@@ -57,7 +57,7 @@ export default class {
         const glyphData = glyph.bitmap;
         const numCols = glyph.width;
 
-        const bounds = _findGlyphBounds(glyph);
+        const bounds = this._findGlyphBounds(glyph);
         const lb = bounds[0];
         const rb = bounds[1];
         const buffer = this.buffer;
