@@ -12990,17 +12990,17 @@
 	            var lb = 0,
 	                // left bound of individual row
 	            rb = 0; // right bound of individual row
-	            for (var _i = 0; _i < a.length; _i++) {
-	                if (a[_i]) {
-	                    lb = _i;
+	            for (var i = 0; i < a.length; i++) {
+	                if (a[i]) {
+	                    lb = i;
 	                    break;
 	                }
 	            }
 	            if (!lb) lb = a.length;
 	
-	            for (var _i2 = a.length; _i2 > -1; _i2--) {
-	                if (a[_i2]) {
-	                    rb = _i2;
+	            for (var _i = a.length; _i > -1; _i--) {
+	                if (a[_i]) {
+	                    rb = _i;
 	                    break;
 	                }
 	            }
@@ -13018,7 +13018,7 @@
 	                // row left bounds
 	            rbs = []; // row right bounds
 	            // iterate through every row
-	            for (i = 0; i < glyphData.length; i += numCols) {
+	            for (var i = 0; i < glyphData.length; i += numCols) {
 	                // slice out the array
 	                currentRow = glyphData.slice(i, i + numCols);
 	                var res = this._findRowBounds(currentRow);
@@ -13048,7 +13048,7 @@
 	
 	            // iterate through every row
 	            var currentRow = [];
-	            for (i = 0; i < glyphData.length; i += numCols) {
+	            for (var i = 0; i < glyphData.length; i += numCols) {
 	                currentRow = glyphData.slice(i, i + numCols);
 	                newData.push.apply(newData, _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0)).concat(_toConsumableArray(currentRow.slice(lb, rb + 1)), _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0))));
 	            }

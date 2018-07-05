@@ -38,7 +38,7 @@ export default class {
         let lbs = [], // row left bounds
             rbs = []; // row right bounds
         // iterate through every row
-        for (i = 0; i < glyphData.length; i += numCols) {
+        for (let i = 0; i < glyphData.length; i += numCols) {
             // slice out the array
             currentRow = glyphData.slice(i, i + numCols)
             var res = this._findRowBounds(currentRow);
@@ -67,7 +67,7 @@ export default class {
 
         // iterate through every row
         let currentRow = [];
-        for (i = 0; i < glyphData.length; i += numCols) {
+        for (let i = 0; i < glyphData.length; i += numCols) {
             currentRow = glyphData.slice(i, i + numCols)
             newData.push(
                 ...Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0), //returns array of zeros
