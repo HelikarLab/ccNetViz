@@ -36,7 +36,7 @@ export default class SpriteGenerator {
         this.v = new Int16Array(size);
 
         // Glyph Trimmer
-        this.trimmer = new Trimmer(3);
+        this.trimmer = new Trimmer(0);
     }
 
     // Returns the alpha channel for a single character
@@ -72,7 +72,6 @@ export default class SpriteGenerator {
         };
 
         this.trimmer.process(glyph);
-        console.log("glyph", glyph);
 
         return glyph;
     }

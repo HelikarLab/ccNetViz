@@ -12849,7 +12849,7 @@
 	        this.v = new Int16Array(size);
 	
 	        // Glyph Trimmer
-	        this.trimmer = new _glyphTrimmer2.default(3);
+	        this.trimmer = new _glyphTrimmer2.default(0);
 	    }
 	
 	    // Returns the alpha channel for a single character
@@ -12889,7 +12889,6 @@
 	            };
 	
 	            this.trimmer.process(glyph);
-	            console.log("glyph", glyph);
 	
 	            return glyph;
 	        }
@@ -13034,7 +13033,7 @@
 	            // choose the min(lbs) and max(rbs) as absolute lb and rb
 	            lb = Math.min.apply(Math, lbs);
 	            rb = Math.max.apply(Math, rbs);
-	            if (lb >= numCols || rb < 0) throw "Glyph is empty";
+	            // if (lb >= numCols || rb < 0) throw "Glyph is empty";
 	            return [lb, rb];
 	        }
 	    }, {

@@ -53,7 +53,7 @@ export default class {
         // choose the min(lbs) and max(rbs) as absolute lb and rb
         lb = Math.min(...lbs);
         rb = Math.max(...rbs);
-        if (lb >= numCols || rb < 0) throw "Glyph is empty";
+        // if (lb >= numCols || rb < 0) throw "Glyph is empty";
         return [lb, rb];
     }
 
