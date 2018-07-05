@@ -196,11 +196,11 @@
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(43);
+	var _lazyEvents = __webpack_require__(44);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(44);
+	var _interactivityBatch = __webpack_require__(45);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
@@ -12796,7 +12796,7 @@
 
 /***/ }),
 /* 42 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -12805,6 +12805,12 @@
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _glyphTrimmer = __webpack_require__(43);
+	
+	var _glyphTrimmer2 = _interopRequireDefault(_glyphTrimmer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -12841,6 +12847,9 @@
 	        this.d = new Float64Array(size);
 	        this.z = new Float64Array(size + 1);
 	        this.v = new Int16Array(size);
+	
+	        // Glyph Trimmer
+	        this.trimmer = new _glyphTrimmer2.default(3);
 	    }
 	
 	    // Returns the alpha channel for a single character
@@ -12869,15 +12878,19 @@
 	                alphaChannel[_i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
 	            }
 	
-	            return {
+	            var glyph = {
 	                id: char.charCodeAt(0),
 	                bitmap: alphaChannel,
 	                left: 0,
 	                top: 0,
 	                width: this.size,
 	                height: this.size,
-	                advance: 0
+	                advance: this.size // width
 	            };
+	
+	            var processedGlyph = this.trimmer.process(glyph);
+	
+	            return processedGlyph;
 	        }
 	
 	        // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
@@ -12941,6 +12954,120 @@
 
 /***/ }),
 /* 43 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/* Algorithm to trim the glyph and add padding to it */
+	// Finding absolute left bound (lb) and right bound (rb) of the glyph
+	// Slicing the extra columns
+	// Adding buffer space on the sides
+	
+	var _class = function () {
+	    function _class(buffer) {
+	        _classCallCheck(this, _class);
+	
+	        this.buffer = buffer || 3;
+	    }
+	
+	    // find lb and rb of single row
+	
+	
+	    _createClass(_class, [{
+	        key: "_findRowBounds",
+	        value: function _findRowBounds(a) {
+	            // a == array
+	            var lb = 0,
+	                // left bound of individual row
+	            rb = 0; // right bound of individual row
+	            for (var _i = 0; _i < a.length; _i++) {
+	                if (a[_i]) {
+	                    lb = _i;
+	                    break;
+	                }
+	            }
+	            if (!lb) lb = a.length;
+	
+	            for (var _i2 = a.length; _i2 > -1; _i2--) {
+	                if (a[_i2]) {
+	                    rb = _i2;
+	                    break;
+	                }
+	            }
+	            if (!rb) rb = -1;
+	
+	            return [lb, rb];
+	        }
+	    }, {
+	        key: "_findGlyphBounds",
+	        value: function _findGlyphBounds(glyph) {
+	            var glyphData = glyph.bitmap;
+	            var numCols = glyph.width;
+	            var currentRow = [];
+	            var lbs = [],
+	                // row left bounds
+	            rbs = []; // row right bounds
+	            // iterate through every row
+	            for (i = 0; i < glyphData.length; i += numCols) {
+	                // slice out the array
+	                currentRow = glyphData.slice(i, i + numCols);
+	                var res = _findRowBounds(currentRow);
+	                lbs.push(res[0]);
+	                rbs.push(res[1]);
+	            }
+	
+	            // choose the min(lbs) and max(rbs) as absolute lb and rb
+	            lb = Math.min.apply(Math, lbs);
+	            rb = Math.max.apply(Math, rbs);
+	            if (lb >= numCols || rb < 0) throw "Glyph is empty";
+	            return [lb, rb];
+	        }
+	    }, {
+	        key: "process",
+	        value: function process(glyph) {
+	            var glyphData = glyph.bitmap;
+	            var numCols = glyph.width;
+	
+	            var bounds = _findGlyphBounds(glyph);
+	            var lb = bounds[0];
+	            var rb = bounds[1];
+	            var buffer = this.buffer;
+	
+	            var newData = [];
+	            var newWidth = rb - lb + 1 + buffer * 2;
+	
+	            // iterate through every row
+	            var currentRow = [];
+	            for (i = 0; i < glyphData.length; i += numCols) {
+	                currentRow = glyphData.slice(i, i + numCols);
+	                newData.push.apply(newData, _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0)).concat(_toConsumableArray(currentRow.slice(lb, rb + 1)), _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0))));
+	            }
+	
+	            // JS passes objects by reference. Therefore,
+	            glyph.bitmap = new Uint8ClampedArray(newData);
+	            glyph.width = newWidth;
+	            glyph.advance = newWidth;
+	        }
+	    }]);
+	
+	    return _class;
+	}(); // ends class
+	
+
+	exports.default = _class;
+
+/***/ }),
+/* 44 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -13026,7 +13153,7 @@
 	;
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";

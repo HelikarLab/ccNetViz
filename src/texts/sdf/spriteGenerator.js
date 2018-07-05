@@ -1,5 +1,5 @@
 'use strict';
-
+import Trimmer from './glyphTrimmer';
 
 var INF = 1e20;
 
@@ -34,6 +34,9 @@ export default class SpriteGenerator {
         this.d = new Float64Array(size);
         this.z = new Float64Array(size + 1);
         this.v = new Int16Array(size);
+
+        // Glyph Trimmer
+        this.trimmer = new Trimmer(3);
     }
 
     // Returns the alpha channel for a single character
@@ -58,15 +61,19 @@ export default class SpriteGenerator {
             alphaChannel[i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
         }
 
-        return {
+        const glyph = {
             id: char.charCodeAt(0),
             bitmap: alphaChannel,
             left: 0,
             top: 0,
             width: this.size,
             height: this.size,
-            advance: 0,
+            advance: this.size, // width
         };
+
+        const processedGlyph = this.trimmer.process(glyph);
+
+        return processedGlyph;
     }
 
     // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf

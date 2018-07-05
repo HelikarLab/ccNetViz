@@ -79,6 +79,7 @@ export default class {
         // JS passes objects by reference. Therefore,
         glyph.bitmap = new Uint8ClampedArray(newData);
         glyph.width = newWidth;
+        glyph.advance = newWidth;
     }    
     
 } // ends class

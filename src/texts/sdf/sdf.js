@@ -2,7 +2,6 @@ import Protobuf from 'pbf';
 import GlyphAtlas from './atlas';
 import Glyphs from './glyphs';
 import SpriteGenerator from './spriteGenerator';
-import Trimmer from './glyphTrimmer';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -75,9 +74,6 @@ export default class {
 
     // Client-Side builder of spritesheet
     this.spriteGenerator = new SpriteGenerator();
-
-    // Glyph Trimmer
-    this.trimmer = new Trimmer(3);
   }
 
 
@@ -144,7 +140,7 @@ export default class {
     const buffer = 0;
 
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
-    const glyph = (cache[glyphID] && cache[glyphID].glyph) || trimmer.process(this.spriteGenerator.draw(text));
+    const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
 
     if (!this._rects[font]) this._rects[font] = {};
     let rect = this._rects[font][text] = this.atlas.addGlyph(
