@@ -65,7 +65,7 @@ export default class SpriteGenerator {
             top: 0,
             width: this.size,
             height: this.size,
-            advance: 0,
+            advance: 10,
         };
     }
 
