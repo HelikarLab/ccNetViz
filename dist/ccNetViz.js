@@ -12876,7 +12876,7 @@
 	                top: 0,
 	                width: this.size,
 	                height: this.size,
-	                advance: 11
+	                advance: this.size
 	            };
 	        }
 	
