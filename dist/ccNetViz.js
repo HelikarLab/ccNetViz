@@ -13014,9 +13014,13 @@
 	            var glyphData = glyph.bitmap;
 	            var numCols = glyph.width;
 	            var currentRow = [];
+	
 	            var lbs = [],
 	                // row left bounds
-	            rbs = []; // row right bounds
+	            rbs = []; // row right bounds    
+	            var lb = -1,
+	                rb = glyphData.length;
+	
 	            // iterate through every row
 	            for (var i = 0; i < glyphData.length; i += numCols) {
 	                // slice out the array

@@ -35,8 +35,12 @@ export default class {
         const glyphData = glyph.bitmap;
         const numCols = glyph.width;
         let currentRow = [];
+
         let lbs = [], // row left bounds
-            rbs = []; // row right bounds
+            rbs = []; // row right bounds    
+        let lb = -1,
+            rb = glyphData.length;
+        
         // iterate through every row
         for (let i = 0; i < glyphData.length; i += numCols) {
             // slice out the array
