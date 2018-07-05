@@ -12888,9 +12888,10 @@
 	                advance: this.size // width
 	            };
 	
-	            var processedGlyph = this.trimmer.process(glyph);
+	            this.trimmer.process(glyph);
+	            console.log("glyph", glyph);
 	
-	            return processedGlyph;
+	            return glyph;
 	        }
 	
 	        // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
