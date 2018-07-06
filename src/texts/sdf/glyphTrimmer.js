@@ -12,8 +12,11 @@ export default class {
     _findRowBounds(a) { // a == array
         let lb = 0, // left bound of individual row
             rb = 0; // right bound of individual row
+        
+        const threshold = 120;
+            
         for (let i = 0; i < a.length; i++) {
-            if (a[i]) {
+            if (a[i] > threshold) {
                 lb = i;
                 break;
             }
@@ -21,7 +24,7 @@ export default class {
         if (!lb) lb = a.length;
 
         for (let i = a.length; i > -1; i--) {
-            if (a[i]) {
+            if (a[i] > threshold) {
                 rb = i;
                 break;
             }
@@ -64,26 +67,31 @@ export default class {
         const bounds = this._findGlyphBounds(glyph);
         const lb = bounds[0];
         const rb = bounds[1];
-        const buffer = this.buffer;
-        
+        // const buffer = this.buffer;
+        const buffer = 0;
+
         var newData = [];
+        // var newWidth = (rb - lb + 1) + buffer * 2 + 2;
         var newWidth = (rb - lb + 1) + buffer * 2;
 
         // iterate through every row
         let currentRow = [];
         for (let i = 0; i < glyphData.length; i += numCols) {
             currentRow = glyphData.slice(i, i + numCols)
+            const bufferCol = Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0);
             newData.push(
-                ...Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0), //returns array of zeros
+                // 255,
+                ...bufferCol, //returns array of zeros
                 ...currentRow.slice(lb, rb + 1),
-                ...Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0), //returns array of zeros
+                ...bufferCol, //returns array of zeros
+                // 255,
             );
         }
 
         // JS passes objects by reference. Therefore,
         glyph.bitmap = new Uint8ClampedArray(newData);
         glyph.width = newWidth;
-        // glyph.advance = newWidth;
+        glyph.advance = newWidth;
     }    
     
 } // ends class

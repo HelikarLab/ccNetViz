@@ -1,4 +1,3 @@
-'use strict';
 import Trimmer from './glyphTrimmer';
 
 var INF = 1e20;
@@ -7,7 +6,7 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-        this.fontSize = 24;
+        this.fontSize = 40;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
@@ -37,6 +36,7 @@ export default class SpriteGenerator {
 
         // Glyph Trimmer
         this.trimmer = new Trimmer(0);
+        this.count = 1;
     }
 
     // Returns the alpha channel for a single character
@@ -70,9 +70,23 @@ export default class SpriteGenerator {
             height: this.size,
             advance: 11, // width
         };
-        console.log(glyph);
-
+        
         this.trimmer.process(glyph);
+        // TODO: Delete this debugging code
+        if (glyph.id == 65 && this.count) {
+            const glyphData = glyph.bitmap;
+            const numCols = glyph.width;
+            let t = [];
+            // iterate through every row
+            for (let i = 0; i < glyphData.length; i += numCols) {
+                // slice out the array
+                t.push(Array.from(glyphData.slice(i, i + numCols)));
+            }
+            console.log("t", t);
+            this.count--;
+        }
+
+        // console.log(glyph);
 
         return glyph;
     }

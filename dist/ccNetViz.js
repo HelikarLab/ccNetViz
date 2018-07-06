@@ -12821,7 +12821,7 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 24;
+	        this.fontSize = 40;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
@@ -12850,6 +12850,7 @@
 	
 	        // Glyph Trimmer
 	        this.trimmer = new _glyphTrimmer2.default(0);
+	        this.count = 1;
 	    }
 	
 	    // Returns the alpha channel for a single character
@@ -12887,9 +12888,23 @@
 	                height: this.size,
 	                advance: 11 // width
 	            };
-	            console.log(glyph);
 	
 	            this.trimmer.process(glyph);
+	            // TODO: Delete this debugging code
+	            if (glyph.id == 65 && this.count) {
+	                var glyphData = glyph.bitmap;
+	                var numCols = glyph.width;
+	                var t = [];
+	                // iterate through every row
+	                for (var _i2 = 0; _i2 < glyphData.length; _i2 += numCols) {
+	                    // slice out the array
+	                    t.push(Array.from(glyphData.slice(_i2, _i2 + numCols)));
+	                }
+	                console.log("t", t);
+	                this.count--;
+	            }
+	
+	            // console.log(glyph);
 	
 	            return glyph;
 	        }
@@ -12991,8 +13006,11 @@
 	            var lb = 0,
 	                // left bound of individual row
 	            rb = 0; // right bound of individual row
+	
+	            var threshold = 120;
+	
 	            for (var i = 0; i < a.length; i++) {
-	                if (a[i]) {
+	                if (a[i] > threshold) {
 	                    lb = i;
 	                    break;
 	                }
@@ -13000,7 +13018,7 @@
 	            if (!lb) lb = a.length;
 	
 	            for (var _i = a.length; _i > -1; _i--) {
-	                if (a[_i]) {
+	                if (a[_i] > threshold) {
 	                    rb = _i;
 	                    break;
 	                }
@@ -13046,22 +13064,25 @@
 	            var bounds = this._findGlyphBounds(glyph);
 	            var lb = bounds[0];
 	            var rb = bounds[1];
-	            var buffer = this.buffer;
+	            // const buffer = this.buffer;
+	            var buffer = 0;
 	
 	            var newData = [];
+	            // var newWidth = (rb - lb + 1) + buffer * 2 + 2;
 	            var newWidth = rb - lb + 1 + buffer * 2;
 	
 	            // iterate through every row
 	            var currentRow = [];
 	            for (var i = 0; i < glyphData.length; i += numCols) {
 	                currentRow = glyphData.slice(i, i + numCols);
-	                newData.push.apply(newData, _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0)).concat(_toConsumableArray(currentRow.slice(lb, rb + 1)), _toConsumableArray(Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0))));
+	                var bufferCol = Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0);
+	                newData.push.apply(newData, _toConsumableArray(bufferCol).concat(_toConsumableArray(currentRow.slice(lb, rb + 1)), _toConsumableArray(bufferCol)));
 	            }
 	
 	            // JS passes objects by reference. Therefore,
 	            glyph.bitmap = new Uint8ClampedArray(newData);
 	            glyph.width = newWidth;
-	            // glyph.advance = newWidth;
+	            glyph.advance = newWidth;
 	        }
 	    }]);
 	
