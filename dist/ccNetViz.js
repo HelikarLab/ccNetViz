@@ -12885,7 +12885,7 @@
 	                top: 0,
 	                width: this.size,
 	                height: this.size,
-	                advance: this.size // width
+	                advance: 11 // width
 	            };
 	
 	            this.trimmer.process(glyph);
@@ -13060,7 +13060,7 @@
 	            // JS passes objects by reference. Therefore,
 	            glyph.bitmap = new Uint8ClampedArray(newData);
 	            glyph.width = newWidth;
-	            glyph.advance = newWidth;
+	            // glyph.advance = newWidth;
 	        }
 	    }]);
 	
