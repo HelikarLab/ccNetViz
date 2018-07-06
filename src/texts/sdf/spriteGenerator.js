@@ -70,6 +70,7 @@ export default class SpriteGenerator {
             height: this.size,
             advance: 11, // width
         };
+        console.log(glyph);
 
         this.trimmer.process(glyph);
 
