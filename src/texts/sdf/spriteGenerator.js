@@ -3,13 +3,6 @@
 
 var INF = 1e20;
 
-// Stores the x- and y- position of glyphs in the sprite sheet so formed 
-// format: sdfs['a'].x or sdfs['a'].y
-let SDFS = {};
-
-// list of all characters to be included in the sprite sheet
-const CHARS = "abcdefghijklmnopqrstuvwxyzH1234567890";
-
 export default class SpriteGenerator {
 
     constructor() {
@@ -64,7 +57,16 @@ export default class SpriteGenerator {
             let d = this.gridOuter[i] - this.gridInner[i];
             alphaChannel[i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
         }
-        return alphaChannel;
+
+        return {
+            id: char.charCodeAt(0),
+            bitmap: alphaChannel,
+            left: 0,
+            top: 0,
+            width: this.size,
+            height: this.size,
+            advance: 0,
+        };
     }
 
     // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
@@ -112,72 +114,4 @@ export default class SpriteGenerator {
             d[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
         }
     }
-
-    // Convert alpha-only to RGBA so we can use convenient
-    // `putImageData` for building the composite bitmap
-    _makeRGBAImageData(alphaChannel, size) {
-        let imageData = this.ctx.createImageData(size, size);
-        let data = imageData.data;
-        for (let i = 0; i < alphaChannel.length; i++) {
-            data[4 * i + 0] = alphaChannel[i];
-            data[4 * i + 1] = alphaChannel[i];
-            data[4 * i + 2] = alphaChannel[i];
-            data[4 * i + 3] = 255;
-        }
-        return imageData;
-    }
-
-    // returns the complete spritesheet for the characters provided in the global variables
-    make() {
-        // Some initial configurations
-        let canvas = document.createElement('canvas');
-
-        // TODO: will have to do something about the harcoded values
-        this.canvas.width = 1000;
-        this.canvas.height = 200;
-
-        let ctx = canvas.getContext('2d');
-        let h = 0,
-            w = 0;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        let charData = {};
-
-        charData['stacks'] = [];
-        charData['stacks'].push({ glyphs: {} });
-        charData['stacks'][0]['glyphs'] = {};
-        // Drawing all Characters in a single canvas object
-        for (let y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
-            for (let x = 0; x + this.size <= canvas.width && i < CHARS.length; x += this.size) {
-                let imgData = this._makeRGBAImageData(this.draw(CHARS[i]), this.size);
-                ctx.putImageData(imgData, x, y);
-                SDFS[CHARS[i]] = { x: x, y: y };
-
-                let charId = CHARS[i].charCodeAt(0);
-
-                charData['stacks'][0]['glyphs'][charId] = {
-                    id: charId,
-                    bitmap: this.draw(CHARS[i]),
-                    left: y,
-                    top: y,
-                    width: this.size,
-                    height: this.size,
-                    advance: 10,
-                };
-
-                i++;
-                w += this.size;
-            }
-            h += this.size;
-        }
-        let imgData = ctx.getImageData(0, 0, w, h);
-        let return_values = {
-            imgData: imgData,
-            charData: charData
-        };
-
-        console.log("return_values", return_values);
-        return return_values;
-    }
-
 }

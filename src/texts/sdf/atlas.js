@@ -29,7 +29,7 @@ export default class GlyphAtlas {
 
         /**
          * stores information coordinate about character
-         * 
+         *
          * (Object):
          *  "fontstring#charid": {
          *      id, x, y, h, w, maxh, maxw, ref_count
@@ -39,7 +39,7 @@ export default class GlyphAtlas {
 
         /**
          * stores list of character ids available in atlas.js
-         * 
+         *
          * (Object):
          *  "fontstring#charid": ["charid"]
          */
@@ -55,7 +55,7 @@ export default class GlyphAtlas {
 
     // refreshes texture of characters when updateTexture() is called
     _createTexture() {
-        // 
+        //
         this.dirty = false;
 
         // standard creation of webgl texture
@@ -82,7 +82,7 @@ export default class GlyphAtlas {
             0, // level of detail: 0 = base image level; n = nth mipmap reduction level
             gl.ALPHA, // internalFormat: only reads the alpha component
             this.width, // width
-            this.height, // height 
+            this.height, // height
             0, // border
             gl.ALPHA, // format
             gl.UNSIGNED_BYTE, // type
@@ -139,7 +139,7 @@ export default class GlyphAtlas {
         name, // name of the font - "fontstrong#range.pbf"
         glyph, // glyph object from sdf.js
         buffer, // padding around glyph
-        markDirty // 
+        markDirty //
     ) {
         if (!glyph) return null;
 
@@ -189,7 +189,7 @@ export default class GlyphAtlas {
         this.index[key] = rect;
         this.ids[key] = [id];
 
-        // if bitmap corresponding to the glyph object exists then, add the glyph 
+        // if bitmap corresponding to the glyph object exists then, add the glyph
         if (glyph.bitmap) {
             const target = this.data;
             const source = glyph.bitmap;
@@ -247,7 +247,7 @@ export default class GlyphAtlas {
             this._texture = this._createTexture();
         }
 
-        // if dirty functionality is true then: 
+        // if dirty functionality is true then:
         if (this.dirty) {
 
             gl.bindTexture(gl.TEXTURE_2D, this._texture);

@@ -1660,6 +1660,7 @@
 	            var uniforms = c.shader.uniforms;
 	
 	            gl.uniform1f(uniforms.type, getLabelType(f));
+	            //            gl.uniform1f(uniforms.type, 0);
 	
 	            var textEngine = texts.getEngine(f);
 	            textEngine.setFont(f);
@@ -11093,7 +11094,7 @@
 	
 	// Class for the text engine
 	
-	// invoked only when main configuration object, the "font" is mentioned and 
+	// invoked only when main configuration object, the "font" is mentioned and
 	// the proper link to the font file is present
 	
 	var _class = function () {
@@ -11126,28 +11127,17 @@
 	      _this._cachedGlyphs = {};
 	    });
 	
-	    // For every char_id, contains position, properties and buffer data 
+	    // For every char_id, contains position, properties and buffer data
 	    this._glyphs = {};
 	
-	    // For every char_id, contains position and properties 
+	    // For every char_id, contains position and properties
 	    this._rects = {};
 	
 	    // glyphs that are cached from previous draw call of label for next one
 	    this._cachedGlyphs = {};
 	
-	    // Client-Side builder of spritesheet 
+	    // Client-Side builder of spritesheet
 	    this.spriteGenerator = new _spriteGenerator2.default();
-	    var sprite = this.spriteGenerator.make();
-	
-	    // charData is in the same format of this._glyphs
-	    // in charData the format of image is alphachannel
-	    this.charData = sprite['charData'];
-	    var testCtx = document.getElementById("test-canvas").getContext("2d");
-	
-	    // testing formation of the spritesheet
-	    // sprite['imgData'] contains the sprite data in 'ImageData' format
-	    // which is directly drawable on canvas as below
-	    testCtx.putImageData(sprite['imgData'], 0, 0);
 	  }
 	
 	  // returns if we are using SDF TextEngine or not
@@ -11183,51 +11173,13 @@
 	
 	    //
 	    value: function getTexture(style, onLoad) {
-	      var _this2 = this,
-	          _arguments = arguments;
-	
-	      var myOnLoad = function (onL) {
-	        return function () {
-	
-	          // Protobuf encoded ArrayBuffer of texture saved on server
-	          var data = _this2._files.load(style.pbf, onLoad, 'arraybuffer');
-	
-	          // init with first most-used ASCII chars
-	          for (var i = 0; i < 128; i++) {
-	            // Cache the most used characters prior to the knowledge if they would be used in lables or not
-	            // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
-	            _this2._getChar(String.fromCharCode(i));
-	          }
-	          onL && onL.apply(_this2, _arguments);
-	        };
-	      }(onLoad);
-	
-	      var font = style.pbf; // 'font file url on the server'
-	
-	      if (!this._glyphs[font]) {
-	        // fetched data from server in protobuf encoded format and executing callback func 'myOnLoad'
-	        var data = this._files.load(style.pbf, myOnLoad, 'arraybuffer');
-	
-	        // Decoding the protobuf data
-	        var protoData = new _pbf2.default(data);
-	
-	        /**
-	         * glyphs contains following info w.r.t to the character code
-	         * - advance
-	         * - width
-	         * - height
-	         * - id
-	         * - top
-	         * - left
-	         */
-	        this._curglyphs = this._glyphs[font] = data && new _glyphs2.default(protoData);
-	        // this._curglyphs = this._glyphs[font] = this.charData;
-	
-	        // t = this._glyphs[font];
-	        // console.log("this._glyphs", this._glyphs);
-	      } else {
-	        myOnLoad();
+	      // init with first most-used ASCII chars
+	      for (var i = 0; i < 128; i++) {
+	        // Cache the most used characters prior to the knowledge if they would be used in lables or not
+	        // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
+	        this._getChar(String.fromCharCode(i));
 	      }
+	      onLoad && onLoad.apply(this, arguments);
 	
 	      // by calling this._getChar, we have updated the texture in this.atlas object
 	      // following we are returning the updated object
@@ -11237,7 +11189,7 @@
 	
 	    /**
 	     * Updates the 'texture' member variable of this.atlas object
-	     * 
+	     *
 	     * text = single character which is to be added to the texture of 'this.atlas'
 	     * markDirty = ??? callback to be called if the size of the texture is resized
 	     */
@@ -11246,7 +11198,6 @@
 	  }, {
 	    key: '_getChar',
 	    value: function _getChar(text, markDirty) {
-	
 	      // curFont is same as style.pbf defined above
 	      // TODO: We are doing this too many times in this code. Find a better mech.
 	      var font = this.curFont;
@@ -11255,44 +11206,21 @@
 	      var glyphID = text.charCodeAt(0);
 	
 	      // Padding around the glyph
-	      var buffer = 3;
+	      var buffer = 0;
 	
-	      // we have divided the glyphIDs in the bunch of 256 characters
-	      var range = Math.floor(glyphID / 256);
+	      var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
+	      var glyph = cache[glyphID] && cache[glyphID].glyph || this.spriteGenerator.draw(text);
 	
-	      var g = this._glyphs[font];
-	      if (g) {
-	        var stack = g.stacks[range];
-	        if (stack) {
-	          var glyph = stack.glyphs[glyphID];
-	          if (!this._rects[font]) this._rects[font] = {};
+	      if (!this._rects[font]) this._rects[font] = {};
+	      var rect = this._rects[font][text] = this.atlas.addGlyph(glyphID, // character id
+	      this.curFont, // contains url of the font file on server
+	      glyph, // glyph object
+	      buffer, // padding
+	      markDirty // callback function to be called if texture resizes
+	      );
 	
-	          // rects are the objects returned by the library shelf-pack corresponding to
-	          // the binary rectangles it packs
-	          this._rects[font][text] = this.atlas.addGlyph(glyphID, // character id
-	          this.curFont, // contains url of the font file on server
-	          glyph, // glyph object 
-	          buffer, // padding 
-	          markDirty // callback function to be called if texture resizes
-	          );
-	        }
-	      }
-	
-	      // caching before returning rects of the spritesheet
-	      var r = void 0,
-	          rect = void 0;
-	      if ((r = this._rects[font]) && (rect = r[text])) {
-	        var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
-	        return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(this._glyphs[font].stacks[range].glyphs[glyphID], rect, buffer));
-	      }
-	
-	      // if all done well then required glyphs are added to the cache and returned otherwise,
-	      // empty object is returned
-	      return {};
+	      return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(glyph, rect, buffer));
 	    }
-	
-	    //
-	
 	  }, {
 	    key: 'get',
 	    value: function get(text, x, y, markDirty) {
@@ -11307,7 +11235,6 @@
 	        var rect = char.rect || {};
 	        height = Math.max(height, rect.h - char.top);
 	        width += char.advance + horiBearingX;
-	        //      width               += rect.w + horiBearingX;
 	      }
 	
 	      var dx = x <= 0.5 ? 0 : -width;
@@ -12131,7 +12058,7 @@
 	
 	        /**
 	         * stores information coordinate about character
-	         * 
+	         *
 	         * (Object):
 	         *  "fontstring#charid": {
 	         *      id, x, y, h, w, maxh, maxw, ref_count
@@ -12141,7 +12068,7 @@
 	
 	        /**
 	         * stores list of character ids available in atlas.js
-	         * 
+	         *
 	         * (Object):
 	         *  "fontstring#charid": ["charid"]
 	         */
@@ -12160,7 +12087,7 @@
 	    _createClass(GlyphAtlas, [{
 	        key: '_createTexture',
 	        value: function _createTexture() {
-	            // 
+	            //
 	            this.dirty = false;
 	
 	            // standard creation of webgl texture
@@ -12186,7 +12113,7 @@
 	            0, // level of detail: 0 = base image level; n = nth mipmap reduction level
 	            gl.ALPHA, // internalFormat: only reads the alpha component
 	            this.width, // width
-	            this.height, // height 
+	            this.height, // height
 	            0, // border
 	            gl.ALPHA, // format
 	            gl.UNSIGNED_BYTE, // type
@@ -12250,7 +12177,7 @@
 	        name, // name of the font - "fontstrong#range.pbf"
 	        glyph, // glyph object from sdf.js
 	        buffer, // padding around glyph
-	        markDirty // 
+	        markDirty //
 	        ) {
 	            if (!glyph) return null;
 	
@@ -12299,7 +12226,7 @@
 	            this.index[key] = rect;
 	            this.ids[key] = [id];
 	
-	            // if bitmap corresponding to the glyph object exists then, add the glyph 
+	            // if bitmap corresponding to the glyph object exists then, add the glyph
 	            if (glyph.bitmap) {
 	                var target = this.data;
 	                var source = glyph.bitmap;
@@ -12359,7 +12286,7 @@
 	                this._texture = this._createTexture();
 	            }
 	
-	            // if dirty functionality is true then: 
+	            // if dirty functionality is true then:
 	            if (this.dirty) {
 	
 	                gl.bindTexture(gl.TEXTURE_2D, this._texture);
@@ -12882,17 +12809,6 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var INF = 1e20;
-	// function getEl(id) {
-	//     return document.getElementById(id);
-	// }
-	
-	
-	// Stores the x- and y- position of glyphs in the sprite sheet so formed 
-	// format: sdfs['a'].x or sdfs['a'].y
-	var SDFS = {};
-	
-	// list of all characters to be included in the sprite sheet
-	var CHARS = "abcdefghijklmnopqrstuvwxyzH";
 	
 	var SpriteGenerator = function () {
 	    function SpriteGenerator() {
@@ -12952,7 +12868,16 @@
 	                var d = this.gridOuter[_i] - this.gridInner[_i];
 	                alphaChannel[_i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
 	            }
-	            return alphaChannel;
+	
+	            return {
+	                id: char.charCodeAt(0),
+	                bitmap: alphaChannel,
+	                left: 0,
+	                top: 0,
+	                width: this.size,
+	                height: this.size,
+	                advance: 0
+	            };
 	        }
 	
 	        // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
@@ -13006,75 +12931,6 @@
 	                    _k++;
 	                }d[_q] = (_q - v[_k]) * (_q - v[_k]) + f[v[_k]];
 	            }
-	        }
-	
-	        // Convert alpha-only to RGBA so we can use convenient
-	        // `putImageData` for building the composite bitmap
-	
-	    }, {
-	        key: '_makeRGBAImageData',
-	        value: function _makeRGBAImageData(alphaChannel, size) {
-	            var imageData = this.ctx.createImageData(size, size);
-	            var data = imageData.data;
-	            for (var i = 0; i < alphaChannel.length; i++) {
-	                data[4 * i + 0] = alphaChannel[i];
-	                data[4 * i + 1] = alphaChannel[i];
-	                data[4 * i + 2] = alphaChannel[i];
-	                data[4 * i + 3] = 255;
-	            }
-	            return imageData;
-	        }
-	
-	        // returns the complete spritesheet for the characters provided in the global variables
-	
-	    }, {
-	        key: 'makeSpriteSheet',
-	        value: function makeSpriteSheet() {
-	            // Some initial configurations
-	            var canvas = document.createElement('canvas');
-	
-	            // TODO: will have to do something about the harcoded values
-	            this.canvas.width = 1000;
-	            this.canvas.height = 200;
-	
-	            var ctx = canvas.getContext('2d');
-	            var h = 0,
-	                w = 0;
-	            ctx.clearRect(0, 0, canvas.width, canvas.height);
-	
-	            var charData = {};
-	
-	            // Drawing all Characters in a single canvas object
-	            for (var y = 0, i = 0; y + this.size <= canvas.height && i < CHARS.length; y += this.size) {
-	                for (var x = 0; x + this.size <= canvas.width && i < CHARS.length; x += this.size) {
-	                    var _imgData = this._makeRGBAImageData(this.draw(CHARS[i]), this.size);
-	                    ctx.putImageData(_imgData, x, y);
-	                    SDFS[CHARS[i]] = { x: x, y: y };
-	
-	                    var charId = CHARS[i].charCodeAt(0);
-	                    charData[charId] = {
-	                        id: charId,
-	                        bitmap: this.draw(CHARS[i]),
-	                        left: y,
-	                        top: y,
-	                        width: this.size,
-	                        height: this.size,
-	                        advance: 0
-	                    };
-	
-	                    i++;
-	                    w += this.size;
-	                }
-	                h += this.size;
-	            }
-	            var imgData = ctx.getImageData(0, 0, w, h);
-	            var return_values = {
-	                imgData: imgData,
-	                charData: charData
-	            };
-	
-	            console.log("return_values", return_values);
-	            return return_values;
 	        }
 	    }]);
 	
