@@ -5,7 +5,8 @@
 
 export default class {
     constructor(buffer) {
-        this.buffer = buffer || 3;
+        if (buffer == undefined) this.buffer = 0;
+        else this.buffer = buffer;
     }
     
     // find lb and rb of single row
@@ -13,7 +14,7 @@ export default class {
         let lb = 0, // left bound of individual row
             rb = 0; // right bound of individual row
         
-        const threshold = 120;
+        const threshold = 170;
             
         for (let i = 0; i < a.length; i++) {
             if (a[i] > threshold) {
@@ -67,12 +68,16 @@ export default class {
         const bounds = this._findGlyphBounds(glyph);
         const lb = bounds[0];
         const rb = bounds[1];
-        // const buffer = this.buffer;
-        const buffer = 0;
+
+        const buffer = this.buffer;
+        // const buffer = 20;
+        // const buffer = 1;
+        // const buffer = 0;
 
         var newData = [];
         // var newWidth = (rb - lb + 1) + buffer * 2 + 2;
         var newWidth = (rb - lb + 1) + buffer * 2;
+        // var newWidth = (rb - lb + 1);
 
         // iterate through every row
         let currentRow = [];

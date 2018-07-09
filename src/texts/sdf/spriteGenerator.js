@@ -6,12 +6,15 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-        this.fontSize = 40;
+        this.fontSize = 24;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
         this.fontFamily = 'sans-serif';
+        // this.fontFamily = 'vedana';
+        // this.fontFamily = 'arial';
         this.fontWeight = 'normal';
+        // this.fontWeight = 'bold';
         // Size of one box of character
         let size = this.size = this.fontSize + this.buffer * 2;
 
@@ -82,7 +85,7 @@ export default class SpriteGenerator {
                 // slice out the array
                 t.push(Array.from(glyphData.slice(i, i + numCols)));
             }
-            console.log("t", t);
+            // console.log("t", t);
             this.count--;
         }
 

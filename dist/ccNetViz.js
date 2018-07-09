@@ -12821,12 +12821,15 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 40;
+	        this.fontSize = 24;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
 	        this.fontFamily = 'sans-serif';
+	        // this.fontFamily = 'vedana';
+	        // this.fontFamily = 'arial';
 	        this.fontWeight = 'normal';
+	        // this.fontWeight = 'bold';
 	        // Size of one box of character
 	        var size = this.size = this.fontSize + this.buffer * 2;
 	
@@ -12900,7 +12903,7 @@
 	                    // slice out the array
 	                    t.push(Array.from(glyphData.slice(_i2, _i2 + numCols)));
 	                }
-	                console.log("t", t);
+	                // console.log("t", t);
 	                this.count--;
 	            }
 	
@@ -12993,7 +12996,7 @@
 	    function _class(buffer) {
 	        _classCallCheck(this, _class);
 	
-	        this.buffer = buffer || 3;
+	        if (buffer == undefined) this.buffer = 0;else this.buffer = buffer;
 	    }
 	
 	    // find lb and rb of single row
@@ -13007,7 +13010,7 @@
 	                // left bound of individual row
 	            rb = 0; // right bound of individual row
 	
-	            var threshold = 120;
+	            var threshold = 170;
 	
 	            for (var i = 0; i < a.length; i++) {
 	                if (a[i] > threshold) {
@@ -13064,12 +13067,16 @@
 	            var bounds = this._findGlyphBounds(glyph);
 	            var lb = bounds[0];
 	            var rb = bounds[1];
-	            // const buffer = this.buffer;
-	            var buffer = 0;
+	
+	            var buffer = this.buffer;
+	            // const buffer = 20;
+	            // const buffer = 1;
+	            // const buffer = 0;
 	
 	            var newData = [];
 	            // var newWidth = (rb - lb + 1) + buffer * 2 + 2;
 	            var newWidth = rb - lb + 1 + buffer * 2;
+	            // var newWidth = (rb - lb + 1);
 	
 	            // iterate through every row
 	            var currentRow = [];
