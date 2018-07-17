@@ -139,6 +139,7 @@ export default class GlyphAtlas {
         name, // name of the font - "fontstrong#range.pbf"
         glyph, // glyph object from sdf.js
         buffer, // padding around glyph
+        fontSize,
         markDirty //
     ) {
         if (!glyph) return null;
@@ -160,7 +161,9 @@ export default class GlyphAtlas {
         // Add a 1px border around every image.
         // 'padding' variable is basically border
         // buffer variable is basically padding
-        const padding = 1;
+        const padding = Math.floor( Math.pow((fontSize/9), 2.1));
+        // const padding = 20;
+        console.log("padding", padding);
         let packWidth = bufferedWidth + 2 * padding;
         let packHeight = bufferedHeight + 2 * padding;
 

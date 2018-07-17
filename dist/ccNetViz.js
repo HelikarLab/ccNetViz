@@ -11210,13 +11210,14 @@
 	
 	      var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
 	      var glyph = cache[glyphID] && cache[glyphID].glyph || this.spriteGenerator.draw(text);
+	      var fontSize = this.spriteGenerator.fontSize;
 	
 	      if (!this._rects[font]) this._rects[font] = {};
 	      var rect = this._rects[font][text] = this.atlas.addGlyph(glyphID, // character id
 	      this.curFont, // contains url of the font file on server
 	      glyph, // glyph object
 	      buffer, // padding
-	      markDirty // callback function to be called if texture resizes
+	      fontSize, markDirty // callback function to be called if texture resizes
 	      );
 	
 	      return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(glyph, rect, buffer));
@@ -12177,7 +12178,7 @@
 	        name, // name of the font - "fontstrong#range.pbf"
 	        glyph, // glyph object from sdf.js
 	        buffer, // padding around glyph
-	        markDirty //
+	        fontSize, markDirty //
 	        ) {
 	            if (!glyph) return null;
 	
@@ -12198,7 +12199,9 @@
 	            // Add a 1px border around every image.
 	            // 'padding' variable is basically border
 	            // buffer variable is basically padding
-	            var padding = 1;
+	            var padding = Math.floor(Math.pow(fontSize / 9, 2.1));
+	            // const padding = 20;
+	            console.log("padding", padding);
 	            var packWidth = bufferedWidth + 2 * padding;
 	            var packHeight = bufferedHeight + 2 * padding;
 	
@@ -12821,7 +12824,7 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 24;
+	        this.fontSize = 60;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
