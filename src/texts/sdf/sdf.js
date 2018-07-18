@@ -141,6 +141,7 @@ export default class {
 
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
     const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
+    const fontSize = this.spriteGenerator.fontSize;
 
     if (!this._rects[font]) this._rects[font] = {};
     let rect = this._rects[font][text] = this.atlas.addGlyph(
@@ -148,7 +149,8 @@ export default class {
       this.curFont, // contains url of the font file on server
       glyph, // glyph object
       buffer, // padding
-      markDirty // callback function to be called if texture resizes
+      fontSize, // fontSize
+      markDirty, // callback function to be called if texture resizes
     );
 
     return (

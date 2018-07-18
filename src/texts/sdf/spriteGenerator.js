@@ -1,5 +1,4 @@
-'use strict';
-
+import Trimmer from './glyphTrimmer';
 
 var INF = 1e20;
 
@@ -7,12 +6,15 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-        this.fontSize = 24;
+        this.fontSize = 16;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
         this.fontFamily = 'sans-serif';
-        this.fontWeight = 'bold';
+        // this.fontFamily = 'vedana';
+        // this.fontFamily = 'arial';
+        this.fontWeight = 'normal';
+        // this.fontWeight = 'bold';
         // Size of one box of character
         let size = this.size = this.fontSize + this.buffer * 2;
 
@@ -23,6 +25,7 @@ export default class SpriteGenerator {
         this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
         this.ctx.textBaseline = 'middle';
         this.ctx.fillStyle = 'black';
+
         // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
         this.middle = Math.round((size / 2) * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
 
@@ -34,6 +37,10 @@ export default class SpriteGenerator {
         this.d = new Float64Array(size);
         this.z = new Float64Array(size + 1);
         this.v = new Int16Array(size);
+
+        // Glyph Trimmer
+        this.trimmer = new Trimmer(0);
+        this.count = 1;
     }
 
     // Returns the alpha channel for a single character
@@ -58,15 +65,32 @@ export default class SpriteGenerator {
             alphaChannel[i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
         }
 
-        return {
+        const glyph = {
             id: char.charCodeAt(0),
             bitmap: alphaChannel,
             left: 0,
             top: 0,
             width: this.size,
             height: this.size,
-            advance: this.size,
+            advance: 11, // width
         };
+        
+        this.trimmer.process(glyph);
+        // TODO: Delete this debugging code
+        if (glyph.id == 65 && this.count) {
+            const glyphData = glyph.bitmap;
+            const numCols = glyph.width;
+            let t = [];
+            // iterate through every row
+            for (let i = 0; i < glyphData.length; i += numCols) {
+                // slice out the array
+                t.push(Array.from(glyphData.slice(i, i + numCols)));
+            }
+            // console.log("t", t);
+            this.count--;
+        }
+        // console.log(glyph);
+        return glyph;
     }
 
     // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
