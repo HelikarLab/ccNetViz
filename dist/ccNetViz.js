@@ -11210,6 +11210,18 @@
 	
 	      var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
 	      var glyph = cache[glyphID] && cache[glyphID].glyph || this.spriteGenerator.draw(text);
+	
+	      // TODO: Delete following testing code
+	      if (t) {
+	        var imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+	        var testCanvas = document.getElementById("test-canvas");
+	        var ctx = testCanvas.getContext("2d");
+	        ctx.putImageData(imgData, 10, 20);
+	        console.log("Hey, I am runnig");
+	        --t;
+	      }
+	      console.log("t", t);
+	
 	      var fontSize = this.spriteGenerator.fontSize;
 	
 	      if (!this._rects[font]) this._rects[font] = {};
@@ -12825,7 +12837,7 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 16;
+	        this.fontSize = 24;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
@@ -12861,10 +12873,23 @@
 	        this.count = 1;
 	    }
 	
-	    // Returns the alpha channel for a single character
-	
-	
 	    _createClass(SpriteGenerator, [{
+	        key: '_makeRGBAImageData',
+	        value: function _makeRGBAImageData(alphaChannel, width, height) {
+	            var imageData = this.ctx.createImageData(width, height);
+	            var data = imageData.data;
+	            for (var i = 0; i < alphaChannel.length; i++) {
+	                data[4 * i + 0] = alphaChannel[i];
+	                data[4 * i + 1] = alphaChannel[i];
+	                data[4 * i + 2] = alphaChannel[i];
+	                data[4 * i + 3] = 255;
+	            }
+	            return imageData;
+	        }
+	
+	        // Returns the alpha channel for a single character
+	
+	    }, {
 	        key: 'draw',
 	        value: function draw(char) {
 	            // Clear the area and draw the glyph

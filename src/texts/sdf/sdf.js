@@ -141,8 +141,20 @@ export default class {
 
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
     const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
-    const fontSize = this.spriteGenerator.fontSize;
+    
+    // TODO: Delete following testing code
+    if(t) {
+      const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+      const testCanvas = document.getElementById("test-canvas");
+      const ctx = testCanvas.getContext("2d");
+      ctx.putImageData(imgData, 10, 20);
+      console.log("Hey, I am runnig");
+      --t;
+    }
+    console.log("t", t);
 
+    const fontSize = this.spriteGenerator.fontSize;
+    
     if (!this._rects[font]) this._rects[font] = {};
     let rect = this._rects[font][text] = this.atlas.addGlyph(
       glyphID, // character id
