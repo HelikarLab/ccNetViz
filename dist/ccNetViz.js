@@ -12830,14 +12830,10 @@
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
 	        this.fontFamily = 'sans-serif';
-<<<<<<< HEAD
-	        this.fontWeight = 'bold';
-=======
 	        // this.fontFamily = 'vedana';
 	        // this.fontFamily = 'arial';
 	        this.fontWeight = 'normal';
 	        // this.fontWeight = 'bold';
->>>>>>> glyph-trimmer
 	        // Size of one box of character
 	        var size = this.size = this.fontSize + this.buffer * 2;
 	
@@ -12898,11 +12894,7 @@
 	                top: 0,
 	                width: this.size,
 	                height: this.size,
-<<<<<<< HEAD
-	                advance: this.size
-=======
 	                advance: 11 // width
->>>>>>> glyph-trimmer
 	            };
 	
 	            this.trimmer.process(glyph);
@@ -12919,9 +12911,7 @@
 	                // console.log("t", t);
 	                this.count--;
 	            }
-	
 	            // console.log(glyph);
-	
 	            return glyph;
 	        }
 	
