@@ -11217,7 +11217,6 @@
 	        var testCanvas = document.getElementById("test-canvas");
 	        var ctx = testCanvas.getContext("2d");
 	        ctx.putImageData(imgData, 10, 20);
-	        console.log("Hey, I am runnig");
 	        --t;
 	      }
 	      console.log("t", t);
@@ -12122,6 +12121,7 @@
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	
+	            console.log("this.data", this.data);
 	            // specifies a two-dimensional image for texture buffer stored in variable named "texture"
 	            gl.texImage2D(gl.TEXTURE_2D, // target: A two-dimensional texture
 	            0, // level of detail: 0 = base image level; n = nth mipmap reduction level

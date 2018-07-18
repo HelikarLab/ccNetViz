@@ -148,7 +148,6 @@ export default class {
       const testCanvas = document.getElementById("test-canvas");
       const ctx = testCanvas.getContext("2d");
       ctx.putImageData(imgData, 10, 20);
-      console.log("Hey, I am runnig");
       --t;
     }
     console.log("t", t);

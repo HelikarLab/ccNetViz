@@ -76,6 +76,7 @@ export default class GlyphAtlas {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+        console.log("this.data", this.data);
         // specifies a two-dimensional image for texture buffer stored in variable named "texture"
         gl.texImage2D(
             gl.TEXTURE_2D, // target: A two-dimensional texture
