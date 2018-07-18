@@ -6,7 +6,7 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-        this.fontSize = 60;
+        this.fontSize = 16;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
@@ -25,6 +25,7 @@ export default class SpriteGenerator {
         this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
         this.ctx.textBaseline = 'middle';
         this.ctx.fillStyle = 'black';
+
         // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
         this.middle = Math.round((size / 2) * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
 
@@ -88,9 +89,7 @@ export default class SpriteGenerator {
             // console.log("t", t);
             this.count--;
         }
-
         // console.log(glyph);
-
         return glyph;
     }
 

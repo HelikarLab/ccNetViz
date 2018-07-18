@@ -11217,7 +11217,8 @@
 	      this.curFont, // contains url of the font file on server
 	      glyph, // glyph object
 	      buffer, // padding
-	      fontSize, markDirty // callback function to be called if texture resizes
+	      fontSize, // fontSize
+	      markDirty // callback function to be called if texture resizes
 	      );
 	
 	      return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(glyph, rect, buffer));
@@ -12824,7 +12825,7 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 60;
+	        this.fontSize = 16;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
@@ -12843,6 +12844,7 @@
 	        this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
 	        this.ctx.textBaseline = 'middle';
 	        this.ctx.fillStyle = 'black';
+	
 	        // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
 	        this.middle = Math.round(size / 2 * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
 	
