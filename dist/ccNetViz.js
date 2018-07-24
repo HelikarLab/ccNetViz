@@ -196,11 +196,11 @@
 	
 	var _texts2 = _interopRequireDefault(_texts);
 	
-	var _lazyEvents = __webpack_require__(44);
+	var _lazyEvents = __webpack_require__(43);
 	
 	var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
 	
-	var _interactivityBatch = __webpack_require__(45);
+	var _interactivityBatch = __webpack_require__(44);
 	
 	var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
 	
@@ -11053,7 +11053,7 @@
 	
 	var _glyphs2 = _interopRequireDefault(_glyphs);
 	
-	var _spriteGenerator = __webpack_require__(42);
+	var _spriteGenerator = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./spriteGenerator\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	var _spriteGenerator2 = _interopRequireDefault(_spriteGenerator);
 	
@@ -12811,331 +12811,8 @@
 	}
 
 /***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _glyphTrimmer = __webpack_require__(43);
-	
-	var _glyphTrimmer2 = _interopRequireDefault(_glyphTrimmer);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var INF = 1e20;
-	
-	var SpriteGenerator = function () {
-	    function SpriteGenerator() {
-	        _classCallCheck(this, SpriteGenerator);
-	
-	        // Member variables for configurations for font-style and box of the font
-<<<<<<< HEAD
-	        this.fontSize = 34;
-=======
-	        this.fontSize = 24;
->>>>>>> testing
-	        this.buffer = this.fontSize / 8;
-	        this.radius = this.fontSize / 3;
-	        this.cutoff = 0.25;
-	        this.fontFamily = 'sans-serif';
-	        // this.fontFamily = 'vedana';
-	        // this.fontFamily = 'arial';
-	        this.fontWeight = 'normal';
-	        // this.fontWeight = 'bold';
-	        // Size of one box of character
-	        var size = this.size = this.fontSize + this.buffer * 2;
-	
-	        // Member varaibles for single canvas element on which single character is to be drawn
-	        this.canvas = document.createElement('canvas');
-	        this.canvas.width = this.canvas.height = size;
-	        this.ctx = this.canvas.getContext('2d');
-	        this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
-	        this.ctx.textBaseline = 'middle';
-	        this.ctx.fillStyle = 'black';
-	
-	        // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
-	        this.middle = Math.round(size / 2 * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
-	
-	        // Member variables for temp arrays required for the distance transform
-	        this.gridOuter = new Float64Array(size * size);
-	        this.gridInner = new Float64Array(size * size);
-	        this.f = new Float64Array(size);
-	        this.d = new Float64Array(size);
-	        this.z = new Float64Array(size + 1);
-	        this.v = new Int16Array(size);
-	
-	        // Glyph Trimmer
-	        this.trimmer = new _glyphTrimmer2.default(0);
-	        this.count = 1;
-	    }
-	
-	    _createClass(SpriteGenerator, [{
-	        key: '_makeRGBAImageData',
-	        value: function _makeRGBAImageData(alphaChannel, width, height) {
-	            var imageData = this.ctx.createImageData(width, height);
-	            var data = imageData.data;
-	            for (var i = 0; i < alphaChannel.length; i++) {
-	                data[4 * i + 0] = alphaChannel[i];
-	                data[4 * i + 1] = alphaChannel[i];
-	                data[4 * i + 2] = alphaChannel[i];
-	                data[4 * i + 3] = 255;
-	            }
-	            return imageData;
-	        }
-	
-	        // Returns the alpha channel for a single character
-	
-	    }, {
-	        key: 'draw',
-	        value: function draw(char) {
-	            // Clear the area and draw the glyph
-	            this.ctx.clearRect(0, 0, this.size, this.size);
-	            this.ctx.fillText(char, this.buffer, this.middle);
-	            var imgData = this.ctx.getImageData(0, 0, this.size, this.size);
-	            var alphaChannel = new Uint8ClampedArray(this.size * this.size);
-	
-	            for (var i = 0; i < this.size * this.size; i++) {
-	                var a = imgData.data[i * 4 + 3] / 255; // alpha value
-	                this.gridOuter[i] = a === 1 ? 0 : a === 0 ? INF : Math.pow(Math.max(0, 0.5 - a), 2);
-	                this.gridInner[i] = a === 1 ? INF : a === 0 ? 0 : Math.pow(Math.max(0, a - 0.5), 2);
-	            }
-	
-	            this._edt(this.gridOuter, this.size, this.size, this.f, this.d, this.v, this.z);
-	            this._edt(this.gridInner, this.size, this.size, this.f, this.d, this.v, this.z);
-	
-	            for (var _i = 0; _i < this.size * this.size; _i++) {
-	                var d = this.gridOuter[_i] - this.gridInner[_i];
-	                alphaChannel[_i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
-	            }
-	
-	            var glyph = {
-	                id: char.charCodeAt(0),
-	                bitmap: alphaChannel,
-	                left: 0,
-	                top: 0,
-	                width: this.size,
-	                height: this.size,
-	                advance: 4 // width
-	            };
-	
-	            if (glyph.id !== 32) {
-	                this.trimmer.process(glyph);
-	            }
-	
-	            // TODO: Delete this debugging code
-	            if (glyph.id == 65 && this.count) {
-	                var glyphData = glyph.bitmap;
-	                var numCols = glyph.width;
-	                var t = [];
-	                // iterate through every row
-	                for (var _i2 = 0; _i2 < glyphData.length; _i2 += numCols) {
-	                    // slice out the array
-	                    t.push(Array.from(glyphData.slice(_i2, _i2 + numCols)));
-	                }
-	                // console.log("t", t);
-	                this.count--;
-	            }
-	            // console.log(glyph);
-	            return glyph;
-	        }
-	
-	        // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
-	
-	    }, {
-	        key: '_edt',
-	        value: function _edt(data, width, height, f, d, v, z) {
-	            for (var x = 0; x < width; x++) {
-	                for (var y = 0; y < height; y++) {
-	                    f[y] = data[y * width + x];
-	                }
-	                this._edt1d(f, d, v, z, height);
-	                for (var _y = 0; _y < height; _y++) {
-	                    data[_y * width + x] = d[_y];
-	                }
-	            }
-	            for (var _y2 = 0; _y2 < height; _y2++) {
-	                for (var _x = 0; _x < width; _x++) {
-	                    f[_x] = data[_y2 * width + _x];
-	                }
-	                this._edt1d(f, d, v, z, width);
-	                for (var _x2 = 0; _x2 < width; _x2++) {
-	                    data[_y2 * width + _x2] = Math.sqrt(d[_x2]);
-	                }
-	            }
-	        }
-	
-	        // 1D squared distance transform
-	
-	    }, {
-	        key: '_edt1d',
-	        value: function _edt1d(f, d, v, z, n) {
-	            v[0] = 0;
-	            z[0] = -INF;
-	            z[1] = +INF;
-	
-	            for (var q = 1, k = 0; q < n; q++) {
-	                var s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-	                while (s <= z[k]) {
-	                    k--;
-	                    s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-	                }
-	                k++;
-	                v[k] = q;
-	                z[k] = s;
-	                z[k + 1] = +INF;
-	            }
-	
-	            for (var _q = 0, _k = 0; _q < n; _q++) {
-	                while (z[_k + 1] < _q) {
-	                    _k++;
-	                }d[_q] = (_q - v[_k]) * (_q - v[_k]) + f[v[_k]];
-	            }
-	        }
-	    }]);
-	
-	    return SpriteGenerator;
-	}();
-	
-	exports.default = SpriteGenerator;
-
-/***/ }),
+/* 42 */,
 /* 43 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	/* Algorithm to trim the glyph and add padding to it */
-	// Finding absolute left bound (lb) and right bound (rb) of the glyph
-	// Slicing the extra columns
-	// Adding buffer space on the sides
-	
-	var _class = function () {
-	    function _class(buffer) {
-	        _classCallCheck(this, _class);
-	
-	        if (buffer == undefined) this.buffer = 0;else this.buffer = buffer;
-	    }
-	
-	    // find lb and rb of single row
-	
-	
-	    _createClass(_class, [{
-	        key: "_findRowBounds",
-	        value: function _findRowBounds(a) {
-	            // a == array
-	            var lb = 0,
-	                // left bound of individual row
-	            rb = 0; // right bound of individual row
-	
-	            var threshold = 170;
-	
-	            for (var i = 0; i < a.length; i++) {
-	                if (a[i] > threshold) {
-	                    lb = i;
-	                    break;
-	                }
-	            }
-	            if (!lb) lb = a.length;
-	
-	            for (var _i = a.length; _i > -1; _i--) {
-	                if (a[_i] > threshold) {
-	                    rb = _i;
-	                    break;
-	                }
-	            }
-	            if (!rb) rb = -1;
-	
-	            return [lb, rb];
-	        }
-	    }, {
-	        key: "_findGlyphBounds",
-	        value: function _findGlyphBounds(glyph) {
-	            var glyphData = glyph.bitmap;
-	            var numCols = glyph.width;
-	            var currentRow = [];
-	
-	            var lbs = [],
-	                // row left bounds
-	            rbs = []; // row right bounds    
-	            var lb = -1,
-	                rb = glyphData.length;
-	
-	            // iterate through every row
-	            for (var i = 0; i < glyphData.length; i += numCols) {
-	                // slice out the array
-	                currentRow = glyphData.slice(i, i + numCols);
-	                var res = this._findRowBounds(currentRow);
-	                lbs.push(res[0]);
-	                rbs.push(res[1]);
-	            }
-	
-	            // choose the min(lbs) and max(rbs) as absolute lb and rb
-	            lb = Math.min.apply(Math, lbs);
-	            rb = Math.max.apply(Math, rbs);
-	            // if (lb >= numCols || rb < 0) throw "Glyph is empty";
-	            return [lb, rb];
-	        }
-	    }, {
-	        key: "process",
-	        value: function process(glyph) {
-	            var glyphData = glyph.bitmap;
-	            var numCols = glyph.width;
-	
-	            var bounds = this._findGlyphBounds(glyph);
-	            var lb = bounds[0];
-	            var rb = bounds[1];
-	
-	            var buffer = this.buffer;
-	            // const buffer = 20;
-	            // const buffer = 1;
-	            // const buffer = 0;
-	
-	            var newData = [];
-	            // var newWidth = (rb - lb + 1) + buffer * 2 + 2;
-	            var newWidth = rb - lb + 1 + buffer * 2;
-	            // var newWidth = (rb - lb + 1);
-	
-	            // iterate through every row
-	            var currentRow = [];
-	            for (var i = 0; i < glyphData.length; i += numCols) {
-	                currentRow = glyphData.slice(i, i + numCols);
-	                var bufferCol = Array.apply(null, Array(buffer)).map(Number.prototype.valueOf, 0);
-	                newData.push.apply(newData, _toConsumableArray(bufferCol).concat(_toConsumableArray(currentRow.slice(lb, rb + 1)), _toConsumableArray(bufferCol)));
-	            }
-	
-	            // JS passes objects by reference. Therefore,
-	            glyph.bitmap = new Uint8ClampedArray(newData);
-	            glyph.width = newWidth;
-	            glyph.advance = newWidth;
-	        }
-	    }]);
-	
-	    return _class;
-	}(); // ends class
-	
-
-	exports.default = _class;
-
-/***/ }),
-/* 44 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -13221,7 +12898,7 @@
 	;
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
