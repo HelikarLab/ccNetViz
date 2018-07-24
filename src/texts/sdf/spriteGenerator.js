@@ -6,7 +6,11 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
+<<<<<<< HEAD
         this.fontSize = 34;
+=======
+        this.fontSize = 24;
+>>>>>>> testing
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
@@ -41,6 +45,18 @@ export default class SpriteGenerator {
         // Glyph Trimmer
         this.trimmer = new Trimmer(0);
         this.count = 1;
+    }
+
+    _makeRGBAImageData(alphaChannel, width, height) {
+        let imageData = this.ctx.createImageData(width, height);
+        let data = imageData.data;
+        for (let i = 0; i < alphaChannel.length; i++) {
+            data[4 * i + 0] = alphaChannel[i];
+            data[4 * i + 1] = alphaChannel[i];
+            data[4 * i + 2] = alphaChannel[i];
+            data[4 * i + 3] = 255;
+        }
+        return imageData;
     }
 
     // Returns the alpha channel for a single character

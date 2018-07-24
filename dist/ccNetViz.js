@@ -11210,6 +11210,17 @@
 	
 	      var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
 	      var glyph = cache[glyphID] && cache[glyphID].glyph || this.spriteGenerator.draw(text);
+	
+	      // TODO: Delete following testing code
+	      if (t) {
+	        var imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+	        var testCanvas = document.getElementById("test-canvas");
+	        var ctx = testCanvas.getContext("2d");
+	        ctx.putImageData(imgData, 10, 20);
+	        --t;
+	      }
+	      console.log("t", t);
+	
 	      var fontSize = this.spriteGenerator.fontSize;
 	
 	      if (!this._rects[font]) this._rects[font] = {};
@@ -12110,6 +12121,7 @@
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	
+	            console.log("this.data", this.data);
 	            // specifies a two-dimensional image for texture buffer stored in variable named "texture"
 	            gl.texImage2D(gl.TEXTURE_2D, // target: A two-dimensional texture
 	            0, // level of detail: 0 = base image level; n = nth mipmap reduction level
@@ -12825,7 +12837,11 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
+<<<<<<< HEAD
 	        this.fontSize = 34;
+=======
+	        this.fontSize = 24;
+>>>>>>> testing
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
@@ -12861,10 +12877,23 @@
 	        this.count = 1;
 	    }
 	
-	    // Returns the alpha channel for a single character
-	
-	
 	    _createClass(SpriteGenerator, [{
+	        key: '_makeRGBAImageData',
+	        value: function _makeRGBAImageData(alphaChannel, width, height) {
+	            var imageData = this.ctx.createImageData(width, height);
+	            var data = imageData.data;
+	            for (var i = 0; i < alphaChannel.length; i++) {
+	                data[4 * i + 0] = alphaChannel[i];
+	                data[4 * i + 1] = alphaChannel[i];
+	                data[4 * i + 2] = alphaChannel[i];
+	                data[4 * i + 3] = 255;
+	            }
+	            return imageData;
+	        }
+	
+	        // Returns the alpha channel for a single character
+	
+	    }, {
 	        key: 'draw',
 	        value: function draw(char) {
 	            // Clear the area and draw the glyph
