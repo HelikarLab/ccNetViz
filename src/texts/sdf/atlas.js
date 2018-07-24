@@ -76,7 +76,6 @@ export default class GlyphAtlas {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-        console.log("this.data", this.data);
         // specifies a two-dimensional image for texture buffer stored in variable named "texture"
         gl.texImage2D(
             gl.TEXTURE_2D, // target: A two-dimensional texture
@@ -164,7 +163,6 @@ export default class GlyphAtlas {
         // buffer variable is basically padding
         const padding = Math.floor( Math.pow( Math.ceil(fontSize/7), 2));
         // const padding = 12;
-        console.log("padding", padding);
         let packWidth = bufferedWidth + 2 * padding;
         let packHeight = bufferedHeight + 2 * padding;
 

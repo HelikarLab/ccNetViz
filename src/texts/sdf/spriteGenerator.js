@@ -101,10 +101,8 @@ export default class SpriteGenerator {
                 // slice out the array
                 t.push(Array.from(glyphData.slice(i, i + numCols)));
             }
-            // console.log("t", t);
             this.count--;
         }
-        // console.log(glyph);
         return glyph;
     }
 

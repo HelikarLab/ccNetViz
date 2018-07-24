@@ -150,7 +150,6 @@ export default class {
       ctx.putImageData(imgData, 10, 20);
       --t;
     }
-    console.log("t", t);
 
     const fontSize = this.spriteGenerator.fontSize;
     

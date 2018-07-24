@@ -11219,7 +11219,6 @@
 	        ctx.putImageData(imgData, 10, 20);
 	        --t;
 	      }
-	      console.log("t", t);
 	
 	      var fontSize = this.spriteGenerator.fontSize;
 	
@@ -12121,7 +12120,6 @@
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	
-	            console.log("this.data", this.data);
 	            // specifies a two-dimensional image for texture buffer stored in variable named "texture"
 	            gl.texImage2D(gl.TEXTURE_2D, // target: A two-dimensional texture
 	            0, // level of detail: 0 = base image level; n = nth mipmap reduction level
@@ -12214,7 +12212,6 @@
 	            // buffer variable is basically padding
 	            var padding = Math.floor(Math.pow(Math.ceil(fontSize / 7), 2));
 	            // const padding = 12;
-	            console.log("padding", padding);
 	            var packWidth = bufferedWidth + 2 * padding;
 	            var packHeight = bufferedHeight + 2 * padding;
 	
@@ -12936,10 +12933,8 @@
 	                    // slice out the array
 	                    t.push(Array.from(glyphData.slice(_i2, _i2 + numCols)));
 	                }
-	                // console.log("t", t);
 	                this.count--;
 	            }
-	            // console.log(glyph);
 	            return glyph;
 	        }
 	
