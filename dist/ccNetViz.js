@@ -12200,8 +12200,8 @@
 	            // Add a 1px border around every image.
 	            // 'padding' variable is basically border
 	            // buffer variable is basically padding
-	            var padding = Math.floor(Math.pow(fontSize / 9, 2.1));
-	            // const padding = 20;
+	            var padding = Math.floor(Math.pow(Math.ceil(fontSize / 7), 2));
+	            // const padding = 12;
 	            console.log("padding", padding);
 	            var packWidth = bufferedWidth + 2 * padding;
 	            var packHeight = bufferedHeight + 2 * padding;
@@ -12825,7 +12825,7 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 24;
+	        this.fontSize = 34;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
@@ -12894,10 +12894,13 @@
 	                top: 0,
 	                width: this.size,
 	                height: this.size,
-	                advance: 11 // width
+	                advance: 4 // width
 	            };
 	
-	            this.trimmer.process(glyph);
+	            if (glyph.id !== 32) {
+	                this.trimmer.process(glyph);
+	            }
+	
 	            // TODO: Delete this debugging code
 	            if (glyph.id == 65 && this.count) {
 	                var glyphData = glyph.bitmap;

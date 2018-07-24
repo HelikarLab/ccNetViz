@@ -6,7 +6,7 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-        this.fontSize = 24;
+        this.fontSize = 34;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
@@ -72,10 +72,13 @@ export default class SpriteGenerator {
             top: 0,
             width: this.size,
             height: this.size,
-            advance: 11, // width
+            advance: 4, // width
         };
         
-        this.trimmer.process(glyph);
+        if(glyph.id !== 32) {
+            this.trimmer.process(glyph);
+        }
+
         // TODO: Delete this debugging code
         if (glyph.id == 65 && this.count) {
             const glyphData = glyph.bitmap;
