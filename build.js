@@ -1,10 +1,9 @@
-var Webpack = require("webpack");
-
+// Google Closuer Compiler Scrpit
 var flags = {};
+
 process.argv.forEach(function (val, index, array) {
   flags[val] = true;
 });
-
 
 var ClosureCompiler = require('google-closure-compiler').compiler;
 
@@ -35,8 +34,9 @@ function runClosueCompiler(){
     });
 }
 
+// Webpack Build Scrpit
 
-
+var Webpack = require("webpack");
 var path = require('path');
 
 // returns a Compiler instance
@@ -50,14 +50,19 @@ var webpackinst = Webpack({
 //    extensions: ['', '.js', '.jsx']
 //  },
   devtool: 'source-map',
-  debug:true,
+  // debug:true,
   module:{
-  loaders: [
+  rules: [
     {
 //      test: /\.js?$/g,
       exclude: /(node_modules|bower_components)/,
       query: {
-//	plugins: ['transform-es2015-modules-commonjs'],
+  // plugins: ['transform-es2015-modules-commonjs'],
+  plugins: [
+    new Webpack.LoaderOptionsPlugin({
+      debug: true
+    })
+  ],
         presets: ['es2015']
 //      compact: false
       },
