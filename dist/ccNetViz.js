@@ -12834,7 +12834,8 @@
 	        _classCallCheck(this, SpriteGenerator);
 	
 	        // Member variables for configurations for font-style and box of the font
-	        this.fontSize = 24;
+	        var textSize = 23;
+	        this.fontSize = Math.round(textSize / 4) * 4;
 	        this.buffer = this.fontSize / 8;
 	        this.radius = this.fontSize / 3;
 	        this.cutoff = 0.25;
