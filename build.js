@@ -1,10 +1,16 @@
-// Google Closuer Compiler Scrpit
+/**
+ *  Collecting Terminal Arguments
+ */
+
 var flags = {};
 
 process.argv.forEach(function (val, index, array) {
   flags[val] = true;
 });
 
+/**
+ *  Google Closuer Compiler Scrpit
+ */
 var ClosureCompiler = require('google-closure-compiler').compiler;
 
 function runClosueCompiler(){
@@ -34,49 +40,50 @@ function runClosueCompiler(){
     });
 }
 
-// Webpack Build Scrpit
+/**
+ * Webpack Build Scrpit
+ */
 
 var Webpack = require("webpack");
 var path = require('path');
 
 // returns a Compiler instance
 var webpackinst = Webpack({
+  
   entry: './src/ccNetVizMultiLevel.js',
+  
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'ccNetViz.js',
   },
-//  resolve: {
-//    extensions: ['', '.js', '.jsx']
-//  },
+
   devtool: 'source-map',
-  // debug:true,
+
   module:{
-  rules: [
-    {
-//      test: /\.js?$/g,
-      exclude: /(node_modules|bower_components)/,
-      query: {
-  // plugins: ['transform-es2015-modules-commonjs'],
+    rules: [
+      // Loader 1
+      {
+        // Target Files
+        test: /\.js?$/g,
+        
+        // Excluded folders
+        exclude: /(node_modules|bower_components)/,
+        
+        // The Loader
+        loader: 'babel',
+
+        // Loader Configurations
+        query: {
+          presets: ['es2015']
+        },
+      }
+    ]
+  },
   plugins: [
     new Webpack.LoaderOptionsPlugin({
       debug: true
     })
   ],
-        presets: ['es2015']
-//      compact: false
-      },
-//      loader: 'babel-loader' // 'babel-loader' is also a legal name to reference
-      loader: 'babel' // 'babel-loader' is also a legal name to reference
-    }
-  ]
-  }
-},function(err, stats) {
-        if (err) { 
-            console.error(" --- ERROR in webpack configuration");
-            console.error(stats);
-            process.exit(0);
-        }
 });
 
 
@@ -106,18 +113,3 @@ webpackinst.run(function(err, stats) {
       runClosueCompiler();
     },5*100);
 });
-
-
-
-
-
-/*
-// or
-webpackinst.watch({ // watch options:
-    aggregateTimeout: 300, // wait so long for more changes
-    poll: true // use polling instead of native watchers
-    // pass a number to set the polling interval
-}, function(err, stats) {
-    // ...
-});
-*/

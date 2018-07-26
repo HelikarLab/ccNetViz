@@ -41,9 +41,10 @@
     "WebGL"
   ],
   "dependencies": {
+    "ml-matrix": "^5.0.0",
     "pbf": "^3.0.5",
     "shelf-pack": "^2.0.1",
-    "ml-matrix": "^5.0.0"
+    "webpack-cli": "^3.1.0"
   },
   "contributors": [
     {
