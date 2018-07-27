@@ -6,11 +6,7 @@ export default class SpriteGenerator {
 
     constructor() {
         // Member variables for configurations for font-style and box of the font
-<<<<<<< HEAD
         const textSize = 23;
-=======
-        const textSize = 33;
->>>>>>> 0819823808d599eaef366bc6b9f51e8805346b98
         this.fontSize = Math.round(textSize / 4) * 4;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
