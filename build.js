@@ -43,7 +43,6 @@ function runClosueCompiler(){
 /**
  * Webpack Build Scrpit
  */
-
 var Webpack = require("webpack");
 var path = require('path');
 
@@ -57,6 +56,11 @@ var webpackinst = Webpack({
     filename: 'ccNetViz.js',
   },
 
+
+  /**
+   *   | devtool value  | build   | rebuild | production  | quality
+   *   | 'source-map'   | slow    | slow    | yes         | original source
+   */
   devtool: 'source-map',
 
   module:{
@@ -64,7 +68,7 @@ var webpackinst = Webpack({
       // Loader 1
       {
         // Target Files
-        test: /\.js?$/g,
+        // test: /\.js?$/g,
         
         // Excluded folders
         exclude: /(node_modules|bower_components)/,
@@ -110,6 +114,7 @@ webpackinst.run(function(err, stats) {
 
       console.log(' --- Successfully packed into dist/ccNetViz.js');
 
+      console.log(' --- Executing closure compiler');
       runClosueCompiler();
     },5*100);
 });
