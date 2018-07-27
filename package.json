@@ -64,7 +64,11 @@
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "react-scripts start",
-    "build": "node build.js",
+
+    "build": "webpack --mode production && node build.js",
+    "dev"  : "webpack --mode development && node build.js",
+    
+    "webpack-help": "webpack --help",
     "compiled": "node build.js compile"
   }
 }
