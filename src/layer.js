@@ -375,15 +375,15 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         // Here is the line that I want to change
         // layout;
         
-        const t1 = performance.now();
+        // const t1 = performance.now();
         new ccNetViz_layout['force'](nodes, edges, layout_options).apply();
-        const t2 = performance.now();
-        console.log("layout computation time: ", t2-t1);
+        // const t2 = performance.now();
+        // console.log("layout computation time: ", t2-t1);
         
-        const t3 = performance.now();
+        // const t3 = performance.now();
         ccNetViz_layout.normalize(nodes);
-        const t4 = performance.now();
-        console.log("normalization computation time: ", t4 - t3);
+        // const t4 = performance.now();
+        // console.log("normalization computation time: ", t4 - t3);
 
         
         
