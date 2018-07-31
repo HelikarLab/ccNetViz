@@ -22,7 +22,7 @@ module.exports = {
             // Loader 1
             {
                 // Target Files
-                test: /\.js?$/g,
+                // test: /\.js?$/g,
 
                 // Excluded folders
                 exclude: /(node_modules|bower_components)/,

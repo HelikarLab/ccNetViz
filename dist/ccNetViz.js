@@ -6322,43 +6322,63 @@ return ShelfPack;
 /*!*************************!*\
   !*** ./src/ccNetViz.js ***!
   \*************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _layer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./layer */ "./src/layer.js");
-/* harmony import */ var _layer__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_layer__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _layout_layout__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./layout/layout */ "./src/layout/layout.js");
-/* harmony import */ var _layout_layout__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_layout_layout__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./gl */ "./src/gl.js?7df0");
-/* harmony import */ var _color__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./color */ "./src/color.js?c448");
-/* harmony import */ var _color__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_color__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.js?025e");
-/* harmony import */ var _dataSources_textures__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./dataSources/textures */ "./src/dataSources/textures.js");
-/* harmony import */ var _dataSources_textures__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_dataSources_textures__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _dataSources_files__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dataSources/files */ "./src/dataSources/files.js");
-/* harmony import */ var _texts_texts__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./texts/texts */ "./src/texts/texts.js");
-/* harmony import */ var _texts_texts__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_texts_texts__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _lazyEvents__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./lazyEvents */ "./src/lazyEvents.js");
-/* harmony import */ var _lazyEvents__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_lazyEvents__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var _interactivityBatch__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./interactivityBatch */ "./src/interactivityBatch.js");
-/* harmony import */ var _interactivityBatch__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_interactivityBatch__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _spatialSearch_spatialSearch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./spatialSearch/spatialSearch */ "./src/spatialSearch/spatialSearch.js");
-/* harmony import */ var _spatialSearch_spatialSearch__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_spatialSearch_spatialSearch__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _primitiveTools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js?9f31");
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
+var _layer = __webpack_require__(/*! ./layer */ "./src/layer.js");
 
+var _layer2 = _interopRequireDefault(_layer);
 
+var _layout = __webpack_require__(/*! ./layout/layout */ "./src/layout/layout.js");
 
+var _layout2 = _interopRequireDefault(_layout);
 
+var _gl = __webpack_require__(/*! ./gl */ "./src/gl.js");
 
+var _gl2 = _interopRequireDefault(_gl);
 
+var _color = __webpack_require__(/*! ./color */ "./src/color.js");
 
+var _color2 = _interopRequireDefault(_color);
 
+var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
+var _utils2 = _interopRequireDefault(_utils);
+
+var _textures = __webpack_require__(/*! ./dataSources/textures */ "./src/dataSources/textures.js");
+
+var _textures2 = _interopRequireDefault(_textures);
+
+var _files = __webpack_require__(/*! ./dataSources/files */ "./src/dataSources/files.js");
+
+var _files2 = _interopRequireDefault(_files);
+
+var _texts = __webpack_require__(/*! ./texts/texts */ "./src/texts/texts.js");
+
+var _texts2 = _interopRequireDefault(_texts);
+
+var _lazyEvents = __webpack_require__(/*! ./lazyEvents */ "./src/lazyEvents.js");
+
+var _lazyEvents2 = _interopRequireDefault(_lazyEvents);
+
+var _interactivityBatch = __webpack_require__(/*! ./interactivityBatch */ "./src/interactivityBatch.js");
+
+var _interactivityBatch2 = _interopRequireDefault(_interactivityBatch);
+
+var _spatialSearch = __webpack_require__(/*! ./spatialSearch/spatialSearch */ "./src/spatialSearch/spatialSearch.js");
+
+var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
+
+var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -6370,137 +6390,141 @@ __webpack_require__.r(__webpack_exports__);
  *    Aleš Saska - http://alessaska.cz/
  */
 
-let sCanvas = document.createElement("canvas");
-function getContext(canvas){
-    let attributes = { depth: false, antialias: false };
-    let gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+var sCanvas = document.createElement("canvas");
+function getContext(canvas) {
+  var attributes = { depth: false, antialias: false };
+  var gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
 
-    return gl;
+  return gl;
 }
-
 
 var lastUniqId = 0;
 
-function checkUniqId(el){
-  if(el.__uniqid !== undefined){
+function checkUniqId(el) {
+  if (el.__uniqid !== undefined) {
     el.uniqid = el.__uniqid;
     delete el.__uniqid;
-  }else if(el.uniqid === undefined){
+  } else if (el.uniqid === undefined) {
     el.uniqid = ++lastUniqId;
   }
 }
 
-
-function mergeArrays(a, b, cmp){
-  let r = [];
+function mergeArrays(a, b, cmp) {
+  var r = [];
   r.length = a.length + b.length;
 
-  let i = 0,j=0,k=0;
+  var i = 0,
+      j = 0,
+      k = 0;
 
-  while (i < a.length && j < b.length)
-  {
-    if (cmp(a[i],b[j]) < 0)
-      r[k++] = a[i++];
-    else
-      r[k++] = b[j++];
+  while (i < a.length && j < b.length) {
+    if (cmp(a[i], b[j]) < 0) r[k++] = a[i++];else r[k++] = b[j++];
   }
 
-  while (i < a.length)
+  while (i < a.length) {
     r[k++] = a[i++];
-
-
-  while (j < b.length)
+  }while (j < b.length) {
     r[k++] = b[j++];
-
-  return r;
+  }return r;
 }
 
-var ccNetViz = function(canvas, options){
-  let self = this;
+var ccNetViz = function ccNetViz(canvas, options) {
+  var _this = this;
+
+  var self = this;
   canvas = canvas || sCanvas;
 
-  let backgroundStyle = options.styles.background = options.styles.background || {};
-  let backgroundColor = new _color__WEBPACK_IMPORTED_MODULE_3___default.a(backgroundStyle.color || "rgb(255, 255, 255)");
+  var backgroundStyle = options.styles.background = options.styles.background || {};
+  var backgroundColor = new _color2.default(backgroundStyle.color || "rgb(255, 255, 255)");
 
-  let removed = false;
-  let setted  = false;
+  var removed = false;
+  var setted = false;
 
-  let nodeStyle = options.styles.node = options.styles.node || {};
+  var nodeStyle = options.styles.node = options.styles.node || {};
   nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
   nodeStyle.maxSize = nodeStyle.maxSize || 16;
   nodeStyle.color = nodeStyle.color || "rgb(255, 255, 255)";
 
   if (nodeStyle.label) {
-      let s = nodeStyle.label;
-      s.color = s.color || "rgb(120, 120, 120)";
-      s.font = s.font || {type:"Arial, Helvetica, sans-serif", size: 11};
+    var s = nodeStyle.label;
+    s.color = s.color || "rgb(120, 120, 120)";
+    s.font = s.font || { type: "Arial, Helvetica, sans-serif", size: 11 };
   }
 
-  let edgeStyle = options.styles.edge = options.styles.edge || {};
+  var edgeStyle = options.styles.edge = options.styles.edge || {};
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
-  let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
+  var onLoad = function onLoad() {
+    if (!options.onLoad || options.onLoad()) {
+      _this.draw(true);
+    }
+  };
 
   if (edgeStyle.arrow) {
-      let s = edgeStyle.arrow;
-      s.minSize = s.minSize != null ? s.minSize : 6;
-      s.maxSize = s.maxSize || 12;
-      s.aspect = 1;
+    var _s = edgeStyle.arrow;
+    _s.minSize = _s.minSize != null ? _s.minSize : 6;
+    _s.maxSize = _s.maxSize || 12;
+    _s.aspect = 1;
   }
 
+  var events = new _lazyEvents2.default();
+  var layers = {};
+  var view = void 0,
+      gl = void 0,
+      drawFunc = void 0,
+      textures = void 0,
+      files = void 0,
+      texts = void 0;
+  var context = {};
 
-  let events = new _lazyEvents__WEBPACK_IMPORTED_MODULE_8___default.a();
-  let layers = {};
-  let view,gl,drawFunc,textures,files,texts;
-  let context = {};
-
-  this.cntShownNodes = () => {
-    let n = 0;
-    for(var k in layers)
+  this.cntShownNodes = function () {
+    var n = 0;
+    for (var k in layers) {
       n += layers[k].cntShownNodes();
-    return n;
-  }
-  let getNodesCnt = options.getNodesCnt || this.cntShownNodes;
+    }return n;
+  };
+  var getNodesCnt = options.getNodesCnt || this.cntShownNodes;
 
-  this.cntShownEdges = () => {
-    let e = 0;
-    for(var k in layers)
+  this.cntShownEdges = function () {
+    var e = 0;
+    for (var k in layers) {
       e += layers[k].cntShownEdges();
-    return e;
-  }
-  let getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
+    }return e;
+  };
+  var getEdgesCnt = options.getEdgesCnt || this.cntShownEdges;
 
-  let onRedraw = events.debounce(() => {
+  var onRedraw = events.debounce(function () {
     self.draw.call(self);
     return false;
   }, 5);
 
-  function checkRemoved(){
-    if(removed){
-      console.error("Cannot call any function on graph after remove()")
+  function checkRemoved() {
+    if (removed) {
+      console.error("Cannot call any function on graph after remove()");
       return true;
     }
     return false;
   }
 
-  let nodes, edges;
+  var nodes = void 0,
+      edges = void 0;
 
-  function insertTempLayer(){
-    if(layers.temp)
-      return;
-    layers.temp = new _layer__WEBPACK_IMPORTED_MODULE_0___default.a(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  function insertTempLayer() {
+    if (layers.temp) return;
+    layers.temp = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
   }
 
-  let batch = undefined;
-  function getBatch(){
-    if(!batch)
-      batch = new _interactivityBatch__WEBPACK_IMPORTED_MODULE_9___default.a(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
+  var batch = undefined;
+  function getBatch() {
+    if (!batch) batch = new _interactivityBatch2.default(layers, insertTempLayer, drawFunc, nodes, edges, checkUniqId);
     return batch;
   };
 
-  this.set = (n, e, layout, layout_options={}) => {
-    if(checkRemoved()) return this;
+  this.set = function (n, e, layout) {
+    var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
+    if (checkRemoved()) return _this;
 
     nodes = n || [];
     edges = e || [];
@@ -6514,224 +6538,251 @@ var ccNetViz = function(canvas, options){
     //reset batch
     batch = undefined;
     setted = true;
-    return this;
+    return _this;
   };
 
   //make all dynamic changes static
-  this.reflow = () => {
-    if(checkRemoved()) return;
+  this.reflow = function () {
+    if (checkRemoved()) return;
 
     getBatch().applyChanges();
 
     //nodes and edges in dynamic chart are actual
-    let n = layers.main.getVisibleNodes();
-    if(layers.temp)  n = n.concat(layers.temp.getVisibleNodes());
+    var n = layers.main.getVisibleNodes();
+    if (layers.temp) n = n.concat(layers.temp.getVisibleNodes());
 
-    let e = layers.main.getVisibleEdges();
-    if(layers.temp) e = e.concat(layers.temp.getVisibleEdges());
+    var e = layers.main.getVisibleEdges();
+    if (layers.temp) e = e.concat(layers.temp.getVisibleEdges());
 
-    this.set(n,e);
-    this.draw();
+    _this.set(n, e);
+    _this.draw();
   };
 
-  this.removeNode = (n) => { if(checkRemoved()){return this;} getBatch().removeNode(n); return this; };
-  this.removeEdge = (e) => { if(checkRemoved()){return this;} getBatch().removeEdge(e); return this; };
-  this.addEdge = (e) => { if(checkRemoved()){return this;} getBatch().addEdge(e); return this;};
-  this.addNode = (n) => { if(checkRemoved()){return this;} getBatch().addNode(n); return this;};
-  this.updateNode = (n) => { if(checkRemoved()){return this;} return this.removeNode(n).addNode(n); };
-  this.updateEdge = (e) => { if(checkRemoved()){return this;} return this.removeEdge(e).addEdge(e); };
-  this.applyChanges = () => { if(checkRemoved()){return this;} getBatch().applyChanges(); return this; };
+  this.removeNode = function (n) {
+    if (checkRemoved()) {
+      return _this;
+    }getBatch().removeNode(n);return _this;
+  };
+  this.removeEdge = function (e) {
+    if (checkRemoved()) {
+      return _this;
+    }getBatch().removeEdge(e);return _this;
+  };
+  this.addEdge = function (e) {
+    if (checkRemoved()) {
+      return _this;
+    }getBatch().addEdge(e);return _this;
+  };
+  this.addNode = function (n) {
+    if (checkRemoved()) {
+      return _this;
+    }getBatch().addNode(n);return _this;
+  };
+  this.updateNode = function (n) {
+    if (checkRemoved()) {
+      return _this;
+    }return _this.removeNode(n).addNode(n);
+  };
+  this.updateEdge = function (e) {
+    if (checkRemoved()) {
+      return _this;
+    }return _this.removeEdge(e).addEdge(e);
+  };
+  this.applyChanges = function () {
+    if (checkRemoved()) {
+      return _this;
+    }getBatch().applyChanges();return _this;
+  };
 
-  this.addEdges = (edges) => {
-    if(checkRemoved()) return this;
+  this.addEdges = function (edges) {
+    if (checkRemoved()) return _this;
 
-    edges.forEach((e) => {
-      this.addEdge(e);
+    edges.forEach(function (e) {
+      _this.addEdge(e);
     });
 
-    return this;
+    return _this;
   };
 
-  this.addNodes = (nodes) => {
-    if(checkRemoved()) return this;
+  this.addNodes = function (nodes) {
+    if (checkRemoved()) return _this;
 
-    nodes.forEach((n) => {
-      this.addNode(n);
+    nodes.forEach(function (n) {
+      _this.addNode(n);
     });
 
-    return this;
+    return _this;
   };
 
-  this.removeEdges = (edges) => {
-    if(checkRemoved()) return this;
+  this.removeEdges = function (edges) {
+    if (checkRemoved()) return _this;
 
-    edges.forEach((e) => {
-      this.removeEdge(e);
+    edges.forEach(function (e) {
+      _this.removeEdge(e);
     });
-    return this;
+    return _this;
   };
 
-  this.removeNodes = (nodes) => {
-    if(checkRemoved()) return this;
+  this.removeNodes = function (nodes) {
+    if (checkRemoved()) return _this;
 
-    nodes.forEach((n) => {
-      this.removeNode(n);
+    nodes.forEach(function (n) {
+      _this.removeNode(n);
     });
-    return this;
+    return _this;
   };
 
-  this.updateNodes = (nodes) => {
-    if(checkRemoved()) return this;
+  this.updateNodes = function (nodes) {
+    if (checkRemoved()) return _this;
 
-    nodes.forEach((n) => {
-      this.updateNode(n);
-    });
-
-    return this;
-  };
-
-  this.updateEdges = (edges) => {
-    if(checkRemoved()) return this;
-
-    edges.forEach((e) => {
-      this.updateEdge(e);
+    nodes.forEach(function (n) {
+      _this.updateNode(n);
     });
 
-    return this;
+    return _this;
   };
 
+  this.updateEdges = function (edges) {
+    if (checkRemoved()) return _this;
 
-  let getSize = (c, s, n, sc) => {
-    let result = sc * Math.sqrt(c.width * c.height / (n+1)) / view.size;
+    edges.forEach(function (e) {
+      _this.updateEdge(e);
+    });
+
+    return _this;
+  };
+
+  var getSize = function getSize(c, s, n, sc) {
+    var result = sc * Math.sqrt(c.width * c.height / (n + 1)) / view.size;
     if (s) {
-      let min = s.size ? s.size : s.minSize;
-      let max = s.size ? s.size : s.maxSize;
+      var min = s.size ? s.size : s.minSize;
+      var max = s.size ? s.size : s.maxSize;
 
       result = max ? Math.min(max, result) : result;
-      if(result < s.hideSize)
-        return 0;
+      if (result < s.hideSize) return 0;
       result = min ? Math.max(min, result) : result;
     }
     return result;
   };
 
-  let getNodeSize = c => getSize(c, c.style, getNodesCnt(), 0.4);
-  let getLabelSize = (c,s) => getSize(c, s, getNodesCnt(), 0.25);
+  var getNodeSize = function getNodeSize(c) {
+    return getSize(c, c.style, getNodesCnt(), 0.4);
+  };
+  var getLabelSize = function getLabelSize(c, s) {
+    return getSize(c, s, getNodesCnt(), 0.25);
+  };
 
-  let getLabelHideSize = (c,s) => {
-    if(s){
-        const sc = 0.25;
-        let n = layers.main.cntShownNodes();  //lower bound
-        let t = sc * Math.sqrt(c.width * c.height / ( n+1 ) );
+  var getLabelHideSize = function getLabelHideSize(c, s) {
+    if (s) {
+      var sc = 0.25;
+      var n = layers.main.cntShownNodes(); //lower bound
+      var t = sc * Math.sqrt(c.width * c.height / (n + 1));
 
-        let vs;
-        if(s.hideSize){
-            vs = t / s.hideSize;
-            if(s.maxSize)
-                vs = Math.min(vs, t / s.maxSize);
-            return vs;
-        }
+      var vs = void 0;
+      if (s.hideSize) {
+        vs = t / s.hideSize;
+        if (s.maxSize) vs = Math.min(vs, t / s.maxSize);
+        return vs;
+      }
     }
 
     return 1;
   };
 
-  let offset = 0.5 * nodeStyle.maxSize;
+  var offset = 0.5 * nodeStyle.maxSize;
 
-  this.draw = (silent) => {
-    if(silent && (removed || !setted) ) return;
-    if(checkRemoved()) return;
+  this.draw = function (silent) {
+    if (silent && (removed || !setted)) return;
+    if (checkRemoved()) return;
 
-    let width = canvas.width;
-    let height = canvas.height;
-    let aspect = width / height;
-    let o = view.size === 1 ? offset : 0;
-    let ox = o / width;
-    let oy = o / height;
+    var width = canvas.width;
+    var height = canvas.height;
+    var aspect = width / height;
+    var o = view.size === 1 ? offset : 0;
+    var ox = o / width;
+    var oy = o / height;
 
-    context.transform = _gl__WEBPACK_IMPORTED_MODULE_2__["default"].ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
-    context.offsetX   = ox;
-    context.offsetY   = oy;
-    context.width     = 0.5 * width;
-    context.height    = 0.5 * height;
-    context.aspect2   = aspect * aspect;
-    context.aspect    = aspect;
-    context.count     = getNodesCnt();
+    context.transform = _gl2.default.ortho(view.x - ox, view.x + view.size + ox, view.y - oy, view.y + view.size + oy, -1, 1);
+    context.offsetX = ox;
+    context.offsetY = oy;
+    context.width = 0.5 * width;
+    context.height = 0.5 * height;
+    context.aspect2 = aspect * aspect;
+    context.aspect = aspect;
+    context.count = getNodesCnt();
 
     //bad hack because we use different size for curveExc and for nodeSize :(
-    if(context.style) delete context.style;
+    if (context.style) delete context.style;
     context.curveExc = getSize(context, undefined, getEdgesCnt(), 0.5);
-    context.style     = nodeStyle;
+    context.style = nodeStyle;
     context.nodeSize = getNodeSize(context);
 
     gl && gl.viewport(0, 0, width, height);
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    for(let i = 0; i < layers.main.scene.elements.length; i++){
+    for (var i = 0; i < layers.main.scene.elements.length; i++) {
       layers.main.scene.elements[i].draw(context);
       layers.temp && layers.temp.scene.elements[i].draw(context);
     }
   };
   drawFunc = this.draw.bind(this);
 
-  this.getScreenCoords = function(conf){
-    if(checkRemoved()) return;
-    let ret = {};
-    let rect = canvas.getBoundingClientRect();
-    if(conf.x !== undefined) ret.x = (conf.x - view.x + context.offsetX) / (view.size + 2*context.offsetX) * canvas.width + rect.left;
-    if(conf.y !== undefined) ret.y = ( 1 - ( conf.y - view.y + context.offsetY) / (view.size + 2*context.offsetY) )  * canvas.height + rect.top;
+  this.getScreenCoords = function (conf) {
+    if (checkRemoved()) return;
+    var ret = {};
+    var rect = canvas.getBoundingClientRect();
+    if (conf.x !== undefined) ret.x = (conf.x - view.x + context.offsetX) / (view.size + 2 * context.offsetX) * canvas.width + rect.left;
+    if (conf.y !== undefined) ret.y = (1 - (conf.y - view.y + context.offsetY) / (view.size + 2 * context.offsetY)) * canvas.height + rect.top;
     return ret;
   };
 
-  this.getLayerCoords = function(conf){
-    if(checkRemoved()) return;
+  this.getLayerCoords = function (conf) {
+    if (checkRemoved()) return;
 
-    let ret = {};
+    var ret = {};
 
-    ['x','x1','x2'].forEach(k => {
-      if(conf[k] !== undefined){
-        let x = conf[k];
-        x = (x/canvas.width)*(view.size+2*context.offsetX)-context.offsetX+view.x;
+    ['x', 'x1', 'x2'].forEach(function (k) {
+      if (conf[k] !== undefined) {
+        var x = conf[k];
+        x = x / canvas.width * (view.size + 2 * context.offsetX) - context.offsetX + view.x;
         ret[k] = x;
       }
     });
 
-
-    ['y','y1','y2'].forEach(k => {
-      if(conf[k] !== undefined){
-        let y = conf[k];
-        y = (1-y/canvas.height)*(view.size+2*context.offsetY)-context.offsetY+view.y;
+    ['y', 'y1', 'y2'].forEach(function (k) {
+      if (conf[k] !== undefined) {
+        var y = conf[k];
+        y = (1 - y / canvas.height) * (view.size + 2 * context.offsetY) - context.offsetY + view.y;
         ret[k] = y;
       }
     });
 
-    if(conf.radius !== undefined){
-      let dist = conf.radius;
+    if (conf.radius !== undefined) {
+      var dist = conf.radius;
 
-      let disth = dist / canvas.height;
-      let distw = dist / canvas.width;
+      var disth = dist / canvas.height;
+      var distw = dist / canvas.width;
       dist = Math.max(disth, distw) * view.size;
 
       ret.radius = dist;
     }
 
     return ret;
-  }
+  };
 
-  let findMerge = function(funcname, args){
-    if(checkRemoved() || !gl) return;
+  var findMerge = function findMerge(funcname, args) {
+    if (checkRemoved() || !gl) return;
 
-    let f1 = layers.main[funcname].apply(layers.main, args);
+    var f1 = layers.main[funcname].apply(layers.main, args);
 
-    if(!layers.temp)
-      return f1;
+    if (!layers.temp) return f1;
 
-    let f2 = layers.temp[funcname].apply(layers.temp, args);
+    var f2 = layers.temp[funcname].apply(layers.temp, args);
 
-    let r = {};
-    for(let key in f1){
-      r[key] = mergeArrays(f1[key], f2[key], (e1, e2) => {
+    var r = {};
+    for (var key in f1) {
+      r[key] = mergeArrays(f1[key], f2[key], function (e1, e2) {
         return e1.dist2 - e2.dist2;
       });
     }
@@ -6739,59 +6790,65 @@ var ccNetViz = function(canvas, options){
     return r;
   };
 
-  this.find = function(){return findMerge('find', arguments); };
-  this.findArea = function(){return findMerge('findArea', arguments); };
-
-  this.getTextPosition = (n) => {
-    if(checkRemoved() || !gl) return;
-
-    const offset = 0.5 * context.nodeSize;
-    const offsety = (2.0 * (n.y <=  0.5 ? 0 : 1) - 1.0) * offset;
-
-    let ns = Object(_primitiveTools__WEBPACK_IMPORTED_MODULE_11__["getPartitionStyle"])(options.styles[n.style],nodeStyle,"label");
-    let textEngine = texts.getEngine(ns.font);
-    textEngine.setFont(ns.font);
-
-    let wantedSize = ( textEngine.isSDF ? getLabelSize(context, ns.label || {}) : textEngine.fontSize );
-    let fontScale = wantedSize / textEngine.fontSize; if(wantedSize === 0){ fontScale = 0; };
-
-    return {offsetY: offsety, fontScale: fontScale, chars: textEngine.get(n.label, n.x, n.y)};
+  this.find = function () {
+    return findMerge('find', arguments);
+  };
+  this.findArea = function () {
+    return findMerge('findArea', arguments);
   };
 
+  this.getTextPosition = function (n) {
+    if (checkRemoved() || !gl) return;
 
+    var offset = 0.5 * context.nodeSize;
+    var offsety = (2.0 * (n.y <= 0.5 ? 0 : 1) - 1.0) * offset;
 
-  let addEvts = (el, evts) => {
-    for(var k in (evts || {})){
-      evts[k] && el.addEventListener(k, evts[k], {passive: options.passiveEvts});
+    var ns = (0, _primitiveTools.getPartitionStyle)(options.styles[n.style], nodeStyle, "label");
+    var textEngine = texts.getEngine(ns.font);
+    textEngine.setFont(ns.font);
+
+    var wantedSize = textEngine.isSDF ? getLabelSize(context, ns.label || {}) : textEngine.fontSize;
+    var fontScale = wantedSize / textEngine.fontSize;if (wantedSize === 0) {
+      fontScale = 0;
+    };
+
+    return { offsetY: offsety, fontScale: fontScale, chars: textEngine.get(n.label, n.x, n.y) };
+  };
+
+  var addEvts = function addEvts(el, evts) {
+    for (var k in evts || {}) {
+      evts[k] && el.addEventListener(k, evts[k], { passive: options.passiveEvts });
     }
-  }
+  };
 
-  let removeEvts = (el, evts) => {
-    for(var k in (evts || {})){
+  var removeEvts = function removeEvts(el, evts) {
+    for (var k in evts || {}) {
       evts[k] && el.removeEventListener(k, evts[k]);
     }
-  }
+  };
 
-  let onDownThis = onMouseDown.bind(this);
+  var onDownThis = onMouseDown.bind(this);
 
-  let zoomevts;
+  var zoomevts = void 0;
   addEvts(canvas, zoomevts = {
     'mousedown': onDownThis,
     'touchstart': onDownThis,
     'wheel': onWheel.bind(this),
     'contextmenu': options.onContextMenu
-  })
+  });
 
-  this.remove = () => {
-    if(checkRemoved()) return;
+  this.remove = function () {
+    if (checkRemoved()) return;
 
-    for(var k in layers){layers[k].remove();}
+    for (var k in layers) {
+      layers[k].remove();
+    }
 
-    if(gl){
-      gl.viewport(0, 0, context.width*2, context.height*2);
+    if (gl) {
+      gl.viewport(0, 0, context.width * 2, context.height * 2);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      let gl_lose = gl.getExtension('WEBGL_lose_context');
+      var gl_lose = gl.getExtension('WEBGL_lose_context');
       gl_lose && gl_lose.loseContext();
     }
 
@@ -6801,196 +6858,207 @@ var ccNetViz = function(canvas, options){
     texts && texts.remove();
 
     removed = true;
-  }
+  };
 
-  let last_view = {};
-  function checkChangeViewport(){
-    let is_change = false;
-    if(last_view){
-      for(let k in view){
-        if(last_view[k] !== view[k])
-          is_change = true;
+  var last_view = {};
+  function checkChangeViewport() {
+    var is_change = false;
+    if (last_view) {
+      for (var k in view) {
+        if (last_view[k] !== view[k]) is_change = true;
       }
     }
-    _utils__WEBPACK_IMPORTED_MODULE_4__["default"].extend(last_view, view);
+    _utils2.default.extend(last_view, view);
 
-    if(is_change){
+    if (is_change) {
       options.onChangeViewport && options.onChangeViewport(view);
     }
   }
 
-  function onContextMenu(e){
-  }
+  function onContextMenu(e) {}
 
   function onWheel(e) {
-      let rect = canvas.getBoundingClientRect();
+    var rect = canvas.getBoundingClientRect();
 
-      if(!options.passiveEvts){ e.preventDefault(); }
+    if (!options.passiveEvts) {
+      e.preventDefault();
+    }
 
-      let oldsize, oldx, oldy;
+    var oldsize = void 0,
+        oldx = void 0,
+        oldy = void 0;
 
-      // Mouse coordinates
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const radius = 10;
+    // Mouse coordinates
+    var mouseX = e.clientX - rect.left;
+    var mouseY = e.clientY - rect.top;
+    var radius = 10;
 
-      // if no timer found i.e. we are not in continuous phase
-      // we are calculating the focus variables again
-      if(!onWheel.continuosZoom) {
-          onWheel.startView = {size: view.size, x: view.x, y: view.y};
+    // if no timer found i.e. we are not in continuous phase
+    // we are calculating the focus variables again
+    if (!onWheel.continuosZoom) {
+      onWheel.startView = { size: view.size, x: view.x, y: view.y };
 
-          const lCoords = this.getLayerCoords({ x1: mouseX - radius, y1: mouseY - radius, x2: mouseX + radius, y2: mouseY - radius });
-          const searchNodes = this.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true);
-          // if node found beneath mouse_ptr, zooming_focus is the center of that node
-          if (searchNodes.nodes.length) {
-              let node = searchNodes.nodes[0];
-              let focus = this.getScreenCoords({
-                  x: node.node.x,
-                  y: node.node.y
-              });
-              onWheel.focusX = focus.x;
-              onWheel.focusY = focus.y;
-          }
-          // else, it is the window co-ords of the mouse_ptr
-          else {
-              onWheel.focusX = mouseX;
-              onWheel.focusY = mouseY;
-          }
-          onWheel.oldX = view.x;
-          onWheel.oldY = view.y;
-          onWheel.oldSize = view.size;
-
-          if(onWheel.continuosZoom)
-              clearTimeout(onWheel.continuosZoom);
-
-          oldx = view.x;
-          oldy = view.y;
+      var lCoords = this.getLayerCoords({ x1: mouseX - radius, y1: mouseY - radius, x2: mouseX + radius, y2: mouseY - radius });
+      var searchNodes = this.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true);
+      // if node found beneath mouse_ptr, zooming_focus is the center of that node
+      if (searchNodes.nodes.length) {
+        var node = searchNodes.nodes[0];
+        var focus = this.getScreenCoords({
+          x: node.node.x,
+          y: node.node.y
+        });
+        onWheel.focusX = focus.x;
+        onWheel.focusY = focus.y;
       }
-      onWheel.continuosZoom = setTimeout(() => {
-        onWheel.continuosZoom = undefined;
-      }, 200);
+      // else, it is the window co-ords of the mouse_ptr
+      else {
+          onWheel.focusX = mouseX;
+          onWheel.focusY = mouseY;
+        }
+      onWheel.oldX = view.x;
+      onWheel.oldY = view.y;
+      onWheel.oldSize = view.size;
 
-      let size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
-      let delta = size - onWheel.oldSize;
+      if (onWheel.continuosZoom) clearTimeout(onWheel.continuosZoom);
 
-      view.size = size;
-      view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
-      view.y = Math.max(0, Math.min(1 - size, onWheel.oldY - delta * (1 - onWheel.focusY / canvas.height)));
+      oldx = view.x;
+      oldy = view.y;
+    }
+    onWheel.continuosZoom = setTimeout(function () {
+      onWheel.continuosZoom = undefined;
+    }, 200);
 
-      if(options.onZoom && options.onZoom(view) === false){
-        view.size = oldsize;
-        view.x = oldx;
-        view.y = oldy;
-        return;
-      }
+    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
+    var delta = size - onWheel.oldSize;
 
-      checkChangeViewport();
+    view.size = size;
+    view.x = Math.max(0, Math.min(1 - size, onWheel.oldX - delta * onWheel.focusX / canvas.width));
+    view.y = Math.max(0, Math.min(1 - size, onWheel.oldY - delta * (1 - onWheel.focusY / canvas.height)));
 
-      this.draw();
+    if (options.onZoom && options.onZoom(view) === false) {
+      view.size = oldsize;
+      view.x = oldx;
+      view.y = oldy;
+      return;
+    }
+
+    checkChangeViewport();
+
+    this.draw();
   }
 
-  let lastUpTime = 0;
+  var lastUpTime = 0;
   function onMouseDown(downe) {
-    if(downe.which !== 1) return; //catch only 1 - left mouse button
+    var _this2 = this;
 
-    let parseTouchEvts = (e) => {
-      if(!e.touches) return e;
+    if (downe.which !== 1) return; //catch only 1 - left mouse button
 
-      let x = 0,y = 0;
-      for(let i = 0; i < e.touches.length; i++){ x += e.touches[i].clientX; y += e.touches[i].clientY; }
+    var parseTouchEvts = function parseTouchEvts(e) {
+      if (!e.touches) return e;
+
+      var x = 0,
+          y = 0;
+      for (var i = 0; i < e.touches.length; i++) {
+        x += e.touches[i].clientX;y += e.touches[i].clientY;
+      }
       e.clientX = x / e.touches.length;
       e.clientY = y / e.touches.length;
 
       return e;
-    }
-
+    };
 
     downe = parseTouchEvts(downe);
 
+    var width = canvas.width / view.size;
+    var height = canvas.height / view.size;
+    var sx = downe.clientX;
+    var sy = downe.clientY;
+    var dx = view.x + sx / width;
+    var dy = sy / height - view.y;
+    var od = options.onDrag;
+    var dragged = void 0,
+        custom = void 0;
+    var panning = true;
+    var zooming = false;
+    var evts = void 0;
 
-    let width = canvas.width / view.size;
-    let height = canvas.height / view.size;
-    let sx = downe.clientX;
-    let sy = downe.clientY;
-    let dx = view.x + sx / width;
-    let dy = sy / height - view.y;
-    let od = options.onDrag;
-    let dragged, custom;
-    let panning = true;
-    let zooming = false;
-    let evts;
-
-    let origdist;
-    if((downe.touches || []).length === 2){
-      let mx = downe.touches[0].clientX - downe.touches[1].clientX, my = downe.touches[0].clientY - downe.touches[1].clientY;
-      origdist = Math.sqrt( mx * mx + my * my );
+    var origdist = void 0;
+    if ((downe.touches || []).length === 2) {
+      var mx = downe.touches[0].clientX - downe.touches[1].clientX,
+          my = downe.touches[0].clientY - downe.touches[1].clientY;
+      origdist = Math.sqrt(mx * mx + my * my);
       zooming = true;
     }
 
-
-    let drag = e => {
+    var drag = function drag(e) {
       e = parseTouchEvts(e);
 
-      if(e.touches && e.touches.length != 1)  panning = false;
+      if (e.touches && e.touches.length != 1) panning = false;
 
       if (dragged) {
-          if(panning){
-              if (custom) {
-                  od.drag && od.drag(e);
-              }
-              else {
-                  view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
-                  view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
-                  checkChangeViewport();
-                  this.draw();
-              }
-          }
-      }
-      else {
-          let x,y;
-          if(e.touches && e.touches.length > 0){ x = e.touches[0].clientX; y = e.touches[0].clientY; } else { x = e.clientX; y = e.clientY; }
-
-          let mx = x - sx;
-          let my = y - sy;
-
-          if (mx * mx + my * my > 8) {
-              dragged = true;
-              custom = od && od.start(downe);
-              custom && od.drag && od.drag(e);
-          }
-      }
-      if(!options.passiveEvts){ e.preventDefault(); }
-    };
-
-    let up = e => {
-        e = parseTouchEvts(e);
-
-        custom && od.stop && od.stop(e);
-
-        if(!dragged){
-          options.onClick && options.onClick(e);
-
-          if( new Date().getTime() - lastUpTime < 250 ) {
-            options.onDblClick && options.onDblClick(e);
-            lastUpTime = 0;
-          }else{
-            lastUpTime = new Date().getTime();
+        if (panning) {
+          if (custom) {
+            od.drag && od.drag(e);
+          } else {
+            view.x = Math.max(0, Math.min(1 - view.size, dx - e.clientX / width));
+            view.y = Math.max(0, Math.min(1 - view.size, e.clientY / height - dy));
+            checkChangeViewport();
+            _this2.draw();
           }
         }
+      } else {
+        var x = void 0,
+            y = void 0;
+        if (e.touches && e.touches.length > 0) {
+          x = e.touches[0].clientX;y = e.touches[0].clientY;
+        } else {
+          x = e.clientX;y = e.clientY;
+        }
 
-        removeEvts(window, evts);
+        var _mx = x - sx;
+        var _my = y - sy;
+
+        if (_mx * _mx + _my * _my > 8) {
+          dragged = true;
+          custom = od && od.start(downe);
+          custom && od.drag && od.drag(e);
+        }
+      }
+      if (!options.passiveEvts) {
+        e.preventDefault();
+      }
     };
 
-    let zoom = e => {
-        e = parseTouchEvts(e);
+    var up = function up(e) {
+      e = parseTouchEvts(e);
 
-        if(e.touches && e.touches.length == 2){
-            let mx = e.touches[0].clientX - e.touches[1].clientX, my = e.touches[0].clientY - e.touches[1].clientY;
-            let dist = Math.sqrt(mx * mx + my * my);
-            e.deltaY = -(dist - origdist)*5;
-            onWheelThis(e);
-            origdist = dist;
+      custom && od.stop && od.stop(e);
+
+      if (!dragged) {
+        options.onClick && options.onClick(e);
+
+        if (new Date().getTime() - lastUpTime < 250) {
+          options.onDblClick && options.onDblClick(e);
+          lastUpTime = 0;
+        } else {
+          lastUpTime = new Date().getTime();
         }
+      }
+
+      removeEvts(window, evts);
+    };
+
+    var zoom = function zoom(e) {
+      e = parseTouchEvts(e);
+
+      if (e.touches && e.touches.length == 2) {
+        var _mx2 = e.touches[0].clientX - e.touches[1].clientX,
+            _my2 = e.touches[0].clientY - e.touches[1].clientY;
+        var dist = Math.sqrt(_mx2 * _mx2 + _my2 * _my2);
+        e.deltaY = -(dist - origdist) * 5;
+        onWheelThis(e);
+        origdist = dist;
+      }
     };
 
     addEvts(window, evts = {
@@ -7002,80 +7070,79 @@ var ccNetViz = function(canvas, options){
     });
   }
 
-
-  this.image = function() {
-    if(checkRemoved()) return;
+  this.image = function () {
+    if (checkRemoved()) return;
 
     return canvas.toDataURL();
-  }
+  };
 
-  this.resize = function() {
-    if(checkRemoved()) return;
+  this.resize = function () {
+    if (checkRemoved()) return;
 
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-  }
+  };
 
-  this.getViewport = function() {
+  this.getViewport = function () {
     return view;
-  }
+  };
 
-  this.setViewport = function(v) {
-    if(checkRemoved()) return;
+  this.setViewport = function (v) {
+    if (checkRemoved()) return;
 
-    _utils__WEBPACK_IMPORTED_MODULE_4__["default"].extend(view, v);
+    _utils2.default.extend(view, v);
 
     checkChangeViewport();
-  }
+  };
 
-  this.resetView = () => this.setViewport({size:1,x:0,y:0});
+  this.resetView = function () {
+    return _this.setViewport({ size: 1, x: 0, y: 0 });
+  };
 
   //expose these methods from layer into this class
-  ['update'].forEach(function(method){
-    (function(method, self){
-      self[method] = function(){
-        let args = arguments;
-        for(let k in layers){
-          let l = layers[k];
-          l[method].apply(l,args);
+  ['update'].forEach(function (method) {
+    (function (method, self) {
+      self[method] = function () {
+        var args = arguments;
+        for (var k in layers) {
+          var l = layers[k];
+          l[method].apply(l, args);
         };
         return self;
       };
     })(method, self);
   });
 
-  if(gl = getContext(canvas)){
+  if (gl = getContext(canvas)) {
     gl.clearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
     gl.blendEquation(gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
     gl.enable(gl.BLEND);
   }
 
-  view = {size:1,x:0,y:0};
+  view = { size: 1, x: 0, y: 0 };
 
   this.resize();
 
-  textures = new _dataSources_textures__WEBPACK_IMPORTED_MODULE_5___default.a(events, onLoad);
-  files = new _dataSources_files__WEBPACK_IMPORTED_MODULE_6__["default"](events, onLoad);
-  texts = gl && (new _texts_texts__WEBPACK_IMPORTED_MODULE_7___default.a(gl, files, textures));
-  layers.main = new _layer__WEBPACK_IMPORTED_MODULE_0___default.a(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
+  textures = new _textures2.default(events, onLoad);
+  files = new _files2.default(events, onLoad);
+  texts = gl && new _texts2.default(gl, files, textures);
+  layers.main = new _layer2.default(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad);
 
-  if(!gl)
-    console.warn("Cannot initialize WebGL context");
+  if (!gl) console.warn("Cannot initialize WebGL context");
 };
 
-ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
+ccNetViz.isWebGLSupported = function () {
+  return !!getContext(sCanvas);
+};
 
-
-ccNetViz.color = _color__WEBPACK_IMPORTED_MODULE_3___default.a;
-ccNetViz.spatialSearch = _spatialSearch_spatialSearch__WEBPACK_IMPORTED_MODULE_10___default.a;
-ccNetViz.layout = _layout_layout__WEBPACK_IMPORTED_MODULE_1___default.a;
-ccNetViz.color = _color__WEBPACK_IMPORTED_MODULE_3___default.a;
-
+ccNetViz.color = _color2.default;
+ccNetViz.spatialSearch = _spatialSearch2.default;
+ccNetViz.layout = _layout2.default;
+ccNetViz.color = _color2.default;
 
 window.ccNetViz = ccNetViz;
-/* harmony default export */ __webpack_exports__["default"] = (ccNetViz);
-
+exports.default = ccNetViz;
 
 /***/ }),
 
@@ -7199,7 +7266,7 @@ exports.default = ccNetVizMultiLevel;
 
 /***/ }),
 
-/***/ "./src/color.js?c448":
+/***/ "./src/color.js":
 /*!**********************!*\
   !*** ./src/color.js ***!
   \**********************/
@@ -7281,93 +7348,33 @@ exports.default = Color;
 
 /***/ }),
 
-/***/ "./src/color.js?d0be":
-/*!**********************!*\
-  !*** ./src/color.js ***!
-  \**********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Color; });
-/**
- *  Copyright (c) 2016, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: David Tichy
- */
-
-class Color{
-  constructor(color){
-    this.a = 1;
-
-    if (color instanceof Color){
-        this.r = color.r;
-        this.g = color.g;
-        this.b = color.b;
-        this.a = color.a;
-    }
-    else if (arguments.length >= 3) {
-        this.r = arguments[0];
-        this.g = arguments[1];
-        this.b = arguments[2];
-        arguments.length > 3 && (this.a = arguments[3]);
-    }
-    else if (/^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
-        color = /^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
-        let get = v => parseInt(v, 10) / 255;
-
-        this.r = get(color[1]);
-        this.g = get(color[2]);
-        this.b = get(color[3]);
-        this.a = get(color[4]);
-    }
-    else if (/^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
-        color = /^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
-        let get = v => parseInt(v, 10) / 255;
-
-        this.r = get(color[1]);
-        this.g = get(color[2]);
-        this.b = get(color[3]);
-    }
-    else if (/^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.test(color)) {
-        color = /^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.exec(color);
-        let get = v => parseInt(v, 10) / 100;
-
-        this.r = get(color[1]);
-        this.g = get(color[2]);
-        this.b = get(color[3]);
-    }
-    else if (/^\#([0-9a-f]{6})$/i.test(color)) {
-        color = parseInt(color.substring(1), 16);
-        this.r = (color >> 16 & 255) / 255;
-        this.g = (color >> 8 & 255) / 255;
-        this.b = (color & 255) / 255;
-    }
-    else {
-        this.r = this.g = this.b = 0;
-    }
-  }
-};
-
-/***/ }),
-
 /***/ "./src/dataSources/files.js":
 /*!**********************************!*\
   !*** ./src/dataSources/files.js ***!
   \**********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "./src/utils.js?025e");
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../gl */ "./src/gl.js?8403");
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gl__WEBPACK_IMPORTED_MODULE_1__);
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _gl = __webpack_require__(/*! ../gl */ "./src/gl.js");
+
+var _gl2 = _interopRequireDefault(_gl);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -7377,68 +7384,81 @@ __webpack_require__.r(__webpack_exports__);
  *  Authors: David Tichy, Aleš Saska
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(events, onLoad){
-    this._load = [events.debounce(onLoad || (() => {}), 5)];
+var _class = function () {
+  function _class(events, onLoad) {
+    _classCallCheck(this, _class);
+
+    this._load = [events.debounce(onLoad || function () {}, 5)];
     this._files = {};
     this._pending = {};
     this._n = 0;
   }
-  
-  _transformFile(data, dataType) {
-    if(dataType === 'json')
-      return JSON.parse(data);
-    return data;    
-  }
-  
-  get(url) {
-    return this._files[url];
-  }
 
-  /*
-   * @param type {
-   *   url: 'url of file',
-   *   success: callback
-   *   dataType "text" || "json"
-   * }
-   */
-  load(url, action, dataType) {
-    let p = this._pending[url];
-    let f = this._files[url];
+  _createClass(_class, [{
+    key: '_transformFile',
+    value: function _transformFile(data, dataType) {
+      if (dataType === 'json') return JSON.parse(data);
+      return data;
+    }
+  }, {
+    key: 'get',
+    value: function get(url) {
+      return this._files[url];
+    }
 
-    if (p) {
+    /*
+     * @param type {
+     *   url: 'url of file',
+     *   success: callback
+     *   dataType "text" || "json"
+     * }
+     */
+
+  }, {
+    key: 'load',
+    value: function load(url, action, dataType) {
+      var _this = this;
+
+      var p = this._pending[url];
+      var f = this._files[url];
+
+      if (p) {
         p.push(action);
-    }
-    else if (f) {
+      } else if (f) {
         action && action();
-    }
-    else {
-      p = this._pending[url] = [action];
-      this._n++;
+      } else {
+        p = this._pending[url] = [action];
+        this._n++;
 
-      _utils__WEBPACK_IMPORTED_MODULE_0__["default"].ajax(url, (data) => {
-        this._files[url] = this._transformFile(data,dataType);
-        p.forEach(a => a && a(this._files[url]));
-        delete this._pending[url];
-        --this._n || this._load.forEach(l => l());
-      }, dataType=='arraybuffer'?dataType:undefined);
+        _utils2.default.ajax(url, function (data) {
+          _this._files[url] = _this._transformFile(data, dataType);
+          p.forEach(function (a) {
+            return a && a(_this._files[url]);
+          });
+          delete _this._pending[url];
+          --_this._n || _this._load.forEach(function (l) {
+            return l();
+          });
+        }, dataType == 'arraybuffer' ? dataType : undefined);
+      }
+      return f;
     }
-    return f;
-  }
-  
-  onLoad (action) {
-    if(this.allLoaded())
-      action();
-    else
-      this._load.push(action);
-  }
-  
-  allLoaded(){
-    return _utils__WEBPACK_IMPORTED_MODULE_0__["default"].emptyObject(this._pending);
-  }
-  
-});
+  }, {
+    key: 'onLoad',
+    value: function onLoad(action) {
+      if (this.allLoaded()) action();else this._load.push(action);
+    }
+  }, {
+    key: 'allLoaded',
+    value: function allLoaded() {
+      return _utils2.default.emptyObject(this._pending);
+    }
+  }]);
 
+  return _class;
+}();
+
+exports.default = _class;
 
 /***/ }),
 
@@ -7458,11 +7478,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js?025e");
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _gl = __webpack_require__(/*! ../gl */ "./src/gl.js?8403");
+var _gl = __webpack_require__(/*! ../gl */ "./src/gl.js");
 
 var _gl2 = _interopRequireDefault(_gl);
 
@@ -7534,7 +7554,7 @@ exports.default = _class;
 
 /***/ }),
 
-/***/ "./src/geomutils.js?0ae1":
+/***/ "./src/geomutils.js":
 /*!**************************!*\
   !*** ./src/geomutils.js ***!
   \**************************/
@@ -7640,197 +7660,7 @@ exports.default = _class;
 
 /***/ }),
 
-/***/ "./src/geomutils.js?4f1c":
-/*!**************************!*\
-  !*** ./src/geomutils.js ***!
-  \**************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/**
- *  Copyright (c) 2016, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: Aleš Saska - http://alessaska.cz/
- */
-
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  static edgeSource(e) {
-    if(e.source.source){
-      //source is edge
-      let s = this.edgeSource(e.source);
-      let t = this.edgeTarget(e.source);
-      
-      return {
-              x: (s.x+t.x)/2, 
-              y: (s.y+t.y)/2, 
-              uniqid: e.uniqid, 
-              index: e.index, 
-              is_edge: true, 
-              e: e.source
-      };
-    }
-    
-    return e.source;
-  }
-
-  static edgeTarget (e) {
-    if(e.target.source){
-      //target is edge
-      let s = this.edgeSource(e.target);
-      let t = this.edgeTarget(e.target);
-      
-      return {
-              x: (s.x+t.x)/2,
-              y: (s.y+t.y)/2,
-              uniqid: e.uniqid,
-              index: e.index,
-              is_edge: true,
-              e: e.target
-      };
-    }
-
-    return e.target;
-  }
-
-  static getCurveShift (e, r){
-      r = r || {};
-      r.x = r.y = r.cx = r.cy = 0;
-      if(!e)
-        return r;
-      if(e.t && e.t >= 1){	//curve or circle
-        if(e.t >= 2){ //circle
-          let s = this.edgeSource(e);
-          let d = s.y < 0.5 ? 1 : -1;
-
-          r.cx = d * 1.25;
-          r.cy = 0;
-        }else{
-          let se = this.edgeSource(e);
-          let te = this.edgeTarget(e);
-
-          r.x = se.x - te.x;
-          r.y = se.y - te.y;
-        }
-      }
-      return r;
-  }
-});;
-
-/***/ }),
-
-/***/ "./src/gl.js?7df0":
-/*!*******************!*\
-  !*** ./src/gl.js ***!
-  \*******************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/**
- *  Copyright (c) 2016, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: David Tichy
- */
-
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  static initExtensions(gl) {
-      let extensions = gl.getSupportedExtensions();
-      let result = {};
-      for (let i = 1; i < arguments.length; i++) {
-          let e = arguments[i];
-          (result[e] = extensions.indexOf(e) >= 0) && gl.getExtension(e);
-      }
-      return result;
-  }
-
-  static createShader(gl, type, source) {
-      let result = gl.createShader(type);
-      gl.shaderSource(result, source);
-      gl.compileShader(result);
-
-      if (!gl.getShaderParameter(result, gl.COMPILE_STATUS)) {
-          console.log(gl.getShaderInfoLog(result));
-          return null;
-      }
-      return result;
-  }
-
-  static createTexture(gl, img, onLoad, options) {
-      let result = gl.createTexture();
-
-      let image = new Image();
-      
-      let load = () => {
-            image.onload = null;
-            gl.bindTexture(gl.TEXTURE_2D, result);
-
-            if((options || {}).sdf){
-              gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-              gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, image);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            }else{
-              gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-              gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            }
-
-            gl.bindTexture(gl.TEXTURE_2D, null);
-            onLoad && onLoad();
-      }
-
-      image.onload = load;
-      image.src = img;
-      image.naturalWidth && image.naturalHeight && load();
-      
-      result.image = image;
-      return result;
-  }
-
-  static uniformColor(gl, location, color) {
-      gl.uniform4f(location, color.r, color.g, color.b, color.a);
-  }
-
-  static ortho(left, right, bottom, top, near, far) {
-      let lr = 1 / (left - right),
-          bt = 1 / (bottom - top),
-          nf = 1 / (near - far);
-
-      let result = new Float32Array(16);
-      result[0] = -2 * lr;
-      result[1] = 0;
-      result[2] = 0;
-      result[3] = 0;
-      result[4] = 0;
-      result[5] = -2 * bt;
-      result[6] = 0;
-      result[7] = 0;
-      result[8] = 0;
-      result[9] = 0;
-      result[10] = 2 * nf;
-      result[11] = 0;
-      result[12] = (left + right) * lr;
-      result[13] = (top + bottom) * bt;
-      result[14] = (far + near) * nf;
-      result[15] = 1;
-      return result;
-  }
-});;
-
-
-/***/ }),
-
-/***/ "./src/gl.js?8403":
+/***/ "./src/gl.js":
 /*!*******************!*\
   !*** ./src/gl.js ***!
   \*******************/
@@ -7978,7 +7808,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?0ae1");
+var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
@@ -8988,11 +8818,11 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
     }
 };
 
-var _color = __webpack_require__(/*! ./color */ "./src/color.js?d0be");
+var _color = __webpack_require__(/*! ./color */ "./src/color.js");
 
 var _color2 = _interopRequireDefault(_color);
 
-var _gl = __webpack_require__(/*! ./gl */ "./src/gl.js?8403");
+var _gl = __webpack_require__(/*! ./gl */ "./src/gl.js");
 
 var _gl2 = _interopRequireDefault(_gl);
 
@@ -9004,15 +8834,15 @@ var _layout = __webpack_require__(/*! ./layout/layout */ "./src/layout/layout.js
 
 var _layout2 = _interopRequireDefault(_layout);
 
-var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?4f1c");
+var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js?025e");
+var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js?f196");
+var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js");
 
 var _spatialSearch = __webpack_require__(/*! ./spatialSearch/spatialSearch */ "./src/spatialSearch/spatialSearch.js");
 
@@ -9044,7 +8874,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9310,47 +9140,58 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /*!****************************!*\
   !*** ./src/layout/grid.js ***!
   \****************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
 
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(nodes, edges) {
-    this._nodes = nodes;
-    this._edges = edges;
-    this._margin = 0.05;
-  }
-  apply () {
-      let nd = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["degrees"])(this._nodes, this._edges);
-      const sq = Math.sqrt(this._nodes.length);
-      const reminder = sq - Math.floor(sq);
-      if (reminder > 0)
-	  var nnodes = Math.floor(sq)+1;
-      else
-	  var nnodes = sq;
-      const step = (1 - this._margin*2)/nnodes;
+Object.defineProperty(exports, "__esModule", {
+     value: true
+});
 
-      const nlines = this._nodes.length/nnodes;
-      const reminder2 = nlines - Math.floor(nlines);
-      if (reminder2 > 0)
-	  var nlines2 = Math.floor(nlines)+1;
-      else
-	  var nlines2 = nlines;
-      const stepy = (1-2*this._margin)/(nlines2-2);
-      for (let i=0; i<this._nodes.length; ++i){
-	  let j = Math.floor(i/(nnodes+1));
-          this._nodes[nd.nodes[i].index].x = this._margin+step*(i-j*(nnodes+1));
-          this._nodes[nd.nodes[i].index].y = this._margin+stepy*j;
-          this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
-      }
-  }
-});;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _class = function () {
+     function _class(nodes, edges) {
+          _classCallCheck(this, _class);
+
+          this._nodes = nodes;
+          this._edges = edges;
+          this._margin = 0.05;
+     }
+
+     _createClass(_class, [{
+          key: 'apply',
+          value: function apply() {
+               var nd = (0, _utils.degrees)(this._nodes, this._edges);
+               var sq = Math.sqrt(this._nodes.length);
+               var reminder = sq - Math.floor(sq);
+               if (reminder > 0) var nnodes = Math.floor(sq) + 1;else var nnodes = sq;
+               var step = (1 - this._margin * 2) / nnodes;
+
+               var nlines = this._nodes.length / nnodes;
+               var reminder2 = nlines - Math.floor(nlines);
+               if (reminder2 > 0) var nlines2 = Math.floor(nlines) + 1;else var nlines2 = nlines;
+               var stepy = (1 - 2 * this._margin) / (nlines2 - 2);
+               for (var i = 0; i < this._nodes.length; ++i) {
+                    var j = Math.floor(i / (nnodes + 1));
+                    this._nodes[nd.nodes[i].index].x = this._margin + step * (i - j * (nnodes + 1));
+                    this._nodes[nd.nodes[i].index].y = this._margin + stepy * j;
+                    this._nodes[nd.nodes[i].index].weight = nd.degrees[i];
+               }
+          }
+     }]);
+
+     return _class;
+}();
+
+exports.default = _class;
+;
 
 /***/ }),
 
@@ -9499,11 +9340,20 @@ exports.default = _class;
 /*!*************************************!*\
   !*** ./src/layout/hierarchical2.js ***!
   \*************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  *  Copyright (c) 2017, Helikar Lab.
  *  All rights reserved.
@@ -9512,273 +9362,275 @@ __webpack_require__.r(__webpack_exports__);
  *  Author: Renato Fabbri
  */
 
-function isOrphan(node){
-    let orphan = true;
-    for (let i=0; i<node.parents.length; ++i){
-        let parent_ = node.parents[i];
-        if (parent_ != node)
-            orphan = false;
+function isOrphan(node) {
+    var orphan = true;
+    for (var i = 0; i < node.parents.length; ++i) {
+        var parent_ = node.parents[i];
+        if (parent_ != node) orphan = false;
     }
-    for (let i=0; i<node.children.length; ++i){
-        let child = node.children[i];
-        if (child != node)
-            orphan = false;
+    for (var _i = 0; _i < node.children.length; ++_i) {
+        var child = node.children[_i];
+        if (child != node) orphan = false;
     }
     return orphan;
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  // this layout should handle any digraph
-  constructor(nodes, edges) {
-    this._nodes = nodes;
-    this._edges = edges;
-    this.alphay = 0.05; // y margin
-    this.alphax = 0.05; // x margin
-    this.components = {"current_component": 0, "depth": 1};
-    this.unvisited = nodes;
-  }
-  
-  initHierarchy(){
-      this._nodes.forEach(function(n,i){
-          n.parents = [];
-          n.children = [];
-          n.visited = false;
-      });
-      this._edges.forEach(function(e,i){
-          e.source.children.push(e.target);
-          e.target.parents.push(e.source);
-      });
-  }
+var _class = function () {
+    // this layout should handle any digraph
+    function _class(nodes, edges) {
+        _classCallCheck(this, _class);
 
-  separateOrphans(){
-      let orphans = [];
-      let nodes = [];
-      for (let i=0; i< this._nodes.length; ++i){
-          let node = this._nodes[i];
-          if (isOrphan(node))
-              orphans.push(node);
-          else
-              nodes.push(node);
-      }
-      return orphans;
-  }
+        this._nodes = nodes;
+        this._edges = edges;
+        this.alphay = 0.05; // y margin
+        this.alphax = 0.05; // x margin
+        this.components = { "current_component": 0, "depth": 1 };
+        this.unvisited = nodes;
+    }
 
-  findRoots(nodes){
-      // find the roots:
-      // nodes defined by the user as roots OR
-      // nodes with in-degree == 0 OR
-      // nodes with greatest in-degree (or degree if undirected graph)
-      let roots = [];
-      for (let i = 0; i < nodes.length; i++){
-          if (nodes[i].isroot == true){ // has to be on the json file of the graph
-              roots.push(nodes[i]);
-          }
-      }
-      if (roots.length == 0){
-          for (let i = 0; i < nodes.length; i++){
-              if (nodes[i].parents.length == 0){
-                  roots.push(nodes[i]);
-              }
-          }
-      }
-      if (roots.length == 0){
-          // calculate max out-degree
-          let max_outdegree = 0;
-          nodes.forEach(function(node){
-              if (node.children.length > max_outdegree){
-                  max_outdegree = node.children.length;
-              }
-          });
-          // choose vertices with greatest out-degree
-          nodes.forEach(function(node){
-              if (node.children.length == max_outdegree){
-                  roots.push(node);
-              }
-          });
-      }
-      return roots;
-  }
+    _createClass(_class, [{
+        key: "initHierarchy",
+        value: function initHierarchy() {
+            this._nodes.forEach(function (n, i) {
+                n.parents = [];
+                n.children = [];
+                n.visited = false;
+            });
+            this._edges.forEach(function (e, i) {
+                e.source.children.push(e.target);
+                e.target.parents.push(e.source);
+            });
+        }
+    }, {
+        key: "separateOrphans",
+        value: function separateOrphans() {
+            var orphans = [];
+            var nodes = [];
+            for (var i = 0; i < this._nodes.length; ++i) {
+                var node = this._nodes[i];
+                if (isOrphan(node)) orphans.push(node);else nodes.push(node);
+            }
+            return orphans;
+        }
+    }, {
+        key: "findRoots",
+        value: function findRoots(nodes) {
+            // find the roots:
+            // nodes defined by the user as roots OR
+            // nodes with in-degree == 0 OR
+            // nodes with greatest in-degree (or degree if undirected graph)
+            var roots = [];
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].isroot == true) {
+                    // has to be on the json file of the graph
+                    roots.push(nodes[i]);
+                }
+            }
+            if (roots.length == 0) {
+                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+                    if (nodes[_i2].parents.length == 0) {
+                        roots.push(nodes[_i2]);
+                    }
+                }
+            }
+            if (roots.length == 0) {
+                // calculate max out-degree
+                var max_outdegree = 0;
+                nodes.forEach(function (node) {
+                    if (node.children.length > max_outdegree) {
+                        max_outdegree = node.children.length;
+                    }
+                });
+                // choose vertices with greatest out-degree
+                nodes.forEach(function (node) {
+                    if (node.children.length == max_outdegree) {
+                        roots.push(node);
+                    }
+                });
+            }
+            return roots;
+        }
+    }, {
+        key: "placeOrphans",
+        value: function placeOrphans(nodes, max_layer) {
+            var stepy = (1 - 2 * this.alphay) / (nodes.length - 1);
+            for (var i = 0; i < nodes.length; ++i) {
+                nodes[i].y = this.alphay + i * stepy;
+                nodes[i].x = max_layer + 1;
+            }
+            if (nodes.length > 0) return max_layer + 1;else return max_layer;
+        }
+    }, {
+        key: "unvisitedNodes",
+        value: function unvisitedNodes() {
+            var nodes = [];
+            var orphans = this.orphans;
+            this.unvisited.forEach(function (node) {
+                if (node.visited == false && !(node in orphans)) nodes.push(node);
+            });
+            if (nodes.length != this.unvisited) {
+                this.maybe_more = true;
+                this.unvisited = nodes;
+            } else this.maybe_more = false;
+        }
+    }, {
+        key: "placeAdditional",
+        value: function placeAdditional() {
+            // place non-visited nodes in between layers
+            var aux_layers = {};
+            var c = this.components[this.components.current_component];
+            var layers = c.layers;
+            for (var i = 0; i < this.unvisited.length; ++i) {
+                var node = this.unvisited[i];
+                var lowest_layer = this.components.depth;
+                var child_found = false;
+                for (var j = 0; j < node.children.length; ++j) {
+                    var child = node.children[j];
+                    if (child.visited == true) {
+                        child_found = true;
+                        if (child.layer <= lowest_layer) {
+                            // child has to be visited to have a layer
+                            lowest_layer = child.layer;
+                        }
+                        break;
+                    }
+                }
+                if (child_found) {
+                    node.visited = true;
+                    // node.index = lowest_layer-sep;
+                    if (!(lowest_layer - sep in layers)) layers[lowest_layer - sep] = [];
+                    layers[lowest_layer - sep].push(node);
+                } else {
+                    var _lowest_layer = max_layer;
+                    var parent_found = false;
+                    for (var _j = 0; _j < node.parents.length; ++_j) {
+                        var parent_ = node.parents[_j];
+                        if (parent_.visited == true) {
+                            parent_found = true;
+                            if (parent_.layer <= _lowest_layer) {
+                                // child has to be visited to have a layer
+                                _lowest_layer = parent_.layer;
+                            }
+                        }
+                    }
+                    if (parent_found) {
+                        node.visited = true;
+                        node.x = _lowest_layer + sep;
+                        if (!(_lowest_layer + sep in layers)) layers[_lowest_layer + sep] = [];
+                        layers[_lowest_layer + sep].push(node);
+                    }
+                }
+            }
+        }
+    }, {
+        key: "initializeComponent",
+        value: function initializeComponent(component) {
+            this.components[component] = {};
+            this.components[component].max_nodes_layer = 0;
+            if (component > 0) this.components[component].index_offset = this.components[component - 1].vertical_nodes;else this.components[component].index_offset = 0;
+            this.components[component].current_layer = 1;
+            //this.components[component].layers = {"nodes": [], "layer_value": 1};
+            this.components[component].layers = {};
+            this.components[component].vertical_nodes = 0;
+        }
+    }, {
+        key: "layerNodes",
+        value: function layerNodes(nodes) {
+            if (!(this.components.current_component in this.components)) this.initializeComponent(this.components.current_component);
+            var c = this.components[this.components.current_component];
+            if (nodes.length > c.vertical_nodes) c.vertical_nodes = nodes.length;
+            c.layers[c.current_layer] = [];
+            for (var i = 0; i < nodes.length; ++i) {
+                nodes[i].visited = true;
+                c.layers[c.current_layer].push(nodes[i]);
+            }
+            var next_layer = [];
+            for (var _i3 = 0; _i3 < nodes.length; _i3++) {
+                var candidates = nodes[_i3].children;
+                for (var j = 0; j < candidates.length; j++) {
+                    if (candidates[j].visited == false && !next_layer.includes(candidates[j])) {
+                        next_layer.push(candidates[j]);
+                    }
+                }
+            }
+            if (next_layer.length > 0) {
+                c.current_layer++;
+                if (this.components.depth < c.current_layer) this.components.depth = c.current_layer;
+                this.layerNodes(next_layer);
+            }
+        }
+    }, {
+        key: "apply",
+        value: function apply() {
+            // left-right tree by default, let user choose
+            // top-down, bottom-top, right-left in subsequent versions
+            // hierarchical layouts for trees (acyclic graphs) are
+            // implemented separately for now
 
-  placeOrphans(nodes, max_layer){
-      const stepy = (1 - 2*this.alphay)/(nodes.length-1);
-      for (let i=0; i<nodes.length; ++i){
-          nodes[i].y = this.alphay + i*stepy;
-          nodes[i].x = max_layer+1;
-      }
-      if (nodes.length > 0)
-          return max_layer+1;
-      else
-          return max_layer;
-  }
+            // number of layers and max number of nodes in each layer
+            // has to be found by making the layout
+            // there are two approaches to finding the nodes in each layer:
+            // 1) each layer has all the neighbors of the nodes in the previous layer
+            // 2) follow links and then place non visited nodes on the layer of neighbors OR
+            // this layout implements the second of these approaches.
 
-  unvisitedNodes(){
-      let nodes = [];
-      let orphans = this.orphans;
-      this.unvisited.forEach(function(node){
-          if (node.visited == false && !(node in orphans))
-              nodes.push(node);
-      });
-      if (nodes.length != this.unvisited){
-          this.maybe_more = true;
-          this.unvisited = nodes;
-      } else this.maybe_more = false;
-  }
+            this.initHierarchy();
+            this.orphans = this.separateOrphans();
+            this.unvisitedNodes();
+            while (this.unvisited.length > 0) {
+                var roots = this.findRoots(this.unvisited);
+                this.layerNodes(roots);
+                this.unvisitedNodes(); // update unvisited nodes
+                this.maybe_mode = true;
+                while (this.maybe_more) {
+                    this.placeAdditional(); // place additional nodes linked to this component
+                    this.unvisitedNodes(); // update unvisited nodes
+                }
+                this.components.current_component++;
+            }
+            this.components.vertical_nodes = 0;
+            for (var i = 0; i < this.components.current_component; i++) {
+                this.components.vertical_nodes += this.components[i].vertical_nodes;
+            }
 
-  placeAdditional(){
-      // place non-visited nodes in between layers
-      let aux_layers = {};
-      let c = this.components[this.components.current_component];
-      let layers = c.layers;
-      for (let i=0; i<this.unvisited.length; ++i){
-          let node = this.unvisited[i];
-          let lowest_layer = this.components.depth;
-          let child_found = false;
-          for(let j=0; j<node.children.length; ++j){
-              let child = node.children[j];
-              if (child.visited == true){
-                  child_found = true;
-                  if(child.layer <= lowest_layer){ // child has to be visited to have a layer
-                      lowest_layer = child.layer;
-                  }
-                  break;
-              }
-          }
-          if (child_found){
-              node.visited = true;
-              // node.index = lowest_layer-sep;
-              if ( !((lowest_layer-sep) in layers))
-                  layers[lowest_layer-sep] = []
-              layers[lowest_layer-sep].push(node)
-          }
-          else {
-              let lowest_layer = max_layer;
-              let parent_found = false;
-              for(let j=0; j<node.parents.length; ++j){
-                  let parent_ = node.parents[j];
-                  if (parent_.visited == true){
-                      parent_found = true;
-                      if(parent_.layer <= lowest_layer){ // child has to be visited to have a layer
-                          lowest_layer = parent_.layer;
-                      }
-                  }
-              }
-              if (parent_found){
-                  node.visited = true;
-                  node.x = lowest_layer+sep;
-                  if ( !((lowest_layer+sep) in layers) )
-                      layers[lowest_layer+sep] = []
-                  layers[lowest_layer+sep].push(node)
-              }
-          }
-      }
-  }
+            // layerNodes should populate the dictionary this.components of components and aux variables:
+            // components[x] is a component, x is an integer
+            // components[x].vertical_nodes is the maximum number of nodes in a layer for the component
+            // components[x].layer[j] is the j-th layer on the component, j can be fractional
+            // components[x].index_offset is the number of nodes positioned in above components
+            // components.ncomponents is the number of components
+            // components.vertical_nodes is the sum of the max nodes in any layer of each component
+            // components.depth is the maximum number of layers
 
-  initializeComponent(component){
-      this.components[component] = {};
-      this.components[component].max_nodes_layer = 0;
-      if (component > 0)
-          this.components[component].index_offset = this.components[component-1].vertical_nodes;
-      else
-          this.components[component].index_offset = 0;
-      this.components[component].current_layer = 1;
-      //this.components[component].layers = {"nodes": [], "layer_value": 1};
-      this.components[component].layers = {};
-      this.components[component].vertical_nodes = 0;
-  }
+            // each layer of tree xy = [0+alpha,1-alpha]
+            var stepx = (1 - 2 * this.alphax) / this.components.depth;
+            var stepy = (1 - 2 * this.alphay) / this.components.vertical_nodes;
+            for (var _i4 = 0; _i4 < this.components.current_component; _i4++) {
+                var component = this.components[_i4];
+                for (var layer_val in component.layers) {
+                    var layer = component.layers[layer_val];
+                    if (layer.length == 1) {
+                        var node = layer[0];
+                        node.x = this.alphax + stepx * layer_val;
+                        node.y = this.alphay + stepy * (component.index_offset + component.vertical_nodes / 2);
+                    } else {
+                        for (var k = 0; k < layer.length; ++k) {
+                            var _node = layer[k];
+                            _node.x = this.alphax + stepx * layer_val;
+                            _node.y = this.alphay + stepy * (component.index_offset + k);
+                        }
+                    }
+                }
+            }
+            this.placeOrphans(this.orphans);
+        }
+    }]);
 
-  layerNodes(nodes){
-      if (!(this.components.current_component in this.components))
-          this.initializeComponent(this.components.current_component);
-      let c = this.components[this.components.current_component];
-      if (nodes.length > c.vertical_nodes)
-          c.vertical_nodes = nodes.length;
-      c.layers[c.current_layer] = [];
-      for (let i=0; i<nodes.length; ++i){
-          nodes[i].visited = true;
-          c.layers[c.current_layer].push(nodes[i]);
-      }
-      let next_layer = [];
-      for (let i=0; i<nodes.length; i++){
-          let candidates = nodes[i].children;
-          for (let j=0; j < candidates.length; j++){
-              if (candidates[j].visited == false && !next_layer.includes(candidates[j])){
-                  next_layer.push(candidates[j]);
-              }
-          }
-      }
-      if (next_layer.length > 0){
-          c.current_layer++;
-          if (this.components.depth<c.current_layer)
-              this.components.depth = c.current_layer;
-          this.layerNodes(next_layer);
-      }
-  }
+    return _class;
+}();
 
-  apply () {
-      // left-right tree by default, let user choose
-      // top-down, bottom-top, right-left in subsequent versions
-      // hierarchical layouts for trees (acyclic graphs) are
-      // implemented separately for now
-
-      // number of layers and max number of nodes in each layer
-      // has to be found by making the layout
-      // there are two approaches to finding the nodes in each layer:
-      // 1) each layer has all the neighbors of the nodes in the previous layer
-      // 2) follow links and then place non visited nodes on the layer of neighbors OR
-      // this layout implements the second of these approaches.
-
-      this.initHierarchy();
-      this.orphans = this.separateOrphans();
-      this.unvisitedNodes();
-      while (this.unvisited.length > 0){
-          let roots = this.findRoots(this.unvisited);
-          this.layerNodes(roots);
-          this.unvisitedNodes(); // update unvisited nodes
-          this.maybe_mode = true;
-          while (this.maybe_more){
-              this.placeAdditional(); // place additional nodes linked to this component
-              this.unvisitedNodes(); // update unvisited nodes
-          }
-          this.components.current_component++;
-      }
-      this.components.vertical_nodes = 0;
-      for (let i=0; i<this.components.current_component; i++){
-          this.components.vertical_nodes += this.components[i].vertical_nodes;
-      }
-
-      // layerNodes should populate the dictionary this.components of components and aux variables:
-      // components[x] is a component, x is an integer
-      // components[x].vertical_nodes is the maximum number of nodes in a layer for the component
-      // components[x].layer[j] is the j-th layer on the component, j can be fractional
-      // components[x].index_offset is the number of nodes positioned in above components
-      // components.ncomponents is the number of components
-      // components.vertical_nodes is the sum of the max nodes in any layer of each component
-      // components.depth is the maximum number of layers
-
-      // each layer of tree xy = [0+alpha,1-alpha]
-      const stepx = (1-2*this.alphax)/(this.components.depth);
-      const stepy = (1-2*this.alphay)/(this.components.vertical_nodes);
-      for (let i=0; i<this.components.current_component; i++){
-          let component = this.components[i];
-          for (let layer_val in component.layers){
-              let layer = component.layers[layer_val];
-              if (layer.length == 1){
-                  let node = layer[0];
-                  node.x = this.alphax + stepx*layer_val;
-                  node.y = this.alphay + stepy*(component.index_offset + component.vertical_nodes/2);
-              } else {
-                  for (let k=0; k<layer.length; ++k){
-                      let node = layer[k];
-                      node.x = this.alphax + stepx*layer_val;
-                      node.y = this.alphay + stepy*(component.index_offset + k);
-                  }
-              }
-          }
-      }
-      this.placeOrphans(this.orphans);
-  }
-});;
-
+exports.default = _class;
+;
 
 /***/ }),
 
@@ -9804,7 +9656,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10042,11 +9894,20 @@ exports.default = _class;
 /*!******************************!*\
   !*** ./src/layout/random.js ***!
   \******************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -10055,20 +9916,29 @@ __webpack_require__.r(__webpack_exports__);
  *  Author: David Tichy
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(nodes){
+var _class = function () {
+  function _class(nodes) {
+    _classCallCheck(this, _class);
+
     this._nodes = nodes;
   }
-  
-  apply() {
-    for (let i = 0, n = this._nodes.length; i < n; i++) {
-      let o = this._nodes[i];
-      o.x = Math.random();
-      o.y = Math.random();
-    }
-  }
-});;
 
+  _createClass(_class, [{
+    key: "apply",
+    value: function apply() {
+      for (var i = 0, n = this._nodes.length; i < n; i++) {
+        var o = this._nodes[i];
+        o.x = Math.random();
+        o.y = Math.random();
+      }
+    }
+  }]);
+
+  return _class;
+}();
+
+exports.default = _class;
+;
 
 /***/ }),
 
@@ -10096,7 +9966,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _mlMatrix = __webpack_require__(/*! ml-matrix */ "./node_modules/ml-matrix/src/index.js");
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10193,129 +10063,148 @@ exports.default = _class;
 /*!*********************************!*\
   !*** ./src/layout/spectral2.js ***!
   \*********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
-/**
- *  Copyright (c) 2017, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: Renato Fabbri
- */
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
 // inspired in Matlab implementation
 // and JS transcription in
 // https://github.com/alanmeeson/spectral-graph-layout
 
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(nodes, edges) {
-    this._nodes = nodes;
-    this._edges = edges;
-    this._epsilon = 1e-8; // tolerance
-    this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
-    this._num_elements = nodes.length; //number of nodes in graph
-    this._dims = 2;
-  }
-  apply () {
-      let A = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["create2dArray"])(this._nodes.length, this._nodes.length);
-      // build the adjacency matrix
-      for (let i=0; i<this._edges.length; ++i){
-          let ii = this._edges[i].source.index;
-          let j = this._edges[i].target.index;
-          A[ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
-      }
-      const D = deg(A); //degree of each node in graph (number of connections).
+var _class = function () {
+    function _class(nodes, edges) {
+        _classCallCheck(this, _class);
 
-      const dims = this._dims + 1; //add one to the dims to allow for the first eigen vector
-      let u = new Array(dims);//declare the eigen vector matrix
-      u[0] = normalize(ones(this._num_elements)); //create & normalize the first eigen vector
-      for (let i = 1; i < dims; i++) u[i] = zeros(this._num_elements); //create empty space for the other eigen vectors
+        this._nodes = nodes;
+        this._edges = edges;
+        this._epsilon = 1e-8; // tolerance
+        this._MAX_ITTERATIONS = 100; //We use power iteration, this is analogous to wall time to avoid infinite loops.
+        this._num_elements = nodes.length; //number of nodes in graph
+        this._dims = 2;
+    }
 
-      //Power iteration to determine the remaining eigen vectors.
-      for (let k=1; k < dims; k++) { //for each eigen vector after the first, 
-          //initialize eigen vector with random values
-          let uhk = normalize(rand(this._num_elements));
+    _createClass(_class, [{
+        key: 'apply',
+        value: function apply() {
+            var A = (0, _utils.create2dArray)(this._nodes.length, this._nodes.length);
+            // build the adjacency matrix
+            for (var i = 0; i < this._edges.length; ++i) {
+                var ii = this._edges[i].source.index;
+                var j = this._edges[i].target.index;
+                A[ii][j] = 1; // not considering edge weight for now (the example json files don't have weight)
+            }
+            var D = deg(A); //degree of each node in graph (number of connections).
 
-          let itt_count = 0; //we are allowing a max of 100 iterations, to avoid hanging and infinite loops. (specified above in constants)
-          let stop = false; //stopping criterion flag.
-          while (!stop) { // do...while using flags to keep it consistent with my matlab implementation
+            var dims = this._dims + 1; //add one to the dims to allow for the first eigen vector
+            var u = new Array(dims); //declare the eigen vector matrix
+            u[0] = normalize(ones(this._num_elements)); //create & normalize the first eigen vector
+            for (var _i = 1; _i < dims; _i++) {
+                u[_i] = zeros(this._num_elements);
+            } //create empty space for the other eigen vectors
 
-              //D-orthogonalize against previous eigenvectors
-              let uk = uhk.slice();
-              for (let l = 0; l < k; l++) {						
-                  let ul = u[l]; //extract the l-th eigen vector
+            //Power iteration to determine the remaining eigen vectors.
+            for (var k = 1; k < dims; k++) {
+                //for each eigen vector after the first, 
+                //initialize eigen vector with random values
+                var uhk = normalize(rand(this._num_elements));
 
-                  //Calculate (uk'.D.ul)/(ul'.D.ul)
-                  let top_ = 0;
-                  let bottom = 0;
-                  for (let vmi = 0; vmi < uk.length; vmi++) {
-                      top_ += (uk[vmi] * D[vmi] * ul[vmi]);
-                      bottom += (ul[vmi] * D[vmi] * ul[vmi]);
-                  }
-                  const ratio = top_ / bottom;
+                var itt_count = 0; //we are allowing a max of 100 iterations, to avoid hanging and infinite loops. (specified above in constants)
+                var stop = false; //stopping criterion flag.
+                while (!stop) {
+                    // do...while using flags to keep it consistent with my matlab implementation
 
-                  //uk = uk - ((uk' . D . ul) / (ul' . D ul)) . ul
-                  for (let vsi = 0; vsi < uk.length; vsi++) {
-                      uk[vsi] = uk[vsi] - (ratio * ul[vsi]);
-                  }
-              }
+                    //D-orthogonalize against previous eigenvectors
+                    var uk = uhk.slice();
+                    for (var l = 0; l < k; l++) {
+                        var ul = u[l]; //extract the l-th eigen vector
 
-              //multiply with .5(I+D^-1 A)
-              for (let i = 0; i < uhk.length; i++) {
-                  uhk[i] = 0.5 * (uk[i] + dot(A[i], uk) / D[i]);
-              }
+                        //Calculate (uk'.D.ul)/(ul'.D.ul)
+                        var top_ = 0;
+                        var bottom = 0;
+                        for (var vmi = 0; vmi < uk.length; vmi++) {
+                            top_ += uk[vmi] * D[vmi] * ul[vmi];
+                            bottom += ul[vmi] * D[vmi] * ul[vmi];
+                        }
+                        var ratio = top_ / bottom;
 
+                        //uk = uk - ((uk' . D . ul) / (ul' . D ul)) . ul
+                        for (var vsi = 0; vsi < uk.length; vsi++) {
+                            uk[vsi] = uk[vsi] - ratio * ul[vsi];
+                        }
+                    }
 
-              uhk = normalize(uhk);
+                    //multiply with .5(I+D^-1 A)
+                    for (var _i2 = 0; _i2 < uhk.length; _i2++) {
+                        uhk[_i2] = 0.5 * (uk[_i2] + dot(A[_i2], uk) / D[_i2]);
+                    }
 
-              itt_count = itt_count + 1;
-              stop = (itt_count > 100) | !(dot(uhk, uk) < (1-this._epsilon));
-          }
-          u[k] = uhk.slice();	
-      }
+                    uhk = normalize(uhk);
 
-      //discard the first eigenvector which should be [ones].
-      // var v = new Array(u.length);
-      // for (var i=0; i < u.length; i++) {
-      //     v[i] = new Array(u[i].length);
-      //     for (var j=0; j < u[i].length; j++) v[i][j] = u[i][j];
-      // }
-      const x = normalize2(u[1]);
-      const y = normalize2(u[2]);
-      this._nodes.forEach(function(node, i){
-          node.x = x[i];
-          node.y = y[i];
-      }); 
-  }
-});;
+                    itt_count = itt_count + 1;
+                    stop = itt_count > 100 | !(dot(uhk, uk) < 1 - this._epsilon);
+                }
+                u[k] = uhk.slice();
+            }
+
+            //discard the first eigenvector which should be [ones].
+            // var v = new Array(u.length);
+            // for (var i=0; i < u.length; i++) {
+            //     v[i] = new Array(u[i].length);
+            //     for (var j=0; j < u[i].length; j++) v[i][j] = u[i][j];
+            // }
+            var x = normalize2(u[1]);
+            var y = normalize2(u[2]);
+            this._nodes.forEach(function (node, i) {
+                node.x = x[i];
+                node.y = y[i];
+            });
+        }
+    }]);
+
+    return _class;
+}();
+
+exports.default = _class;
+;
 
 function deg(graph) {
     //Calculate the degree of each node from the graph matrix.
-    let d = zeros(graph.length);
+    var d = zeros(graph.length);
 
     //degree of node i is the sum of the weights of all edges connected to it.
-    for (let i = 0; i < graph.length; i++) {
-        let node_degree = 0;
-        for (let j = 0; j < graph[i].length; j++) {
+    for (var i = 0; i < graph.length; i++) {
+        var node_degree = 0;
+        for (var j = 0; j < graph[i].length; j++) {
             node_degree += graph[i][j];
         }
-        d[i] = node_degree+1;
+        d[i] = node_degree + 1;
     }
 
     return d;
 }
 
-function dot(a,b) {
+function dot(a, b) {
     //inner product of two vectors
-    let d = 0;
-    for (let i = 0; i < a.length; i++) {
+    var d = 0;
+    for (var i = 0; i < a.length; i++) {
         d += a[i] * b[i];
     }
     return d;
@@ -10324,9 +10213,9 @@ function dot(a,b) {
 function euclideanDistance(coordinates) {
     //calculate the euclidean distance between two points/vectors.
     // used for normalization.
-    let d = 0;
+    var d = 0;
 
-    for (let i = 0; i < coordinates.length; i++) {
+    for (var i = 0; i < coordinates.length; i++) {
         d += Math.pow(coordinates[i], 2);
     }
     return Math.sqrt(d);
@@ -10334,9 +10223,9 @@ function euclideanDistance(coordinates) {
 
 function normalize(arr) {
     //normalizes a vector = arr/||arr||
-    const d = euclideanDistance(arr);
-    let narr = new Array(arr.length);
-    for (let i = 0; i < arr.length; i++) {
+    var d = euclideanDistance(arr);
+    var narr = new Array(arr.length);
+    for (var i = 0; i < arr.length; i++) {
         narr[i] = arr[i] / d;
     }
 
@@ -10345,30 +10234,33 @@ function normalize(arr) {
 
 function rand(n) {
     //create a vector of length n and fill with random numbers.
-    let arr = new Array(n);
-    for (let i = 0; i < n; i++) arr[i] = Math.random();
-    return arr;
+    var arr = new Array(n);
+    for (var i = 0; i < n; i++) {
+        arr[i] = Math.random();
+    }return arr;
 }
 
 function add(a, b) {
-    let c = new Array(a.length);
-    for (let i = 0; i < a.length; i++) {
+    var c = new Array(a.length);
+    for (var i = 0; i < a.length; i++) {
         c[i] = new Array(a[i].length);
-        for (let j = 0; j < a[i].length; j++) c[i][j] = a[i][j] + b[i][j];
+        for (var j = 0; j < a[i].length; j++) {
+            c[i][j] = a[i][j] + b[i][j];
+        }
     }
     return c;
 }
 
 function symmetricRandMatrix(n, ulim) {
-    let mat = new Array(n);
-    for (let i = 0; i < n; i++) {
+    var mat = new Array(n);
+    for (var i = 0; i < n; i++) {
         mat[i] = new Array(n);
         mat[i][i] = 0;
     }
-    for (let i = 0; i < n; i++) {
-        for (let j = i + 1; j < n; j++) {
-            mat[i][j] = ulim * Math.random();
-            mat[j][i] = mat[i][j];
+    for (var _i3 = 0; _i3 < n; _i3++) {
+        for (var j = _i3 + 1; j < n; j++) {
+            mat[_i3][j] = ulim * Math.random();
+            mat[j][_i3] = mat[_i3][j];
         }
     }
     return mat;
@@ -10376,27 +10268,28 @@ function symmetricRandMatrix(n, ulim) {
 
 function zeros(n) {
     //create a vector filled with zeros
-    let arr = new Array(n);
-    for (let i = 0; i < n; i++) arr[i] = 0;
-    return arr;
+    var arr = new Array(n);
+    for (var i = 0; i < n; i++) {
+        arr[i] = 0;
+    }return arr;
 }
 
 function ones(n) {
     //create a vector filled with ones
-    let arr = new Array(n);
-    for (let i = 0; i < n; i++) arr[i] = 1;
-    return arr;
+    var arr = new Array(n);
+    for (var i = 0; i < n; i++) {
+        arr[i] = 1;
+    }return arr;
 }
 
-function normalize2 (x) {
-    let maxx = Math.max.apply(null, x.map(Math.abs));
-    let minx = Math.min.apply(null, x);
-    for(let i=0; i<x.length; ++i){
-        x[i] = 0.1+(x[i]-minx)/((maxx - minx)*1.25);
+function normalize2(x) {
+    var maxx = Math.max.apply(null, x.map(Math.abs));
+    var minx = Math.min.apply(null, x);
+    for (var i = 0; i < x.length; ++i) {
+        x[i] = 0.1 + (x[i] - minx) / ((maxx - minx) * 1.25);
     }
     return x;
 }
-
 
 /***/ }),
 
@@ -10404,96 +10297,115 @@ function normalize2 (x) {
 /*!****************************!*\
   !*** ./src/layout/tree.js ***!
   \****************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
-/**
- *  Copyright (c) 2017, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: Renato Fabbri
- */
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(nodes, edges) {
-    this._nodes = nodes;
-    this._edges = edges;
-  }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Copyright (c) 2017, Helikar Lab.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  All rights reserved.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  This source code is licensed under the GPLv3 License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *  Author: Renato Fabbri
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
-  drawTreeCentered(root, visited_leafs_parent=0, layer=1){
-      root.centered = true;
-      root.depth_visited = false; // so that getDepth does not raise error if another tree layout is called subsequently
-      // branch order is for now stable but unpredictable, see layouts.cri
-      let visited_leafs = 0;
-      for (let i=0; i < root.children.length; i++){
-          let child = root.children[i];
-          if (child.centered != true){
-              visited_leafs += this.drawTreeCentered(child, visited_leafs+visited_leafs_parent, layer+1);
-          }
-      }
-      if (root.children == 0){
-          visited_leafs++;
-      }
-      // moving to parent, position node
-      root.y = this.stepy*(visited_leafs_parent+(visited_leafs-1)/2) + this.alphay;
-      root.x = (layer-1)*this.stepx + this.alphax;
-      return visited_leafs;
-  }
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
-  apply () {
-      // only one root node supported for now
-      // left-right tree by default, let user choose
-      // top-down, bottom-top, right-left in subsequent versions
-      // hierarchical layouts for non-trees (cyclical graphs) should be
-      // implemented separately for now
-      let nodes = this._nodes;
-      // make hierarchy, annotate parent(s) and children in the nodes
-      nodes.forEach(function(n,i){
-          n.parents = [];
-          n.children = [];
-          n.centered = false;
-      });
-      this._edges.forEach(function(e,i){
-          e.source.children.push(e.target);
-          e.target.parents.push(e.source);
-      });
-      // find the root
-      for (let i = 0; i < nodes.length; i++){
-          if (nodes[i].parents.length == 0){
-              var root = nodes[i];
-              break;
-          }
-      }
-      const depth = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getDepth"])(root);
-      // each layer of tree x = [0+alpha,1-alpha]
-      let r = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getRanges"])(depth);
-      this.alphax = r.start;
-      this.stepx = r.step;
-      // posx = alphax + stepx*(depth-1)
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-      // find the number of leafs to distribute nodes vertically
-      let leafs = 0;
-      nodes.forEach(function(node){
-          if (node.children.length == 0){
-              leafs++;
-          }
-      });
-      r = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getRanges"])(leafs);
-      // each leaf y = [0+alpha,1-alpha]
-      this.alphay = r.start;
-      this.stepy = r.step;
-      // posy = alphay + stepy*(leafn-1)
+var _class = function () {
+    function _class(nodes, edges) {
+        _classCallCheck(this, _class);
 
-      this.drawTreeCentered(root);
-  }
-});;
+        this._nodes = nodes;
+        this._edges = edges;
+    }
 
+    _createClass(_class, [{
+        key: 'drawTreeCentered',
+        value: function drawTreeCentered(root) {
+            var visited_leafs_parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+            var layer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+
+            root.centered = true;
+            root.depth_visited = false; // so that getDepth does not raise error if another tree layout is called subsequently
+            // branch order is for now stable but unpredictable, see layouts.cri
+            var visited_leafs = 0;
+            for (var i = 0; i < root.children.length; i++) {
+                var child = root.children[i];
+                if (child.centered != true) {
+                    visited_leafs += this.drawTreeCentered(child, visited_leafs + visited_leafs_parent, layer + 1);
+                }
+            }
+            if (root.children == 0) {
+                visited_leafs++;
+            }
+            // moving to parent, position node
+            root.y = this.stepy * (visited_leafs_parent + (visited_leafs - 1) / 2) + this.alphay;
+            root.x = (layer - 1) * this.stepx + this.alphax;
+            return visited_leafs;
+        }
+    }, {
+        key: 'apply',
+        value: function apply() {
+            // only one root node supported for now
+            // left-right tree by default, let user choose
+            // top-down, bottom-top, right-left in subsequent versions
+            // hierarchical layouts for non-trees (cyclical graphs) should be
+            // implemented separately for now
+            var nodes = this._nodes;
+            // make hierarchy, annotate parent(s) and children in the nodes
+            nodes.forEach(function (n, i) {
+                n.parents = [];
+                n.children = [];
+                n.centered = false;
+            });
+            this._edges.forEach(function (e, i) {
+                e.source.children.push(e.target);
+                e.target.parents.push(e.source);
+            });
+            // find the root
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].parents.length == 0) {
+                    var root = nodes[i];
+                    break;
+                }
+            }
+            var depth = (0, _utils.getDepth)(root);
+            // each layer of tree x = [0+alpha,1-alpha]
+            var r = (0, _utils.getRanges)(depth);
+            this.alphax = r.start;
+            this.stepx = r.step;
+            // posx = alphax + stepx*(depth-1)
+
+            // find the number of leafs to distribute nodes vertically
+            var leafs = 0;
+            nodes.forEach(function (node) {
+                if (node.children.length == 0) {
+                    leafs++;
+                }
+            });
+            r = (0, _utils.getRanges)(leafs);
+            // each leaf y = [0+alpha,1-alpha]
+            this.alphay = r.start;
+            this.stepy = r.step;
+            // posy = alphay + stepy*(leafn-1)
+
+            this.drawTreeCentered(root);
+        }
+    }]);
+
+    return _class;
+}();
+
+exports.default = _class;
+;
 
 /***/ }),
 
@@ -10519,7 +10431,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10617,89 +10529,7 @@ exports.default = _class;
 
 /***/ }),
 
-/***/ "./src/layout/utils.js?09aa":
-/*!*****************************!*\
-  !*** ./src/layout/utils.js ***!
-  \*****************************/
-/*! exports provided: create2dArray, degrees, getDepth, getRanges */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "create2dArray", function() { return create2dArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "degrees", function() { return degrees; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDepth", function() { return getDepth; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRanges", function() { return getRanges; });
-/**
- *  Copyright (c) 2017, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: Renato Fabbri
- */
-
-function create2dArray (rows, columns) {
-    return [...Array(rows).keys()].map(i => Array(columns).fill(0));
-}
-
-function degrees(nodes, edges) {
-  // should return ordered nodes and their degrees - high to low
-  let degrees = Array(nodes.length).fill(0);
-  edges.forEach(function(e) {
-      degrees[e.source.index] += 1;
-      degrees[e.target.index] += 1;
-  }); // check to see if not getting double of the degree in undirected graphs
-  //getting the order of nodes from highest to lowest degrees
-  let ordered_nodes = degrees.map(function(el, i) {
-      return { index: i, value: el };
-  });
-  ordered_nodes.sort(function(a, b) {
-      return +(a.value < b.value) || +(a.value === b.value) - 1;
-  });
-  let ordered_degrees = ordered_nodes.map(function(el){
-      return degrees[el.index];
-  });
-  return { nodes: ordered_nodes,
-           degrees: ordered_degrees } ;
-}
-
-function getDepth(obj) {
-    let depth = 0;
-    if (obj.children) {
-        obj.children.forEach(function (d) {
-	    if (d.depth_visited == true){
-		    throw new Error("This layout is only for trees acyclic graphs");
-	    }
-	    d.depth_visited = true;
-            let tmpDepth = getDepth(d);
-            if (tmpDepth > depth) {
-                depth = tmpDepth;
-            }
-        })
-    }
-    return 1 + depth;
-}
-
-function getRanges(n) {
-  n = Math.abs(n);
-  if(n <= 1){
-      return {
-        start: 0.5,
-        step: 1
-      };
-  }
-  let start = .05;
-  return {
-      start,
-      step: (1-2*start)/(n-1)
-  }
-}
-
-
-
-/***/ }),
-
-/***/ "./src/layout/utils.js?ae2d":
+/***/ "./src/layout/utils.js":
 /*!*****************************!*\
   !*** ./src/layout/utils.js ***!
   \*****************************/
@@ -10804,7 +10634,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10983,11 +10813,11 @@ var _shader = __webpack_require__(/*! ./shader */ "./src/shader.js");
 
 var _shader2 = _interopRequireDefault(_shader);
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js?025e");
+var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js?f196");
+var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -11296,63 +11126,7 @@ exports.default = primitive;
 
 /***/ }),
 
-/***/ "./src/primitiveTools.js?9f31":
-/*!*******************************!*\
-  !*** ./src/primitiveTools.js ***!
-  \*******************************/
-/*! exports provided: partitionByStyle, getPartitionStyle */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "partitionByStyle", function() { return partitionByStyle; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPartitionStyle", function() { return getPartitionStyle; });
-/* harmony import */ var _color__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./color */ "./src/color.js?d0be");
-
-
-function partitionByStyle(data){
-    let parts = {};
-    
-    let pN = {};
-    for (let i = 0; i < data.length; i++) {
-        let el = data[i];
-        let part = parts[el.style] = parts[el.style] || [];
-        if(part.idx === undefined)
-          part.idx = [];
-        part.idx.push(i); 
-
-        el.sI = pN[el.style] = pN[el.style] === undefined ? 0 : pN[el.style]+1;
-        
-        part.push(el);
-    }
-    
-    return parts;
-}
-
-function getPartitionStyle(style, baseStyle, styleProperty){
-    let result = {};
-
-    let copy = s => {
-        if (s) for (let p in s) result[p] = s[p];
-    };
-
-    copy(baseStyle);
-    copy(style);
-
-    if (styleProperty) {
-        copy(baseStyle[styleProperty]);
-        style && copy(style[styleProperty]);
-    }
-    result.color = result.color && new _color__WEBPACK_IMPORTED_MODULE_0__["default"](result.color);
-    return result;
-};
-
-
-
-
-/***/ }),
-
-/***/ "./src/primitiveTools.js?f196":
+/***/ "./src/primitiveTools.js":
 /*!*******************************!*\
   !*** ./src/primitiveTools.js ***!
   \*******************************/
@@ -11367,7 +11141,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getPartitionStyle = exports.partitionByStyle = undefined;
 
-var _color = __webpack_require__(/*! ./color */ "./src/color.js?c448");
+var _color = __webpack_require__(/*! ./color */ "./src/color.js");
 
 var _color2 = _interopRequireDefault(_color);
 
@@ -11594,14 +11368,25 @@ exports.default = function (points) {
 /*!***********************!*\
   !*** ./src/shader.js ***!
   \***********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Shader; });
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gl */ "./src/gl.js?7df0");
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _gl = __webpack_require__(/*! ./gl */ "./src/gl.js");
+
+var _gl2 = _interopRequireDefault(_gl);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -11611,55 +11396,69 @@ __webpack_require__.r(__webpack_exports__);
  *  Author: David Tichy
  */
 
-var defaultAttr = {color: 4};
+var defaultAttr = { color: 4 };
 
-class Shader {
-  constructor(gl, vs, fs, shaderParams) {
+var Shader = function () {
+  function Shader(gl, vs, fs, shaderParams) {
+    _classCallCheck(this, Shader);
+
     this._gl = gl;
     this._vs = vs;
     this._fs = fs;
-    
-    let program = this._program = gl.createProgram();
-    
-    gl.attachShader(program, _gl__WEBPACK_IMPORTED_MODULE_0__["default"].createShader(gl, gl.VERTEX_SHADER, vs));
-    gl.attachShader(program, _gl__WEBPACK_IMPORTED_MODULE_0__["default"].createShader(gl, gl.FRAGMENT_SHADER, fs));
+
+    var program = this._program = gl.createProgram();
+
+    gl.attachShader(program, _gl2.default.createShader(gl, gl.VERTEX_SHADER, vs));
+    gl.attachShader(program, _gl2.default.createShader(gl, gl.FRAGMENT_SHADER, fs));
     gl.linkProgram(program);
-    
+
     this.uniforms = {};
-    let n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-    for (let i = 0; i < n; i++) {
-        let name = gl.getActiveUniform(program, i).name;
-        this.uniforms[name] = gl.getUniformLocation(program, name);
+    var n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (var i = 0; i < n; i++) {
+      var name = gl.getActiveUniform(program, i).name;
+      this.uniforms[name] = gl.getUniformLocation(program, name);
     }
-    
-    let attrParams = (shaderParams || {}).attribute || {};
+
+    var attrParams = (shaderParams || {}).attribute || {};
 
     this.attributes = {};
     n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-    for (let i = 0; i < n; i++) {
-        let name = gl.getActiveAttrib(program, i).name;
-        this.attributes[name] = { index: i, size: attrParams[name] || Shader.attribute[name] || 2 };
+    for (var _i = 0; _i < n; _i++) {
+      var _name = gl.getActiveAttrib(program, _i).name;
+      this.attributes[_name] = { index: _i, size: attrParams[_name] || Shader.attribute[_name] || 2 };
     }
-    
-  }
-  
-  static get attribute(){
-    return defaultAttr;
-  }
-  
-  bind () {
-    this._gl.useProgram(this._program);
-
-    let n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
-    for (let i = 0; i < n; i++) this._gl.enableVertexAttribArray(i);
   }
 
-  unbind () {
-      let n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
-      for (let i = 0; i < n; i++) this._gl.disableVertexAttribArray(i);
-  }
-  
-};
+  _createClass(Shader, [{
+    key: 'bind',
+    value: function bind() {
+      this._gl.useProgram(this._program);
+
+      var n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
+      for (var i = 0; i < n; i++) {
+        this._gl.enableVertexAttribArray(i);
+      }
+    }
+  }, {
+    key: 'unbind',
+    value: function unbind() {
+      var n = this._gl.getProgramParameter(this._program, this._gl.ACTIVE_ATTRIBUTES);
+      for (var i = 0; i < n; i++) {
+        this._gl.disableVertexAttribArray(i);
+      }
+    }
+  }], [{
+    key: 'attribute',
+    get: function get() {
+      return defaultAttr;
+    }
+  }]);
+
+  return Shader;
+}();
+
+exports.default = Shader;
+;
 
 /***/ }),
 
@@ -11682,11 +11481,11 @@ var _rbush = __webpack_require__(/*! ./rbush */ "./src/spatialSearch/rbush.js");
 
 var _rbush2 = _interopRequireDefault(_rbush);
 
-var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js?4f1c");
+var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
-var _primitiveTools = __webpack_require__(/*! ../primitiveTools */ "./src/primitiveTools.js?f196");
+var _primitiveTools = __webpack_require__(/*! ../primitiveTools */ "./src/primitiveTools.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -12640,15 +12439,15 @@ var _rbush = __webpack_require__(/*! ./rbush */ "./src/spatialSearch/rbush.js");
 
 var _rbush2 = _interopRequireDefault(_rbush);
 
-var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js?4f1c");
+var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
-var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js?94e5");
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _primitiveTools = __webpack_require__(/*! ../primitiveTools */ "./src/primitiveTools.js?f196");
+var _primitiveTools = __webpack_require__(/*! ../primitiveTools */ "./src/primitiveTools.js");
 
 var _geomtools = __webpack_require__(/*! ./geomtools */ "./src/spatialSearch/geomtools.js");
 
@@ -13223,11 +13022,20 @@ exports.default = spatialIndex;
 /*!******************************!*\
   !*** ./src/texts/default.js ***!
   \******************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -13236,12 +13044,13 @@ __webpack_require__.r(__webpack_exports__);
  *  Authors: David Tichy, Aleš Saska
  */
 
-/* harmony default export */ __webpack_exports__["default"] = (class {
-  constructor(gl, files, textures){
+var _class = function () {
+  function _class(gl, files, textures) {
+    _classCallCheck(this, _class);
+
     this._gl = gl;
     this._size = 1024;
 
-    
     this._canvas = document.createElement("canvas");
     this._canvas.width = this._canvas.height = this._size;
     this._canvas.style.width = this._canvas.style.height = this._size + 'px';
@@ -13256,92 +13065,106 @@ __webpack_require__.r(__webpack_exports__);
     this._rendered = this._texts = this._x = this._y = this._height = undefined;
 
     this.texture = this._gl.createTexture();
-    
   }
 
-  clear() {
-    this._rendered = {};
-    this._context.clearRect(0, 0, this._size, this._size);
-    this._height = this._x = this._y = 0;
-  }
+  _createClass(_class, [{
+    key: "clear",
+    value: function clear() {
+      this._rendered = {};
+      this._context.clearRect(0, 0, this._size, this._size);
+      this._height = this._x = this._y = 0;
+    }
+  }, {
+    key: "setFont",
+    value: function setFont(font) {
+      var fontstr = font ? font.size + "px " + font.type : undefined;
 
-  setFont (font) {
-    var fontstr = font ? font.size+"px "+font.type : undefined;
-    
-    this._rendered [fontstr] = this._texts = this._rendered [fontstr] || {};
-    this._context.font = fontstr;
-    this._x = 0;
-    this._y += this._height;
-    this._height = font ? font.size + 1 : NaN;
-  }
-  
-  get fontSize(){
-    return this._height - 1;
-  }
-  
-  getTexture (style, onLoad){
-    onLoad();
-    return this.texture;
-  }
-
-  _getText (text) {
-    let result = this._texts[text];
-    if (!result) {
-        let width = this._context.measureText(text).width;
+      this._rendered[fontstr] = this._texts = this._rendered[fontstr] || {};
+      this._context.font = fontstr;
+      this._x = 0;
+      this._y += this._height;
+      this._height = font ? font.size + 1 : NaN;
+    }
+  }, {
+    key: "getTexture",
+    value: function getTexture(style, onLoad) {
+      onLoad();
+      return this.texture;
+    }
+  }, {
+    key: "_getText",
+    value: function _getText(text) {
+      var result = this._texts[text];
+      if (!result) {
+        var width = this._context.measureText(text).width;
         if (this._x + width > this._size) {
-            this._x = 0;
-            this._y += this._height;
+          this._x = 0;
+          this._y += this._height;
         }
         this._context.fillText(text, this._x, this._y);
         this._texts[text] = result = {
-            width: width,
-            height: this._height,
-            left: this._x / this._size,
-            right: (this._x + width) / this._size,
-            top: this._y / this._size,
-            bottom: (this._y + this._height) / this._size
+          width: width,
+          height: this._height,
+          left: this._x / this._size,
+          right: (this._x + width) / this._size,
+          top: this._y / this._size,
+          bottom: (this._y + this._height) / this._size
         };
         this._x += width;
+      }
+      return result;
     }
-    return result;
-  }
-  
-  get (text, x, y) {
-    let c = this._getText(text);
-    
-    let dx = x <= 0.5 ? 0 : -c.width ;
-    let dy = y <= 0.5 ? 0 : -c.height;
-    
-    return [{
-        width:  c.width,
+  }, {
+    key: "get",
+    value: function get(text, x, y) {
+      var c = this._getText(text);
+
+      var dx = x <= 0.5 ? 0 : -c.width;
+      var dy = y <= 0.5 ? 0 : -c.height;
+
+      return [{
+        width: c.width,
         height: c.height,
-        left:   c.left,
-        right:  c.right,
-        top:    c.top,
+        left: c.left,
+        right: c.right,
+        top: c.top,
         bottom: c.bottom,
         dx: dx,
         dy: dy
       }];
-  }
-  
-  steps (text) {
-    return 1;
-  }
+    }
+  }, {
+    key: "steps",
+    value: function steps(text) {
+      return 1;
+    }
+  }, {
+    key: "bind",
+    value: function bind() {
+      this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);
+      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+    }
+  }, {
+    key: "remove",
+    value: function remove() {
+      this._context && this._el.parentNode.removeChild(this._el);
+    }
+  }, {
+    key: "fontSize",
+    get: function get() {
+      return this._height - 1;
+    }
+  }]);
 
-  bind () {
-    this._gl.bindTexture(this._gl.TEXTURE_2D, this.texture);
-    this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
-    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
-    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
-    this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._canvas);
-    this._gl.bindTexture(this._gl.TEXTURE_2D, null);
-  }
-  
-  remove () {
-    this._context && this._el.parentNode.removeChild(this._el);
-  }
+  return _class;
+}();
 
-});;
+exports.default = _class;
+;
 
 /***/ }),
 
@@ -13793,42 +13616,36 @@ exports.default = _class;
 /*!*********************************!*\
   !*** ./src/texts/sdf/glyphs.js ***!
   \*********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Glyphs; });
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = Glyphs;
 function Glyphs(pbf, end) {
     this.stacks = pbf.readFields(readFontstacks, [], end);
 }
 
 function readFontstacks(tag, stacks, pbf) {
     if (tag === 1) {
-        const fontstack = pbf.readMessage(readFontstack, {glyphs: {}});
+        var fontstack = pbf.readMessage(readFontstack, { glyphs: {} });
         stacks.push(fontstack);
     }
 }
 
 function readFontstack(tag, fontstack, pbf) {
-    if (tag === 1) fontstack.name = pbf.readString();
-    else if (tag === 2) fontstack.range = pbf.readString();
-    else if (tag === 3) {
-        const glyph = pbf.readMessage(readGlyph, {});
+    if (tag === 1) fontstack.name = pbf.readString();else if (tag === 2) fontstack.range = pbf.readString();else if (tag === 3) {
+        var glyph = pbf.readMessage(readGlyph, {});
         fontstack.glyphs[glyph.id] = glyph;
     }
 }
 
 function readGlyph(tag, glyph, pbf) {
-    if (tag === 1) glyph.id = pbf.readVarint();
-    else if (tag === 2) glyph.bitmap = pbf.readBytes();
-    else if (tag === 3) glyph.width = pbf.readVarint();
-    else if (tag === 4) glyph.height = pbf.readVarint();
-    else if (tag === 5) glyph.left = pbf.readSVarint();
-    else if (tag === 6) glyph.top = pbf.readSVarint();
-    else if (tag === 7) glyph.advance = pbf.readVarint();
+    if (tag === 1) glyph.id = pbf.readVarint();else if (tag === 2) glyph.bitmap = pbf.readBytes();else if (tag === 3) glyph.width = pbf.readVarint();else if (tag === 4) glyph.height = pbf.readVarint();else if (tag === 5) glyph.left = pbf.readSVarint();else if (tag === 6) glyph.top = pbf.readSVarint();else if (tag === 7) glyph.advance = pbf.readVarint();
 }
 
 /***/ }),
@@ -14345,7 +14162,7 @@ var _sdf = __webpack_require__(/*! ./sdf/sdf */ "./src/texts/sdf/sdf.js");
 
 var _sdf2 = _interopRequireDefault(_sdf);
 
-var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js?94e5");
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
 
@@ -14414,68 +14231,7 @@ exports.default = _class;
 
 /***/ }),
 
-/***/ "./src/utils.js?025e":
-/*!**********************!*\
-  !*** ./src/utils.js ***!
-  \**********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Utils; });
-/**
- *  Copyright (c) 2016, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Authors: David Tichy, Aleš Saska
- */
-
-class Utils {
-  static extend(from){
-    for(var i = 1; i < arguments.length; i++){
-      for(var k in arguments[i]){
-        from[k] = arguments[i][k];
-      }
-    }
-    return from;
-  }
-  
-  static isObject (obj) {
-    return obj === Object(obj);
-  }
-  
-  static emptyObject(obj) {
-    if(!Utils.isObject(obj))
-      return false;
-
-    for(var k in obj)
-      return false;
-    return true;
-  }
-  
-  static ajax(url, callback, type){
-    var xmlhttp;
-    // compatible with IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = (function(cbk){
-      return function(){
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-          cbk(type == 'arraybuffer' ? xmlhttp.response : xmlhttp.responseText);
-        }
-      }
-    })(callback);
-    if(type) xmlhttp.responseType=type;
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-  }
-
-};
-
-/***/ }),
-
-/***/ "./src/utils.js?94e5":
+/***/ "./src/utils.js":
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
