@@ -56,17 +56,26 @@ export default class {
     return layoutVersinus;
   }
   
-  static normalize (nodes, dim) {
-    let minX, minY, n = nodes.length;
+  
+  // brings values of x and y in range 0 - 1
+  static normalize (
+    nodes, 
+    dim 
+  ) {
+    let minX, 
+    minY, 
+    n = nodes.length; 
     
-    if (dim) {
-        minX = dim.minX;
-        minY = dim.minY;
+    if (dim) { 
+        minX = dim.minX; 
+        minY = dim.minY; 
+
+        
     }
     else {
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        minX = minY = Infinity;
+        let maxX = -Infinity; 
+        let maxY = -Infinity; 
+        minX = minY = Infinity; 
         
         for (let i = 0; i < n; i++) {
             let o = nodes[i];
@@ -86,13 +95,13 @@ export default class {
 
     let scX = minX !== dim.maxX ? 1 / (dim.maxX - minX) : ((minX -= 0.5), 1);
     let scY = minY !== dim.maxY ? 1 / (dim.maxY - minY) : ((minY -= 0.5), 1);
-
+    
     for (let i = 0; i < n; i++) {
         let o = nodes[i];
         o.x = scX * (o.x - minX);
         o.y = scY * (o.y - minY);
     }
-    
+
     return dim;
   }
   
