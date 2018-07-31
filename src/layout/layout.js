@@ -53,7 +53,8 @@ export default class {
   }
   static get grid(){
     return layoutGrid;
-  }static get versinus(){
+  }
+  static get versinus(){
     return layoutVersinus;
   }
   

@@ -8495,35 +8495,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
             return spatialSearch;
         };
 
-        // Basically this line of code can be divided into 3 parts. 
+        // confirms if user has passed some layout name in the configuration file
+        console.log("layout", layout);
+        layout &&
 
-        // 1. 'layout' => it does nothing but simply confirms if user has passed some layout name in the configuration file
-        // vaise, I dont think this matters because down the line in layout.js I hope that this behavior is handled by some default config
-
-
-        // 2. 'new ccnetviz_layout' basically it is initialising the correct layout module and
-        // passig the nodes and edges to it. not only that it is also firing up the apply function
-        // with inside the apply function all the computation basically happens for the layout
-
-
-        // 3. Then there is third part which calls the normalize() function from the layout.js
-        // Currently I do not have any idea what it does
-
-        // console.log(layout);
-
-        // Here is the line that I want to change
-        // layout;
-
-        // const t1 = performance.now();
-        new _layout2.default['force'](nodes, edges, layout_options).apply();
-        // const t2 = performance.now();
-        // console.log("layout computation time: ", t2-t1);
-
-        // const t3 = performance.now();
-        _layout2.default.normalize(nodes);
-        // const t4 = performance.now();
-        // console.log("normalization computation time: ", t4 - t3);
-
+        // initialising the correct layout module
+        new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);
 
         if (!gl) return;
 
