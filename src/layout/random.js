@@ -14,6 +14,7 @@ export default class {
   }
   
   apply() {    
+    
     return new Promise((resolve, reject) => {
       let worker = new Worker();
       worker.postMessage(this._nodes);
