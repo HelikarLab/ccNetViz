@@ -7363,9 +7363,9 @@ class Color{
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "./src/utils.js?94e5");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../gl */ "./src/gl.js?7df0");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "./src/utils.js?025e");
+/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../gl */ "./src/gl.js?8403");
+/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gl__WEBPACK_IMPORTED_MODULE_1__);
 
 
 
@@ -7416,7 +7416,7 @@ __webpack_require__.r(__webpack_exports__);
       p = this._pending[url] = [action];
       this._n++;
 
-      _utils__WEBPACK_IMPORTED_MODULE_0___default.a.ajax(url, (data) => {
+      _utils__WEBPACK_IMPORTED_MODULE_0__["default"].ajax(url, (data) => {
         this._files[url] = this._transformFile(data,dataType);
         p.forEach(a => a && a(this._files[url]));
         delete this._pending[url];
@@ -7434,7 +7434,7 @@ __webpack_require__.r(__webpack_exports__);
   }
   
   allLoaded(){
-    return _utils__WEBPACK_IMPORTED_MODULE_0___default.a.emptyObject(this._pending);
+    return _utils__WEBPACK_IMPORTED_MODULE_0__["default"].emptyObject(this._pending);
   }
   
 });
@@ -7978,7 +7978,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?4f1c");
+var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?0ae1");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
@@ -8617,6 +8617,16 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
             return spatialSearch;
         };
 
+        // Basically this line of code can be divided into 3 parts. 
+
+        // 1. 'layout' => it does nothing but simply confirms if program is running correctly and if it has access to the layout module or not
+
+        // 2. 'new ccnetviz_layout' basically it is initialising the correct layout module and theh
+
+
+        console.log(layout);
+
+        // Here is the line that I want to change
         layout && new _layout2.default[layout](nodes, edges, layout_options).apply() && _layout2.default.normalize(nodes);
 
         if (!gl) return;
@@ -8994,7 +9004,7 @@ var _layout = __webpack_require__(/*! ./layout/layout */ "./src/layout/layout.js
 
 var _layout2 = _interopRequireDefault(_layout);
 
-var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?0ae1");
+var _geomutils = __webpack_require__(/*! ./geomutils */ "./src/geomutils.js?4f1c");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
@@ -9034,7 +9044,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9794,7 +9804,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10050,7 +10060,7 @@ __webpack_require__.r(__webpack_exports__);
     this._nodes = nodes;
   }
   
-  apply () {
+  apply() {
     for (let i = 0, n = this._nodes.length; i < n; i++) {
       let o = this._nodes[i];
       o.x = Math.random();
@@ -10086,7 +10096,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _mlMatrix = __webpack_require__(/*! ml-matrix */ "./node_modules/ml-matrix/src/index.js");
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10188,7 +10198,8 @@ exports.default = _class;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
 /**
  *  Copyright (c) 2017, Helikar Lab.
  *  All rights reserved.
@@ -10398,8 +10409,7 @@ function normalize2 (x) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
 /**
  *  Copyright (c) 2017, Helikar Lab.
  *  All rights reserved.
@@ -10509,7 +10519,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       *  Author: Renato Fabbri
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
-var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?09aa");
+var _utils = __webpack_require__(/*! ./utils */ "./src/layout/utils.js?ae2d");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10957,21 +10967,31 @@ exports.default = _class;
 /*!**************************!*\
   !*** ./src/primitive.js ***!
   \**************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return primitive; });
-/* harmony import */ var _shader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./shader */ "./src/shader.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ "./src/utils.js?94e5");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _primitiveTools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js?f196");
-/* harmony import */ var _primitiveTools__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_primitiveTools__WEBPACK_IMPORTED_MODULE_2__);
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _shader = __webpack_require__(/*! ./shader */ "./src/shader.js");
+
+var _shader2 = _interopRequireDefault(_shader);
+
+var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js?025e");
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primitiveTools.js?f196");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -10981,274 +11001,298 @@ __webpack_require__.r(__webpack_exports__);
  *  Author: David Tichy
  */
 
+var primitive = function () {
+    function primitive(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
+        var _this = this;
 
+        _classCallCheck(this, primitive);
 
-class primitive{
-  constructor(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
-    let shader = new _shader__WEBPACK_IMPORTED_MODULE_0__["default"](gl, vs.join('\n'), fs.join('\n'), shaderParams);
-    let buffers = [];
-    let sections = [];   
-    
-    let sectionsByStyle = {};
+        var shader = new _shader2.default(gl, vs.join('\n'), fs.join('\n'), shaderParams);
+        var buffers = [];
+        var sections = [];
 
-    let e = {};
-    let iV, iI, iS = 0, iB = 0;
+        var sectionsByStyle = {};
 
-    let partLength = (filler, part) => {
-        if(filler.size){
-          let n = 0;
-          part.forEach( p => {
-            n+=filler.size(e,p);
-          });
-          return n;
-        }else{
-          return part.length;
-        }
-        return;
-    };
-    
-    let init = (filler, n) => {
-        iV = iI = 0;
-        let max = Math.floor(primitive.maxBufferSize / filler.numVertices);
-        let nV = Math.min(max, n - (iB - iS)*max);
-        let nI = nV * filler.numIndices;
+        var e = {};
+        var iV = void 0,
+            iI = void 0,
+            iS = 0,
+            iB = 0;
 
-        if (!e.indices || e.indices.length !== nI) {
-            e.indices = new Uint16Array(nI);
-            nV *= filler.numVertices;
-            for (let a in shader.attributes) e[a] = new Float32Array(shader.attributes[a].size * nV);
-        }
-    };
-
-    let zerofiller =  {
-      set: (v, iV, iI, numVertices, numIndices) => {
-        let indicesarr = [v.indices, iV, iI];
-        for(let i = 0; i < numIndices; i++)
-          indicesarr.push(0);
-
-        let verticesarr = [undefined, iV, iI];
-        for(let i = 0; i < numVertices; i++)
-          verticesarr.push(0);
-
-        for(var k in v){
-          if(k === 'indices'){
-            primitive.indices.apply(this, indicesarr);
-          }else{
-            verticesarr[0] = v[k];
-            primitive.vertices.apply(this, verticesarr);
-          }
-        }
-      }
-    }
-    
-    this.set = (gl, styles, adder, data, parts, get) => {
-        var isDirty = false;
-      
-        iS = 0;
-        iB = 0;
-
-        this._iIs = new Uint32Array(data.length);
-        this._iVs = new Uint32Array(data.length);
-        this._iBs = new Uint8Array(data.length);
-        this._sizes = new Uint8Array(data.length);
-
-
-        let store = (section) => {
-            let b = buffers[iB];
-            if (!b) {
-                buffers[iB] = b = {};
-                for (let a in e) b[a] = gl.createBuffer();
+        var partLength = function partLength(filler, part) {
+            if (filler.size) {
+                var n = 0;
+                part.forEach(function (p) {
+                    n += filler.size(e, p);
+                });
+                return n;
+            } else {
+                return part.length;
             }
-            for (let a in shader.attributes) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-                gl.bufferData(gl.ARRAY_BUFFER, e[a], gl.STATIC_DRAW);
-            }
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
-            b.numIndices = iI;
-            b.numVertices = iV;
-            section.buffers.push(b);
-            iB++;
+            return;
         };
 
-        sections = [];
-        for (let p in parts) {
-            iS = iB;
+        var init = function init(filler, n) {
+            iV = iI = 0;
+            var max = Math.floor(primitive.maxBufferSize / filler.numVertices);
+            var nV = Math.min(max, n - (iB - iS) * max);
+            var nI = nV * filler.numIndices;
 
-            let section = {
-                style: Object(_primitiveTools__WEBPACK_IMPORTED_MODULE_2__["getPartitionStyle"])(styles[p], baseStyle, styleProperty),
-                buffers: [],
-                styleName: p
+            if (!e.indices || e.indices.length !== nI) {
+                e.indices = new Uint16Array(nI);
+                nV *= filler.numVertices;
+                for (var a in shader.attributes) {
+                    e[a] = new Float32Array(shader.attributes[a].size * nV);
+                }
+            }
+        };
+
+        var zerofiller = {
+            set: function set(v, iV, iI, numVertices, numIndices) {
+                var indicesarr = [v.indices, iV, iI];
+                for (var i = 0; i < numIndices; i++) {
+                    indicesarr.push(0);
+                }var verticesarr = [undefined, iV, iI];
+                for (var _i = 0; _i < numVertices; _i++) {
+                    verticesarr.push(0);
+                }for (var k in v) {
+                    if (k === 'indices') {
+                        primitive.indices.apply(_this, indicesarr);
+                    } else {
+                        verticesarr[0] = v[k];
+                        primitive.vertices.apply(_this, verticesarr);
+                    }
+                }
+            }
+        };
+
+        this.set = function (gl, styles, adder, data, parts, get) {
+            var isDirty = false;
+
+            iS = 0;
+            iB = 0;
+
+            _this._iIs = new Uint32Array(data.length);
+            _this._iVs = new Uint32Array(data.length);
+            _this._iBs = new Uint8Array(data.length);
+            _this._sizes = new Uint8Array(data.length);
+
+            var store = function store(section) {
+                var b = buffers[iB];
+                if (!b) {
+                    buffers[iB] = b = {};
+                    for (var a in e) {
+                        b[a] = gl.createBuffer();
+                    }
+                }
+                for (var _a in shader.attributes) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, b[_a]);
+                    gl.bufferData(gl.ARRAY_BUFFER, e[_a], gl.STATIC_DRAW);
+                }
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, e.indices, gl.STATIC_DRAW);
+                b.numIndices = iI;
+                b.numVertices = iV;
+                section.buffers.push(b);
+                iB++;
             };
 
-            let filler = get(section.style);
+            sections = [];
+            for (var p in parts) {
+                var add = function add() {
+                    sections.push(this);
+                    sectionsByStyle[this.styleName] = this;
+                };
+
+                iS = iB;
+
+                var section = {
+                    style: (0, _primitiveTools.getPartitionStyle)(styles[p], baseStyle, styleProperty),
+                    buffers: [],
+                    styleName: p
+                };
+
+                var filler = get(section.style);
+                filler.numVertices = filler.numVertices || 4;
+                filler.numIndices = filler.numIndices || 6;
+
+                var part = parts[p];
+
+                var pL = partLength(filler, part);
+                init(filler, pL);
+                var max = primitive.maxBufferSize;
+                for (var i = 0; i < part.length; i++) {
+                    var s = filler.size ? filler.size(e, part[i]) : 1;
+                    var niV = iV + s * filler.numVertices;
+                    var niI = iI + s * filler.numIndices;
+
+                    if (niV >= max) {
+                        store(section);
+                        init(filler, pL);
+                        niV = iV;
+                        niI = iI;
+                    }
+
+                    if (filler.set(e, part[i], iV, iI)) isDirty = true;
+
+                    var idx = part.idx[i];
+                    _this._iIs[idx] = iI;
+                    _this._iVs[idx] = iV;
+                    _this._iBs[idx] = iB;
+                    _this._sizes[idx] = s;
+
+                    iI = niI;
+                    iV = niV;
+                }
+                store(section);
+
+                var addSection = add.bind(section);
+
+                adder ? adder(section, addSection) : addSection();
+            }
+
+            return isDirty;
+        };
+
+        var fb = void 0;
+        this.update = function (gl, attribute, data, get) {
+            var i = 0,
+                size = shader.attributes[attribute].size;
+            sections.forEach(function (section) {
+                var filler = get(section.style);
+                filler.numVertices = filler.numVertices || 4;
+
+                section.buffers.forEach(function (e) {
+                    (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
+                    for (var _iV = 0; _iV < e.numVertices; _iV += (filler.size ? filler.size(e, data[i]) : 1) * filler.numVertices) {
+                        filler.set(fb, data[i++], _iV);
+                    }gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
+                    gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
+                });
+            });
+        };
+
+        this.updateEl = function (gl, el, pos, get) {
+            var storeToPos = function storeToPos(b, iV, iI) {
+                for (var a in shader.attributes) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
+                    gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size * iV * e[a].BYTES_PER_ELEMENT, e[a]);
+                }
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
+                gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, iI * e.indices.BYTES_PER_ELEMENT, e.indices);
+            };
+
+            var section = sectionsByStyle[el.style];
+
+            var filler = get(section.style);
             filler.numVertices = filler.numVertices || 4;
             filler.numIndices = filler.numIndices || 6;
 
-            let part = parts[p];
+            iB = iS = 0;
 
-            let pL = partLength(filler, part);
-            init(filler, pL);
-            let max = primitive.maxBufferSize;
-            for (let i = 0; i < part.length; i++) {
-                let s = filler.size ? filler.size(e, part[i]) : 1;
-                let niV = iV + s * filler.numVertices;
-                let niI = iI + s * filler.numIndices;
-
-                if (niV >= max) {
-                    store(section);
-                    init(filler, pL);
-                    niV = iV;
-                    niI = iI;
-                }
-
-
-                if(filler.set(e, part[i], iV, iI))
-                  isDirty = true;
-
-
-                let idx = part.idx[i];
-                this._iIs[idx] = iI;
-                this._iVs[idx] = iV;
-                this._iBs[idx] = iB;
-                this._sizes[idx] = s;
-
-                iI = niI;
-                iV = niV;
+            var buffer = section.buffers[_this._iBs[pos]];
+            var s = filler.size ? filler.size(buffer, el) : 1;
+            var olds = _this._sizes[pos];
+            if (s > olds) {
+                console.error('Cannot set primitive to new value which has greater size (' + s + " > " + olds + ") - no enough empty space to fill in GL buffer");
+                return;
             }
-            store(section);
 
-            function add() {
-                sections.push(this);
-                sectionsByStyle[this.styleName] = this;
+            init(filler, olds);
+            filler.set(e, el, 0, 0);
+
+            for (; s < olds; s++) {
+                //zero fill empty spaces
+                zerofiller.set(e, s * filler.numVertices, s * filler.numIndices, filler.numVertices, filler.numIndices);
             }
-            let addSection = add.bind(section);
 
-            adder ? adder(section, addSection) : addSection();
-        }
-        
-        return isDirty;
-    }
-
-    let fb;
-    this.update = function(gl, attribute, data, get)  {
-        let i = 0, size = shader.attributes[attribute].size;
-        sections.forEach(function(section)  {
-            let filler = get(section.style);
-            filler.numVertices = filler.numVertices || 4;
-
-            section.buffers.forEach(function(e)  {
-                (!fb || fb.length !== size * e.numVertices) && (fb = new Float32Array(size * e.numVertices));
-                for (let iV = 0; iV < e.numVertices; iV += (filler.size ? filler.size(e, data[i]) : 1) * filler.numVertices) filler.set(fb, data[i++], iV);
-                gl.bindBuffer(gl.ARRAY_BUFFER, e[attribute]);
-                gl.bufferData(gl.ARRAY_BUFFER, fb, gl.DYNAMIC_DRAW);
-            });
-        });
-   }
-
-   this.updateEl = (gl, el, pos, get) => {
-        let storeToPos = (b, iV, iI) => {
-            for (let a in shader.attributes) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, b[a]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, shader.attributes[a].size*iV*e[a].BYTES_PER_ELEMENT, e[a]);
-            }
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.indices);
-            gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, iI*e.indices.BYTES_PER_ELEMENT, e.indices);
+            var iV = _this._iVs[pos];
+            var iI = _this._iIs[pos];
+            storeToPos(buffer, iV, iI);
         };
 
-        let section = sectionsByStyle[el.style];
-        
-        let filler = get(section.style);
-        filler.numVertices = filler.numVertices || 4;
-        filler.numIndices = filler.numIndices || 6;
-             
-        iB=iS=0;
+        this.draw = function (context) {
+            context.shader = shader;
+            shader.bind();
 
-        let buffer = section.buffers[this._iBs[pos]];
-        let s = filler.size ? filler.size(buffer, el) : 1;
-        let olds = this._sizes[pos];
-        if(s > olds){
-          console.error('Cannot set primitive to new value which has greater size ('+s+" > "+olds+") - no enough empty space to fill in GL buffer");
-          return;
-        }
+            gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
 
-        init(filler, olds);
-        filler.set(e, el, 0, 0);
-
-        for(;s < olds; s++){
-          //zero fill empty spaces
-          zerofiller.set(e, s*filler.numVertices, s*filler.numIndices, filler.numVertices, filler.numIndices);
-        }
-
-        let iV = this._iVs[pos];
-        let iI = this._iIs[pos];
-        storeToPos(buffer, iV, iI);
-    };
-
-    this.draw = (context) => {
-        context.shader = shader;
-        shader.bind();
-
-        gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
-
-        sections.forEach(section => {
-            if (section.style.texture) {
-                section.style.texture.update && section.style.texture.update();
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
-                gl.uniform1i(shader.uniforms.texture, 0);
-            }
-
-            context.style = section.style;
-            if (bind(context)) return;
-
-            section.buffers.forEach(e => {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, e.indices);
-
-                for (var a in shader.attributes) {
-                    var attribute = shader.attributes[a];
-                    gl.bindBuffer(gl.ARRAY_BUFFER, e[a]);
-                    gl.vertexAttribPointer(attribute.index, attribute.size, gl.FLOAT, false, 0, 0);
+            sections.forEach(function (section) {
+                if (section.style.texture) {
+                    section.style.texture.update && section.style.texture.update();
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, section.style.texture);
+                    gl.uniform1i(shader.uniforms.texture, 0);
                 }
 
-                gl.drawElements(gl.TRIANGLES, e.numIndices, gl.UNSIGNED_SHORT, 0);
+                context.style = section.style;
+                if (bind(context)) return;
+
+                section.buffers.forEach(function (e) {
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, e.indices);
+
+                    for (var a in shader.attributes) {
+                        var attribute = shader.attributes[a];
+                        gl.bindBuffer(gl.ARRAY_BUFFER, e[a]);
+                        gl.vertexAttribPointer(attribute.index, attribute.size, gl.FLOAT, false, 0, 0);
+                    }
+
+                    gl.drawElements(gl.TRIANGLES, e.numIndices, gl.UNSIGNED_SHORT, 0);
+                });
             });
-        });
 
-        shader.unbind();
+            shader.unbind();
+        };
     }
-  }
-  
-  static vertices(buffer, iV) {
-      for (let i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
-  }
-  
-  static singles(buffer, iV) {
-    for (let i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) buffer[j] = arguments[i];
-  }
-  
-  static colors(buffer, iV) {
-    for (let i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
-        let c = arguments[i];
-        buffer[j++] = c.r;
-        buffer[j++] = c.g;
-        buffer[j++] = c.b;
-        buffer[j++] = c.a;
-    }
-  }
-  
-  static indices(buffer, iV, iI){
-      for (let i = 3, j = iI, n = arguments.length; i < n; i++, j++) buffer[j] = iV + arguments[i];
-  }
 
-  static quad(buffer, iV, iI) {
-      primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
-  }
+    _createClass(primitive, null, [{
+        key: 'vertices',
+        value: function vertices(buffer, iV) {
+            for (var i = 2, j = 2 * iV, n = arguments.length; i < n; i++, j++) {
+                buffer[j] = arguments[i];
+            }
+        }
+    }, {
+        key: 'singles',
+        value: function singles(buffer, iV) {
+            for (var i = 2, j = 1 * iV, n = arguments.length; i < n; i++, j++) {
+                buffer[j] = arguments[i];
+            }
+        }
+    }, {
+        key: 'colors',
+        value: function colors(buffer, iV) {
+            for (var i = 2, j = 4 * iV, n = arguments.length; i < n; i++) {
+                var c = arguments[i];
+                buffer[j++] = c.r;
+                buffer[j++] = c.g;
+                buffer[j++] = c.b;
+                buffer[j++] = c.a;
+            }
+        }
+    }, {
+        key: 'indices',
+        value: function indices(buffer, iV, iI) {
+            for (var i = 3, j = iI, n = arguments.length; i < n; i++, j++) {
+                buffer[j] = iV + arguments[i];
+            }
+        }
+    }, {
+        key: 'quad',
+        value: function quad(buffer, iV, iI) {
+            primitive.indices(buffer, iV, iI, 0, 1, 2, 2, 3, 0);
+        }
+    }, {
+        key: 'maxBufferSize',
+        get: function get() {
+            return 65536;
+        }
+    }]);
 
-  static get maxBufferSize(){
-    return 65536;
-  } 
-}
+    return primitive;
+}();
+
+exports.default = primitive;
 
 /***/ }),
 
@@ -12596,11 +12640,11 @@ var _rbush = __webpack_require__(/*! ./rbush */ "./src/spatialSearch/rbush.js");
 
 var _rbush2 = _interopRequireDefault(_rbush);
 
-var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js?0ae1");
+var _geomutils = __webpack_require__(/*! ../geomutils */ "./src/geomutils.js?4f1c");
 
 var _geomutils2 = _interopRequireDefault(_geomutils);
 
-var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js?025e");
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js?94e5");
 
 var _utils2 = _interopRequireDefault(_utils);
 
@@ -13793,22 +13837,37 @@ function readGlyph(tag, glyph, pbf) {
 /*!******************************!*\
   !*** ./src/texts/sdf/sdf.js ***!
   \******************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var pbf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pbf */ "./node_modules/pbf/index.js");
-/* harmony import */ var pbf__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(pbf__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _atlas__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./atlas */ "./src/texts/sdf/atlas.js");
-/* harmony import */ var _atlas__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_atlas__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _glyphs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./glyphs */ "./src/texts/sdf/glyphs.js");
-/* harmony import */ var _spriteGenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./spriteGenerator */ "./src/texts/sdf/spriteGenerator.js");
-/* harmony import */ var _spriteGenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_spriteGenerator__WEBPACK_IMPORTED_MODULE_3__);
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _pbf = __webpack_require__(/*! pbf */ "./node_modules/pbf/index.js");
+
+var _pbf2 = _interopRequireDefault(_pbf);
+
+var _atlas = __webpack_require__(/*! ./atlas */ "./src/texts/sdf/atlas.js");
+
+var _atlas2 = _interopRequireDefault(_atlas);
+
+var _glyphs = __webpack_require__(/*! ./glyphs */ "./src/texts/sdf/glyphs.js");
+
+var _glyphs2 = _interopRequireDefault(_glyphs);
+
+var _spriteGenerator = __webpack_require__(/*! ./spriteGenerator */ "./src/texts/sdf/spriteGenerator.js");
+
+var _spriteGenerator2 = _interopRequireDefault(_spriteGenerator);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -13818,42 +13877,46 @@ __webpack_require__.r(__webpack_exports__);
  *  Authors: Aleš Saska
  */
 
-
 // A simplified representation of the glyph containing only the properties needed for shaping.
-class SimpleGlyph {
-  constructor(glyph, rect, buffer) {
-    const padding = 1;
-    this.advance = glyph.advance;
-    this.left = glyph.left - buffer - padding;
-    this.top = glyph.top + buffer + padding;
-    this.rect = rect;
-  }
-}
+var SimpleGlyph = function SimpleGlyph(glyph, rect, buffer) {
+  _classCallCheck(this, SimpleGlyph);
 
+  var padding = 1;
+  this.advance = glyph.advance;
+  this.left = glyph.left - buffer - padding;
+  this.top = glyph.top + buffer + padding;
+  this.rect = rect;
+};
 
 // Multiplication factor by which the size will grow
-const SIZE_GROWTH_RATE = 4;
+
+
+var SIZE_GROWTH_RATE = 4;
 
 // Size in which we try to contian the glyphs
-const DEFAULT_SIZE = 512;
+var DEFAULT_SIZE = 512;
 
 // must be "DEFAULT_SIZE * SIZE_GROWTH_RATE ^ n" for some integer n
 // Maybe the maximum size allowed of the atlas
-const MAX_SIZE = 2048;
-
+var MAX_SIZE = 2048;
 
 // Class for the text engine
 
 // invoked only when main configuration object, the "font" is mentioned and
 // the proper link to the font file is present
-/* harmony default export */ __webpack_exports__["default"] = (class {
+
+var _class = function () {
 
   // new text engine object takes 3 arguments
   // 1. gl = Webgl context
   // 2. files = File object programmed in src/dataSources/files.js
   // 3. texture = Texture object programmed in src/dataSources/textures.js
 
-  constructor(gl, files, textures) {
+  function _class(gl, files, textures) {
+    var _this = this;
+
+    _classCallCheck(this, _class);
+
     // Defines the dimensions of the texture
     this.width = DEFAULT_SIZE;
     this.height = DEFAULT_SIZE;
@@ -13868,7 +13931,9 @@ const MAX_SIZE = 2048;
     this._gl = gl;
 
     // Atlas object programmed in src/texts/sdf/atlas.js
-    this.atlas = new _atlas__WEBPACK_IMPORTED_MODULE_1___default.a(this._gl, () => { this._cachedGlyphs = {}; });
+    this.atlas = new _atlas2.default(this._gl, function () {
+      _this._cachedGlyphs = {};
+    });
 
     // For every char_id, contains position, properties and buffer data
     this._glyphs = {};
@@ -13880,163 +13945,176 @@ const MAX_SIZE = 2048;
     this._cachedGlyphs = {};
 
     // Client-Side builder of spritesheet
-    this.spriteGenerator = new _spriteGenerator__WEBPACK_IMPORTED_MODULE_3___default.a();
+    this.spriteGenerator = new _spriteGenerator2.default();
   }
-
 
   // returns if we are using SDF TextEngine or not
-  get isSDF() {
-    return true;
-  }
-
-  // this is a dummy method to make 'interface' of sdf.js and default.js same
-  clear() {
-  }
 
 
-  /**
-   * style = object: {
-   *   pbf: <url to the font file on the server>
-   *   type: 'sdf' {Type of the font file & sdf => distance transformed spriteSheet}
-   * }
-   */
-  setFont(style) {
-    // curFont => current_font
-    // style.pbf examplar value = http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf
-    this.curFont = style.pbf;
-  }
-
-  // FontSize is fixed and hardcoded i.e. 24
-  get fontSize() {
-    return 24;
-  }
-
-  //
-  getTexture(style, onLoad) {
-    // init with first most-used ASCII chars
-    for (let i = 0; i < 128; i++) {
-      // Cache the most used characters prior to the knowledge if they would be used in lables or not
-      // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
-      this._getChar(String.fromCharCode(i));
-    }
-    onLoad && onLoad.apply(this, arguments);
-
-    // by calling this._getChar, we have updated the texture in this.atlas object
-    // following we are returning the updated object
-    // TODO: this code is not intuitive, we can write better
-    return this.atlas.texture;
-  }
+  _createClass(_class, [{
+    key: 'clear',
 
 
-  /**
-   * Updates the 'texture' member variable of this.atlas object
-   *
-   * text = single character which is to be added to the texture of 'this.atlas'
-   * markDirty = ??? callback to be called if the size of the texture is resized
-   */
-  // TODO: parameter name should be changed from 'text' to 'char'
-  _getChar(text, markDirty) {
-    // curFont is same as style.pbf defined above
-    // TODO: We are doing this too many times in this code. Find a better mech.
-    const font = this.curFont;
+    // this is a dummy method to make 'interface' of sdf.js and default.js same
+    value: function clear() {}
 
-    // glyphId is the character code of the glyph passed in arguments under the name 'text'
-    const glyphID = text.charCodeAt(0);
+    /**
+     * style = object: {
+     *   pbf: <url to the font file on the server>
+     *   type: 'sdf' {Type of the font file & sdf => distance transformed spriteSheet}
+     * }
+     */
 
-    // Padding around the glyph
-    const buffer = 0;
-
-    const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
-    const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
-    
-    // TODO: Delete following testing code
-    if(t) {
-      const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
-      const testCanvas = document.getElementById("test-canvas");
-      const ctx = testCanvas.getContext("2d");
-      ctx.putImageData(imgData, 10, 20);
-      --t;
+  }, {
+    key: 'setFont',
+    value: function setFont(style) {
+      // curFont => current_font
+      // style.pbf examplar value = http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf
+      this.curFont = style.pbf;
     }
 
-    const fontSize = this.spriteGenerator.fontSize;
-    
-    if (!this._rects[font]) this._rects[font] = {};
-    let rect = this._rects[font][text] = this.atlas.addGlyph(
-      glyphID, // character id
+    // FontSize is fixed and hardcoded i.e. 24
+
+  }, {
+    key: 'getTexture',
+
+
+    //
+    value: function getTexture(style, onLoad) {
+      // init with first most-used ASCII chars
+      for (var i = 0; i < 128; i++) {
+        // Cache the most used characters prior to the knowledge if they would be used in lables or not
+        // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
+        this._getChar(String.fromCharCode(i));
+      }
+      onLoad && onLoad.apply(this, arguments);
+
+      // by calling this._getChar, we have updated the texture in this.atlas object
+      // following we are returning the updated object
+      // TODO: this code is not intuitive, we can write better
+      return this.atlas.texture;
+    }
+
+    /**
+     * Updates the 'texture' member variable of this.atlas object
+     *
+     * text = single character which is to be added to the texture of 'this.atlas'
+     * markDirty = ??? callback to be called if the size of the texture is resized
+     */
+    // TODO: parameter name should be changed from 'text' to 'char'
+
+  }, {
+    key: '_getChar',
+    value: function _getChar(text, markDirty) {
+      // curFont is same as style.pbf defined above
+      // TODO: We are doing this too many times in this code. Find a better mech.
+      var font = this.curFont;
+
+      // glyphId is the character code of the glyph passed in arguments under the name 'text'
+      var glyphID = text.charCodeAt(0);
+
+      // Padding around the glyph
+      var buffer = 0;
+
+      var cache = this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {});
+      var glyph = cache[glyphID] && cache[glyphID].glyph || this.spriteGenerator.draw(text);
+
+      // TODO: Delete following testing code
+      if (t) {
+        var imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+        var testCanvas = document.getElementById("test-canvas");
+        var ctx = testCanvas.getContext("2d");
+        ctx.putImageData(imgData, 10, 20);
+        --t;
+      }
+
+      var fontSize = this.spriteGenerator.fontSize;
+
+      if (!this._rects[font]) this._rects[font] = {};
+      var rect = this._rects[font][text] = this.atlas.addGlyph(glyphID, // character id
       this.curFont, // contains url of the font file on server
       glyph, // glyph object
       buffer, // padding
       fontSize, // fontSize
-      markDirty, // callback function to be called if texture resizes
-    );
+      markDirty // callback function to be called if texture resizes
+      );
 
-    return (
-      cache[glyphID] ||
-      (cache[glyphID] = new SimpleGlyph(
-        glyph,
-        rect,
-        buffer)
-      )
-    );
-  }
-
-  get(text, x, y, markDirty) {
-    let width = 0;
-    let height = 0;
-
-    const horiBearingX = 3;
-    const horiBearingY = 2;
-
-    for (let i = 0; i < text.length; i++) {
-      const char = this._getChar(text[i], markDirty);
-      const rect = char.rect || {};
-      height = Math.max(height, rect.h - char.top);
-      width += char.advance + horiBearingX;
+      return cache[glyphID] || (cache[glyphID] = new SimpleGlyph(glyph, rect, buffer));
     }
+  }, {
+    key: 'get',
+    value: function get(text, x, y, markDirty) {
+      var width = 0;
+      var height = 0;
 
-    let dx = x <= 0.5 ? 0 : -width;
-    let dy = y <= 0.5 ? 0 : -height;
+      var horiBearingX = 3;
+      var horiBearingY = 2;
 
+      for (var i = 0; i < text.length; i++) {
+        var char = this._getChar(text[i], markDirty);
+        var rect = char.rect || {};
+        height = Math.max(height, rect.h - char.top);
+        width += char.advance + horiBearingX;
+      }
 
+      var dx = x <= 0.5 ? 0 : -width;
+      var dy = y <= 0.5 ? 0 : -height;
 
-    // "ret" must be the return object. "ret" is always the return object
-    let ret = [];
+      // "ret" must be the return object. "ret" is always the return object
+      var ret = [];
 
-    for (let i = 0; i < text.length; i++) {
+      for (var _i = 0; _i < text.length; _i++) {
 
-      const char = this._getChar(text[i], markDirty);
-      const rect = char.rect || {};
+        var _char = this._getChar(text[_i], markDirty);
+        var _rect = _char.rect || {};
 
-      let horiAdvance;
+        var horiAdvance = void 0;
 
-      dx += horiBearingX;
+        dx += horiBearingX;
 
-      ret.push({
-        width: rect.w,
-        height: rect.h,
-        left: rect.x / this.atlas.width,
-        right: (rect.x + rect.w) / this.atlas.width,
-        bottom: (rect.y + rect.h) / this.atlas.height,
-        top: rect.y / this.atlas.height,
-        dx: dx,
-        dy: dy + char.top + (height - rect.h)
-      });
+        ret.push({
+          width: _rect.w,
+          height: _rect.h,
+          left: _rect.x / this.atlas.width,
+          right: (_rect.x + _rect.w) / this.atlas.width,
+          bottom: (_rect.y + _rect.h) / this.atlas.height,
+          top: _rect.y / this.atlas.height,
+          dx: dx,
+          dy: dy + _char.top + (height - _rect.h)
+        });
 
-      dx += char.advance;
-      //      dx += rect.w;
+        dx += _char.advance;
+        //      dx += rect.w;
+      }
+      return ret;
     }
-    return ret;
-  }
+  }, {
+    key: 'steps',
+    value: function steps(text) {
+      return text.length;
+    }
+  }, {
+    key: 'bind',
+    value: function bind() {
+      this.atlas.updateTexture(this._gl);
+    }
+  }, {
+    key: 'isSDF',
+    get: function get() {
+      return true;
+    }
+  }, {
+    key: 'fontSize',
+    get: function get() {
+      return 24;
+    }
+  }]);
 
-  steps(text) {
-    return text.length;
-  }
+  return _class;
+}();
 
-  bind() {
-    this.atlas.updateTexture(this._gl);
-  }
-});;
-
+exports.default = _class;
+;
 
 /***/ }),
 

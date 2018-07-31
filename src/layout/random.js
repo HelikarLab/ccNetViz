@@ -11,7 +11,7 @@ export default class {
     this._nodes = nodes;
   }
   
-  apply () {
+  apply() {
     for (let i = 0, n = this._nodes.length; i < n; i++) {
       let o = this._nodes[i];
       o.x = Math.random();

@@ -353,8 +353,30 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           }
           return spatialSearch;
         }
+        
+        
+        
+        // Basically this line of code can be divided into 3 parts. 
 
-        layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+        // 1. 'layout' => it does nothing but simply confirms if program is running correctly and if it has access to the layout module or not
+
+        // 2. 'new ccnetviz_layout' basically it is initialising the correct layout module and theh
+        
+        
+        console.log(layout);
+
+        // Here is the line that I want to change
+        layout && 
+        
+        new ccNetViz_layout[layout](nodes, edges, layout_options).apply() &&
+        
+        ccNetViz_layout.normalize(nodes);
+
+        
+        
+
+        
+         
 
         if(!gl) return;
 
