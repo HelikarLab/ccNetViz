@@ -92,7 +92,7 @@
 
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
-      graph.set(data.nodes, data.edges, "force");
+      graph.set(data.nodes, data.edges, "random");
       graph.draw();
 
       $('#nodesCnt').text(data.nodes.length);

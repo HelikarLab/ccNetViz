@@ -11,16 +11,16 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
 
 
-// Defining a worker
-// console.log("defining a worker");
-import Worker from './newlayout.worker.js';
-let worker = new Worker();
+// // Defining a worker
+// // console.log("defining a worker");
+// import Worker from './layer.worker.js';
+// let worker = new Worker();
 
-worker.addEventListener("message", function (event) { console.log("event.data", event.data) });
+// worker.addEventListener("message", function (event) { console.log("event.data", event.data) });
 
-// Starting a worker
-console.log("sending message to the worker");
-worker.postMessage({a: 1});
+// // Starting a worker
+// console.log("sending message to the worker");
+// worker.postMessage({a: 1});
 
 
 
@@ -262,7 +262,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       enableLazyRedraw = true;
     };
 
-    this.set = function(nodes, edges, layout, layout_options) {
+    this.set = async function(nodes, edges, layout, layout_options) {
         removedNodes = 0;
         removedEdges = 0;
 
@@ -376,14 +376,15 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         }
                 
         
-        // confirms if user has passed some layout name in the configuration file
-        layout &&
-
-        // initialising the correct layout module
-        new ccNetViz_layout[layout](nodes, edges, layout_options).apply() &&
+        if (layout) {
+            new ccNetViz_layout[layout](nodes, edges, layout_options).apply().then(function(data) {
+                console.log("data", data);
+                nodes = data;
+                console.log("nodes", nodes);
+                ccNetViz_layout.normalize(nodes);
+            });
+        }
         
-        ccNetViz_layout.normalize(nodes);
-         
 
         if(!gl) return;
 

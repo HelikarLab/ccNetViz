@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
 
-    entry: './src/ccNetVizMultiLevel.js',
+    entry: ['babel-polyfill', './src/ccNetVizMultiLevel.js'],
 
     output: {
         path: path.join(__dirname, 'dist'),
@@ -32,11 +32,11 @@ module.exports = {
 
                 // Loader Configurations
                 query: {
-                    presets: ['es2015']
+                    presets: ["env"]
                 },
             },
 
-            // Loader 2
+            // Loader 2 
             {
                 test: /\.worker\.js$/,
                 use: { 
