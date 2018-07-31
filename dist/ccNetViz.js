@@ -18988,7 +18988,8 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
     this.set = function () {
         var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(nodes, edges, layout, layout_options) {
-            var lines, curves, circles, i, e, getIndex, init, nodesParts, circlesParts, linesParts, curvesParts, tryInitPrimitives;
+            var lines, curves, circles, _i, e, getIndex, init, nodesParts, circlesParts, linesParts, curvesParts, data, tryInitPrimitives;
+
             return regeneratorRuntime.wrap(function _callee$(_context) {
                 while (1) {
                     switch (_context.prev = _context.next) {
@@ -19005,8 +19006,8 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
                             //tanslate indexes into node objects
 
-                            for (i = 0; i < edges.length; i++) {
-                                e = edges[i];
+                            for (_i = 0; _i < edges.length; _i++) {
+                                e = edges[_i];
 
                                 if (typeof e.source == 'number') e.source = nodes[e.source];
 
@@ -19018,12 +19019,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             };
 
                             init = function init() {
-                                for (var _i = 0; _i < nodes.length; _i++) {
-                                    nodes[_i].index = _i;
+                                for (var _i2 = 0; _i2 < nodes.length; _i2++) {
+                                    nodes[_i2].index = _i2;
                                 }
 
-                                for (var _i2 = 0, j = nodes.length + 10; _i2 < edges.length; _i2++, j++) {
-                                    edges[_i2].nidx = j;
+                                for (var _i3 = 0, j = nodes.length + 10; _i3 < edges.length; _i3++, j++) {
+                                    edges[_i3].nidx = j;
                                 }
 
                                 edgeTypes = [];
@@ -19035,8 +19036,8 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
                                 if (extensions.OES_standard_derivatives) {
                                     var map = {};
-                                    for (var _i3 = 0; _i3 < edges.length; _i3++) {
-                                        var _e = edges[_i3];
+                                    for (var _i4 = 0; _i4 < edges.length; _i4++) {
+                                        var _e = edges[_i4];
 
                                         var si = getIndex(_e.source);
                                         var ti = getIndex(_e.target);
@@ -19044,9 +19045,9 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                         (map[si] || (map[si] = {}))[ti] = true;
                                     }
 
-                                    for (var _i4 = 0; _i4 < edges.length; _i4++) {
+                                    for (var _i5 = 0; _i5 < edges.length; _i5++) {
                                         var target = void 0,
-                                            _e2 = edges[_i4];
+                                            _e2 = edges[_i5];
 
                                         var _si = getIndex(_e2.source);
                                         var _ti = getIndex(_e2.target);
@@ -19069,12 +19070,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                             }
                                         }
                                         edgeTypes.push(t);
-                                        edgePoses[_i4] = t.d.length;
+                                        edgePoses[_i5] = t.d.length;
                                         target.push(_e2);
                                     }
                                 } else {
-                                    for (var _i5 = 0; _i5 < edges.length; _i5++) {
-                                        var _e3 = edges[_i5];
+                                    for (var _i6 = 0; _i6 < edges.length; _i6++) {
+                                        var _e3 = edges[_i6];
 
                                         var _si2 = getIndex(_e3.source);
                                         var _ti2 = getIndex(_e3.target);
@@ -19086,7 +19087,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                             lines.push(_e3);
                                         }
                                         edgeTypes.push(_t);
-                                        edgePoses[_i5] = _t.d.length;
+                                        edgePoses[_i6] = _t.d.length;
                                     }
                                 }
                             };
@@ -19106,23 +19107,30 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return spatialSearch;
                             };
 
-                            if (layout) {
-                                new _layout2.default[layout](nodes, edges, layout_options).apply().then(function (data) {
-                                    console.log("data", data);
-                                    nodes = data;
-                                    console.log("nodes", nodes);
-                                    _layout2.default.normalize(nodes);
-                                });
+                            if (!layout) {
+                                _context.next = 22;
+                                break;
                             }
 
+                            _context.next = 18;
+                            return new _layout2.default[layout](nodes, edges, layout_options).apply();
+
+                        case 18:
+                            data = _context.sent;
+
+                            nodes = data;
+                            console.log("nodes", nodes);
+                            _layout2.default.normalize(nodes);
+
+                        case 22:
                             if (gl) {
-                                _context.next = 18;
+                                _context.next = 24;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 18:
+                        case 24:
                             tryInitPrimitives = function tryInitPrimitives() {
                                 var isDirty = false;
 
@@ -19168,10 +19176,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return isDirty;
                             };
 
+                            console.log("nodes " + i++, nodes);
+
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 21:
+                        case 28:
                         case 'end':
                             return _context.stop();
                     }
@@ -19525,6 +19535,8 @@ var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+var i = 1;
 
 // // Defining a worker
 // // console.log("defining a worker");

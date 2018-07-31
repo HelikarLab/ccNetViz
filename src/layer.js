@@ -7,26 +7,7 @@ import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
-
-
-
-
-// // Defining a worker
-// // console.log("defining a worker");
-// import Worker from './layer.worker.js';
-// let worker = new Worker();
-
-// worker.addEventListener("message", function (event) { console.log("event.data", event.data) });
-
-// // Starting a worker
-// console.log("sending message to the worker");
-// worker.postMessage({a: 1});
-
-
-
-
-
-
+let i = 1;
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -377,12 +358,10 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 
         
         if (layout) {
-            new ccNetViz_layout[layout](nodes, edges, layout_options).apply().then(function(data) {
-                console.log("data", data);
-                nodes = data;
-                console.log("nodes", nodes);
-                ccNetViz_layout.normalize(nodes);
-            });
+            let data = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+            nodes = data;
+            console.log("nodes", nodes);
+            ccNetViz_layout.normalize(nodes);
         }
         
 
@@ -435,6 +414,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             return isDirty;
         };
+
+        console.log("nodes " + i++, nodes);
 
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();
