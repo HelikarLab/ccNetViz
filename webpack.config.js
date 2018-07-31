@@ -34,6 +34,12 @@ module.exports = {
                 query: {
                     presets: ['es2015']
                 },
+            },
+
+            // Loader 2
+            {
+                test: /\.worker\.js$/,
+                use: { loader: 'worker-loader' }
             }
         ]
     },
