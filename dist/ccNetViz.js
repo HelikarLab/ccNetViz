@@ -6318,6 +6318,54 @@ return ShelfPack;
 
 /***/ }),
 
+/***/ "./node_modules/worker-loader/dist/workers/InlineWorker.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/worker-loader/dist/workers/InlineWorker.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// http://stackoverflow.com/questions/10343913/how-to-create-a-web-worker-from-a-string
+
+var URL = window.URL || window.webkitURL;
+
+module.exports = function (content, url) {
+  try {
+    try {
+      var blob;
+
+      try {
+        // BlobBuilder = Deprecated, but widely implemented
+        var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
+
+        blob = new BlobBuilder();
+
+        blob.append(content);
+
+        blob = blob.getBlob();
+      } catch (e) {
+        // The proposed API
+        blob = new Blob([content]);
+      }
+
+      return new Worker(URL.createObjectURL(blob));
+    } catch (e) {
+      return new Worker('data:application/javascript,' + encodeURIComponent(content));
+    }
+  } catch (e) {
+    if (!url) {
+      throw Error('Inline worker is not supported');
+    }
+
+    return new Worker(url);
+  }
+};
+
+/***/ }),
+
 /***/ "./src/ccNetViz.js":
 /*!*************************!*\
   !*** ./src/ccNetViz.js ***!
@@ -8461,20 +8509,21 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
         // 3. Then there is third part which calls the normalize() function from the layout.js
         // Currently I do not have any idea what it does
 
-        console.log(layout);
+        // console.log(layout);
 
         // Here is the line that I want to change
         // layout;
 
-        var t1 = performance.now();
+        // const t1 = performance.now();
         new _layout2.default['force'](nodes, edges, layout_options).apply();
-        var t2 = performance.now();
-        console.log("layout computation time: ", t2 - t1);
+        // const t2 = performance.now();
+        // console.log("layout computation time: ", t2-t1);
 
-        var t3 = performance.now();
+        // const t3 = performance.now();
         _layout2.default.normalize(nodes);
-        var t4 = performance.now();
-        console.log("normalization computation time: ", t4 - t3);
+        // const t4 = performance.now();
+        // console.log("normalization computation time: ", t4 - t3);
+
 
         if (!gl) return;
 
@@ -8865,7 +8914,35 @@ var _spatialSearch = __webpack_require__(/*! ./spatialSearch/spatialSearch */ ".
 
 var _spatialSearch2 = _interopRequireDefault(_spatialSearch);
 
+var _newlayoutWorker = __webpack_require__(/*! ./newlayout.worker.js */ "./src/newlayout.worker.js");
+
+var _newlayoutWorker2 = _interopRequireDefault(_newlayoutWorker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var worker = new _newlayoutWorker2.default();
+
+// Defining a worker
+// console.log("defining a worker");
+
+
+worker.addEventListener("message", function (event) {
+    console.log("event.data", event.data);
+});
+
+// Starting a worker
+console.log("sending message to the worker");
+worker.postMessage({ a: 1 });
+
+/**
+ *  Copyright (c) 2016, Helikar Lab.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the GPLv3 License.
+ *  Authors:
+ * 	David Tichy
+ * 	Aleš Saska - http://alessaska.cz/
+ */
 
 /***/ }),
 
@@ -10810,6 +10887,22 @@ var _class = function () {
 
 exports.default = _class;
 ;
+
+/***/ }),
+
+/***/ "./src/newlayout.worker.js":
+/*!*********************************!*\
+  !*** ./src/newlayout.worker.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/newlayout.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/newlayout.worker.js\":\n/*!*********************************!*\\\n  !*** ./src/newlayout.worker.js ***!\n  \\*********************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\nconsole.log(\"Web worker is executing\");\nself.addEventListener('message', function (e) {\n    self.postMessage(e.data);\n}, false);\n\n// self.postMessage(\"Hello I am a web worker.\");\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=1f98a3ff80f194304377.worker.js.map", __webpack_require__.p + "1f98a3ff80f194304377.worker.js");
+};
 
 /***/ }),
 

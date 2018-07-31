@@ -7,6 +7,27 @@ import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
+
+
+
+
+// Defining a worker
+// console.log("defining a worker");
+import Worker from './newlayout.worker.js';
+let worker = new Worker();
+
+worker.addEventListener("message", function (event) { console.log("event.data", event.data) });
+
+// Starting a worker
+console.log("sending message to the worker");
+worker.postMessage({a: 1});
+
+
+
+
+
+
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -370,7 +391,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         // 3. Then there is third part which calls the normalize() function from the layout.js
         // Currently I do not have any idea what it does
 
-        console.log(layout);
+        // console.log(layout);
 
         // Here is the line that I want to change
         // layout;

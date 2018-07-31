@@ -11,7 +11,8 @@
     "google-closure-compiler": "^20180716.0.1",
     "jshint": "^2.9.5",
     "path": "^0.12.7",
-    "webpack": "^4.16.2"
+    "webpack": "^4.16.2",
+    "worker-loader": "^2.0.0"
   },
   "licence": "GPL v3",
   "repository": {
@@ -64,10 +65,8 @@
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "react-scripts start",
-
     "build": "webpack --mode production && node build.js",
-    "dev"  : "webpack --mode development && node build.js",
-    
+    "dev": "webpack --mode development && node build.js",
     "webpack-help": "webpack --help",
     "compiled": "node build.js compile"
   }
