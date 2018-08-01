@@ -357,17 +357,32 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         }
                 
         
+        // if (!layout) return;
+        // // nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+        // new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+        // ccNetViz_layout.normalize(nodes);
+
+        // layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+
         if (layout) {
-            let data = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-            nodes = data;
-            console.log("nodes", nodes);
+            console.log("layout was defined");
+            nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
             ccNetViz_layout.normalize(nodes);
+        } else {
+            console.log("layout was undefined");
         }
         
+        // if (layout) {
+        //     new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+        //     ccNetViz_layout.normalize(nodes);
+        // }
 
+        
         if(!gl) return;
 
         let tryInitPrimitives = () => {
+            console.log("nodes " + i++, nodes);
+
             var isDirty = false;
 
             let defaultAdder = (section, addSection) => {
@@ -415,10 +430,10 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             return isDirty;
         };
 
-        console.log("nodes " + i++, nodes);
-
+        
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();
+        
     };
 
 

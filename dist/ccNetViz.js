@@ -18988,7 +18988,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
     this.set = function () {
         var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(nodes, edges, layout, layout_options) {
-            var lines, curves, circles, _i, e, getIndex, init, nodesParts, circlesParts, linesParts, curvesParts, data, tryInitPrimitives;
+            var lines, curves, circles, _i, e, getIndex, init, nodesParts, circlesParts, linesParts, curvesParts, tryInitPrimitives;
 
             return regeneratorRuntime.wrap(function _callee$(_context) {
                 while (1) {
@@ -19107,31 +19107,44 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return spatialSearch;
                             };
 
+                            // if (!layout) return;
+                            // // nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+                            // new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
+                            // ccNetViz_layout.normalize(nodes);
+
+                            // layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
+
                             if (!layout) {
-                                _context.next = 22;
+                                _context.next = 23;
                                 break;
                             }
 
-                            _context.next = 18;
+                            console.log("layout was defined");
+                            _context.next = 19;
                             return new _layout2.default[layout](nodes, edges, layout_options).apply();
 
-                        case 18:
-                            data = _context.sent;
+                        case 19:
+                            nodes = _context.sent;
 
-                            nodes = data;
-                            console.log("nodes", nodes);
                             _layout2.default.normalize(nodes);
+                            _context.next = 24;
+                            break;
 
-                        case 22:
+                        case 23:
+                            console.log("layout was undefined");
+
+                        case 24:
                             if (gl) {
-                                _context.next = 24;
+                                _context.next = 26;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 24:
+                        case 26:
                             tryInitPrimitives = function tryInitPrimitives() {
+                                console.log("nodes " + i++, nodes);
+
                                 var isDirty = false;
 
                                 var defaultAdder = function defaultAdder(section, addSection) {
@@ -19176,12 +19189,10 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return isDirty;
                             };
 
-                            console.log("nodes " + i++, nodes);
-
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 28:
+                        case 29:
                         case 'end':
                             return _context.stop();
                     }
@@ -19537,18 +19548,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var i = 1;
-
-// // Defining a worker
-// // console.log("defining a worker");
-// import Worker from './layer.worker.js';
-// let worker = new Worker();
-
-// worker.addEventListener("message", function (event) { console.log("event.data", event.data) });
-
-// // Starting a worker
-// console.log("sending message to the worker");
-// worker.postMessage({a: 1});
-
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -20651,7 +20650,8 @@ var _class = function () {
         var worker = new _randomWorker2.default();
         worker.postMessage(_this._nodes);
         worker.addEventListener('message', function (event) {
-          return resolve(event.data);
+          _this._nodes = event.data;
+          resolve(_this._nodes);
         });
         worker.addEventListener('error', reject);
       });

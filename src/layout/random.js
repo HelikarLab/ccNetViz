@@ -18,7 +18,10 @@ export default class {
     return new Promise((resolve, reject) => {
       let worker = new Worker();
       worker.postMessage(this._nodes);
-      worker.addEventListener('message', event => resolve(event.data));
+      worker.addEventListener('message', event => {
+        this._nodes = event.data;
+        resolve(this._nodes);
+      });
       worker.addEventListener('error', reject);
     })
 
