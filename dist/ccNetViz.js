@@ -19189,10 +19189,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return isDirty;
                             };
 
+                            console.log("nodes " + i++, nodes);
+
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 29:
+                        case 30:
                         case 'end':
                             return _context.stop();
                     }

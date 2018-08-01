@@ -430,7 +430,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             return isDirty;
         };
 
-        
+        console.log("nodes " + i++, nodes);
+
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();
         
