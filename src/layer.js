@@ -12,7 +12,7 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
  *  All rights reserved.
  *
  *  This source code is licensed under the GPLv3 License.
- *  Authors: 
+ *  Authors:
  * 	David Tichy
  * 	Aleš Saska - http://alessaska.cz/
  */
@@ -20,9 +20,9 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 export default function(canvas, context, view, gl, textures, files, texts, events, options, backgroundColor, nodeStyle, edgeStyle, getSize, getNodeSize, getLabelSize, getLabelHideSize, getNodesCnt, getEdgesCnt, onRedraw, onLoad) {
     getNodesCnt = getNodesCnt || (()=>{return this.nodes.length;});
     getEdgesCnt = getEdgesCnt || (()=>{return this.edges.length;});
-    
+
     this.redraw = onRedraw || (() => {});
-  
+
     options = options || {};
     options.styles = options.styles || {};
 
@@ -43,7 +43,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     let labelsFiller = (style => {
         return (function(style){
           let textEngine = texts.getEngine(style.font);
-      
+
           textEngine.setFont(style.font);
 
           return {
@@ -61,7 +61,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                   ccNetViz_primitive.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
-                
+
                 return ret;
               },
               size: (v,e) => {
@@ -77,10 +77,10 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         let sc = 1 / Math.sqrt(x*x + y*y);
         return { x: sc * x, y: sc * y };
     };
-    
+
     let dx = Math.cos(0.9);
     let dy = Math.sin(0.9);
-    
+
     let ct1 = {}, ct2 = {}, ct = {};
     let setVerticeCurveShift = (v,iV,s,t) => {
         let csx,csy,ctx,cty,cisx,cisy,sisy,citx,city;
@@ -99,7 +99,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         v.curveShift && ccNetViz_primitive.vertices(v.curveShift, iV, -csy, csx, -csy, csx, -cty, ctx, -cty, ctx);
         v.circleShift && ccNetViz_primitive.vertices(v.circleShift, iV, -cisy, cisx, -cisy, cisx, -city, citx, -city, citx);
     };
-    
+
     let edgesFiller = {
       'lines': (style => ({
             set: (v, e, iV, iI) => {
@@ -188,7 +188,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
         ccNetViz_primitive.quad(v.indices, iV, iI);
     };
-            
+
     let arrowFiller = {
       lineArrows: (style => ({
                 set: (v, e, iV, iI) => {
@@ -200,7 +200,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
        curveArrows: (style => ({
                         set: (v, e, iV, iI) => {
                           let s = ccNetViz_geomutils.edgeSource(e);
-                          let t = ccNetViz_geomutils.edgeTarget(e);			  
+                          let t = ccNetViz_geomutils.edgeTarget(e);
                           return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
                         }
                     })),
@@ -219,15 +219,15 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       }
       return spatialSearch;
     }
-    
+
     this.remove = () => { }
-    
-    
+
+
     let edgeTypes;
     let edgePoses;
 
     let spatialSearch = undefined;
-    
+
     let lvl = 0;
     //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
     let set_end = () => {
@@ -239,12 +239,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       files.onLoad(reset)
       textures.onLoad(reset)
       enableLazyRedraw = true;
-    };    
+    };
 
     this.set = function(nodes, edges, layout, layout_options) {
         removedNodes = 0;
         removedEdges = 0;
-      
+
         this.nodes = nodes = nodes || [];
         this.edges = edges = edges ? [].concat(edges) : [];
 
@@ -257,7 +257,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           let e = edges[i];
           if(typeof e.source == 'number')
             e.source = nodes[e.source];
-  
+
           if(typeof e.target == 'number')
             e.target = nodes[e.target];
         }
@@ -282,15 +282,15 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             const circlesd = {k: 'circles', kArrow: 'circleArrows', d: circles};
             const linesd   = {k: 'lines',   kArrow: 'lineArrows',d: lines};
             const curvesd  = {k: 'curves',  kArrow: 'curveArrows',d: curves};
-            
+
             if (extensions.OES_standard_derivatives) {
                 let map = {};
                 for (let i = 0; i < edges.length; i++) {
                     let e = edges[i];
-    
+
                     const si = getIndex(e.source);
                     const ti = getIndex(e.target);
-    
+
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
 
@@ -299,7 +299,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
                     const si = getIndex(e.source);
                     const ti = getIndex(e.target);
-    
+
                     let t = dummysd;
                     if (si === ti) {
                         e.t = 2;	//circle
@@ -341,7 +341,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         };
 
         init();
-        
+
         let nodesParts   = partitionByStyle(nodes);
         let circlesParts = partitionByStyle(circles);
         let linesParts   = partitionByStyle(lines);
@@ -352,12 +352,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             spatialSearch = new ccNetViz_spatialSearch(context, texts, options, nodes, nodesParts, lines, linesParts, curves, curvesParts, circles, circlesParts, normalize, nodeStyle, getLabelSize, getLabelHideSize);
           }
           return spatialSearch;
-        }        
+        }
 
         layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
-        
+
         if(!gl) return;
-        
+
         let tryInitPrimitives = () => {
             var isDirty = false;
 
@@ -405,20 +405,20 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             return isDirty;
         };
-        
+
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();
     };
-    
-    
-    
+
+
+
     this.update = function(element, attribute, data) {
         if(!gl) return;
         scene[element].update(gl, attribute, data, function(style)  {return {
             set: function(v, e, iV)  {return ccNetViz_primitive.colors(v, iV, e, e, e, e);}
         };});
     }
-    
+
     this.find = (x,y,dist,nodes,edges,labels) => {
       return this.getCurrentSpatialSearch(context).find(context, x,y,dist, view.size, nodes,edges,labels);
     }
@@ -426,21 +426,21 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     this.findArea = (x1,y1,x2,y2,nodes,edges,labels) => {
       return this.getCurrentSpatialSearch(context).findArea(context, x1,y1,x2,y2, view.size, nodes,edges,labels);
     }
-    
+
     this.updateNode = (n, i) => {
       this.nodes[i] = n;
 
       if(spatialSearch)
         spatialSearch.update(context, 'nodes', i, n);
-      
+
       if(!gl) return;
-      
+
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
       scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
       scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
-      
+
     };
-    
+
     this.updateEdge = ((e, i) => {
       let t = edgeTypes[i];
       let pos = edgePoses[i];
@@ -449,17 +449,17 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
       if(spatialSearch)
         spatialSearch.update(context, t.k, pos, e);
-      
+
       if(!gl) return;
-                       
+
       scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
       if (edgeStyle.arrow)
         scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
     });
-    
+
     let removedNodes = 0;
     let removedEdges = 0;
-    
+
     const freenode = {x:-1,y:-1,title:""};
     this.removeNodeAtPos = ((pos) => {
       if(this.nodes[pos] === freenode){
@@ -480,7 +480,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
       this.updateEdge(freeedge, pos);
     });
-    
+
     this.getVisibleNodes = () => {
       if(removedNodes <= 0)
         return this.nodes;
@@ -496,7 +496,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     this.getVisibleEdges = () => {
       if(removedEdges <= 0)
         return this.edges;
-      
+
       let r = [];
       this.edges.forEach((n) => {
         if(n !== freeedge)
@@ -504,7 +504,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       });
       return r;
     }
-    
+
     this.cntShownNodes = (() => {
       return this.nodes.length - removedNodes;
     });
@@ -512,7 +512,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     this.cntShownEdges = (() => {
       return this.edges.length - removedEdges;
     });
-    
+
     let getEdgeStyleSize = ((c) => {
       return c.width/(120);
 /*      let avsize = (c.width + c.height)/2;
@@ -520,8 +520,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       //koef 1 for 150 size and 1.4 for 300 size
       return c.width/(130*koef);
 */    });
-    
-      
+
+
     let stylesTransl = {
       'line': 0,
       'dashed'  : 1,
@@ -532,24 +532,24 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       if(t !== undefined){
         t = stylesTransl[t];
       }
-    
+
       if(t === undefined || typeof t !== 'number'){
         t = 0;
       }
-      
+
       return t;
     };
 
-    
+
     this.nodes = [];
     this.edges = [];
-    
+
     let extensions = gl ? ccNetViz_gl.initExtensions(gl, "OES_standard_derivatives") : {};
     let scene = this.scene = createScene.call(this);
-    
+
     let loadCalled = false;
     if(!gl) { options.onLoad && !loadCalled && (loadCalled = true) && options.onLoad(); return this };
-    
+
     let getLabelType = (f) => {
       if(texts.isSDF(f))
         return 1;
@@ -633,7 +633,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));",
         "}"
     ]);
-    
+
 
     const getShiftFuncs = [
         "attribute vec2 curveShift;",
@@ -799,12 +799,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform1f(uniforms.aspect2, c.aspect2);
             ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
         };
-      
+
         scene.add("lineArrows", new ccNetViz_primitive(gl, edgeStyle, "arrow", [
                 "attribute vec2 position;",
                 "attribute vec2 direction;",
                 "attribute vec2 textureCoord;",
-                "attribute float offsetMul;",		    
+                "attribute float offsetMul;",
                 "uniform float offset;",
                 "uniform vec2 arrowsize;",
                 "uniform vec2 size;",
@@ -829,7 +829,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                     "attribute vec2 position;",
                     "attribute vec2 direction;",
                     "attribute vec2 textureCoord;",
-                    "attribute float offsetMul;",		    
+                    "attribute float offsetMul;",
                     "uniform float offset;",
                     "uniform vec2 arrowsize;",
                     "uniform vec2 size;",
@@ -855,7 +855,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                     "attribute vec2 position;",
                     "attribute vec2 direction;",
                     "attribute vec2 textureCoord;",
-                    "attribute float offsetMul;",		    
+                    "attribute float offsetMul;",
                     "uniform float offset;",
                     "uniform vec2 arrowsize;",
                     "uniform vec2 size;",
@@ -875,7 +875,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             );
         }
     }
-        
+
     scene.add("nodes", new ccNetViz_primitive(gl, nodeStyle, null, [
             "attribute vec2 position;",
             "attribute vec2 textureCoord;",
@@ -912,7 +912,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.size, size / c.width, size / c.height);
         })
     );
-    
+
     let vsLabelsShader = [
             "attribute vec2 position;",
             "attribute vec2 relative;",
@@ -930,12 +930,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     let bindLabels = (is_outline) => {
       return c => {
             if (!getNodeSize(c)) return true;
-            
+
             let l = c.style.label;
             let f = l.font;
             let uniforms = c.shader.uniforms;
 
             gl.uniform1f(uniforms.type, getLabelType(f));
+//            gl.uniform1f(uniforms.type, 0);
 
             let textEngine = texts.getEngine(f);
             textEngine.setFont(f);

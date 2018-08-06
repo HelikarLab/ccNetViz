@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>ccNetViz example of different styling</title>
   <style type="text/css">
     #container {
@@ -16,64 +17,76 @@
   <script src="./libs/jquery.min.js"></script>
   <script src="../dist/ccNetViz.js"></script>
 </head>
+
 <body>
   <h1>Using SDF font</h1>
   <div>Example with Signed distance field fonts which is using protocol buffer based SDF atlas format.</div>
   <div>
-	We have prepared for you several fonts at our <a href='http://helikarlab.github.io/ccNetViz/fonts/'>github io page</a>
-	or you can generate your own pbf file using <a href='https://github.com/saskaale/node-fontnik'>node-fontnik</a> tool.
+    We have prepared for you several fonts at our
+    <a href='http://helikarlab.github.io/ccNetViz/fonts/'>github io page</a>
+    or you can generate your own pbf file using
+    <a href='https://github.com/saskaale/node-fontnik'>node-fontnik</a> tool.
   </div>
   <br />
   <div id='body'>
     <canvas id="container"></canvas>
+    <canvas id="test-canvas" width=1000 height=200 style="border: 1px solid black"></canvas>
   </div>
 
   <script>
 
     var data = {};
 
-    function init(){
-	$.ajax({url: 'data/graph-10-2.json', dataType: 'json'}).done(dataLoaded);
+    function init() {
+      // $.ajax({ url: 'data/graph-10-2.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/line-1000.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/graph-1000.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/tree1.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/star-1000.json', dataType: 'json' }).done(dataLoaded);
+      $.ajax({ url: 'data/Bronchiseptica.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/CD4.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/circle-100.json', dataType: 'json' }).done(dataLoaded);
     };
 
-    function dataLoaded(d){
-	data = d;
-	showGraph();
+    function dataLoaded(d) {
+      data = d;
+      showGraph();
     }
 
-    function showGraph(){
+    function showGraph() {
       var startTime = new Date();
 
       var conf = {
         styles: {
-            background: {
-                color: "rgb(255, 255, 255)"
-            },
-            node: {
-                minSize: 6,
-                maxSize: 16,
-                color: "rgb(255, 0, 0)",
-                texture: "images/circle.png",
-                label: {
-                    color: "rgb(120, 120, 120)",
-                    size:    14,
-                    font: {
-                        type:    "sdf",
-                        pbf: "http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf",
-                    }
-                }
-            },
-            edge: {
-                width: 1,
-                color: "rgb(204, 204, 204)",
-                arrow: {
-                    minSize: 6,
-                    maxSize: 16,
-                    aspect: 1,
-                    texture: "images/arrow.png",
-                    hideSize: 1
-                }
+          background: {
+            color: "rgb(255, 255, 255)"
+          },
+          node: {
+            minSize: 6,
+            maxSize: 16,
+            color: "rgb(255, 0, 0)",
+            texture: "images/circle.png",
+            label: {
+              color: "rgb(120, 120, 120)",
+              size: 14,
+              font: {
+                type: "sdf",
+                pbf: "http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf",
+              }
             }
+          },
+          edge: {
+            width: 1,
+            color: "rgb(204, 204, 204)",
+            arrow: {
+              minSize: 6,
+              maxSize: 16,
+              aspect: 1,
+              texture: "images/arrow.png",
+              hideSize: 1
+            }
+          }
         }
       };
 
@@ -84,10 +97,12 @@
 
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
-      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10);
     }
 
     $(init);
+
+    var t = 1;
   </script>
 </body>
 </html>
