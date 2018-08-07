@@ -21,15 +21,16 @@ var ccNetVizMultiLevel = function(canvas, options){
   
   //right click >> go back
   canvas.addEventListener('contextmenu', onContextMenu = function(e){
-    if(history.length > 0){
-	var histel = history.pop();
+    
+  if(history.length > 0){
+    var histel = history.pop();
 
-	//currently shown level
-	curlevel = histel;
+    //currently shown level
+    curlevel = histel;
 
-	vizScreen.set(curlevel.nodes, curlevel.edges);
-	vizScreen.draw();
-    }
+    vizScreen.set(curlevel.nodes, curlevel.edges);
+    vizScreen.draw();
+  }
 
     e.preventDefault();
   });
@@ -45,31 +46,34 @@ var ccNetVizMultiLevel = function(canvas, options){
     var result = vizScreen.find(lCoords.x,lCoords.y,lCoords.radius,true,false);
     if(result.nodes.length > 0){
       var node = result.nodes[0].node;
-
       var layout = node.layout || vizLayout;
-      if(node.__computedLayout){
-	//it is not nessesary to recompute layout if it was yet computed on this subgraph
-	layout = undefined;
-      }else{
-	//we store that layout was once computed for this subgraph
+
+      if(node.__computedLayout) {
+        // it is not nessesary to recompute layout if it was yet computed on this subgraph
+        layout = undefined;
+      } else {
+        // we store that layout was once computed for this subgraph
         node.__computedLayout = true;
       }
 
-      if(node.nodes && node.edges){
-	var insidenodes = node.nodes;
-	var insideedges = node.edges;
+    if(node.nodes && node.edges){
+  var insidenodes = node.nodes;
+  var insideedges = node.edges;
 
-	history.push(curlevel);
+  history.push(curlevel);
 
-	curlevel = {nodes: insidenodes, edges: insideedges};
+  curlevel = {
+    nodes: insidenodes, 
+    edges: insideedges,
+  };
 
-	vizScreen.set(curlevel.nodes, curlevel.edges, layout);
-	vizScreen.draw();
+  vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+  vizScreen.draw();
       }
     }
   });
   
-  ////TODO: Add interactivity functios into this class
+  //// TODO: Add interactivity functios into this class
   
   this.remove = function(){
     canvas.removeEventListener('contextmenu', onContextMenu);
@@ -91,7 +95,7 @@ var ccNetVizMultiLevel = function(canvas, options){
   exposeMethods.forEach(function(method){
     (function(method, self){
       self[method] = function(){
-	return vizScreen[method].apply(vizScreen, arguments);
+  return vizScreen[method].apply(vizScreen, arguments);
       };
     })(method, self);
   });

@@ -17184,8 +17184,12 @@ var ccNetViz = function ccNetViz(canvas, options) {
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
+    // console.log("layout supplied in layout.temp", layout);
     layers.temp && layers.temp.set([], [], layout, layout_options);
+
+    console.log("layout supplied in layout.main", layout);
     layers.main.set(nodes, edges, layout, layout_options);
+    console.log("nodes after set", nodes[0]);
 
     //reset batch
     batch = undefined;
@@ -17861,13 +17865,13 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
     var result = vizScreen.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
     if (result.nodes.length > 0) {
       var node = result.nodes[0].node;
-
       var layout = node.layout || vizLayout;
+
       if (node.__computedLayout) {
-        //it is not nessesary to recompute layout if it was yet computed on this subgraph
+        // it is not nessesary to recompute layout if it was yet computed on this subgraph
         layout = undefined;
       } else {
-        //we store that layout was once computed for this subgraph
+        // we store that layout was once computed for this subgraph
         node.__computedLayout = true;
       }
 
@@ -17885,7 +17889,7 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
     }
   });
 
-  ////TODO: Add interactivity functios into this class
+  //// TODO: Add interactivity functios into this class
 
   this.remove = function () {
     canvas.removeEventListener('contextmenu', onContextMenu);
@@ -18994,6 +18998,11 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                 while (1) {
                     switch (_context.prev = _context.next) {
                         case 0:
+                            console.log(" ");
+                            console.log(" ");
+                            console.log(" ");
+                            console.log(" ");
+                            console.log("This is a crazy hello. layout: ", layout);
                             removedNodes = 0;
                             removedEdges = 0;
 
@@ -19115,35 +19124,45 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             // layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
 
                             if (!layout) {
-                                _context.next = 23;
+                                _context.next = 29;
                                 break;
                             }
 
-                            console.log("layout was defined");
-                            _context.next = 19;
+                            console.log("layout was defined. layout: ", layout);
+                            _context.next = 24;
                             return new _layout2.default[layout](nodes, edges, layout_options).apply();
 
-                        case 19:
+                        case 24:
                             nodes = _context.sent;
 
+                            console.log("nodes just after async worker operation", nodes[0]);
                             _layout2.default.normalize(nodes);
-                            _context.next = 24;
+                            _context.next = 36;
                             break;
 
-                        case 23:
-                            console.log("layout was undefined");
+                        case 29:
+                            console.log("layout was undefined. layout: ", layout);
+                            layout = "random";
+                            _context.next = 33;
+                            return new _layout2.default[layout](nodes, edges, layout_options).apply();
 
-                        case 24:
+                        case 33:
+                            nodes = _context.sent;
+
+                            console.log("nodes after async worker operation", nodes[0]);
+                            _layout2.default.normalize(nodes);
+
+                        case 36:
                             if (gl) {
-                                _context.next = 26;
+                                _context.next = 38;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 26:
+                        case 38:
                             tryInitPrimitives = function tryInitPrimitives() {
-                                console.log("nodes " + i++, nodes);
+                                console.log("nodes inside function" + i++, nodes[0]);
 
                                 var isDirty = false;
 
@@ -19189,12 +19208,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return isDirty;
                             };
 
-                            console.log("nodes " + i++, nodes);
+                            console.log("nodes just before function" + i++, nodes[0]);
 
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 30:
+                        case 42:
                         case 'end':
                             return _context.stop();
                     }

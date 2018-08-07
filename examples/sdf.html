@@ -90,10 +90,17 @@
         }
       };
 
+
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
       graph.set(data.nodes, data.edges, "random");
-      graph.draw();
+      
+      setTimeout(() => {
+        graph.draw();
+        console.log("Wait done");
+        console.log("data.nodes", data.nodes[0]);
+      }, 4000);
+      
 
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
