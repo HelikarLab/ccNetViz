@@ -94,12 +94,7 @@
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
       graph.set(data.nodes, data.edges, "random");
-      
-      setTimeout(() => {
-        graph.draw();
-        console.log("Wait done");
-        console.log("data.nodes", data.nodes[0]);
-      }, 4000);
+      graph.draw();
       
 
       $('#nodesCnt').text(data.nodes.length);

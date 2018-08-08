@@ -94,19 +94,16 @@
 /***/ (function(module, exports) {
 
 self.addEventListener('message', function (e) {
-
-    console.log("random web worker is working");
-
-    // for (let i = 0, n = this._nodes.length; i < n; i++) {
-    //     let o = this._nodes[i];
-    //     o.x = Math.random();
-    //     o.y = Math.random();
-    // }
-    
-    self.postMessage(e.data);
+    let data = e.data;
+    for (let i = 0, n = data.length; i < n; i++) {
+        let o = data[i];
+        o.x = Math.random();
+        o.y = Math.random();
+    }
+    self.postMessage(data);
 }, false);
 
 /***/ })
 
 /******/ });
-//# sourceMappingURL=2733df0a28a8b78c0069.worker.js.map
+//# sourceMappingURL=bed3265dfdc1fa2af3ce.worker.js.map
