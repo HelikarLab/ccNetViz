@@ -1,16 +1,3 @@
-// import layoutForce from './force' ;
-// import layoutRandom from './random' ;
-// import layoutCircular from './circular' ;
-// import layoutTree from './tree' ;
-// import layoutTreeT from './treeT' ;
-// import layoutHierarchical from './hierarchical' ;
-// import layoutHierarchical2 from './hierarchical2' ;
-// import layoutSpectral from './spectral' ;
-// import layoutSpectral2 from './spectral2' ;
-// import layoutHive from './hive' ;
-// import layoutGrid from './grid' ;
-// import layoutVersinus from './versinus' ;
-
 import Worker_Random from './random.worker.js';
 // import Worker_Force from './force.worker.js';
 // import Worker_Circular from './circular.worker.js';
