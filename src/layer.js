@@ -357,8 +357,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         }
 
         if (layout) {
-            await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-            ccNetViz_layout.normalize(nodes);
+            await new ccNetViz_layout(nodes, edges, layout, layout_options).compute();
         }   
         
         if(!gl) return;

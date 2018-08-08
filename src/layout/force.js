@@ -1,5 +1,4 @@
-import ccNetViz_quadtree from '../quadTree' ;
-
+import ccNetViz_quadtree from '../quadTree';
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -10,13 +9,13 @@ import ccNetViz_quadtree from '../quadTree' ;
 
 export default function(nodes, edges, options = {}) {
     const edgeDistance = 15,
-          edgeStrength = 1,
-          friction = 0.9,
-          charge = -30,
-          gravity = 0.4,
-          theta2 = .64,
-          size = [1,1],
-          chargeDistance2 = Infinity;
+        edgeStrength = 1,
+        friction = 0.9,
+        charge = -30,
+        gravity = 0.4,
+        theta2 = .64,
+        size = [1,1],
+        chargeDistance2 = Infinity;
 
     let   alpha,
           distances = [],
