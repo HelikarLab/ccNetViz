@@ -159,12 +159,8 @@ var ccNetViz = function(canvas, options){
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
-    // console.log("layout supplied in layout.temp", layout);
     layers.temp && layers.temp.set([], [], layout, layout_options);
-    
-    console.log("layout supplied in layout.main", layout);
     layers.main.set(nodes, edges, layout, layout_options);
-    console.log("nodes after set", nodes[0]);
 
     //reset batch
     batch = undefined;

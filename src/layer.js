@@ -244,11 +244,6 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     };
 
     this.set = async function(nodes, edges, layout, layout_options) {
-        console.log(" ");
-        console.log(" ");
-        console.log(" ");
-        console.log(" ");
-        console.log("This is a crazy hello. layout: ", layout);
         removedNodes = 0;
         removedEdges = 0;
 
@@ -360,38 +355,15 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           }
           return spatialSearch;
         }
-                
-        
-        // if (!layout) return;
-        // // nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-        // new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-        // ccNetViz_layout.normalize(nodes);
-
-        // layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
 
         if (layout) {
-            console.log("layout was defined. layout: ", layout);
             nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-            console.log("nodes just after async worker operation", nodes[0]);
             ccNetViz_layout.normalize(nodes);
-        } else {
-            console.log("layout was undefined. layout: ", layout);
-            layout = "random";
-            nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-            console.log("nodes after async worker operation", nodes[0]);
-            ccNetViz_layout.normalize(nodes);
-        }
-        
-        // if (layout) {
-        //     new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-        //     ccNetViz_layout.normalize(nodes);
-        // }
-
+        }   
         
         if(!gl) return;
 
         let tryInitPrimitives = () => {
-            console.log("nodes inside function" + i++, nodes[0]);
 
             var isDirty = false;
 
@@ -439,8 +411,6 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             return isDirty;
         };
-
-        console.log("nodes just before function" + i++, nodes[0]);
 
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();

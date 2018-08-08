@@ -17184,12 +17184,8 @@ var ccNetViz = function ccNetViz(canvas, options) {
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
-    // console.log("layout supplied in layout.temp", layout);
     layers.temp && layers.temp.set([], [], layout, layout_options);
-
-    console.log("layout supplied in layout.main", layout);
     layers.main.set(nodes, edges, layout, layout_options);
-    console.log("nodes after set", nodes[0]);
 
     //reset batch
     batch = undefined;
@@ -17841,6 +17837,7 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
 
   //right click >> go back
   canvas.addEventListener('contextmenu', onContextMenu = function onContextMenu(e) {
+
     if (history.length > 0) {
       var histel = history.pop();
 
@@ -17881,7 +17878,10 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
 
         history.push(curlevel);
 
-        curlevel = { nodes: insidenodes, edges: insideedges };
+        curlevel = {
+          nodes: insidenodes,
+          edges: insideedges
+        };
 
         vizScreen.set(curlevel.nodes, curlevel.edges, layout);
         vizScreen.draw();
@@ -18998,11 +18998,6 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                 while (1) {
                     switch (_context.prev = _context.next) {
                         case 0:
-                            console.log(" ");
-                            console.log(" ");
-                            console.log(" ");
-                            console.log(" ");
-                            console.log("This is a crazy hello. layout: ", layout);
                             removedNodes = 0;
                             removedEdges = 0;
 
@@ -19116,53 +19111,29 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return spatialSearch;
                             };
 
-                            // if (!layout) return;
-                            // // nodes = await new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-                            // new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-                            // ccNetViz_layout.normalize(nodes);
-
-                            // layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
-
                             if (!layout) {
-                                _context.next = 29;
+                                _context.next = 20;
                                 break;
                             }
 
-                            console.log("layout was defined. layout: ", layout);
-                            _context.next = 24;
+                            _context.next = 18;
                             return new _layout2.default[layout](nodes, edges, layout_options).apply();
 
-                        case 24:
+                        case 18:
                             nodes = _context.sent;
 
-                            console.log("nodes just after async worker operation", nodes[0]);
-                            _layout2.default.normalize(nodes);
-                            _context.next = 36;
-                            break;
-
-                        case 29:
-                            console.log("layout was undefined. layout: ", layout);
-                            layout = "random";
-                            _context.next = 33;
-                            return new _layout2.default[layout](nodes, edges, layout_options).apply();
-
-                        case 33:
-                            nodes = _context.sent;
-
-                            console.log("nodes after async worker operation", nodes[0]);
                             _layout2.default.normalize(nodes);
 
-                        case 36:
+                        case 20:
                             if (gl) {
-                                _context.next = 38;
+                                _context.next = 22;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 38:
+                        case 22:
                             tryInitPrimitives = function tryInitPrimitives() {
-                                console.log("nodes inside function" + i++, nodes[0]);
 
                                 var isDirty = false;
 
@@ -19208,12 +19179,10 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return isDirty;
                             };
 
-                            console.log("nodes just before function" + i++, nodes[0]);
-
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 42:
+                        case 25:
                         case 'end':
                             return _context.stop();
                     }
@@ -20671,18 +20640,14 @@ var _class = function () {
         var worker = new _randomWorker2.default();
         worker.postMessage(_this._nodes);
         worker.addEventListener('message', function (event) {
-          _this._nodes = event.data;
+
+          for (var i = 0, n = _this._nodes.length; i < n; i++) {
+            Object.assign(_this._nodes[i], event.data[i]);
+          }
           resolve(_this._nodes);
         });
         worker.addEventListener('error', reject);
       });
-
-      // for (let i = 0, n = this._nodes.length; i < n; i++) {
-      //   let o = this._nodes[i];
-      //   o.x = Math.random();
-      //   o.y = Math.random();
-      // }
-
     }
   }]);
 
@@ -20705,7 +20670,7 @@ exports.default = _class;
 
 
 module.exports = function () {
-  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/random.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/random.worker.js\":\n/*!*************************************!*\\\n  !*** ./src/layout/random.worker.js ***!\n  \\*************************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\nself.addEventListener('message', function (e) {\n\n    console.log(\"random web worker is working\");\n    let data = e.data;\n\n    for (let i = 0, n = data.length; i < n; i++) {\n        let o = data[i];\n        o.x = Math.random();\n        o.y = Math.random();\n    }\n    \n    self.postMessage(data);\n}, false);\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=a1f66a98373b48a9644d.worker.js.map", __webpack_require__.p + "a1f66a98373b48a9644d.worker.js");
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/random.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/random.worker.js\":\n/*!*************************************!*\\\n  !*** ./src/layout/random.worker.js ***!\n  \\*************************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\nself.addEventListener('message', function (e) {\n    let data = e.data;\n    for (let i = 0, n = data.length; i < n; i++) {\n        let o = data[i];\n        o.x = Math.random();\n        o.y = Math.random();\n    }\n    self.postMessage(data);\n}, false);\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=bed3265dfdc1fa2af3ce.worker.js.map", __webpack_require__.p + "bed3265dfdc1fa2af3ce.worker.js");
 };
 
 /***/ }),
