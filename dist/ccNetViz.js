@@ -19112,7 +19112,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             };
 
                             if (!layout) {
-                                _context.next = 20;
+                                _context.next = 19;
                                 break;
                             }
 
@@ -19120,19 +19120,17 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             return new _layout2.default[layout](nodes, edges, layout_options).apply();
 
                         case 18:
-                            nodes = _context.sent;
-
                             _layout2.default.normalize(nodes);
 
-                        case 20:
+                        case 19:
                             if (gl) {
-                                _context.next = 22;
+                                _context.next = 21;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 22:
+                        case 21:
                             tryInitPrimitives = function tryInitPrimitives() {
 
                                 var isDirty = false;
@@ -19182,7 +19180,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 25:
+                        case 24:
                         case 'end':
                             return _context.stop();
                     }
