@@ -184,7 +184,6 @@ self.addEventListener('message', function (e) {
     var nodes = e.data.nodes;
     var edges = e.data.edges;
     var layout_options = e.data.layout_options;
-    var layout = new Force(nodes, edges, layout_options).apply();
-
+    new Force(nodes, edges, layout_options).apply();
     self.postMessage({nodes, edges});
 }, false);
