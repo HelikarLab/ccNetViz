@@ -122,13 +122,16 @@ export default class {
           }
         }
 
+        this._normalize(this._nodes);
+
         if (event.data.edges) {
           for (let i = 0, n = this._nodes.length; i < n; i++) {
             Object.assign(this._edges[i], event.data.edges[i]);
+            this._edges[i].source = this._nodes[this._edges[i].source.index];
+            this._edges[i].target = this._nodes[this._edges[i].target.index];
           }
         }
         
-        this._normalize(this._nodes);
         resolve(this._nodes);
 
       });
