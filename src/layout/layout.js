@@ -1,5 +1,5 @@
 import Worker_Random from './random.worker.js';
-// import Worker_Force from './force.worker.js';
+import Worker_Force from './force.worker.js';
 // import Worker_Circular from './circular.worker.js';
 // import Worker_Tree from './tree.worker.js';
 // import Worker_TreeT from './treeT.worker.js';
@@ -10,7 +10,6 @@ import Worker_Random from './random.worker.js';
 // import Worker_Hive from './hive.worker.js';
 // import Worker_Grid from './grid.worker.js';
 // import Worker_Versinus from './versinus.worker.js';
-
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -31,38 +30,38 @@ export default class {
       case "random":
         this._Worker = Worker_Random;
         break;
-      // case "force":
-      //   this._worker = Worker_$;
-      //   break;
+      case "force":
+        this._Worker = Worker_Force;
+        break;
       // case 'circular':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'tree':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'treeT':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hierarchical':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hierarchical2':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'spectral':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'spectral2':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hive':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'grid':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'versinus':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       default:
         throw Error("Invalid layout value");     
@@ -113,12 +112,22 @@ export default class {
   compute() {
     return new Promise((resolve, reject) => {
       let worker = new this._Worker();
-      worker.postMessage(this._nodes);
+      
+      worker.postMessage({nodes: this._nodes, edges: this._edges, layout_options: this.layout_options});
       worker.addEventListener('message', event => {
 
-        for (let i = 0, n = this._nodes.length; i < n; i++) {
-          Object.assign(this._nodes[i], event.data[i]);
+        if (event.data.nodes) {
+          for (let i = 0, n = this._nodes.length; i < n; i++) {
+            Object.assign(this._nodes[i], event.data.nodes[i]);
+          }
         }
+
+        if (event.data.edges) {
+          for (let i = 0, n = this._nodes.length; i < n; i++) {
+            Object.assign(this._edges[i], event.data.edges[i]);
+          }
+        }
+        
         resolve(this._nodes);
 
       });

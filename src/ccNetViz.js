@@ -150,7 +150,7 @@ var ccNetViz = function(canvas, options){
     return batch;
   };
 
-  this.set = (n, e, layout, layout_options={}) => {
+  this.set = async (n, e, layout, layout_options={}) => {
     if(checkRemoved()) return this;
 
     nodes = n || [];
@@ -160,7 +160,8 @@ var ccNetViz = function(canvas, options){
     edges.forEach(checkUniqId);
 
     layers.temp && layers.temp.set([], [], layout, layout_options);
-    layers.main.set(nodes, edges, layout, layout_options);
+    await layers.main.set(nodes, edges, layout, layout_options);
+    console.log("nodes after set", nodes[0]);
 
     //reset batch
     batch = undefined;

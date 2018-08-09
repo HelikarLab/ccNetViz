@@ -11978,6 +11978,8 @@ var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primiti
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12119,25 +12121,52 @@ var ccNetViz = function ccNetViz(canvas, options) {
     return batch;
   };
 
-  this.set = function (n, e, layout) {
-    var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  this.set = function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(n, e, layout) {
+      var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (!checkRemoved()) {
+                _context.next = 2;
+                break;
+              }
 
-    if (checkRemoved()) return _this;
+              return _context.abrupt('return', _this);
 
-    nodes = n || [];
-    edges = e || [];
+            case 2:
 
-    nodes.forEach(checkUniqId);
-    edges.forEach(checkUniqId);
+              nodes = n || [];
+              edges = e || [];
 
-    layers.temp && layers.temp.set([], [], layout, layout_options);
-    layers.main.set(nodes, edges, layout, layout_options);
+              nodes.forEach(checkUniqId);
+              edges.forEach(checkUniqId);
 
-    //reset batch
-    batch = undefined;
-    setted = true;
-    return _this;
-  };
+              layers.temp && layers.temp.set([], [], layout, layout_options);
+              _context.next = 9;
+              return layers.main.set(nodes, edges, layout, layout_options);
+
+            case 9:
+              console.log("nodes after set", nodes[0]);
+
+              //reset batch
+              batch = undefined;
+              setted = true;
+              return _context.abrupt('return', _this);
+
+            case 13:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, _this);
+    }));
+
+    return function (_x2, _x3, _x4) {
+      return _ref.apply(this, arguments);
+    };
+  }();
 
   //make all dynamic changes static
   this.reflow = function () {
@@ -12764,6 +12793,8 @@ var _ccNetViz2 = _interopRequireDefault(_ccNetViz);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12782,58 +12813,112 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
   var onContextMenu, onClick;
 
   //right click >> go back
-  canvas.addEventListener('contextmenu', onContextMenu = function onContextMenu(e) {
+  canvas.addEventListener('contextmenu', onContextMenu = function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(e) {
+      var histel;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (!(history.length > 0)) {
+                _context.next = 6;
+                break;
+              }
 
-    if (history.length > 0) {
-      var histel = history.pop();
+              histel = history.pop();
 
-      //currently shown level
-      curlevel = histel;
+              //currently shown level
 
-      vizScreen.set(curlevel.nodes, curlevel.edges);
-      vizScreen.draw();
-    }
+              curlevel = histel;
 
-    e.preventDefault();
-  });
+              _context.next = 5;
+              return vizScreen.set(curlevel.nodes, curlevel.edges);
 
-  canvas.addEventListener('click', onClick = function onClick(e) {
-    var bb = canvas.getBoundingClientRect();
+            case 5:
+              vizScreen.draw();
 
-    var x = e.clientX - bb.left;
-    var y = e.clientY - bb.top;
-    var radius = 5;
+            case 6:
 
-    var lCoords = vizScreen.getLayerCoords({ radius: radius, x: x, y: y });
-    var result = vizScreen.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
-    if (result.nodes.length > 0) {
-      var node = result.nodes[0].node;
-      var layout = node.layout || vizLayout;
+              e.preventDefault();
 
-      if (node.__computedLayout) {
-        // it is not nessesary to recompute layout if it was yet computed on this subgraph
-        layout = undefined;
-      } else {
-        // we store that layout was once computed for this subgraph
-        node.__computedLayout = true;
-      }
+            case 7:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, this);
+    }));
 
-      if (node.nodes && node.edges) {
-        var insidenodes = node.nodes;
-        var insideedges = node.edges;
+    return function onContextMenu(_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
 
-        history.push(curlevel);
+  canvas.addEventListener('click', onClick = function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(e) {
+      var bb, x, y, radius, lCoords, result, node, layout, insidenodes, insideedges;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              bb = canvas.getBoundingClientRect();
+              x = e.clientX - bb.left;
+              y = e.clientY - bb.top;
+              radius = 5;
+              lCoords = vizScreen.getLayerCoords({ radius: radius, x: x, y: y });
+              result = vizScreen.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
 
-        curlevel = {
-          nodes: insidenodes,
-          edges: insideedges
-        };
+              if (!(result.nodes.length > 0)) {
+                _context2.next = 18;
+                break;
+              }
 
-        vizScreen.set(curlevel.nodes, curlevel.edges, layout);
-        vizScreen.draw();
-      }
-    }
-  });
+              node = result.nodes[0].node;
+              layout = node.layout || vizLayout;
+
+
+              if (node.__computedLayout) {
+                // it is not nessesary to recompute layout if it was yet computed on this subgraph
+                layout = undefined;
+              } else {
+                // we store that layout was once computed for this subgraph
+                node.__computedLayout = true;
+              }
+
+              if (!(node.nodes && node.edges)) {
+                _context2.next = 18;
+                break;
+              }
+
+              insidenodes = node.nodes;
+              insideedges = node.edges;
+
+
+              history.push(curlevel);
+
+              curlevel = {
+                nodes: insidenodes,
+                edges: insideedges
+              };
+
+              _context2.next = 17;
+              return vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+
+            case 17:
+              vizScreen.draw();
+
+            case 18:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, this);
+    }));
+
+    return function onClick(_x2) {
+      return _ref2.apply(this, arguments);
+    };
+  }());
 
   //// TODO: Add interactivity functios into this class
 
@@ -12843,13 +12928,32 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
     vizScreen.remove();
   };
 
-  this.set = function (nodes, edges, layout) {
-    curlevel = { nodes: nodes, edges: edges };
-    history = [];
+  this.set = function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(nodes, edges, layout) {
+      var _args3 = arguments;
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              curlevel = { nodes: nodes, edges: edges };
+              history = [];
 
-    vizLayout = layout;
-    vizScreen.set.apply(vizScreen, arguments);
-  };
+              vizLayout = layout;
+              _context3.next = 5;
+              return vizScreen.set.apply(vizScreen, _args3);
+
+            case 5:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, this);
+    }));
+
+    return function (_x3, _x4, _x5) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
 
   var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
   var self = this;
@@ -14057,6 +14161,8 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                                 return spatialSearch;
                             };
 
+                            // console.log("nodes", nodes[0]);
+
                             if (!layout) {
                                 _context.next = 18;
                                 break;
@@ -14066,14 +14172,16 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             return new _layout2.default(nodes, edges, layout, layout_options).compute();
 
                         case 18:
+                            console.log("nodes", nodes[0]);
+
                             if (gl) {
-                                _context.next = 20;
+                                _context.next = 21;
                                 break;
                             }
 
                             return _context.abrupt('return');
 
-                        case 20:
+                        case 21:
                             tryInitPrimitives = function tryInitPrimitives() {
 
                                 var isDirty = false;
@@ -14123,7 +14231,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
                             while (tryInitPrimitives()) {} //loop until they are not dirty
                             set_end();
 
-                        case 23:
+                        case 24:
                         case 'end':
                             return _context.stop();
                     }
@@ -14492,6 +14600,22 @@ var i = 1;
 
 /***/ }),
 
+/***/ "./src/layout/force.worker.js":
+/*!************************************!*\
+  !*** ./src/layout/force.worker.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/force.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/force.worker.js\":\n/*!************************************!*\\\n  !*** ./src/layout/force.worker.js ***!\n  \\************************************/\n/*! no exports provided */\n/***/ (function(module, __webpack_exports__, __webpack_require__) {\n\n\"use strict\";\n__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _quadTree__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../quadTree */ \"./src/quadTree.js\");\n/* harmony import */ var _quadTree__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_quadTree__WEBPACK_IMPORTED_MODULE_0__);\n\n/**\n *  Copyright (c) 2016, Helikar Lab.\n *  All rights reserved.\n *\n *  This source code is licensed under the GPLv3 License.\n *  Author: David Tichy\n */\n \nfunction Force(nodes, edges, options = {}) {\n    const edgeDistance = 15,\n        edgeStrength = 1,\n        friction = 0.9,\n        charge = -30,\n        gravity = 0.4,\n        theta2 = .64,\n        size = [1,1],\n        chargeDistance2 = Infinity;\n\n    let   alpha,\n          distances = [],\n          strengths = [],\n          charges = [];\n\n\n    function accumulate(quad, alpha, charges) {\n        let cx = 0, cy = 0;\n        quad.charge = 0;\n        if (!quad.leaf) {\n            let nodes = quad.nodes;\n            let c, n = nodes.length;\n\n            for (let i = 0; i < n; i++) {\n                c = nodes[i];\n                if (c == null) continue;\n                accumulate(c, alpha, charges);\n                quad.charge += c.charge;\n                cx += c.charge * c.cx;\n                cy += c.charge * c.cy;\n            }\n        }\n        if (quad.point) {\n            if (!quad.leaf) {\n                quad.point.x += Math.random() - 0.5;\n                quad.point.y += Math.random() - 0.5;\n            }\n            let k = alpha * charges[quad.point.index];\n            quad.charge += quad.pointCharge = k;\n            cx += k * quad.point.x;\n            cy += k * quad.point.y;\n        }\n        quad.cx = cx / quad.charge;\n        quad.cy = cy / quad.charge;\n    }\n\n    function repulse(node) {\n        return function(quad, x1, _, x2) {\n            if (quad.point !== node) {\n                let dx = quad.cx - node.x;\n                let dy = quad.cy - node.y;\n                let dw = x2 - x1;\n                let dn = dx * dx + dy * dy;\n\n                if (dw * dw / theta2 < dn) {\n                    if (dn < chargeDistance2) {\n                        let k = quad.charge / dn;\n                        node.px -= dx * k;\n                        node.py -= dy * k;\n                    }\n                    return true;\n                }\n\n                if (quad.point && dn && dn < chargeDistance2) {\n                    let k = quad.pointCharge / dn;\n                    node.px -= dx * k;\n                    node.py -= dy * k;\n                }\n            }\n            return !quad.charge;\n        };\n    }\n\n    function step() {\n        if ((alpha *= .99) < .05) {\n            alpha = 0;\n            return true;\n        }\n\n        let q, o, s, t, l, k, x, y;\n        let n = nodes.length;\n        let m = edges.length;\n\n        for (let i = 0; i < m; i++) {\n            o = edges[i];\n            s = o.source;\n            t = o.target;\n            x = t.x - s.x;\n            y = t.y - s.y;\n            if (l = (x * x + y * y)) {\n                l = alpha * strengths[i] * ((l = Math.sqrt(l)) - distances[i]) / l;\n                x *= l;\n                y *= l;\n                t.x -= x * (k = s.weight / (t.weight + s.weight));\n                t.y -= y * k;\n                s.x += x * (k = 1 - k);\n                s.y += y * k;\n            }\n        }\n\n        if (k = alpha * gravity) {\n            x = size[0] / 2;\n            y = size[1] / 2;\n\n            for (let i = 0; i < n; i++) {\n                o = nodes[i];\n                o.x += (x - o.x) * k;\n                o.y += (y - o.y) * k;\n            }\n        }\n\n        if (charge) {\n            accumulate(q = _quadTree__WEBPACK_IMPORTED_MODULE_0___default()(nodes), alpha, charges);\n\n            for (let i = 0; i < n; i++) {\n                let o = nodes[i];\n                !o.fixed && q.visit(repulse(o));\n            }\n        }\n\n        const rnd = (min,max) => Math.random() * (max-min) + min;\n        for (let i = 0; i < n; i++) {\n            o = nodes[i];\n            if (o.fixed || o.fixed2) {\n                o.x = o.px;\n                o.y = o.py;\n            }\n            else {\n                o.x -= (o.px - (o.px = o.x)) * friction;\n                o.y -= (o.py - (o.py = o.y)) * friction;\n\n                if(options && options.minX !== undefined){\n                    if(o.x < options.minX || o.x > options.maxX){\n                        o.x = rnd(options.minX, options.maxX);\n                    }\n                    if(o.y < options.minY || o.y > options.maxY){\n                        o.y = rnd(options.minY, options.maxY);\n                    }\n                }\n            }\n        }\n    };\n\n    this.apply = function() {\n        let n = nodes.length;\n        let d = Math.sqrt(n);\n        let s = 0.3 / d;\n\n        for (let i = 0; i < n; i++) {\n            let o = nodes[i];\n            o.weight = 0;\n            o.x = o.x !== undefined ? o.x : s + (i % d) / d;\n            o.y = o.y !== undefined ? o.y : s + Math.floor(i / d) / d;\n            o.px = o.x;\n            o.py = o.y;\n            charges[i] = charge;\n        }\n\n        for (let i = 0; i < edges.length; i++) {\n            let o = edges[i];\n            o.source.weight++;\n            o.target.weight++;\n            distances[i] = edgeDistance;\n            strengths[i] = edgeStrength;\n        }\n\n        alpha = 0.1;\n        while (!step());\n\n        return true;\n    };\n};\n\nself.addEventListener('message', function (e) {\n    var nodes = e.data.nodes;\n    // console.log(\"nodes\", nodes[0]);\n    var edges = e.data.edges;\n    var layout_options = e.data.layout_options;\n    var layout = new Force(nodes, edges, layout_options).apply();\n    // console.log(\"nodes\", nodes[0]);\n\n    self.postMessage({nodes, edges});\n}, false);\n\n/***/ }),\n\n/***/ \"./src/quadTree.js\":\n/*!*************************!*\\\n  !*** ./src/quadTree.js ***!\n  \\*************************/\n/*! no static exports found */\n/***/ (function(module, exports, __webpack_require__) {\n\n\"use strict\";\n\n\nObject.defineProperty(exports, \"__esModule\", {\n    value: true\n});\n\nexports.default = function (points) {\n    var d = void 0,\n        xs = void 0,\n        ys = void 0,\n        i = void 0,\n        n = void 0,\n        x1_ = void 0,\n        y1_ = void 0,\n        x2_ = void 0,\n        y2_ = void 0;\n\n    x2_ = y2_ = -(x1_ = y1_ = Infinity);\n    xs = [], ys = [];\n    n = points.length;\n\n    for (i = 0; i < n; ++i) {\n        d = points[i];\n        if (d.x < x1_) x1_ = d.x;\n        if (d.y < y1_) y1_ = d.y;\n        if (d.x > x2_) x2_ = d.x;\n        if (d.y > y2_) y2_ = d.y;\n        xs.push(d.x);\n        ys.push(d.y);\n    }\n\n    var dx = x2_ - x1_;\n    var dy = y2_ - y1_;\n    dx > dy ? y2_ = y1_ + dx : x2_ = x1_ + dy;\n\n    function create() {\n        return {\n            leaf: true,\n            nodes: [],\n            point: null,\n            x: null,\n            y: null\n        };\n    }\n\n    function visit(f, node, x1, y1, x2, y2) {\n        if (!f(node, x1, y1, x2, y2)) {\n            var sx = (x1 + x2) * 0.5;\n            var sy = (y1 + y2) * 0.5;\n            var children = node.nodes;\n\n            if (children[0]) visit(f, children[0], x1, y1, sx, sy);\n            if (children[1]) visit(f, children[1], sx, y1, x2, sy);\n            if (children[2]) visit(f, children[2], x1, sy, sx, y2);\n            if (children[3]) visit(f, children[3], sx, sy, x2, y2);\n        }\n    }\n\n    function insert(n, d, x, y, x1, y1, x2, y2) {\n        if (n.leaf) {\n            var nx = n.x;\n            var ny = n.y;\n\n            if (nx !== null) {\n                if (nx === x && ny === y) {\n                    insertChild(n, d, x, y, x1, y1, x2, y2);\n                } else {\n                    var nPoint = n.point;\n                    n.x = n.y = n.point = null;\n                    insertChild(n, nPoint, nx, ny, x1, y1, x2, y2);\n                    insertChild(n, d, x, y, x1, y1, x2, y2);\n                }\n            } else {\n                n.x = x, n.y = y, n.point = d;\n            }\n        } else {\n            insertChild(n, d, x, y, x1, y1, x2, y2);\n        }\n    }\n\n    function insertChild(n, d, x, y, x1, y1, x2, y2) {\n        var xm = (x1 + x2) * 0.5;\n        var ym = (y1 + y2) * 0.5;\n        var right = x >= xm;\n        var below = y >= ym;\n        var i = below << 1 | right;\n\n        n.leaf = false;\n        n = n.nodes[i] || (n.nodes[i] = create());\n\n        right ? x1 = xm : x2 = xm;\n        below ? y1 = ym : y2 = ym;\n        insert(n, d, x, y, x1, y1, x2, y2);\n    }\n\n    function findNode(root, x, y, x0, y0, x3, y3) {\n        var minDistance2 = Infinity;\n        var closestPoint = void 0;\n\n        (function find(node, x1, y1, x2, y2) {\n            if (x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;\n\n            if (point = node.point) {\n                var _point = void 0;\n                var _dx = x - node.x;\n                var _dy = y - node.y;\n                var distance2 = _dx * _dx + _dy * _dy;\n\n                if (distance2 < minDistance2) {\n                    var distance = Math.sqrt(minDistance2 = distance2);\n                    x0 = x - distance, y0 = y - distance;\n                    x3 = x + distance, y3 = y + distance;\n                    closestPoint = _point;\n                }\n            }\n\n            var children = node.nodes;\n            var xm = (x1 + x2) * .5;\n            var ym = (y1 + y2) * .5;\n            var right = x >= xm;\n            var below = y >= ym;\n\n            for (var _i = below << 1 | right, j = _i + 4; _i < j; ++_i) {\n                if (node = children[_i & 3]) switch (_i & 3) {\n                    case 0:\n                        find(node, x1, y1, xm, ym);break;\n                    case 1:\n                        find(node, xm, y1, x2, ym);break;\n                    case 2:\n                        find(node, x1, ym, xm, y2);break;\n                    case 3:\n                        find(node, xm, ym, x2, y2);break;\n                }\n            }\n        })(root, x0, y0, x3, y3);\n\n        return closestPoint;\n    }\n\n    var root = create();\n    root.visit = function (f) {\n        return visit(f, root, x1_, y1_, x2_, y2_);\n    };\n    root.find = function (x, y) {\n        return findNode(root, x, y, x1_, y1_, x2_, y2_);\n    };\n\n    for (i = 0; i < n; i++) {\n        insert(root, points[i], xs[i], ys[i], x1_, y1_, x2_, y2_);\n    }--i;\n\n    xs = ys = points = d = null;\n\n    return root;\n};\n\n; /**\n   *  Copyright (c) 2016, Helikar Lab.\n   *  All rights reserved.\n   *\n   *  This source code is licensed under the GPLv3 License.\n   *  Author: David Tichy\n   */\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=0c4faf7b7f7f439f038b.worker.js.map", __webpack_require__.p + "0c4faf7b7f7f439f038b.worker.js");
+};
+
+/***/ }),
+
 /***/ "./src/layout/layout.js":
 /*!******************************!*\
   !*** ./src/layout/layout.js ***!
@@ -14506,28 +14630,20 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import layoutForce from './force' ;
-// import layoutRandom from './random' ;
-// import layoutCircular from './circular' ;
-// import layoutTree from './tree' ;
-// import layoutTreeT from './treeT' ;
-// import layoutHierarchical from './hierarchical' ;
-// import layoutHierarchical2 from './hierarchical2' ;
-// import layoutSpectral from './spectral' ;
-// import layoutSpectral2 from './spectral2' ;
-// import layoutHive from './hive' ;
-// import layoutGrid from './grid' ;
-// import layoutVersinus from './versinus' ;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _randomWorker = __webpack_require__(/*! ./random.worker.js */ "./src/layout/random.worker.js");
 
 var _randomWorker2 = _interopRequireDefault(_randomWorker);
 
+var _forceWorker = __webpack_require__(/*! ./force.worker.js */ "./src/layout/force.worker.js");
+
+var _forceWorker2 = _interopRequireDefault(_forceWorker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// import Worker_Force from './force.worker.js';
 // import Worker_Circular from './circular.worker.js';
 // import Worker_Tree from './tree.worker.js';
 // import Worker_TreeT from './treeT.worker.js';
@@ -14538,7 +14654,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // import Worker_Hive from './hive.worker.js';
 // import Worker_Grid from './grid.worker.js';
 // import Worker_Versinus from './versinus.worker.js';
-
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -14561,38 +14676,38 @@ var _class = function () {
       case "random":
         this._Worker = _randomWorker2.default;
         break;
-      // case "force":
-      //   this._worker = Worker_$;
-      //   break;
+      case "force":
+        this._Worker = _forceWorker2.default;
+        break;
       // case 'circular':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'tree':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'treeT':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hierarchical':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hierarchical2':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'spectral':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'spectral2':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'hive':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'grid':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       // case 'versinus':
-      //   this._worker = Worker_$;
+      //   this._Worker = Worker_$;
       //   break;
       default:
         throw Error("Invalid layout value");
@@ -14603,7 +14718,7 @@ var _class = function () {
 
 
   _createClass(_class, [{
-    key: "_normalize",
+    key: '_normalize',
     value: function _normalize(nodes, dim) {
       var minX = void 0,
           minY = void 0,
@@ -14644,18 +14759,28 @@ var _class = function () {
       return dim;
     }
   }, {
-    key: "compute",
+    key: 'compute',
     value: function compute() {
       var _this = this;
 
       return new Promise(function (resolve, reject) {
         var worker = new _this._Worker();
-        worker.postMessage(_this._nodes);
+
+        worker.postMessage({ nodes: _this._nodes, edges: _this._edges, layout_options: _this.layout_options });
         worker.addEventListener('message', function (event) {
 
-          for (var i = 0, n = _this._nodes.length; i < n; i++) {
-            Object.assign(_this._nodes[i], event.data[i]);
+          if (event.data.nodes) {
+            for (var i = 0, n = _this._nodes.length; i < n; i++) {
+              Object.assign(_this._nodes[i], event.data.nodes[i]);
+            }
           }
+
+          if (event.data.edges) {
+            for (var _i2 = 0, _n = _this._nodes.length; _i2 < _n; _i2++) {
+              Object.assign(_this._edges[_i2], event.data.edges[_i2]);
+            }
+          }
+
           resolve(_this._nodes);
         });
         worker.addEventListener('error', reject);
@@ -14682,7 +14807,7 @@ exports.default = _class;
 
 
 module.exports = function () {
-  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/random.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/random.worker.js\":\n/*!*************************************!*\\\n  !*** ./src/layout/random.worker.js ***!\n  \\*************************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\nself.addEventListener('message', function (e) {\n    let data = e.data;\n    for (let i = 0, n = data.length; i < n; i++) {\n        let o = data[i];\n        o.x = Math.random();\n        o.y = Math.random();\n    }\n    self.postMessage(data);\n}, false);\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=bed3265dfdc1fa2af3ce.worker.js.map", __webpack_require__.p + "bed3265dfdc1fa2af3ce.worker.js");
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/random.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/random.worker.js\":\n/*!*************************************!*\\\n  !*** ./src/layout/random.worker.js ***!\n  \\*************************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\nself.addEventListener('message', function (e) {\n    let data = e.data.nodes;\n    for (let i = 0, n = data.length; i < n; i++) {\n        let o = data[i];\n        o.x = Math.random();\n        o.y = Math.random();\n    }\n    self.postMessage({nodes: data});\n}, false);\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=fc8d8836683ed4da8585.worker.js.map", __webpack_require__.p + "fc8d8836683ed4da8585.worker.js");
 };
 
 /***/ }),
