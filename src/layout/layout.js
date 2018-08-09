@@ -9,7 +9,7 @@
 import Worker_Random from './random.worker.js';
 import Worker_Force from './force.worker.js';
 import Worker_Circular from './circular.worker.js';
-import Worker_Tree from './tree.worker.js';
+// import Worker_Tree from './tree.worker.js';
 // import Worker_TreeT from './treeT.worker.js';
 import Worker_Hierarchical from './hierarchical.worker.js';
 import Worker_Hierarchical2 from './hierarchical2.worker.js';
@@ -36,9 +36,9 @@ export default class {
       case 'circular':
         this._Worker = Worker_Circular;
         break;
-      case 'tree':
-        this._Worker = Worker_Tree;
-        break;
+      // case 'tree':
+      //   this._Worker = Worker_Tree;
+      //   break;
       // case 'treeT':
       //   this._Worker = Worker_TreeT;
       //   break;

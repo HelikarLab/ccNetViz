@@ -93,7 +93,7 @@
 
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
-      graph.set(data.nodes, data.edges, "hierarchical2");
+      graph.set(data.nodes, data.edges, "tree");
       graph.draw(); 
 
       $('#nodesCnt').text(data.nodes.length);
