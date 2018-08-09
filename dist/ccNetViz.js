@@ -14540,6 +14540,22 @@ module.exports = function () {
 
 /***/ }),
 
+/***/ "./src/layout/hierarchical.worker.js":
+/*!*******************************************!*\
+  !*** ./src/layout/hierarchical.worker.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/hierarchical.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/hierarchical.worker.js\":\n/*!*******************************************!*\\\n  !*** ./src/layout/hierarchical.worker.js ***!\n  \\*******************************************/\n/*! no static exports found */\n/***/ (function(module, exports) {\n\n/**\n *  Copyright (c) 2017, Helikar Lab.\n *  All rights reserved.\n *\n *  This source code is licensed under the GPLv3 License.\n *  Author: Renato Fabbri\n */\n\nclass Hierarchical {\n  // this layout should handle any digraph\n  constructor(nodes, edges) {\n    this._nodes = nodes;\n    this._edges = edges;\n    this.alphay = 0.05; // y margin\n    this.alphax = 0.05; // x margin\n  }\n\n  makeLayers(nodes, layer){\n      if (nodes.length > 1){\n          const stepy = (1 - 2*this.alphay)/(nodes.length-1);\n          for (let i=0; i<nodes.length; ++i){\n              nodes[i].visited = true;\n              nodes[i].layer = layer; // makes x afterwards\n              nodes[i].y = this.alphay + i*stepy;\n          }\n      }\n      else {\n          nodes[0].visited = true;\n          nodes[0].layer = layer; // makes x afterwards\n          nodes[0].y = 0.5;\n      }\n      let next_layer = [];\n      for (let i=0; i<nodes.length; i++){\n          let neighbors = nodes[i].parents.concat(nodes[i].children);\n          for (let j=0; j < neighbors.length; j++){\n              if (neighbors[j].visited == false && !next_layer.includes(neighbors[j])){\n                  next_layer.push(neighbors[j]);\n              }\n          }\n      }\n      if (next_layer.length == 0){\n          return layer;\n      }\n      else {\n          return this.makeLayers(next_layer, layer+1);\n      }\n  }\n\n  apply () {\n      // left-right tree by default, let user choose\n      // top-down, bottom-top, right-left in subsequent versions\n      // hierarchical layouts for trees (acyclic graphs) are\n      // implemented separately for now\n      let nodes = this._nodes;\n      nodes.forEach(function(n,i){\n          n.parents = [];\n          n.children = [];\n          n.visited = false;\n      });\n      this._edges.forEach(function(e,i){\n          e.source.children.push(e.target);\n          e.target.parents.push(e.source);\n      });\n      // find the roots:\n      // nodes defined by the user as roots OR\n      // nodes with in-degree == 0 OR\n      // nodes with greatest in-degree (or degree if undirected graph)\n      let roots = [];\n      for (let i = 0; i < nodes.length; i++){\n          if (nodes[i].isroot == true){ // has to be on the json file of the graph\n              roots.push(nodes[i]);\n          }\n      }\n      if (roots.length == 0){\n          for (let i = 0; i < nodes.length; i++){\n              if (nodes[i].parents.length == 0){\n                  roots.push(nodes[i]);\n              }\n          }\n      }\n      if (roots.length == 0){\n          // calculate max out-degree\n          let max_outdegree = 0;\n          nodes.forEach(function(node){\n              if (node.children.length > max_outdegree){\n                  max_outdegree = node.children.length;\n              }\n          });\n          // choose vertices with greatest out-degree\n          nodes.forEach(function(node){\n              if (node.children.length == max_outdegree){\n                  roots.push(node);\n              }\n          });\n      }\n      // number of layers and max number of nodes in each layer\n      // has to be found by making the layout\n      // there are two approaches to finding the nodes in each layer:\n      // 1) each layer has all the neighbors of the nodes in the previous layer\n      // 2) follow links and then place non visited nodes on the layer of neighbors OR\n      // this layout implements the first of these approaches.\n      const depth = this.makeLayers(roots, 1);\n      // each layer of tree x = [0+alpha,1-alpha]\n      const stepx = (1-2*this.alphax)/(depth-1);\n      // posx = alphax + stepx*(depth-1)\n      for (let i=0; i<this._nodes.length; ++i){\n          this._nodes[i].x = this.alphax + stepx*(this._nodes[i].layer - 1);\n      }\n  }\n};\n\n\nself.addEventListener('message', function (e) {\n    var nodes = e.data.nodes;\n    var edges = e.data.edges;\n    var layout_options = e.data.layout_options;\n    new Hierarchical(nodes, edges, layout_options).apply();\n    self.postMessage({ nodes, edges });\n}, false);\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=1405827a25d508209dcb.worker.js.map", __webpack_require__.p + "1405827a25d508209dcb.worker.js");
+};
+
+/***/ }),
+
 /***/ "./src/layout/hive.worker.js":
 /*!***********************************!*\
   !*** ./src/layout/hive.worker.js ***!
@@ -14579,7 +14595,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 // import Worker_TreeT from './treeT.worker.js';
-// import Worker_Hierarchical from './hierarchical.worker.js';
+
 // import Worker_Hierarchical2 from './hierarchical2.worker.js';
 
 
@@ -14598,6 +14614,10 @@ var _circularWorker2 = _interopRequireDefault(_circularWorker);
 var _treeWorker = __webpack_require__(/*! ./tree.worker.js */ "./src/layout/tree.worker.js");
 
 var _treeWorker2 = _interopRequireDefault(_treeWorker);
+
+var _hierarchicalWorker = __webpack_require__(/*! ./hierarchical.worker.js */ "./src/layout/hierarchical.worker.js");
+
+var _hierarchicalWorker2 = _interopRequireDefault(_hierarchicalWorker);
 
 var _spectralWorker = __webpack_require__(/*! ./spectral.worker.js */ "./src/layout/spectral.worker.js");
 
@@ -14648,9 +14668,9 @@ var _class = function () {
       // case 'treeT':
       //   this._Worker = Worker_TreeT;
       //   break;
-      // case 'hierarchical':
-      //   this._Worker = Worker_Hierarchical;
-      //   break;
+      case 'hierarchical':
+        this._Worker = _hierarchicalWorker2.default;
+        break;
       // case 'hierarchical2':
       //   this._Worker = Worker_Hierarchical2;
       //   break;

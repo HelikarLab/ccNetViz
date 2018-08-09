@@ -11,7 +11,7 @@ import Worker_Force from './force.worker.js';
 import Worker_Circular from './circular.worker.js';
 import Worker_Tree from './tree.worker.js';
 // import Worker_TreeT from './treeT.worker.js';
-// import Worker_Hierarchical from './hierarchical.worker.js';
+import Worker_Hierarchical from './hierarchical.worker.js';
 // import Worker_Hierarchical2 from './hierarchical2.worker.js';
 import Worker_Spectral from './spectral.worker.js';
 import Worker_Spectral2 from './spectral2.worker.js';
@@ -42,9 +42,9 @@ export default class {
       // case 'treeT':
       //   this._Worker = Worker_TreeT;
       //   break;
-      // case 'hierarchical':
-      //   this._Worker = Worker_Hierarchical;
-      //   break;
+      case 'hierarchical':
+        this._Worker = Worker_Hierarchical;
+        break;
       // case 'hierarchical2':
       //   this._Worker = Worker_Hierarchical2;
       //   break;
