@@ -14524,6 +14524,22 @@ module.exports = function () {
 
 /***/ }),
 
+/***/ "./src/layout/grid.worker.js":
+/*!***********************************!*\
+  !*** ./src/layout/grid.worker.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+  return __webpack_require__(/*! !./node_modules/worker-loader/dist/workers/InlineWorker.js */ "./node_modules/worker-loader/dist/workers/InlineWorker.js")("/******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/layout/grid.worker.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/layout/grid.worker.js\":\n/*!***********************************!*\\\n  !*** ./src/layout/grid.worker.js ***!\n  \\***********************************/\n/*! no exports provided */\n/***/ (function(module, __webpack_exports__, __webpack_require__) {\n\n\"use strict\";\n__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ \"./src/layout/utils.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);\n\n\nclass Grid {\n  constructor(nodes, edges) {\n    this._nodes = nodes;\n    this._edges = edges;\n    this._margin = 0.05;\n  }\n  apply () {\n      let nd = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"degrees\"])(this._nodes, this._edges);\n      const sq = Math.sqrt(this._nodes.length);\n      const reminder = sq - Math.floor(sq);\n      if (reminder > 0)\n\t  var nnodes = Math.floor(sq)+1;\n      else\n\t  var nnodes = sq;\n      const step = (1 - this._margin*2)/nnodes;\n\n      const nlines = this._nodes.length/nnodes;\n      const reminder2 = nlines - Math.floor(nlines);\n      if (reminder2 > 0)\n\t  var nlines2 = Math.floor(nlines)+1;\n      else\n\t  var nlines2 = nlines;\n      const stepy = (1-2*this._margin)/(nlines2-2);\n      for (let i=0; i<this._nodes.length; ++i){\n\t  let j = Math.floor(i/(nnodes+1));\n          this._nodes[nd.nodes[i].index].x = this._margin+step*(i-j*(nnodes+1));\n          this._nodes[nd.nodes[i].index].y = this._margin+stepy*j;\n          this._nodes[nd.nodes[i].index].weight = nd.degrees[i];\n      }\n  }\n};\n\nself.addEventListener('message', function (e) {\n  var nodes = e.data.nodes;\n  var edges = e.data.edges;\n  var layout_options = e.data.layout_options;\n  new Grid(nodes, edges, layout_options).apply();\n  self.postMessage({ nodes, edges });\n}, false);\n\n/***/ }),\n\n/***/ \"./src/layout/utils.js\":\n/*!*****************************!*\\\n  !*** ./src/layout/utils.js ***!\n  \\*****************************/\n/*! no static exports found */\n/***/ (function(module, exports, __webpack_require__) {\n\n\"use strict\";\n\n\nObject.defineProperty(exports, \"__esModule\", {\n    value: true\n});\nexports.create2dArray = create2dArray;\nexports.degrees = degrees;\nexports.getDepth = getDepth;\nexports.getRanges = getRanges;\n\nfunction _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }\n\n/**\n *  Copyright (c) 2017, Helikar Lab.\n *  All rights reserved.\n *\n *  This source code is licensed under the GPLv3 License.\n *  Author: Renato Fabbri\n */\n\nfunction create2dArray(rows, columns) {\n    return [].concat(_toConsumableArray(Array(rows).keys())).map(function (i) {\n        return Array(columns).fill(0);\n    });\n}\n\nfunction degrees(nodes, edges) {\n    // should return ordered nodes and their degrees - high to low\n    var degrees = Array(nodes.length).fill(0);\n    edges.forEach(function (e) {\n        degrees[e.source.index] += 1;\n        degrees[e.target.index] += 1;\n    }); // check to see if not getting double of the degree in undirected graphs\n    //getting the order of nodes from highest to lowest degrees\n    var ordered_nodes = degrees.map(function (el, i) {\n        return { index: i, value: el };\n    });\n    ordered_nodes.sort(function (a, b) {\n        return +(a.value < b.value) || +(a.value === b.value) - 1;\n    });\n    var ordered_degrees = ordered_nodes.map(function (el) {\n        return degrees[el.index];\n    });\n    return { nodes: ordered_nodes,\n        degrees: ordered_degrees };\n}\n\nfunction getDepth(obj) {\n    var depth = 0;\n    if (obj.children) {\n        obj.children.forEach(function (d) {\n            if (d.depth_visited == true) {\n                throw new Error(\"This layout is only for trees acyclic graphs\");\n            }\n            d.depth_visited = true;\n            var tmpDepth = getDepth(d);\n            if (tmpDepth > depth) {\n                depth = tmpDepth;\n            }\n        });\n    }\n    return 1 + depth;\n}\n\nfunction getRanges(n) {\n    n = Math.abs(n);\n    if (n <= 1) {\n        return {\n            start: 0.5,\n            step: 1\n        };\n    }\n    var start = .05;\n    return {\n        start: start,\n        step: (1 - 2 * start) / (n - 1)\n    };\n}\n\n/***/ })\n\n/******/ });\n//# sourceMappingURL=77ab56e065cb91b68e29.worker.js.map", __webpack_require__.p + "77ab56e065cb91b68e29.worker.js");
+};
+
+/***/ }),
+
 /***/ "./src/layout/hive.worker.js":
 /*!***********************************!*\
   !*** ./src/layout/hive.worker.js ***!
@@ -14566,8 +14582,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 // import Worker_Hierarchical from './hierarchical.worker.js';
 // import Worker_Hierarchical2 from './hierarchical2.worker.js';
 
-// import Worker_Grid from './grid.worker.js';
-
 
 var _randomWorker = __webpack_require__(/*! ./random.worker.js */ "./src/layout/random.worker.js");
 
@@ -14596,6 +14610,10 @@ var _spectral2Worker2 = _interopRequireDefault(_spectral2Worker);
 var _hiveWorker = __webpack_require__(/*! ./hive.worker.js */ "./src/layout/hive.worker.js");
 
 var _hiveWorker2 = _interopRequireDefault(_hiveWorker);
+
+var _gridWorker = __webpack_require__(/*! ./grid.worker.js */ "./src/layout/grid.worker.js");
+
+var _gridWorker2 = _interopRequireDefault(_gridWorker);
 
 var _versinusWorker = __webpack_require__(/*! ./versinus.worker.js */ "./src/layout/versinus.worker.js");
 
@@ -14645,9 +14663,9 @@ var _class = function () {
       case 'hive':
         this._Worker = _hiveWorker2.default;
         break;
-      // case 'grid':
-      //   this._Worker = Worker_Grid;
-      //   break;
+      case 'grid':
+        this._Worker = _gridWorker2.default;
+        break;
       case 'versinus':
         this._Worker = _versinusWorker2.default;
         break;
