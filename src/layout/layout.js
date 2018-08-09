@@ -1,7 +1,15 @@
+/**
+ *  Copyright (c) 2016, Helikar Lab.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the GPLv3 License.
+ *  Author: David Tichy
+ */
+
 import Worker_Random from './random.worker.js';
 import Worker_Force from './force.worker.js';
 import Worker_Circular from './circular.worker.js';
-// import Worker_Tree from './tree.worker.js';
+import Worker_Tree from './tree.worker.js';
 // import Worker_TreeT from './treeT.worker.js';
 // import Worker_Hierarchical from './hierarchical.worker.js';
 // import Worker_Hierarchical2 from './hierarchical2.worker.js';
@@ -10,14 +18,6 @@ import Worker_Circular from './circular.worker.js';
 // import Worker_Hive from './hive.worker.js';
 // import Worker_Grid from './grid.worker.js';
 // import Worker_Versinus from './versinus.worker.js';
-
-/**
- *  Copyright (c) 2016, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: David Tichy
- */
 
 export default class {
   constructor(nodes, edges, layout, layout_options) {
@@ -36,32 +36,32 @@ export default class {
       case 'circular':
         this._Worker = Worker_Circular;
         break;
-      // case 'tree':
-      //   this._Worker = Worker_$;
-      //   break;
+      case 'tree':
+        this._Worker = Worker_Tree;
+        break;
       // case 'treeT':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_TreeT;
       //   break;
       // case 'hierarchical':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Hierarchical;
       //   break;
       // case 'hierarchical2':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Hierarchical2;
       //   break;
       // case 'spectral':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Spectral;
       //   break;
       // case 'spectral2':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Spectral2;
       //   break;
       // case 'hive':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Hive;
       //   break;
       // case 'grid':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Grid;
       //   break;
       // case 'versinus':
-      //   this._Worker = Worker_$;
+      //   this._Worker = Worker_Versinus;
       //   break;
       default:
         throw Error("Invalid layout value");     
