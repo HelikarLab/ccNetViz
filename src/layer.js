@@ -356,11 +356,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           return spatialSearch;
         }
 
-        // console.log("nodes", nodes[0]);
         if (layout) {
             await new ccNetViz_layout(nodes, edges, layout, layout_options).compute();
         }   
-        console.log("nodes", nodes[0]);
         
         if(!gl) return;
 

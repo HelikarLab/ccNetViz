@@ -161,7 +161,6 @@ var ccNetViz = function(canvas, options){
 
     layers.temp && layers.temp.set([], [], layout, layout_options);
     layers.main.set(nodes, edges, layout, layout_options);
-    console.log("nodes after set", nodes[0]);
 
     //reset batch
     batch = undefined;
