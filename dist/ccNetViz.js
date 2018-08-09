@@ -11978,8 +11978,6 @@ var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primiti
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12121,52 +12119,26 @@ var ccNetViz = function ccNetViz(canvas, options) {
     return batch;
   };
 
-  this.set = function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(n, e, layout) {
-      var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              if (!checkRemoved()) {
-                _context.next = 2;
-                break;
-              }
+  this.set = function (n, e, layout) {
+    var layout_options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-              return _context.abrupt('return', _this);
+    if (checkRemoved()) return _this;
 
-            case 2:
+    nodes = n || [];
+    edges = e || [];
 
-              nodes = n || [];
-              edges = e || [];
+    nodes.forEach(checkUniqId);
+    edges.forEach(checkUniqId);
 
-              nodes.forEach(checkUniqId);
-              edges.forEach(checkUniqId);
+    layers.temp && layers.temp.set([], [], layout, layout_options);
+    layers.main.set(nodes, edges, layout, layout_options);
+    console.log("nodes after set", nodes[0]);
 
-              layers.temp && layers.temp.set([], [], layout, layout_options);
-              _context.next = 9;
-              return layers.main.set(nodes, edges, layout, layout_options);
-
-            case 9:
-              console.log("nodes after set", nodes[0]);
-
-              //reset batch
-              batch = undefined;
-              setted = true;
-              return _context.abrupt('return', _this);
-
-            case 13:
-            case 'end':
-              return _context.stop();
-          }
-        }
-      }, _callee, _this);
-    }));
-
-    return function (_x2, _x3, _x4) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+    //reset batch
+    batch = undefined;
+    setted = true;
+    return _this;
+  };
 
   //make all dynamic changes static
   this.reflow = function () {
@@ -12793,8 +12765,6 @@ var _ccNetViz2 = _interopRequireDefault(_ccNetViz);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -12813,112 +12783,58 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
   var onContextMenu, onClick;
 
   //right click >> go back
-  canvas.addEventListener('contextmenu', onContextMenu = function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(e) {
-      var histel;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              if (!(history.length > 0)) {
-                _context.next = 6;
-                break;
-              }
+  canvas.addEventListener('contextmenu', onContextMenu = function onContextMenu(e) {
 
-              histel = history.pop();
+    if (history.length > 0) {
+      var histel = history.pop();
 
-              //currently shown level
+      //currently shown level
+      curlevel = histel;
 
-              curlevel = histel;
+      vizScreen.set(curlevel.nodes, curlevel.edges);
+      vizScreen.draw();
+    }
 
-              _context.next = 5;
-              return vizScreen.set(curlevel.nodes, curlevel.edges);
+    e.preventDefault();
+  });
 
-            case 5:
-              vizScreen.draw();
+  canvas.addEventListener('click', onClick = function onClick(e) {
+    var bb = canvas.getBoundingClientRect();
 
-            case 6:
+    var x = e.clientX - bb.left;
+    var y = e.clientY - bb.top;
+    var radius = 5;
 
-              e.preventDefault();
+    var lCoords = vizScreen.getLayerCoords({ radius: radius, x: x, y: y });
+    var result = vizScreen.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+    if (result.nodes.length > 0) {
+      var node = result.nodes[0].node;
+      var layout = node.layout || vizLayout;
 
-            case 7:
-            case 'end':
-              return _context.stop();
-          }
-        }
-      }, _callee, this);
-    }));
+      if (node.__computedLayout) {
+        // it is not nessesary to recompute layout if it was yet computed on this subgraph
+        layout = undefined;
+      } else {
+        // we store that layout was once computed for this subgraph
+        node.__computedLayout = true;
+      }
 
-    return function onContextMenu(_x) {
-      return _ref.apply(this, arguments);
-    };
-  }());
+      if (node.nodes && node.edges) {
+        var insidenodes = node.nodes;
+        var insideedges = node.edges;
 
-  canvas.addEventListener('click', onClick = function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(e) {
-      var bb, x, y, radius, lCoords, result, node, layout, insidenodes, insideedges;
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              bb = canvas.getBoundingClientRect();
-              x = e.clientX - bb.left;
-              y = e.clientY - bb.top;
-              radius = 5;
-              lCoords = vizScreen.getLayerCoords({ radius: radius, x: x, y: y });
-              result = vizScreen.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+        history.push(curlevel);
 
-              if (!(result.nodes.length > 0)) {
-                _context2.next = 18;
-                break;
-              }
+        curlevel = {
+          nodes: insidenodes,
+          edges: insideedges
+        };
 
-              node = result.nodes[0].node;
-              layout = node.layout || vizLayout;
-
-
-              if (node.__computedLayout) {
-                // it is not nessesary to recompute layout if it was yet computed on this subgraph
-                layout = undefined;
-              } else {
-                // we store that layout was once computed for this subgraph
-                node.__computedLayout = true;
-              }
-
-              if (!(node.nodes && node.edges)) {
-                _context2.next = 18;
-                break;
-              }
-
-              insidenodes = node.nodes;
-              insideedges = node.edges;
-
-
-              history.push(curlevel);
-
-              curlevel = {
-                nodes: insidenodes,
-                edges: insideedges
-              };
-
-              _context2.next = 17;
-              return vizScreen.set(curlevel.nodes, curlevel.edges, layout);
-
-            case 17:
-              vizScreen.draw();
-
-            case 18:
-            case 'end':
-              return _context2.stop();
-          }
-        }
-      }, _callee2, this);
-    }));
-
-    return function onClick(_x2) {
-      return _ref2.apply(this, arguments);
-    };
-  }());
+        vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+        vizScreen.draw();
+      }
+    }
+  });
 
   //// TODO: Add interactivity functios into this class
 
@@ -12928,32 +12844,13 @@ var ccNetVizMultiLevel = function ccNetVizMultiLevel(canvas, options) {
     vizScreen.remove();
   };
 
-  this.set = function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(nodes, edges, layout) {
-      var _args3 = arguments;
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              curlevel = { nodes: nodes, edges: edges };
-              history = [];
+  this.set = function (nodes, edges, layout) {
+    curlevel = { nodes: nodes, edges: edges };
+    history = [];
 
-              vizLayout = layout;
-              _context3.next = 5;
-              return vizScreen.set.apply(vizScreen, _args3);
-
-            case 5:
-            case 'end':
-              return _context3.stop();
-          }
-        }
-      }, _callee3, this);
-    }));
-
-    return function (_x3, _x4, _x5) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
+    vizLayout = layout;
+    vizScreen.set.apply(vizScreen, arguments);
+  };
 
   var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
   var self = this;
@@ -14781,10 +14678,10 @@ var _class = function () {
             }
           }
 
+          _this._normalize(_this._nodes);
           resolve(_this._nodes);
         });
         worker.addEventListener('error', reject);
-        _this._normalize(_this._nodes);
       });
     }
   }]);

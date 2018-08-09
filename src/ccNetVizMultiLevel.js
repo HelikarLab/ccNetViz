@@ -20,7 +20,7 @@ var ccNetVizMultiLevel = function(canvas, options){
   var onContextMenu, onClick;
   
   //right click >> go back
-  canvas.addEventListener('contextmenu', onContextMenu = async function(e){
+  canvas.addEventListener('contextmenu', onContextMenu = function(e){
     
   if(history.length > 0){
     var histel = history.pop();
@@ -28,14 +28,14 @@ var ccNetVizMultiLevel = function(canvas, options){
     //currently shown level
     curlevel = histel;
 
-    await vizScreen.set(curlevel.nodes, curlevel.edges);
+    vizScreen.set(curlevel.nodes, curlevel.edges);
     vizScreen.draw();
   }
 
     e.preventDefault();
   });
 
-  canvas.addEventListener('click', onClick = async function(e){
+  canvas.addEventListener('click', onClick = function(e){
     var bb = canvas.getBoundingClientRect();
 
     var x = e.clientX - bb.left;
@@ -67,7 +67,7 @@ var ccNetVizMultiLevel = function(canvas, options){
     edges: insideedges,
   };
 
-  await vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+  vizScreen.set(curlevel.nodes, curlevel.edges, layout);
   vizScreen.draw();
       }
     }
@@ -82,12 +82,12 @@ var ccNetVizMultiLevel = function(canvas, options){
   };
 
 
-  this.set = async function(nodes, edges, layout){
+  this.set = function(nodes, edges, layout){
     curlevel = {nodes: nodes, edges: edges};
     history = [];
 
     vizLayout = layout;
-    await vizScreen.set.apply(vizScreen, arguments);
+    vizScreen.set.apply(vizScreen, arguments);
   }
   
   var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];

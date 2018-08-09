@@ -128,11 +128,11 @@ export default class {
           }
         }
         
+        this._normalize(this._nodes);
         resolve(this._nodes);
 
       });
       worker.addEventListener('error', reject);
-      this._normalize(this._nodes);
     })
   }
   

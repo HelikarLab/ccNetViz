@@ -96,12 +96,9 @@
       graph.set(data.nodes, data.edges, "force");
       // graph.set(data.nodes, data.edges, "random");
       
-      setTimeout(() => {
-        console.log("data.nodes", data.nodes[0]);
-        console.log("data.edges", data.edges[0]);
-        graph.draw();
-      }, 4000);
-      
+      console.log("data.nodes", data.nodes[0]);
+      console.log("data.edges", data.edges[0]);
+      graph.draw(); 
 
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
