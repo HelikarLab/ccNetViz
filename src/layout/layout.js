@@ -17,7 +17,7 @@ import Worker_Spectral from './spectral.worker.js';
 import Worker_Spectral2 from './spectral2.worker.js';
 import Worker_Hive from './hive.worker.js';
 // import Worker_Grid from './grid.worker.js';
-// import Worker_Versinus from './versinus.worker.js';
+import Worker_Versinus from './versinus.worker.js';
 
 export default class {
   constructor(nodes, edges, layout, layout_options) {
@@ -60,9 +60,9 @@ export default class {
       // case 'grid':
       //   this._Worker = Worker_Grid;
       //   break;
-      // case 'versinus':
-      //   this._Worker = Worker_Versinus;
-      //   break;
+      case 'versinus':
+        this._Worker = Worker_Versinus;
+        break;
       default:
         throw Error("Invalid layout value");     
     }
