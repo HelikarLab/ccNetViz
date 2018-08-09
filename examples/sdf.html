@@ -93,7 +93,8 @@
 
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
-      graph.set(data.nodes, data.edges, "treeT");
+      graph.set(data.nodes, data.edges, "force");
+      console.log("data.edges", data.edges[0]);
       graph.draw(); 
 
       $('#nodesCnt').text(data.nodes.length);
