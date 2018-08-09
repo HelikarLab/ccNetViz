@@ -14,7 +14,7 @@ import Worker_Tree from './tree.worker.js';
 // import Worker_Hierarchical from './hierarchical.worker.js';
 // import Worker_Hierarchical2 from './hierarchical2.worker.js';
 import Worker_Spectral from './spectral.worker.js';
-// import Worker_Spectral2 from './spectral2.worker.js';
+import Worker_Spectral2 from './spectral2.worker.js';
 import Worker_Hive from './hive.worker.js';
 // import Worker_Grid from './grid.worker.js';
 // import Worker_Versinus from './versinus.worker.js';
@@ -51,9 +51,9 @@ export default class {
       case 'spectral':
         this._Worker = Worker_Spectral;
         break;
-      // case 'spectral2':
-      //   this._Worker = Worker_Spectral2;
-      //   break;
+      case 'spectral2':
+        this._Worker = Worker_Spectral2;
+        break;
       case 'hive':
         this._Worker = Worker_Hive;
         break;
