@@ -18311,5 +18311,3 @@ module.exports = __webpack_require__(/*! ./src/ccNetVizMultiLevel.js */"./src/cc
 
 /******/ });
 //# sourceMappingURL=ccNetViz.js.map
-if(typeof module !== "undefined")
-module.exports = ccNetViz;

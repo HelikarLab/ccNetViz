@@ -1,4 +1,5 @@
 var Webpack = require('webpack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 var path = require('path');
 
 module.exports = {
@@ -10,6 +11,11 @@ module.exports = {
         filename: 'ccNetViz.js',
     },
 
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin()
+        ]
+    },
 
     /**
      *   | devtool value  | build   | rebuild | production  | quality

@@ -1,5 +1,6 @@
 /**
- *  Collecting Terminal Arguments
+ * This script is not used anymore in favour of uglify-js webpack plugin 
+ * To use this script add "&& node build.js" in the package.json node-scripts
  */
 var flags = {};
 
