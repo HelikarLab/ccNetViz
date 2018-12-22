@@ -41,6 +41,7 @@
     "WebGL"
   ],
   "dependencies": {
+    "jsdoc": "3.5.5",
     "ml-matrix": "^5.0.0",
     "pbf": "^3.0.5",
     "shelf-pack": "^2.0.1",
