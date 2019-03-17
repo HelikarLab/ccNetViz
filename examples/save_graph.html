@@ -91,6 +91,10 @@
         $("#confel").empty().append($("<pre />").html(library.json.prettyPrint(conf)));
 
         var el = document.getElementById('container');
+
+        // After drawing keep save to the changes.
+        el.getContext("webgl", { preserveDrawingBuffer: true });
+
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, "force");
         graph.draw();
