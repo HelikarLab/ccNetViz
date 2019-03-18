@@ -80,6 +80,7 @@ pass it as second parameter into the set function such as:
 * Using SDF fonts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/sdf.html)
 * User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
 * Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
+* Save graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/save_graph.html)
 
 **Documentation**
 
