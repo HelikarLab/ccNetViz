@@ -8,7 +8,7 @@
 
 import {degrees} from './utils';
 
-export default class {
+class Circular {
   // get degree of all nodes
   // let user define at least: starting angle and radius and
   // clock/cclock direction
@@ -37,3 +37,11 @@ export default class {
       }
   }
 };
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new Circular(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

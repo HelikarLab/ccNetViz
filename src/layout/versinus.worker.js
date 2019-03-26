@@ -1,6 +1,6 @@
 import {degrees} from './utils';
 
-export default class {
+class Versinus {
   // the hubs are on the first half of the sinusoid period
   // the intermediary are on the second half
   // and the periphery are on the upper straight line
@@ -49,3 +49,11 @@ export default class {
       }
   }
 };
+
+self.addEventListener('message', function (e) {
+  var nodes = e.data.nodes;
+  var edges = e.data.edges;
+  var layout_options = e.data.layout_options;
+  new Versinus(nodes, edges, layout_options).apply();
+  self.postMessage({ nodes, edges });
+}, false);

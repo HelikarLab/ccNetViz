@@ -8,7 +8,7 @@
 
 import {getDepth, getRanges} from './utils';
 
-export default class {
+class TreeT {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
@@ -84,3 +84,11 @@ export default class {
       this.drawTreeTop(root);
   }
 };
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new TreeT(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

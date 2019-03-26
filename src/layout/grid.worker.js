@@ -1,6 +1,6 @@
 import {degrees} from './utils';
 
-export default class {
+class Grid {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
@@ -31,3 +31,11 @@ export default class {
       }
   }
 };
+
+self.addEventListener('message', function (e) {
+  var nodes = e.data.nodes;
+  var edges = e.data.edges;
+  var layout_options = e.data.layout_options;
+  new Grid(nodes, edges, layout_options).apply();
+  self.postMessage({ nodes, edges });
+}, false);

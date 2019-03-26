@@ -12,7 +12,7 @@
 
 import {create2dArray} from './utils';
 
-export default class {
+class Spectral2 {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
@@ -194,3 +194,11 @@ function normalize2 (x) {
     }
     return x;
 }
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new Spectral2(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

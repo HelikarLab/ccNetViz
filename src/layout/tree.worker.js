@@ -1,14 +1,14 @@
-/**
- *  Copyright (c) 2017, Helikar Lab.
- *  All rights reserved.
- *
- *  This source code is licensed under the GPLv3 License.
- *  Author: Renato Fabbri
- */
+// /**
+//  *  Copyright (c) 2017, Helikar Lab.
+//  *  All rights reserved.
+//  *
+//  *  This source code is licensed under the GPLv3 License.
+//  *  Author: Renato Fabbri
+//  */
 
 import {getDepth, getRanges} from './utils';
 
-export default class {
+class Tree {
   constructor(nodes, edges) {
     this._nodes = nodes;
     this._edges = edges;
@@ -81,3 +81,11 @@ export default class {
       this.drawTreeCentered(root);
   }
 };
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new Tree(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

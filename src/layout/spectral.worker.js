@@ -33,7 +33,7 @@ function normalize (x, y) {
     return [x, y];
 }
 
-export default class {
+class Spectral {
   // get degree of all nodes
   // let user define at least: starting angle and radius and
   // clock/cclock direction
@@ -80,3 +80,12 @@ export default class {
       }); 
   }
 };
+
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new Spectral(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

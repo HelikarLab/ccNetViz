@@ -7,6 +7,8 @@ import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
 
+let i = 1;
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -241,7 +243,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       enableLazyRedraw = true;
     };
 
-    this.set = function(nodes, edges, layout, layout_options) {
+    this.set = async function(nodes, edges, layout, layout_options) {
         removedNodes = 0;
         removedEdges = 0;
 
@@ -354,11 +356,14 @@ export default function(canvas, context, view, gl, textures, files, texts, event
           return spatialSearch;
         }
 
-        layout && new ccNetViz_layout[layout](nodes, edges, layout_options).apply() && ccNetViz_layout.normalize(nodes);
-
+        if (layout) {
+            await new ccNetViz_layout(nodes, edges, layout, layout_options).compute();
+        }   
+        
         if(!gl) return;
 
         let tryInitPrimitives = () => {
+
             var isDirty = false;
 
             let defaultAdder = (section, addSection) => {
@@ -408,6 +413,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
         while(tryInitPrimitives()); //loop until they are not dirty
         set_end();
+        
     };
 
 

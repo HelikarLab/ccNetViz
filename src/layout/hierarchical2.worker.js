@@ -21,7 +21,7 @@ function isOrphan(node){
     return orphan;
 }
 
-export default class {
+class Hierarchical2 {
   // this layout should handle any digraph
   constructor(nodes, edges) {
     this._nodes = nodes;
@@ -272,3 +272,11 @@ export default class {
       this.placeOrphans(this.orphans);
   }
 };
+
+self.addEventListener('message', function (e) {
+    var nodes = e.data.nodes;
+    var edges = e.data.edges;
+    var layout_options = e.data.layout_options;
+    new Hierarchical2(nodes, edges, layout_options).apply();
+    self.postMessage({ nodes, edges });
+}, false);

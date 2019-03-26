@@ -90,10 +90,12 @@
         }
       };
 
+
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
       graph.set(data.nodes, data.edges, "force");
-      graph.draw();
+      console.log("data.edges", data.edges[0]);
+      graph.draw(); 
 
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
