@@ -262,7 +262,7 @@ Property to access edges data of given graph. Use this just to read current valu
 This is the pipeline you should follow to make changes to ccNetViz:
 
 0. Fork ccNetViz repository e.g. from [HeilikarLab]. Start a server
-   (such as Apache) with a path to the ccNetViz directory.
+   (such as Apache or using http-server globally) with a path to the ccNetViz directory.
 1. Make changes to src/ tree.
 2. Run "$ npm update" to download needed packages.
 3. Build with "$ npm run build" on the ccNetViz root directory.
@@ -272,6 +272,11 @@ This is the pipeline you should follow to make changes to ccNetViz:
 
 [HeilikarLab]: https://github.com/HelikarLab/ccNetViz
 
+### Commands to set up a Local Server
+
+1. Run "$ npm i http-server -g" to install the module "http-server" locally.
+    (make sure administrative privileges are set properly )
+2. Run "$ npm run start" in the root directory.
 
 Notes:
 * If the file tree does not get updated, there might be issues with the files you are trying to update.
