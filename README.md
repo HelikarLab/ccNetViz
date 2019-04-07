@@ -274,9 +274,7 @@ This is the pipeline you should follow to make changes to ccNetViz:
 
 ### Commands to set up a Local Server
 
-1. Run "$ npm i http-server -g" to install the module "http-server" locally.
-    (make sure administrative privileges are set properly )
-2. Run "$ npm run start" in the root directory.
+Run "$ npm start" in the root directory.
 
 Notes:
 * If the file tree does not get updated, there might be issues with the files you are trying to update.
