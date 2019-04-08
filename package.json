@@ -9,6 +9,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-preset-es2015": "^6.24.1",
     "google-closure-compiler": "^20180716.0.1",
+    "http-server": "^0.11.1",
     "jshint": "^2.9.5",
     "path": "^0.12.7",
     "webpack": "^4.16.2"
@@ -63,7 +64,7 @@
   ],
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
-    "start": "react-scripts start",
+    "start": "./node_modules/.bin/http-server ./ localhost -p 3000",
     "build": "webpack --mode production && node build.js",
     "dev": "webpack --mode development && node build.js",
     "webpack-help": "webpack --help",
