@@ -6,16 +6,20 @@
  *  Author: Aleš Saska - http://alessaska.cz/
  */
 
-export default class {
+// refer edge to edge example
+//  each edge if
+//  i) from node to node, has source and edge both node
+//  ii) from node to edge, has source -> node and target -> edge -> source and target of edge
+//  iii) from edge to edge, has source -> source and target of edge , target -> source and target of edge
+
+ export default class {
   static edgeSource(e) {
-    if(e.source.source){
-      //source is edge
+    if(e.source.source){ //e.source.source would give the edges which start from edge (source is edge)
       let s = this.edgeSource(e.source);
       let t = this.edgeTarget(e.source);
-      
       return {
-              x: (s.x+t.x)/2, 
-              y: (s.y+t.y)/2, 
+              x: (s.x+t.x)/2, // middle of x-coordinate of edge
+              y: (s.y+t.y)/2, //middle of y-coordinate
               uniqid: e.uniqid, 
               index: e.index, 
               is_edge: true, 
