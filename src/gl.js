@@ -6,6 +6,8 @@
  *  Author: David Tichy
  */
 
+ // initialises webGL
+
 export default class {
   static initExtensions(gl) {
       let extensions = gl.getSupportedExtensions();
@@ -16,7 +18,8 @@ export default class {
       }
       return result;
   }
-
+  // compiles shader 
+  
   static createShader(gl, type, source) {
       let result = gl.createShader(type);
       gl.shaderSource(result, source);
@@ -29,6 +32,8 @@ export default class {
       return result;
   }
 
+// texture binding
+
   static createTexture(gl, img, onLoad, options) {
       let result = gl.createTexture();
 
@@ -37,6 +42,8 @@ export default class {
       let load = () => {
             image.onload = null;
             gl.bindTexture(gl.TEXTURE_2D, result);
+
+            //refer article https://open.gl/textures
 
             if((options || {}).sdf){
               gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
