@@ -1,0 +1,25 @@
+This file has a brief description about the src folder
+
+src/geomutils.js 
+   just supports tools for drawing
+   edgeSource && edgeTarget - our library supports edges starting from not just nodes but also another edges, 
+   so it calculates the coordinates for the edge beginning and ending x and y coordinates
+   getCurveShift support function for calculating how far is the most distant point of the curve ( bi-directional edge ).
+
+src/primitive.js  
+   wraps the handling setting up the variables and parameters for each shader (look into this.set function )
+
+src/layer.js
+   ccNetViz has feature for having dynamic updates into the graph. To keep the performance high, the graph is then separated into two main layers which are drawn over each other (handled in the ccNetViz.js). 
+   This is definition of each layer. Basically does and handles drawing of the whole graph.
+
+src/interactivityBatch.js
+  As mentioned above, the library has the feature to handle the changes into the dynamic layer of the graph. It has 2 layers ( main and temp ) passed as a parameter which are updated while calling the code.
+
+src/texts/sdf folder
+  - spriteGenerator.js - renders the SDF version of the single glyph (character)
+  - glyphTrimmer - trim the rendered SDF character for the unneccessary blank space around (so that not all characters has the same pixel width and height) - basically support for proportional fonts
+  - glyphs - obsolete code - need to be removed 
+  - atlas - pack the set of the characters into the one big texture to be rendered (using node shelf-pack library)
+  - sdf - handles the whole rendering pipeline. Lazy render (generate SDF texture and add it into the atlas) the text character-by-character
+
