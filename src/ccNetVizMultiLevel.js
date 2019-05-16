@@ -8,6 +8,7 @@
  *  Author: Aleš Saska - http://alessaska.cz/
  */
 
+// this file is used when we have more than 1 layer , goto example multi level
 
 var ccNetVizMultiLevel = function(canvas, options){
   var vizScreen = new ccNetViz(canvas, options);
@@ -23,7 +24,6 @@ var ccNetVizMultiLevel = function(canvas, options){
   canvas.addEventListener('contextmenu', onContextMenu = function(e){
     if(history.length > 0){
 	var histel = history.pop();
-
 	//currently shown level
 	curlevel = histel;
 
@@ -36,7 +36,6 @@ var ccNetVizMultiLevel = function(canvas, options){
 
   canvas.addEventListener('click', onClick = function(e){
     var bb = canvas.getBoundingClientRect();
-
     var x = e.clientX - bb.left;
     var y = e.clientY - bb.top;
     var radius = 5;
@@ -60,7 +59,6 @@ var ccNetVizMultiLevel = function(canvas, options){
 	var insideedges = node.edges;
 
 	history.push(curlevel);
-
 	curlevel = {nodes: insidenodes, edges: insideedges};
 
 	vizScreen.set(curlevel.nodes, curlevel.edges, layout);
@@ -69,7 +67,7 @@ var ccNetVizMultiLevel = function(canvas, options){
     }
   });
   
-  ////TODO: Add interactivity functios into this class
+  ////TODO: Add interactivity functions into this class
   
   this.remove = function(){
     canvas.removeEventListener('contextmenu', onContextMenu);
@@ -85,7 +83,7 @@ var ccNetVizMultiLevel = function(canvas, options){
     vizLayout = layout;
     vizScreen.set.apply(vizScreen, arguments);
   }
-  
+  // apply the functions to the layer
   var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
   var self = this;
   exposeMethods.forEach(function(method){
