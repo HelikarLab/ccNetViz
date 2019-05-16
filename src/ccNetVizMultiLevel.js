@@ -83,7 +83,7 @@ var ccNetVizMultiLevel = function(canvas, options){
     vizLayout = layout;
     vizScreen.set.apply(vizScreen, arguments);
   }
-  
+  // apply the functions to the layer
   var exposeMethods = ['find', 'findArea', 'getLayerCoords', 'draw', 'resetView', 'setViewport', 'update', 'resetView'];
   var self = this;
   exposeMethods.forEach(function(method){
