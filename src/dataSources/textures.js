@@ -17,10 +17,16 @@ export default class {
     this._n = 0;
   }
 
-  get(gl, img, action, options) {
+  get(gl, img, action, options) { 
       var p = this._pending[img];
       var t = this._textures[img];
-
+      console.log('p,t,action')
+      console.log(p)
+      console.log(t)
+      console.log(action)
+      console.log('this._pending aur thi._textures')
+      console.log(this._pending)
+      console.log(this._textures)
       if (p) {
           p.push(action);
       }
@@ -32,7 +38,10 @@ export default class {
           this._n++;
           this._textures[img] = t = ccNetViz_gl.createTexture(gl, img, () => {
               p.forEach(a => a && a());
+              console.log('baad waala pending image')
+              console.log(this._pending[img])
               delete this._pending[img];
+              
               --this._n || this._load.forEach(l => l());
           }, options);
       }
