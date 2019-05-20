@@ -1,6 +1,4 @@
-import Protobuf from 'pbf';
 import GlyphAtlas from './atlas';
-import Glyphs from './glyphs';
 import SpriteGenerator from './spriteGenerator';
 
 /**

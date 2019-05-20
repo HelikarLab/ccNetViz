@@ -19,7 +19,6 @@ src/interactivityBatch.js
 src/texts/sdf folder
   - spriteGenerator.js - renders the SDF version of the single glyph (character)
   - glyphTrimmer - trim the rendered SDF character for the unneccessary blank space around (so that not all characters has the same pixel width and height) - basically support for proportional fonts
-  - glyphs - obsolete code - need to be removed 
   - atlas - pack the set of the characters into the one big texture to be rendered (using node shelf-pack library)
   - sdf - handles the whole rendering pipeline. Lazy render (generate SDF texture and add it into the atlas) the text character-by-character
 
