@@ -28,7 +28,7 @@ export default class {
   
   isSDF(font){
     if(ccNetViz_utils.isObject(font)){
-      if(font.type === 'sdf' && font.pbf){
+      if(font.type === 'sdf'){
         return true;
       }
     }
