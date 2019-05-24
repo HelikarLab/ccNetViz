@@ -132,6 +132,9 @@ export default class {
     const font = this.curFont;
 
     // glyphId is the character code of the glyph passed in arguments under the name 'text'
+   // charCodeAt returns an integer between 0 and 65535 representing the UTF-16 code unit
+   // refer https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
+
     const glyphID = text.charCodeAt(0);
 
     // Padding around the glyph
@@ -172,9 +175,21 @@ export default class {
     for (let i = 0; i < text.length; i++) {
       const char = this._getChar(text[i], markDirty);
       const rect = char.rect || {};
+      
+     // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
+     //decide the height and then max of them is taken each time to have a max height that fits each char
+
       height = Math.max(height, rect.h - char.top);
+
+      // addiding const horiBearingx and char.advance wo get the total width of label
+
       width += char.advance + horiBearingX;
     }
+
+    
+   // x and y are the clipspace co-ordinates between 0 and 1
+   // dx and dy shifts the position of label w.r.t possibly node
+   // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
 
     let dx = x <= 0.5 ? 0 : -width;
     let dy = y <= 0.5 ? 0 : -height;
@@ -190,8 +205,10 @@ export default class {
       const rect = char.rect || {};
 
       let horiAdvance;
-
+      
       dx += horiBearingX;
+
+      // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc
 
       ret.push({
         width: rect.w,
