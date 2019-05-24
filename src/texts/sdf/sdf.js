@@ -143,6 +143,30 @@ export default class {
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
     const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
     
+    // Testing code for new developer, if stuck, uncomment the lines below 
+    // The code below renders a testing canvas with first alphabet it encounters , value of t is in sdf.html
+    // if you want to show more alphabets , just increase "t" in sdf.html and 
+    // change ctx.putImageData(imgData, 10, 20); to something variable
+
+    // if(t) {
+    //   const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+    //   const testCanvas = document.getElementById("test-canvas");
+    //   const ctx = testCanvas.getContext("2d");
+    //   console.log('img data')
+    //   console.log(imgData)
+    //   ctx.putImageData(imgData, 10, 20);
+    //   --t;
+    // }
+    
+    // After uncommenting the lines above , comment the "if" code below, this might help in debugging 
+
+    if(t) {
+
+      const testCanvas = document.getElementById("test-canvas");
+      testCanvas.width = 0;
+      testCanvas.height = 0;
+    }
+
     const fontSize = this.spriteGenerator.fontSize;
     
     if (!this._rects[font]) this._rects[font] = {};
