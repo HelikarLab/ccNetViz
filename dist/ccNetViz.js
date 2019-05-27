@@ -5655,6 +5655,8 @@ var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primiti
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+console.log('test watch');
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -6747,7 +6749,7 @@ exports.default = _class;
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6775,63 +6777,63 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // this file creates webGL type textures of images example custom.html
 
 var _class = function () {
-    function _class(events, onLoad) {
-        _classCallCheck(this, _class);
+  function _class(events, onLoad) {
+    _classCallCheck(this, _class);
 
-        this._load = [events.debounce(onLoad, 5)];
-        this._textures = {}; //already converted to textures
-        this._pending = {}; //pending images 
-        this._n = 0; //counts pending images to be converted to textures
+    this._load = [events.debounce(onLoad, 5)];
+    this._textures = {}; //already converted to textures
+    this._pending = {}; //pending images 
+    this._n = 0; //counts pending images to be converted to textures
+  }
+
+  _createClass(_class, [{
+    key: 'get',
+    value: function get(gl, img, action, options) {
+      var _this = this;
+
+      var p = this._pending[img];
+      var t = this._textures[img];
+
+      // TODO : add explanation about if-else statements below
+      if (p) {
+        p.push(action);
+      } else if (t) {
+        action && action();
+      }
+
+      // if image is neither in this._pending array nor nor in already converted this._textures array
+      //add the image to the pending, then convert it to texture on line ccNetViz_gl.createTexture(gl, img,function)
+      // and remove it from pending + add it to textures
+
+      else {
+          p = this._pending[img] = [action];
+          this._n++;
+          this._textures[img] = t = _gl2.default.createTexture(gl, img, function () {
+            p.forEach(function (a) {
+              return a && a();
+            });
+            delete _this._pending[img];
+
+            --_this._n || _this._load.forEach(function (l) {
+              return l();
+            });
+          }, options);
+        }
+      return t;
     }
+  }, {
+    key: 'onLoad',
+    value: function onLoad(action) {
+      if (this.allLoaded()) action();else this._load.push(action);
+    }
+  }, {
+    key: 'allLoaded',
+    value: function allLoaded() {
+      return _utils2.default.emptyObject(this._pending);
+    }
+  }]);
 
-    _createClass(_class, [{
-        key: 'get',
-        value: function get(gl, img, action, options) {
-            var _this = this;
-
-            var p = this._pending[img];
-            var t = this._textures[img];
-
-            // TODO : add explanation about if-else statements below
-            if (p) {
-                p.push(action);
-            } else if (t) {
-                action && action();
-            }
-
-            // if image is neither in this._pending array nor nor in already converted this._textures array
-            //add the image to the pending, then convert it to texture on line ccNetViz_gl.createTexture(gl, img,function)
-            // and remove it from pending + add it to textures
-
-            else {
-                    p = this._pending[img] = [action];
-                    this._n++;
-                    this._textures[img] = t = _gl2.default.createTexture(gl, img, function () {
-                        p.forEach(function (a) {
-                            return a && a();
-                        });
-                        delete _this._pending[img];
-
-                        --_this._n || _this._load.forEach(function (l) {
-                            return l();
-                        });
-                    }, options);
-                }
-            return t;
-        }
-    }, {
-        key: 'onLoad',
-        value: function onLoad(action) {
-            if (this.allLoaded()) action();else this._load.push(action);
-        }
-    }, {
-        key: 'allLoaded',
-        value: function allLoaded() {
-            return _utils2.default.emptyObject(this._pending);
-        }
-    }]);
-
-    return _class;
+  return _class;
 }();
 
 exports.default = _class;
@@ -10763,7 +10765,7 @@ exports.default = Shader;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 
@@ -10791,89 +10793,89 @@ var EPS = Number.EPSILON || 1e-14;
 
 //solving cube analyticaly for bezier curves
 function cuberoot(x) {
-  var y = Math.pow(Math.abs(x), 1 / 3);
-  return x < 0 ? -y : y;
+    var y = Math.pow(Math.abs(x), 1 / 3);
+    return x < 0 ? -y : y;
 }
 
 function solveCubic(a, b, c, d) {
-  if (Math.abs(a) < 1e-8) {
-    // Quadratic case, ax^2+bx+c=0
-    a = b;b = c;c = d;
     if (Math.abs(a) < 1e-8) {
-      // Linear case, ax+b=0
-      a = b;b = c;
-      if (Math.abs(a) < 1e-8) // Degenerate case
+        // Quadratic case, ax^2+bx+c=0
+        a = b;b = c;c = d;
+        if (Math.abs(a) < 1e-8) {
+            // Linear case, ax+b=0
+            a = b;b = c;
+            if (Math.abs(a) < 1e-8) // Degenerate case
+                return [];
+            return [-b / a];
+        }
+
+        var D = b * b - 4 * a * c;
+        if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
         return [];
-      return [-b / a];
     }
 
-    var D = b * b - 4 * a * c;
-    if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
-    return [];
-  }
+    // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
+    var p = (3 * a * c - b * b) / (3 * a * a);
+    var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+    var roots = void 0;
 
-  // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
-  var p = (3 * a * c - b * b) / (3 * a * a);
-  var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-  var roots = void 0;
-
-  if (Math.abs(p) < 1e-8) {
-    // p = 0 -> t^3 = -q -> t = -q^1/3
-    roots = [cuberoot(-q)];
-  } else if (Math.abs(q) < 1e-8) {
-    // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
-    roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
-  } else {
-    var _D = q * q / 4 + p * p * p / 27;
-    if (Math.abs(_D) < 1e-8) {
-      // D = 0 -> two roots
-      roots = [-1.5 * q / p, 3 * q / p];
-    } else if (_D > 0) {
-      // Only one real root
-      var u = cuberoot(-q / 2 - Math.sqrt(_D));
-      roots = [u - p / (3 * u)];
+    if (Math.abs(p) < 1e-8) {
+        // p = 0 -> t^3 = -q -> t = -q^1/3
+        roots = [cuberoot(-q)];
+    } else if (Math.abs(q) < 1e-8) {
+        // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
+        roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
     } else {
-      // D < 0, three roots, but needs to use complex numbers/trigonometric solution
-      var _u = 2 * Math.sqrt(-p / 3);
-      var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
-      var k = 2 * Math.PI / 3;
-      roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
+        var _D = q * q / 4 + p * p * p / 27;
+        if (Math.abs(_D) < 1e-8) {
+            // D = 0 -> two roots
+            roots = [-1.5 * q / p, 3 * q / p];
+        } else if (_D > 0) {
+            // Only one real root
+            var u = cuberoot(-q / 2 - Math.sqrt(_D));
+            roots = [u - p / (3 * u)];
+        } else {
+            // D < 0, three roots, but needs to use complex numbers/trigonometric solution
+            var _u = 2 * Math.sqrt(-p / 3);
+            var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
+            var k = 2 * Math.PI / 3;
+            roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
+        }
     }
-  }
 
-  // Convert back from depressed cubic
-  for (var i = 0; i < roots.length; i++) {
-    roots[i] -= b / (3 * a);
-  }return roots;
+    // Convert back from depressed cubic
+    for (var i = 0; i < roots.length; i++) {
+        roots[i] -= b / (3 * a);
+    }return roots;
 }
 
 //function distanceToBezier(x,y,ax,ay,bx,by,cx,cy){
 function distance2ToBezier(x, y, a, d, b, e, c, f) {
-  //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
+    //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
 
-  var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
-  var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
-  var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
-  var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
+    var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
+    var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
+    var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
+    var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
 
-  var eqresult = solveCubic(A, B, C, D);
+    var eqresult = solveCubic(A, B, C, D);
 
-  //loop through all possible solitions to find out which point is the nearest
-  var mindist = Infinity;
-  for (var i = 0; i < eqresult.length; i++) {
-    var t = eqresult[i];
+    //loop through all possible solitions to find out which point is the nearest
+    var mindist = Infinity;
+    for (var i = 0; i < eqresult.length; i++) {
+        var t = eqresult[i];
 
-    if (t < 0 || t > 1) continue;
+        if (t < 0 || t > 1) continue;
 
-    //point at bezier curve
-    var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
-    var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
+        //point at bezier curve
+        var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
+        var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
 
-    var dist = distance2(x, y, px, py);
-    if (dist < mindist) mindist = dist;
-  }
+        var dist = distance2(x, y, px, py);
+        if (dist < mindist) mindist = dist;
+    }
 
-  return mindist;
+    return mindist;
 }
 
 /*
@@ -10881,178 +10883,178 @@ function distance2ToBezier(x, y, a, d, b, e, c, f) {
  * @return array representing bounding box [x1,y1,x2,y2]
  */
 function getBBFromPoints(v) {
-  var xmin = Infinity;
-  var xmax = -xmin;
-  var ymin = Infinity;
-  var ymax = -ymin;
+    var xmin = Infinity;
+    var xmax = -xmin;
+    var ymin = Infinity;
+    var ymax = -ymin;
 
-  //x of points - even indexes in array 
-  for (var i = 0; i < v.length; i += 2) {
-    var val = v[i];
-    if (val < xmin) xmin = val;
-    if (val > xmax) xmax = val;
-  }
+    //x of points - even indexes in array 
+    for (var i = 0; i < v.length; i += 2) {
+        var val = v[i];
+        if (val < xmin) xmin = val;
+        if (val > xmax) xmax = val;
+    }
 
-  //y of points - odd indexes in array 
-  for (var _i = 1; _i < v.length; _i += 2) {
-    var _val = v[_i];
-    if (_val < ymin) ymin = _val;
-    if (_val > ymax) ymax = _val;
-  }
+    //y of points - odd indexes in array 
+    for (var _i = 1; _i < v.length; _i += 2) {
+        var _val = v[_i];
+        if (_val < ymin) ymin = _val;
+        if (_val > ymax) ymax = _val;
+    }
 
-  return [xmin, ymin, xmax, ymax];
+    return [xmin, ymin, xmax, ymax];
 }
 
 //distance from point to point
 function distance2(x1, y1, x2, y2) {
-  var dx = x1 - x2;
-  var dy = y1 - y2;
-  return dx * dx + dy * dy;
+    var dx = x1 - x2;
+    var dy = y1 - y2;
+    return dx * dx + dy * dy;
 }
 
 //distance from point to line
 function pDistance2(x, y, x1, y1, x2, y2) {
-  var A = x - x1;
-  var B = y - y1;
-  var C = x2 - x1;
-  var D = y2 - y1;
+    var A = x - x1;
+    var B = y - y1;
+    var C = x2 - x1;
+    var D = y2 - y1;
 
-  var dot = A * C + B * D;
-  var len_sq = C * C + D * D;
-  var param = -1;
-  if (len_sq != 0) //in case of 0 length line
-    param = dot / len_sq;
+    var dot = A * C + B * D;
+    var len_sq = C * C + D * D;
+    var param = -1;
+    if (len_sq != 0) //in case of 0 length line
+        param = dot / len_sq;
 
-  var xx = void 0,
-      yy = void 0;
+    var xx = void 0,
+        yy = void 0;
 
-  if (param < 0) {
-    xx = x1;
-    yy = y1;
-  } else if (param > 1) {
-    xx = x2;
-    yy = y2;
-  } else {
-    xx = x1 + param * C;
-    yy = y1 + param * D;
-  }
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
 
-  return distance2(x, y, xx, yy);
+    return distance2(x, y, xx, yy);
 }
 
 function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y) {
-  var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
-  var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
+    var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
+    var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
 
-  if (d == 0) {
-    return false;
-  }
+    if (d == 0) {
+        return false;
+    }
 
-  var r = q / d;
+    var r = q / d;
 
-  q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
-  var s = q / d;
+    q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
+    var s = q / d;
 
-  if (r < 0 || r > 1 || s < 0 || s > 1) {
-    return false;
-  }
+    if (r < 0 || r > 1 || s < 0 || s > 1) {
+        return false;
+    }
 
-  return true;
+    return true;
 }
 
 function pointInRect(px, py, x1, y1, x2, y2) {
-  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
+    return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
 }
 
 function rectIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
-  return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
+    return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
 }
 
 function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
-  if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
+    if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
 
-  return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+    return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
 }
 
 function eq(a, b) {
-  return a >= b - EPS && a <= b + EPS;
+    return a >= b - EPS && a <= b + EPS;
 }
 
 function neq(a, b) {
-  return !eq(a, b);
+    return !eq(a, b);
 }
 
 function checkBezierTkoef(a, d, b, e, c, f, t, q, s, r, v) {
-  if (t < 0 || t > 1) return false;
+    if (t < 0 || t > 1) return false;
 
-  if (neq(v - s, 0)) {
-    var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
-    if (x < 0 || x > 1) return false;
-  }
+    if (neq(v - s, 0)) {
+        var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
+        if (x < 0 || x > 1) return false;
+    }
 
-  return true;
+    return true;
 }
 
 function bezierIntersectsLine(a, d, b, e, c, f, q, s, r, v) {
-  //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
+    //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
 
-  var t = void 0;
+    var t = void 0;
 
-  var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
-  if (neq(tden, 0)) {
-    if (neq(q - r, 0)) {
-      var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
-      var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
-      if (sq >= 0) {
-        var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
+    var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
+    if (neq(tden, 0)) {
+        if (neq(q - r, 0)) {
+            var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
+            var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
+            if (sq >= 0) {
+                var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
 
-        t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
-        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+                t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
+                if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
 
-        t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
-        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-      }
+                t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
+                if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+            }
+        }
     }
-  }
 
-  tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
-  if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
-    t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
-    t = t / (2 * tden);
-    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-  }
+    tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
+    if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
+        t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
+        t = t / (2 * tden);
+        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+    }
 
-  if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
-    t = (2 * e - f - v) / (2 * (e - f));
-    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-  }
+    if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
+        t = (2 * e - f - v) / (2 * (e - f));
+        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+    }
 
-  var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
-  var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
-  if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
-    t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
-    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-  }
+    var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
+    var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
+    if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
+        t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
+        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+    }
 
-  return false;
+    return false;
 }
 
 function bezierIntersectsRect(a, d, b, e, c, f, r1x, r1y, r2x, r2y) {
-  if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
+    if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
 
-  var centerx = (r1x + r2x) / 2;
-  var centery = (r1y + r2y) / 2;
+    var centerx = (r1x + r2x) / 2;
+    var centery = (r1y + r2y) / 2;
 
-  var diffx = r1x - r2x;
-  var diffy = r1y - r2y;
+    var diffx = r1x - r2x;
+    var diffy = r1y - r2y;
 
-  //performance optimalization based on distance
-  var diff2xy = diffx * diffx + diffy * diffy;
-  var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
-  if (dist2 * 4 > diff2xy) return false;
-  if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
+    //performance optimalization based on distance
+    var diff2xy = diffx * diffx + diffy * diffy;
+    var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
+    if (dist2 * 4 > diff2xy) return false;
+    if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
 
-  return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
+    return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
 }
 
 exports.EPS = EPS;
@@ -13072,6 +13074,9 @@ var _class = function () {
       var font = this.curFont;
 
       // glyphId is the character code of the glyph passed in arguments under the name 'text'
+      // charCodeAt returns an integer between 0 and 65535 representing the UTF-16 code unit
+      // refer https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
+
       var glyphID = text.charCodeAt(0);
 
       // Padding around the glyph
@@ -13105,9 +13110,20 @@ var _class = function () {
       for (var i = 0; i < text.length; i++) {
         var char = this._getChar(text[i], markDirty);
         var rect = char.rect || {};
+
+        // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
+        //decide the height and then max of them is taken each time to have a max height that fits each char
+
         height = Math.max(height, rect.h - char.top);
+
+        // addiding const horiBearingx and char.advance wo get the total width of label
+
         width += char.advance + horiBearingX;
       }
+
+      // x and y are the clipspace co-ordinates between 0 and 1
+      // dx and dy shifts the position of label w.r.t possibly node
+      // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
 
       var dx = x <= 0.5 ? 0 : -width;
       var dy = y <= 0.5 ? 0 : -height;
@@ -13123,6 +13139,8 @@ var _class = function () {
         var horiAdvance = void 0;
 
         dx += horiBearingX;
+
+        // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc
 
         ret.push({
           width: _rect.w,
