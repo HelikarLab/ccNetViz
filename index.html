@@ -1,34 +1,1403 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <title>ccNetViz by Helikar Lab</title>
-    <link href="css/styles.css" rel="stylesheet"/>
+  <meta charset="utf-8">
 
-    <script src="js/react-with-addons-0.13.3.min.js"></script>
-    <script src="js/immutable-3.7.3.min.js"></script>
-    <script src="js/ccNetViz-1.0.0.min.js"></script>
+  <title>ccNetViz</title>
+  <meta name="description" content="">
 
-    <script src="app/utils.js"></script>
-    <script src="app/frame.js"></script>
-    <script src="app/graph.js"></script>
-    <script src="app/banner.js"></script>
-    <script src="app/staticGraph.js"></script>
-    <script src="app/dynamicGraph.js"></script>
-    <script src="app/application.js"></script>
+  <link rel="stylesheet" href="static/css/normalize.css">
+  <link rel="stylesheet" href="static/css/skeleton.css">
+  <link rel="stylesheet" href="static/css/main.css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto+Condensed" rel="stylesheet">
+  <script src="static/js/ccNetViz.js"></script>
+
+  <script type="text/javascript">
+    window.addEventListener('load', function () {
+      function drawLogo(c, settings, t) {
+        const nodes = [];
+        const edges = [];
+
+        const x1 = settings.nodeFrequency / settings.width;
+        const y1 = settings.nodeFrequency / settings.height;
+        const deflection = 0.06;
+        let grid = {};
+
+        function randomNumber(min, max) {
+          return Math.ceil(Math.random() * (max - min) + min);
+        }
+
+        c.setAttribute("width", settings.width);
+        c.setAttribute("height", settings.height);
+
+        // Creating nodes
+        let x = 0;
+        for (let cursor = 0; ; cursor) {
+          if (x + x1 >= 0.98) {
+            break;
+          }
+          for (let y = 0; y < 1 - (y1 + deflection / 2);) {
+            if (typeof grid[cursor] !== "undefined") {
+              grid[cursor] = grid[cursor] + 1;
+            } else {
+              grid[cursor] = 0;
+            }
+
+            x = (x1 * cursor) + (deflection / randomNumber(1, 10));
+            y += y1 + (deflection / randomNumber(1, 10));
+
+            nodes.push({
+              label: `Node`,
+              x: x,
+              y: y
+            });
+          }
+          cursor += 1;
+        }
+
+        // Set the edges
+        let i = 0;
+        for (let index in grid) {
+          const column = grid[index];
+          for (let j = 0; j < column; j++) {
+            if (index > 0) {
+              const count = grid[index - 1];
+              let sourceNode = nodes[i + 1];
+              let targetNode = nodes[i - count];
+
+              if (grid[index - 1] >= grid[index]) {
+                // Node rank 2
+                edges.push({
+                  source: sourceNode,
+                  target: targetNode
+                });
+
+                // Node rank 3,4 possibility
+                if (randomNumber(1, 5) === 3) {
+                  sourceNode = nodes[i];
+                  targetNode = nodes[i - count];
+
+                  edges.push({
+                    source: sourceNode,
+                    target: targetNode
+                  });
+                }
+
+                // Multiple edges possibility
+                if (randomNumber(1, 10) === 3) {
+                  edges.push({
+                    source: targetNode,
+                    target: sourceNode
+                  });
+                }
+
+                // TODO : Workaround
+                if (j === 0) {
+                  sourceNode = nodes[i];
+                  targetNode = nodes[i - count - 1];
+                  edges.push({
+                    source: targetNode,
+                    target: sourceNode
+                  });
+                }
+              } else {
+                if (j < grid[index - 1])
+                  edges.push({
+                    source: sourceNode,
+                    target: targetNode
+                  });
+              }
+            }
+
+            let sourceNode = nodes[i];
+            let targetNode = nodes[i + 1];
+
+            if ((j + 1 === column)) {
+              i++
+            }
+
+            edges.push({
+              source: sourceNode,
+              target: targetNode
+            });
+
+            // Multiple edge possibility
+            if (randomNumber(1, 5) === 3) {
+              edges.push({
+                source: targetNode,
+                target: sourceNode
+              });
+            }
+            i++;
+          }
+        }
+
+        // Creating color gradients for animated node colors
+        // @s Start color [r,g,b]
+        // @e End color [r,g,b]
+        // @c Count count of color code int *Currently, have 70 frames per second, so we need to 35 colors.
+        function colorGradient(s, e, c, name) {
+          let start = s;
+          let end = e;
+          let alpha = 0.0;
+          let colors = {};
+
+          const len = c;
+
+          for (let i = 0; i < len; i++) {
+            let c = [];
+            let n = `${name}-${i}`;
+            let nr = `${name}-${len * 2 - (i + 1)}`
+            alpha += (1.0 / len);
+
+
+            c[0] = start[0] * alpha + (1 - alpha) * end[0];
+            c[1] = start[1] * alpha + (1 - alpha) * end[1];
+            c[2] = start[2] * alpha + (1 - alpha) * end[2];
+
+            colors[n] = { color: `rgb(${Math.abs(Math.floor(c[0]))},${Math.abs(Math.floor(c[1]))},${Math.abs(Math.floor(c[2]))})` };
+            colors[nr] = { color: `rgb(${Math.abs(Math.floor(c[0]))},${Math.abs(Math.floor(c[1]))},${Math.abs(Math.floor(c[2]))})` };
+          }
+          return colors;
+        }
+
+        let colorSlice = [
+          colorGradient([36, 82, 206], [50, 50, 50], 35, "blue"),
+          colorGradient([204, 34, 34], [50, 50, 50], 35, "red"),
+          colorGradient([35, 180, 70], [50, 50, 50], 35, "green")
+        ];
+
+        // ccNetViz config
+        let s = {
+          styles: {
+            background: {
+              color: "rgb(0, 0, 0)"
+            },
+            node: {
+              texture: "./static/img/circle.png",
+              label: {
+                hideSize: 16
+              },
+              color: "rgb(50, 50, 50)"
+            },
+            ccNetViz: {
+              color: "rgb(255, 255, 255)"
+            },
+            edge: {
+              color: "rgb(50, 50, 50)"
+            },
+            default: {
+              color: "rgb(50, 50, 50)"
+            }
+          }
+        };
+
+        // Pushing color gradients into ccNetViz config
+        for (let i = 0; i < colorSlice.length; i++) {
+          const color = colorSlice[i];
+          for (let key in color) {
+            s.styles[key] = color[key];
+          }
+        }
+
+
+        // Drawing graph
+        const graph = new ccNetViz(c, s);
+        const count = t.map(item => { return item[0].length }).reduce(function (a, b) { return a + b }, 0);
+
+        function transpose(arr) {
+          return arr.map((col, i) => arr.map(row => row[i]));
+        }
+
+        t = t.map(item => { return transpose(item) });
+
+        function matrixToGraph(text) {
+
+          const space = {
+            y: (8 / settings.height),
+            x: 6.80 / settings.width
+          };
+
+          const logoNodes = [];
+          let x1 = (1 - (count * space.x)) / 2;
+          for (let i = 0; i < text.length; i++) {
+            const letter = text[i];
+
+            for (let j = 0; j < letter.length; j++) {
+              const element = letter[j];
+              let y = (1 - (15 * space.y));
+
+              if (typeof letter[j][0] === "undefined") {
+                break;
+              }
+
+              for (let k = 0; k < element.length; k++) {
+                const row = element[k];
+                if (row === 1) {
+                  logoNodes.push({
+                    x: x1,
+                    y: y,
+                    style: "ccNetViz"
+                  })
+                }
+                y = y - space.y;
+              }
+              x1 = x1 + space.x;
+            }
+          }
+          return logoNodes;
+        }
+
+        const logo = matrixToGraph(t);
+        const nodeList = nodes.concat(nodes, logo);
+        const animation = {
+          frame: {
+            count: 0,
+            index: 0
+          },
+          fps: 10,
+          time: 7,
+          circle: {
+            size: {
+              minimum: 0.01,
+              maximum: 0.07,
+              raise: 0,
+              index: 0
+            },
+            color: {
+              code: undefined,
+              name: undefined
+            }
+          },
+        };
+
+        // Initial animation settings
+        animation.frame.count = animation.fps * animation.time;
+        animation.circle.size.raise = (animation.circle.size.maximum - animation.circle.size.minimum) / animation.frame.count;
+
+        graph.set(nodeList, edges);
+        graph.draw();
+
+        let animationInstances = [];
+        let r = [];
+
+        // Set the animation count
+        for (let i = 0; i < 5; i++) {
+          setTimeout(function () {
+            // Set every animation different config. Disable to the object reference.
+            animationInstances[i] = JSON.stringify(animation);
+            animationInstances[i] = JSON.parse(animationInstances[i]);
+            const color = randomNumber(0, 3);
+            const date = Date.now();
+
+            // Set the animated circle position
+            r[i] = {
+              x: Math.random(),
+              y: Math.random()
+            };
+
+            // Set the colors
+            if (color === 1) {
+              animationInstances[i].circle.color.name = "green";
+            } else if (color === 2) {
+              animationInstances[i].circle.color.name = "blue";
+            } else {
+              animationInstances[i].circle.color.name = "red";
+            }
+
+            // Draw animation
+            setInterval(function () {
+              if (animationInstances[i].frame.count === animationInstances[i].frame.index) {
+                r[i] = {
+                  x: Math.random(),
+                  y: Math.random()
+                };
+              }
+              pulse(animationInstances[i], r[i], date);
+            }, 1000 / animation.fps);
+          }, i * 2000);
+        }
+
+        function pulse(a, r, d) {
+          // When animation ended
+          if (a.frame.count === a.frame.index) {
+            a.frame.index = 0;
+            a.circle.size.index = 0;
+            a.circle.size.raise = (a.circle.size.maximum - a.circle.size.minimum) / a.frame.count;
+          }
+
+          a.circle.color.code = `${a.circle.color.name}-${a.frame.index}`;
+          a.frame.index++;
+          a.frame.index === 1 ? a.circle.size.index += a.circle.size.minimum : false;
+          a.circle.size.index += a.circle.size.raise;
+
+          let circle = graph.find(r.x, r.y, a.circle.size.index + 0.03, true, true);
+
+          // Re-enabling to the active nodes,edges
+          if (a.frame.count === a.frame.index) {
+            for (let index = 0; index < circle.nodes.length; index++) {
+              const element = circle.nodes[index];
+              if (element.node.style !== "ccNetViz") {
+                setTimeout(function () {
+                  element.node.animation_time = undefined;
+                }, 2000);
+                element.node.style = undefined;
+              }
+            }
+            for (let index = 0; index < circle.edges.length; index++) {
+              const element = circle.edges[index];
+              element.edge.style = undefined;
+              setTimeout(function () {
+                element.edge.animation_time = undefined;
+              }, 2000);
+            }
+          }
+
+          // Set the active color
+          for (let index = 0; index < circle.nodes.length; index++) {
+            const element = circle.nodes[index];
+            if (element.node.style !== "ccNetViz") {
+              if (typeof element.node.animation_time !== "undefined") {
+                if (element.node.animation_time >= d) {
+                  element.node.animation_time = d;
+                  element.node.style = a.circle.color.code;
+                }
+              } else {
+                element.node.animation_time = d;
+                element.node.style = a.circle.color.code;
+              }
+            }
+          }
+
+          for (let index = 0; index < circle.edges.length; index++) {
+            const element = circle.edges[index];
+            if (element.edge.t !== 1) {
+              if (typeof element.edge.animation_time !== "undefined") {
+                if (element.edge.animation_time >= d) {
+                  element.edge.animation_time = d;
+                  element.edge.style = a.circle.color.code;
+                }
+              } else {
+                element.edge.animation_time = d;
+                element.edge.style = a.circle.color.code;
+              }
+            }
+          }
+
+
+          graph.set(nodeList, edges);
+          graph.draw();
+        }
+
+        settings.information ? document.getElementById("stats").innerText = `${nodes.length} Nodes, ${edges.length} Edges` : false;
+        settings.information ? document.getElementById("range-slider").value = settings.nodeFrequency : false;
+      }
+
+      // Constant character definitions
+      const _c = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+      ];
+
+      const _n = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0]
+      ];
+
+      const _e = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+      ];
+
+      const _t = [
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 1, 0],
+        [0, 0, 0, 1, 1, 0]
+      ];
+
+      const _v = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+      ];
+
+      const _i = [
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0]
+      ];
+
+      const _z = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+      ];
+
+      let text = [_c, _c, _n, _e, _t, _v, _i, _z];
+
+      const canvas = document.getElementById("ccnetviz");
+
+      const settings = {
+        width: document.getElementById("graph").offsetWidth,
+        height: document.getElementById("graph").offsetHeight,
+        nodeFrequency: 30,
+        information: true
+      };
+
+      drawLogo(canvas, settings, text);
+
+      document.getElementById("range-slider").addEventListener("change", function () {
+        document.getElementById("ccnetviz").remove();
+        let c = document.createElement("canvas");
+        c.id = "ccnetviz";
+        settings.nodeFrequency = this.value;
+        document.getElementById("graph").appendChild(c);
+        drawLogo(c, settings, text);
+      });
+    }, false);
+
+  </script>
 </head>
-<body>
-<div id="app"></div>
-<script>
-    React.render(React.createElement(Application, { id: "Application" }), document.getElementById("app"));
 
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-74068593-1', 'auto');
-    ga('send', 'pageview');
-</script>
+<body>
+  <div id="header">
+    <nav>
+      <ul>
+        <li>
+          <a href="#download">Download</a>
+        </li>
+        <li>
+          <a href="#about">About</a>
+        </li>
+        <li>
+          <a href="#usage">Basic Example</a>
+        </li>
+        <li>
+          <a href="#demos">Demos</a>
+        </li>
+        <li>
+          <a href="#doc">Documentation</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div id="graph" class="row">
+    <canvas id="ccnetviz"></canvas>
+    <div id="freq-information">
+      <label>Nodes</label>
+      <input type="range" min="10" max="80" id="range-slider">
+    </div>
+    <div id="stats"></div>
+    <div id="graph-container" class="container">
+      <div id="download" class="row">
+        <a class="offset-by-four columns four" href="https://github.com/helikarlab/ccNetViz/zipball/master" target="_blank">Download</a>
+      </div>
+      <div id="slogan" class="row">
+        <div class="four columns">
+          <div class="icon">
+            <svg enable-background="new 0 0 64 64" fill="#FFFFFFCC" height="64px" id="Layer_1" version="1.1"
+              viewBox="0 0 64 64" width="64px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink">
+              <g>
+                <path
+                  d="M28.371,31.879c0,2.19,1.777,3.966,3.966,3.966c1.538,0,2.856-0.884,3.514-2.163l0.011,0.01l7.24-13.062l-12.71,7.794   l0.012,0.012C29.197,29.117,28.371,30.395,28.371,31.879z" />
+                <path
+                  d="M48.315,12.981C44.251,9.429,39,7.161,33,6.822v6.027c5,0.318,7.946,1.906,10.904,4.384L48.315,12.981z" />
+                <path
+                  d="M51.146,30h6.02c-0.404-6-2.751-10.93-6.395-14.97l-4.259,4.233C49.078,22.203,50.766,26,51.146,30z" />
+                <path
+                  d="M51.174,33c-0.637,10-8.922,17.931-19.042,17.931c-10.535,0-19.421-8.544-19.421-19.078C12.711,21.825,21,13.62,30,12.85   V6.823C17,7.602,6.711,18.54,6.711,31.879c0,13.843,11.42,25.052,25.263,25.052C45.406,56.931,56.564,46,57.205,33H51.174z" />
+              </g>
+            </svg>
+          </div>
+          <span>WebGL</span>
+          <div class="title">High Performance</div>
+        </div>
+        <div class="four columns">
+          <div class="icon">
+            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <svg width="130px" height="70px" viewBox="0 0 130 70" version="1.1" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+              <title>feather</title>
+              <defs></defs>
+              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                <g id="feather" sketch:type="MSArtboardGroup" stroke-width="0" stroke="#FFFFFF" fill="#FFFFFFCC">
+                  <path
+                    d="M62.7545597,80.9293443 L62.7545597,91.4097889 C62.7545597,92.4644569 63.6105221,93.3204193 64.6651901,93.3204193 C65.719858,93.3204193 66.5758205,92.4644569 66.5758205,91.4097889 L66.5758205,80.9293443 L70.2404096,80.822349 C70.8161462,80.8057902 71.354944,80.5293857 71.7039525,80.0695606 L84.4414884,63.3324383 C84.9892025,62.6140413 84.9573587,61.6090497 84.366337,60.9263178 L78.959253,54.6696401 L84.014781,51.1438902 C84.5268299,50.7872391 84.8325308,50.2013125 84.8325308,49.5771732 L84.8325308,2.83933241 C84.8325308,2.42026748 84.6949654,2.01394008 84.4402147,1.68021663 L66.1835044,-22.240876 C66.1401967,-22.2981949 66.0803303,-22.3351337 66.0306539,-22.3873576 C65.9555025,-22.4663303 65.8841723,-22.5453031 65.7962833,-22.6115383 C65.7134893,-22.6726784 65.6230528,-22.7134385 65.53389,-22.7605674 C65.4689286,-22.7949588 65.4128834,-22.8420877 65.342827,-22.8688365 C65.187429,-22.9159654 65.0855288,-22.9287029 64.9836285,-22.9452617 C64.893192,-22.9605467 64.805303,-22.9822006 64.7148665,-22.9834743 C64.6244299,-22.9860218 64.5352672,-22.969463 64.4435569,-22.959273 C64.3365616,-22.9465355 64.2333876,-22.9350717 64.1302136,-22.9057753 C63.9951957,-22.8739315 63.9506143,-22.8344451 63.8945691,-22.8102438 C63.7939426,-22.7656624 63.6958636,-22.7198073 63.6041533,-22.6573934 C63.5264543,-22.6051695 63.4602192,-22.5440293 63.3927102,-22.4816154 C63.3417601,-22.4357603 63.2831674,-22.4039164 63.2373123,-22.3516925 L50.5354414,-8.03979708 C50.051415,-7.49335679 49.9202184,-6.7189146 50.1978967,-6.04382519 L53.0676635,0.926154503 L46.407206,0.926154503 C45.352538,0.926154503 44.4965756,1.78211692 44.4965756,2.8367849 L44.4965756,43.126885 C44.4965756,43.6121851 44.6812698,44.0783789 45.0124458,44.4324824 L50.8385947,50.65859 L44.7513263,61.2205549 C44.3666527,61.886728 44.4201504,62.7197629 44.8863442,63.3311646 L57.6238802,80.0682869 C57.9741624,80.5293857 58.5129602,80.807064 59.0886968,80.822349 L62.7545597,80.9293443 Z M75.0360919,52.7488197 C74.5915519,53.0583418 74.301136,53.5423682 74.2336271,54.0786184 C74.1661182,54.6161425 74.3291586,55.156214 74.6845359,55.5650889 L80.463556,62.2522953 L69.2163117,77.0303846 L66.5758205,77.1080835 L66.5758205,75.761726 L66.5758205,-15.4288417 L81.01127,3.48512548 L81.01127,48.5823717 L75.0360919,52.7488197 Z M54.5961679,49.0829568 L48.3178364,42.3740966 L48.3178364,4.74996281 L55.9208716,4.74996281 C56.5577484,4.74996281 57.1538651,4.43152441 57.5079686,3.90291666 C57.8620721,3.37303517 57.929581,2.70176702 57.6875678,2.1120191 L54.1860192,-6.39283368 L62.7558334,-16.0491597 L62.7558334,45.4056302 L56.7131463,40.6914681 C55.8788377,40.0418538 54.6789618,40.190883 54.031895,41.0226441 C53.3822807,41.8544052 53.5300361,43.0555548 54.363071,43.7038954 L62.7571072,50.2522626 L62.7571072,65.3844554 L56.7144201,60.6715671 C55.8801115,60.0219527 54.6802356,60.1709819 54.0331688,61.002743 C53.3835544,61.8345041 53.5313099,63.0356538 54.3643447,63.6839943 L62.7583809,70.2310878 L62.7583809,75.7629997 L62.7583809,77.1093573 L60.116616,77.0316583 L48.7012362,62.0319359 L54.8572873,51.3425957 C55.2763523,50.6140087 55.1706307,49.6969061 54.5961679,49.0829568 Z"
+                    sketch:type="MSShapeGroup"
+                    transform="translate(64.664190, 35.168341) rotate(90.000000) translate(-64.664190, -35.168341) ">
+                  </path>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <span>22 kB</span>
+          <div class="title">Lightweight</div>
+        </div>
+        <div class="four columns">
+          <div class="icon">
+            <svg width="64" height="69" xmlns="http://www.w3.org/2000/svg">
+              <g>
+                <title>Open Source</title>
+                <path fill="#FFFFFFCC" stroke-width="1" stroke="#FFFFFFCC" id="svg_3"
+                  d="m44.402418,54.303474c-0.099087,0 -0.198173,-0.013212 -0.295058,-0.039635c-0.281846,-0.079269 -0.519654,-0.266433 -0.664981,-0.519654l-8.136105,-14.398373c-0.299461,-0.528461 -0.112298,-1.200048 0.413961,-1.499509c2.428721,-1.376202 3.934836,-3.934836 3.934836,-6.67623c0,-4.249711 -3.457019,-7.70673 -7.70673,-7.70673s-7.70673,3.457019 -7.70673,7.70673c0,2.741394 1.508317,5.300028 3.934836,6.67623c0.52626,0.299461 0.713423,0.971048 0.413961,1.499509l-8.133903,14.398373c-0.143125,0.253221 -0.383135,0.440385 -0.664981,0.519654c-0.281846,0.077067 -0.58351,0.039635 -0.836731,-0.10349c-8.281432,-4.692297 -13.427325,-13.502191 -13.427325,-22.990276c0,-14.570123 11.85295,-26.423073 26.423073,-26.423073s26.423073,11.85295 26.423073,26.423073c0,9.490287 -5.145894,18.30018 -13.429527,22.990276c-0.165144,0.094683 -0.352308,0.143125 -0.541673,0.143125zm-6.667422,-15.136017l7.072576,12.513527c7.037345,-4.421461 11.364123,-12.181037 11.364123,-20.510911c0,-13.354662 -10.866489,-24.221151 -24.221151,-24.221151s-24.221151,10.866489 -24.221151,24.221151c0,8.329874 4.326778,16.08945 11.364123,20.510911l7.072576,-12.513527c-2.567442,-1.856221 -4.124201,-4.828817 -4.124201,-7.997384c0,-5.46297 4.445682,-9.908653 9.908653,-9.908653s9.908653,4.445682 9.908653,9.908653c0,3.168567 -1.556759,6.141163 -4.124201,7.997384z" />
+              </g>
+            </svg>
+          </div>
+          <span>GPLv3</span>
+          <div class="title">Open Source</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="o-container">
+    <div style="padding-top: 100px;" class="container">
+      <div id="description" class="row">
+        <h5 id="about" class="row">ccNetViz</h5>
+        <article class="row">
+          <p>ccNetViz is a lightweight, high
+            performance javascript library for large network graphs (see <a
+              href="https://en.wikipedia.org/wiki/Graph_theory" rel="nofollow">graph theory</a>) visualization using
+            WebGL.
+            It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network,
+            force-directed layout and basic graph interactivity.
+            Used for example by <a href="http://cellcollective.org" rel="nofollow">Cell Collective</a> project.
+            ccNetViz is open source library available
+            under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+  <div class="o-container">
+    <div class="container">
+      <div id="usage" class="row">
+        <h5 class="row">Basic Example</h5>
+        <article class="usage-description">
+          <script src="https://gist.github.com/canerakdas/fff1af5b24b9dc62829e36807d0ccbe8.js"></script>
+          <h6>In-built support for the multiple layouts</h6>
+          <div id="layout-information">
+            Recommended layout is <b>Force</b> based.<br>
+            Inbuilt support for multiple layouts such as the <b> Force</b>, <b>Hierarchical</b>, <b>Circular</b>,
+            <b>Spectral</b>, <b>Hive</b>, <b>Grid</b>,<b>Versinus</b>.<br>
+            Inbuilt support for two modifications of <b>Tree</b> layout.
+            <ul>
+              <li>Graph layouts</li>
+              <li>Tree-specific layouts</li>
+            </ul>
+            <p>If you want to use one of our in-built layout ( see the <a
+                href="https://github.com/HelikarLab/ccNetViz/tree/master/src/layout">https://github.com/HelikarLab/ccNetViz/tree/master/src/layout</a>
+              for list of all available ones ),
+              pass it as second parameter into the set function such as:</p>
+            <script src="https://gist.github.com/canerakdas/2ea1a305da82dc1182f859ab79c4d4d4.js"></script>
+          </div>
+        </article>
+      </div>
+      <div id="demos" class="row">
+        <h5 class="row">Advanced Examples</h5>
+        <div id="demos-container">
+          <div class="row">
+            <div class="demo columns four">
+              <a href="/examples/styles.html">
+                <div class="image-container">
+                  <img src="./static/img/styles.png" alt="Advanced styling" />
+                </div>
+                <span>Advanced styling<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/styles.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/complex.html">
+                <div class="image-container">
+                  <img src="./static/img/complex.png" alt="Complex graphs" />
+                </div>
+                <span>Complex graphs<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/complex.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/interactivity_hover.html">
+                <div class="image-container">
+                  <img src="./static/img/hover.png" alt="Mouse event on hover" />
+                </div>
+                <span>Mouse event on hover<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/interactivity_hover.html">GitHub</a></span>
+              </a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="demo columns four">
+              <a href="/examples/interactivity_move.html">
+                <div class="image-container">
+                  <img src="./static/img/move.png" alt="Mouse events on move" />
+                </div>
+                <span>Mouse events on move<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/interactivity_move.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/multi_level.html">
+                <div class="image-container">
+                  <img src="./static/img/multi.png" alt="Multi level" />
+                </div>
+                <span>Multi level<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/multi_level.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/save_graph.html">
+                <div class="image-container">
+                  <img src="./static/img/save.png" alt="Save graphs" />
+                </div>
+                <span>Save graphs<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/save_graph.html">GitHub</a></span>
+              </a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="demo columns four">
+              <a href="/examples/sdf.html">
+                <div class="image-container">
+                  <img src="./static/img/sdf.png" alt="Using SDF fonts" />
+                </div>
+                <span>Using SDF fonts<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/sdf.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/userdef_layout.html">
+                <div class="image-container">
+                  <img src="./static/img/layout.png" alt="User definied layout" />
+                </div>
+                <span>User definied layout<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/userdef_layout.html">GitHub</a></span>
+              </a>
+            </div>
+            <div class="demo columns four">
+              <a href="/examples/edges_to_edges.html">
+                <div class="image-container">
+                  <img src="./static/img/edges.png" alt="Edges-to-edges support" />
+                </div>
+                <span>Edges-to-edges support<a class="github"
+                    href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/edges_to_edges.html">GitHub</a></span>
+              </a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="demo columns four add-new-demo">
+              <a href="https://github.com/HelikarLab/ccNetViz" target="_blank">
+                <div class="image-container">
+                  <img src="./static/img/graph.png" alt="Using SDF fonts">
+                </div>
+                <div class="add-new-demo-title">Do you want to share your idea?<br /> Send pull
+                  request on <b>GitHub</b></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" id="doc">
+        <h5 class="row">Documentation</h5>
+        <h6>ccNetViz(element, options)</h6>
+        <article>
+          Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles
+          defined in styles property of options parameter.
+        </article>
+        <h6>Options</h6>
+        <div class="documentation">
+          <table>
+            <tbody>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Values</th>
+              <tr>
+                <td>styles</td>
+                <td>Object</td>
+                <td>Contains all of edge and node styles.</td>
+                <td><a href="#node">Node</a>, <a href="#edge">Edge</a> Styles </td>
+              </tr>
+              <tr>
+                <td>onChangeViewport</td>
+                <td>Function</td>
+                <td>Called every time viewport changes.</td>
+                <td>viewport</td>
+              </tr>
+              <tr>
+                <td>onLoad</td>
+                <td>Function</td>
+                <td>Called when graph loaded</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>getNodesCount</td>
+                <td>Function</td>
+                <td>Callback to use if you want to force nodes count into this library (used to calculate curve
+                  excentricity and other built in options), expecting number as return value</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>getEdgesCount</td>
+                <td>Function</td>
+                <td>Callback to use if you want to force edges count into this library (used to calculate curve
+                  excentricity and other built in options), expecting number as return value</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>onDrag</td>
+                <td>Function</td>
+                <td>Drag event, disable original event in case of return false</td>
+                <td>viewport</td>
+              </tr>
+              <tr>
+                <td>onZoom</td>
+                <td>Function</td>
+                <td>Zoom event, disable original event in case of return false</td>
+                <td>viewport</td>
+              </tr>
+              <tr>
+                <td>onClick</td>
+                <td>Function</td>
+                <td>Called on click on graph</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>onDblClick</td>
+                <td>Function</td>
+                <td>Called on double click on graph</td>
+              </tr>
+              <tr>
+                <td>passiveEvts</td>
+                <td>Boolean</td>
+                <td>Make mouse events passive for performance reasons ( default false )</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h6>Edge and Node styles</h6>
+        <article>
+          There are three predefined styles:
+          <ul>
+            <li><b>node</b> Default style used for all nodes</li>
+            <li><b>edge</b> Default style used for all edges</li>
+            <li><b>background</b> Default style used for canvas background</li>
+          </ul>
+          Besides overriding default styles (used for all nodes/edges) it is possible to define custom styles and then
+          use this style just for specified subsets of nodes/edges. Property values specified for given custom style
+          override default style values.
+          <br>
+          <br>
+          When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from
+          <a href="http://helikarlab.github.io/ccNetViz/fonts" rel="nofollow">our github io page</a> or generate your
+          own with
+          <a href="https://github.com/mapbox/node-fontnik">node-fontnik</a>.
+        </article>
+        <h6 id="node">Node</h6>
+        <div class="documentation">
+          <table>
+            <tbody>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Default</th>
+              <tr>
+                <td>minSize</td>
+                <td>Integer</td>
+                <td>Minimum size of node representation in pixels</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>maxSize</td>
+                <td>Integer</td>
+                <td>Maximum size of node representation in pixels</td>
+                <td>16</td>
+              </tr>
+              <tr>
+                <td>color</td>
+                <td>String</td>
+                <td>Node color (combined with node image)</td>
+                <td>rgb(255, 255, 255)</td>
+              </tr>
+              <tr>
+                <td>texture</td>
+                <td>String</td>
+                <td>Node image</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><a href="#label">label</a></td>
+                <td>Object</td>
+                <td>Node label</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h6 id="label">Node label</h6>
+        <div class="documentation">
+          <table>
+            <tbody>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Default</th>
+              <tr>
+                <td>hideSize</td>
+                <td>Integer</td>
+                <td>Minimum size (height) for the label to be displayed.</td>
+                <td>16</td>
+              </tr>
+              <tr>
+                <td>color</td>
+                <td>String</td>
+                <td>Label color.</td>
+                <td>rgb(120, 120, 120)</td>
+              </tr>
+              <tr>
+                <td>font</td>
+                <td>Object</td>
+                <td>Label font.</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h6 id="edge">Edge</h6>
+        <div class="documentation">
+          <table>
+            <tbody>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Default</th>
+              <tr>
+                <td>width</td>
+                <td>Integer</td>
+                <td>Edge width in pixels.</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>color</td>
+                <td>String</td>
+                <td>Edge color.</td>
+                <td>rgb(204, 204, 204)</td>
+              </tr>
+              <tr>
+                <td>type</td>
+                <td>String</td>
+                <td>Type of edge (Supported types - "line", "dashed", "dotted", "chain-dotted").</td>
+                <td>line</td>
+              </tr>
+              <tr>
+                <td><a href="#arrow">arrow</a></td>
+                <td>Object</td>
+                <td>Edge arrow style</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h6 id="arrow">Edge Arrow</h6>
+        <div class="documentation">
+          <table>
+            <tbody>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Default</th>
+              <tr>
+                <td>minSize</td>
+                <td>Integer</td>
+                <td>Minimum size of arrow in pixels.</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>maxSize</td>
+                <td>Integer</td>
+                <td>Maximum size of arrow.</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>aspect</td>
+                <td>Integer</td>
+                <td>Aspect of arrow image.</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>texture</td>
+                <td>String</td>
+                <td>Arrow image.</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>hideSize</td>
+                <td>Integer</td>
+                <td>Minimum size of arrow to be displayed</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h6>Set <span class="usage-container">set(nodes, edges, layout)</span> </h6>
+        <article>
+          Sets the data to be displayed by given ccNetViz instance.
+          <br>
+          <br>
+          "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Requirement</th>
+                <tr>
+                  <td>label</td>
+                  <td>Text label for given node (displayed if node labels are enabled by node label style)</td>
+                  <td>Optional</td>
+                </tr>
+                <tr>
+                  <td>x,y</td>
+                  <td>Predefined position for given node (if "layout" argument is not specified
+                    these positions will be used for graph layout)</td>
+                  <td>Optional</td>
+                </tr>
+                <tr>
+                  <td>color</td>
+                  <td>ccNetViz.color object defining color for this given node (use this in case of coloring each node
+                    separately, for coloring groups of nodes use color property of node style)
+                  </td>
+                  <td>Optional</td>
+                </tr>
+                <tr>
+                  <td>style</td>
+                  <td>Name of custom style class used for this node (for example: "nodeBlue" see
+                    above section for how to define custom styles)</td>
+                  <td>Optional</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          "edges" argument is an array of objects describing directed graph edges. Each edge has following properties:
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Requirement</th>
+                <tr>
+                  <td>source</td>
+                  <td>Pointer to given source node object.</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>target</td>
+                  <td>Pointer to given target node object.</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>style</td>
+                  <td>Name of custom style class used for this edge</td>
+                  <td>Optional</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random",
+          "circular", "tree". If not specified, positions are taken from each node x, y properties.
+        </article>
+        <h6>Find <span class="usage-container">find(x, y, radius, nodes, edges)</span> </h6>
+        <article>Find the nodes and edges within the specified radius.</article>
+        <h6>Find Area<span class="usage-container">findArea(x1, y1, x2, y2, nodes, edges)</span> </h6>
+        <article>Find the nodes and edges within the specified area.</article>
+        <h6>Draw<span class="usage-container">draw()</span> </h6>
+        <article>Renders current data.</article>
+        <h6>Resize<span class="usage-container">resize()</span> </h6>
+        <article>Adjust graph for current canvas size.</article>
+        <h6>Reset View<span class="usage-container">resetView()</span> </h6>
+        <article>Reset zoom and panning.</article>
+        <h6>Set Viewport<span class="usage-container">setViewport(viewport)</span> </h6>
+        <article>
+          Set graph viewport.
+          <br>
+          <br>
+          "viewport" argument is an object with keys to modify (all of keys are optional)
+          <script src="https://gist.github.com/canerakdas/e8ba2538373e14d357c16036d9eee280.js"></script>
+        </article>
+        <h6>Shown node count<span class="usage-container">cntShownNodes()</span> </h6>
+        <article>Get number of nodes.</article>
+        <h6>Shown edge count<span class="usage-container">cntShownEdges()</span> </h6>
+        <article>Get number of edges.</article>
+        <h6>Remove<span class="usage-container">remove()</span> </h6>
+        <article>Clear graph and remove internal events from DOM.</article>
+        <h6>Nodes<span class="usage-container">nodes()</span> </h6>
+        <article>Property to access nodes data of given graph. Use this just to read current values, for modification
+          use "set" method instead.</article>
+        <h6>Edges<span class="usage-container">edges()</span> </h6>
+        <article>Property to access edges data of given graph. Use this just to read current values, for modification
+          use "set" method instead.</article>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      preserveAspectRatio="xMidYMid meet" viewBox="0 0 250 60" width="250" height="60">
+      <defs>
+        <path
+          d="M135.38 48.82C128.37 49.96 123.19 49.28 119.86 46.79C116.53 44.3 115.04 39.99 115.39 33.86C116.74 25.33 120.48 21.07 126.58 21.07C132.69 21.07 135.62 25.33 135.38 33.86"
+          id="a8HqHVboP"></path>
+        <path d="M135.39 33.75L115.34 33.75" id="jlus8Br7r"></path>
+        <path d="M161.26 23.08L144.73 23.08" id="ckAf2eThh"></path>
+        <path d="M161.26 48.72C156.15 49.98 153.1 49.38 152.1 46.93C151.1 44.49 150.57 32.25 150.5 10.24"
+          id="brohwpAvu"></path>
+        <path d="M196.71 10.24L180.88 49.25L166.61 10.24" id="d16HNPdm9R"></path>
+        <path d="M207.38 48.03L207.38 20.11" id="a2ZRlBOLn2"></path>
+        <path d="M241.78 48.65L219.77 48.65L240.23 20.05L220.74 20.05" id="c5nxF2d9f"></path>
+        <path d="" id="a1ZkLRp0vv"></path>
+        <path d="M100.67 10.24L100.67 49.36L72.21 10.24L72.21 48.72" id="a3vxmBpPfv"></path>
+        <path
+          d="M103.64 10.24C103.64 11.88 102.31 13.21 100.67 13.21C99.03 13.21 97.7 11.88 97.7 10.24C97.7 8.59 99.03 7.26 100.67 7.26C102.31 7.26 103.64 8.59 103.64 10.24Z"
+          id="d15UTlFQ4y"></path>
+        <path d="" id="blxwKiHUF"></path>
+        <path d="M55.46 48.72C43.69 51.22 37.91 46.78 38.13 35.4C38.35 24.01 44.13 19.79 55.46 22.74" id="esKQGHT1u">
+        </path>
+        <path d="M26.84 48.72C15.06 51.22 9.28 46.78 9.51 35.4C9.73 24.01 15.51 19.79 26.84 22.74" id="a1n6GI3R0e">
+        </path>
+        <path d="" id="c3jSsKqikh"></path>
+        <path d="" id="b3Kmv6bU9Y"></path>
+        <path d="" id="b1fra2RdDV"></path>
+        <path
+          d="M153.48 10.24C153.48 11.88 152.15 13.21 150.5 13.21C148.86 13.21 147.53 11.88 147.53 10.24C147.53 8.59 148.86 7.26 150.5 7.26C152.15 7.26 153.48 8.59 153.48 10.24Z"
+          id="b4KjaCDYVd"></path>
+        <path
+          d="M138.35 48.72C138.35 50.36 137.02 51.69 135.38 51.69C133.74 51.69 132.41 50.36 132.41 48.72C132.41 47.08 133.74 45.74 135.38 45.74C137.02 45.74 138.35 47.08 138.35 48.72Z"
+          id="a37L89y9De"></path>
+        <path
+          d="M118.36 34.35C118.36 35.99 117.03 37.32 115.39 37.32C113.75 37.32 112.41 35.99 112.41 34.35C112.41 32.71 113.75 31.38 115.39 31.38C117.03 31.38 118.36 32.71 118.36 34.35Z"
+          id="dMRbX40bE"></path>
+        <path
+          d="M75.19 10.24C75.19 11.88 73.86 13.21 72.21 13.21C70.57 13.21 69.24 11.88 69.24 10.24C69.24 8.59 70.57 7.26 72.21 7.26C73.86 7.26 75.19 8.59 75.19 10.24Z"
+          id="g1kiTFKdTZ"></path>
+        <path
+          d="M183.86 48.72C183.86 50.36 182.53 51.69 180.88 51.69C179.24 51.69 177.91 50.36 177.91 48.72C177.91 47.08 179.24 45.74 180.88 45.74C182.53 45.74 183.86 47.08 183.86 48.72Z"
+          id="d1YMMws4A2"></path>
+        <path
+          d="M169.59 10.24C169.59 11.88 168.26 13.21 166.61 13.21C164.97 13.21 163.64 11.88 163.64 10.24C163.64 8.59 164.97 7.26 166.61 7.26C168.26 7.26 169.59 8.59 169.59 10.24Z"
+          id="c4vJ3yxE8L"></path>
+        <path
+          d="M199.68 10.24C199.68 11.88 198.35 13.21 196.71 13.21C195.07 13.21 193.73 11.88 193.73 10.24C193.73 8.59 195.07 7.26 196.71 7.26C198.35 7.26 199.68 8.59 199.68 10.24Z"
+          id="e1NF6kQVpn"></path>
+        <path
+          d="M210.35 48.72C210.35 50.36 209.02 51.69 207.38 51.69C205.74 51.69 204.4 50.36 204.4 48.72C204.4 47.08 205.74 45.74 207.38 45.74C209.02 45.74 210.35 47.08 210.35 48.72Z"
+          id="a2fa50HsQG"></path>
+        <path
+          d="M210.35 20.11C210.35 21.75 209.02 23.08 207.38 23.08C205.74 23.08 204.4 21.75 204.4 20.11C204.4 18.47 205.74 17.14 207.38 17.14C209.02 17.14 210.35 18.47 210.35 20.11Z"
+          id="eHoTEsJ2"></path>
+        <path
+          d="M210.35 10.24C210.35 11.88 209.02 13.21 207.38 13.21C205.74 13.21 204.4 11.88 204.4 10.24C204.4 8.59 205.74 7.26 207.38 7.26C209.02 7.26 210.35 8.59 210.35 10.24Z"
+          id="c3C82nnY4F"></path>
+        <path
+          d="M222.74 20.11C222.74 21.75 221.41 23.08 219.77 23.08C218.12 23.08 216.79 21.75 216.79 20.11C216.79 18.47 218.12 17.14 219.77 17.14C221.41 17.14 222.74 18.47 222.74 20.11Z"
+          id="b104ERZalV"></path>
+        <path
+          d="M242.23 20.11C242.23 21.75 240.89 23.08 239.25 23.08C237.61 23.08 236.28 21.75 236.28 20.11C236.28 18.47 237.61 17.14 239.25 17.14C240.89 17.14 242.23 18.47 242.23 20.11Z"
+          id="aeHctuW1m"></path>
+        <path
+          d="M242.23 48.72C242.23 50.36 240.89 51.69 239.25 51.69C237.61 51.69 236.28 50.36 236.28 48.72C236.28 47.08 237.61 45.74 239.25 45.74C240.89 45.74 242.23 47.08 242.23 48.72Z"
+          id="b2JgB3rWzS"></path>
+        <path
+          d="M222.74 48.72C222.74 50.36 221.41 51.69 219.77 51.69C218.12 51.69 216.79 50.36 216.79 48.72C216.79 47.08 218.12 45.74 219.77 45.74C221.41 45.74 222.74 47.08 222.74 48.72Z"
+          id="c1beDqhJtZ"></path>
+        <path
+          d="M75.19 48.72C75.19 50.36 73.86 51.69 72.21 51.69C70.57 51.69 69.24 50.36 69.24 48.72C69.24 47.08 70.57 45.74 72.21 45.74C73.86 45.74 75.19 47.08 75.19 48.72Z"
+          id="cagmGnIWy"></path>
+        <path
+          d="M103.64 48.72C103.64 50.36 102.31 51.69 100.67 51.69C99.03 51.69 97.7 50.36 97.7 48.72C97.7 47.08 99.03 45.74 100.67 45.74C102.31 45.74 103.64 47.08 103.64 48.72Z"
+          id="b448WLQvXm"></path>
+        <path
+          d="M138.35 33.72C138.35 35.36 137.02 36.69 135.38 36.69C133.74 36.69 132.41 35.36 132.41 33.72C132.41 32.08 133.74 30.74 135.38 30.74C137.02 30.74 138.35 32.08 138.35 33.72Z"
+          id="f1yvAtOTHc"></path>
+        <path
+          d="M163.6 48.72C163.6 50.36 162.27 51.69 160.63 51.69C158.99 51.69 157.66 50.36 157.66 48.72C157.66 47.08 158.99 45.74 160.63 45.74C162.27 45.74 163.6 47.08 163.6 48.72Z"
+          id="a1bWiLdp2W"></path>
+        <path
+          d="M163.64 23.08C163.64 24.73 162.31 26.06 160.67 26.06C159.02 26.06 157.69 24.73 157.69 23.08C157.69 21.44 159.02 20.11 160.67 20.11C162.31 20.11 163.64 21.44 163.64 23.08Z"
+          id="cvNFUxp3n"></path>
+        <path
+          d="M145.53 23.08C145.53 24.73 144.2 26.06 142.56 26.06C140.91 26.06 139.58 24.73 139.58 23.08C139.58 21.44 140.91 20.11 142.56 20.11C144.2 20.11 145.53 21.44 145.53 23.08Z"
+          id="c1MvML7NaL"></path>
+        <path
+          d="M29.81 22.74C29.81 24.38 28.48 25.71 26.84 25.71C25.2 25.71 23.86 24.38 23.86 22.74C23.86 21.09 25.2 19.76 26.84 19.76C28.48 19.76 29.81 21.09 29.81 22.74Z"
+          id="fE6PiOeHx"></path>
+        <path
+          d="M29.81 48.72C29.81 50.36 28.48 51.69 26.84 51.69C25.2 51.69 23.86 50.36 23.86 48.72C23.86 47.08 25.2 45.74 26.84 45.74C28.48 45.74 29.81 47.08 29.81 48.72Z"
+          id="d2yLbIg6VY"></path>
+        <path
+          d="M58.44 22.74C58.44 24.38 57.11 25.71 55.46 25.71C53.82 25.71 52.49 24.38 52.49 22.74C52.49 21.09 53.82 19.76 55.46 19.76C57.11 19.76 58.44 21.09 58.44 22.74Z"
+          id="c8S73biJj"></path>
+        <path
+          d="M58.44 48.72C58.44 50.36 57.11 51.69 55.46 51.69C53.82 51.69 52.49 50.36 52.49 48.72C52.49 47.08 53.82 45.74 55.46 45.74C57.11 45.74 58.44 47.08 58.44 48.72Z"
+          id="a11ivwZwNO"></path>
+      </defs>
+      <g>
+        <g>
+          <g>
+            <g>
+              <use xlink:href="#a8HqHVboP" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#jlus8Br7r" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#ckAf2eThh" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#brohwpAvu" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#d16HNPdm9R" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#a2ZRlBOLn2" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#c5nxF2d9f" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#a1ZkLRp0vv" opacity="1" fill-opacity="0" stroke="#6e3f3f" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#a3vxmBpPfv" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <use xlink:href="#d15UTlFQ4y" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#blxwKiHUF" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#esKQGHT1u" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#a1n6GI3R0e" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#c3jSsKqikh" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="2"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#b3Kmv6bU9Y" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use xlink:href="#b1fra2RdDV" opacity="1" fill-opacity="0" stroke="#000000" stroke-width="1"
+                stroke-opacity="1"></use>
+            </g>
+          </g>
+          <g>
+            <use xlink:href="#b4KjaCDYVd" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#a37L89y9De" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#dMRbX40bE" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#g1kiTFKdTZ" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#d1YMMws4A2" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#c4vJ3yxE8L" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#e1NF6kQVpn" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#a2fa50HsQG" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#eHoTEsJ2" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#c3C82nnY4F" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#b104ERZalV" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#aeHctuW1m" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#b2JgB3rWzS" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#c1beDqhJtZ" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#cagmGnIWy" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#b448WLQvXm" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#f1yvAtOTHc" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#a1bWiLdp2W" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#cvNFUxp3n" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#c1MvML7NaL" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#fE6PiOeHx" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#d2yLbIg6VY" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#c8S73biJj" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+          <g>
+            <use xlink:href="#a11ivwZwNO" opacity="1" fill="#2452ce" fill-opacity="1"></use>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
 </body>
+
 </html>
