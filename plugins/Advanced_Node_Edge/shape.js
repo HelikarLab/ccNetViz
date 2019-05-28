@@ -2,12 +2,14 @@ class Shape {
   constructor(canvas, config) {
     this.canvas = canvas;
     this.config = config;
+
+    // Default config
     this.default = {
       stroke: {
         color: "#333333",
         size: 0,
       },
-      color: "#cf0101",
+      color: "#999999",
       size: 16
     };
 
@@ -21,6 +23,7 @@ class Shape {
     });
   }
 
+  // Before the drawing; when the config is existed override the default config.
   _preConf() {
     if (typeof this.config !== "undefined") {
       if (typeof this.config.stroke !== "undefined") {
@@ -38,6 +41,7 @@ class Shape {
     this.canvas.height = 0;
   }
 
+  // Setting up the canvas width, height. Also, creating canvas context and colors.
   _setCanvas() {
     this.config.cursor = {
       x0: this.canvas.width,
@@ -55,8 +59,12 @@ class Shape {
   }
 
   _draw() {
+    this.context.closePath();
+    this.context.stroke();
+    this.context.fill();
   }
 
+  // Canvas transform into the 0-1 range
   t(size) {
     return (this.config.stroke.size) + (this.config.size * size);
   }
@@ -69,8 +77,7 @@ class Circle extends Shape {
       (this.config.size / 2) + this.config.stroke.size,
       (this.config.size / 2) + this.config.stroke.size,
       this.config.size / 2, 0, 2 * Math.PI);
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -82,9 +89,7 @@ class Ellipse extends Shape {
       (this.config.size / 2) + this.config.stroke.size,
       this.config.size / 2,
       this.config.size / 4, Math.PI / 4, 0, 2 * Math.PI);
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -95,9 +100,7 @@ class Triangle extends Shape {
     this.context.lineTo(this.t(1), this.t(1));
     this.context.lineTo(this.t(0), this.t(1));
     this.context.lineTo(this.t(0.5), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -109,9 +112,7 @@ class Rectangle extends Shape {
     this.context.lineTo(this.t(1), this.t(1));
     this.context.lineTo(this.t(1), this.t(0));
     this.context.lineTo(this.t(0), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -123,9 +124,7 @@ class Rhombus extends Shape {
     this.context.lineTo(this.t(0.5), this.t(1));
     this.context.lineTo(this.t(0), this.t(0.5));
     this.context.lineTo(this.t(0.5), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -138,9 +137,7 @@ class Pentagon extends Shape {
     this.context.lineTo(this.t(0.2), this.t(1));
     this.context.lineTo(this.t(0), this.t(0.4));
     this.context.lineTo(this.t(0.5), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -154,9 +151,7 @@ class Hexagon extends Shape {
     this.context.lineTo(this.t(0.25), this.t(1));
     this.context.lineTo(this.t(0), this.t(0.5));
     this.context.lineTo(this.t(0.25), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -171,9 +166,7 @@ class Heptagon extends Shape {
     this.context.lineTo(this.t(0), this.t(0.7));
     this.context.lineTo(this.t(0.1), this.t(0.2));
     this.context.lineTo(this.t(0.5), this.t(0));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 
@@ -185,9 +178,7 @@ class Star extends Shape {
     this.context.lineTo(this.t(0), this.t(0.4));
     this.context.lineTo(this.t(1), this.t(0.4));
     this.context.lineTo(this.t(0.2), this.t(1));
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
+    super._draw();
   }
 }
 

@@ -108,7 +108,7 @@ export default class Plugin {
           break;
       }
     }
-    return this.temp
+    return { styles: this.temp }
   }
 }
 
