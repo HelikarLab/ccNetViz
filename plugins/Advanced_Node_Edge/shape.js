@@ -14,11 +14,10 @@ class Shape {
     this._preConf();
     this._setCanvas();
     this._draw();
-    this._toBlob(this.canvas).then(blob => {
-      this.config.blob = URL.createObjectURL(blob);
-      console.log(this.config.blob)
-    }).catch(err => {
-      console.log(err);
+    this.toBlob = new Promise((resolve, reject) => {
+      this.canvas.toBlob(blob => {
+        setTimeout(() => resolve(blob), 1000)
+      }, 'image/png');
     });
   }
 
@@ -56,15 +55,6 @@ class Shape {
   }
 
   _draw() {
-  }
-
-  _toBlob(canvas) {
-    const mimeType = 'image/png';
-    return new Promise(function (resolve, reject) {
-      canvas.toBlob(function (blob) {
-        resolve(blob);
-      }, mimeType)
-    });
   }
 
   t(size) {
@@ -176,14 +166,11 @@ class Heptagon extends Shape {
     this.context.moveTo(this.t(0.5), this.t(0));
     this.context.lineTo(this.t(0.9), this.t(0.2));
     this.context.lineTo(this.t(1), this.t(0.7));
-
     this.context.lineTo(this.t(0.7), this.t(1));
     this.context.lineTo(this.t(0.3), this.t(1));
-
     this.context.lineTo(this.t(0), this.t(0.7));
     this.context.lineTo(this.t(0.1), this.t(0.2));
     this.context.lineTo(this.t(0.5), this.t(0));
-
     this.context.closePath();
     this.context.stroke();
     this.context.fill();
