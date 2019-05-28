@@ -16,7 +16,7 @@ class Shape {
     this._draw();
     this.toBlob = new Promise((resolve, reject) => {
       this.canvas.toBlob(blob => {
-        setTimeout(() => resolve(blob), 1000)
+        resolve(blob)
       }, 'image/png');
     });
   }
