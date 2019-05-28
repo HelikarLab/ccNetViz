@@ -148,7 +148,7 @@ export default class {
     // if you want to show more alphabets , just increase "t" in sdf.html and 
     // change ctx.putImageData(imgData, 10, 20); to something variable
 
-    // if(t) {
+    // if(t && document.getElementById("test-canvas")) {
     //   const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
     //   const testCanvas = document.getElementById("test-canvas");
     //   const ctx = testCanvas.getContext("2d");
@@ -160,7 +160,7 @@ export default class {
     
     // After uncommenting the lines above , comment the "if" code below, this might help in debugging 
 
-    if(t) {
+    if(t && document.getElementById("test-canvas")) {
 
       const testCanvas = document.getElementById("test-canvas");
       testCanvas.width = 0;
