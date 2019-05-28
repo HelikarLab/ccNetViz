@@ -11,6 +11,7 @@
     "google-closure-compiler": "^20180716.0.1",
     "http-server": "^0.11.1",
     "jshint": "^2.9.5",
+    "npm-watch": "^0.6.0",
     "path": "^0.12.7",
     "webpack": "^4.16.2"
   },
@@ -63,12 +64,16 @@
       "email": "renato.fabbri@gmail.com"
     }
   ],
+  "watch": {
+    "dev": "./src"
+  },
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "./node_modules/.bin/http-server ./ localhost -p 3000",
     "build": "webpack --mode production && node build.js",
     "dev": "webpack --mode development && node build.js",
     "webpack-help": "webpack --help",
+    "watch": "npm-watch",
     "compiled": "node build.js compile"
   }
 }
