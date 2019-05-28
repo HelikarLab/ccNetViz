@@ -1,7 +1,9 @@
-ccNetViz [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[ccNetViz](http://helikarlab.github.io/ccNetViz/) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ====================================
 
 Graph theory (a.k.a. network) library for analysis and visualisation
+
+Visit our [webpage](http://helikarlab.github.io/ccNetViz/) to see the detailed docs and examples.
 
 **Description**
 
