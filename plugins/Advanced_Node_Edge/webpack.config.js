@@ -15,9 +15,14 @@ module.exports = {
         exclude: /node_modules|bower_components/,
         loader: 'babel-loader',
         query: {
-          presets: ['@babel/preset-env']
+          presets: ["@babel/preset-env",
+            {
+              plugins: [
+                '@babel/plugin-transform-runtime'
+              ]
+            }]
         },
       }
-    ]
-  }
+    ],
+  },
 };
