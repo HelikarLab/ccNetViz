@@ -10,105 +10,59 @@ export default class Plugin {
 
   set(config) {
     this.config = config;
-    this.temp = {};
+    let temp = {};
+    let promises = [];
     for (let key in this.config) {
       switch (Object.keys(this.config[key])[0]) {
         case "circle":
           let circle = new Circle(this.canvas, this.config[key].circle);
-
-          async function circleBlob(temp) {
-            let blob = await circle.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          circleBlob(this.temp);
+          promises.push({ name: key, promise: circle.toBlob, config: this.config[key].circle });
           break;
         case "ellipse":
           let ellipse = new Ellipse(this.canvas, this.config[key].ellipse);
-
-          async function ellipseBlob(temp) {
-            let blob = await ellipse.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          ellipseBlob(this.temp);
+          promises.push({ name: key, promise: ellipse.toBlob, config: this.config[key].ellipse });
           break;
         case "triangle":
           let triangle = new Triangle(this.canvas, this.config[key].triangle);
-
-          async function triangleBlob(temp) {
-            let blob = await triangle.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          triangleBlob(this.temp);
+          promises.push({ name: key, promise: triangle.toBlob, config: this.config[key].triangle });
           break;
         case "rectangle":
           let rectangle = new Rectangle(this.canvas, this.config[key].rectangle);
-
-          async function rectangleBlob(temp) {
-            let blob = await rectangle.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          rectangleBlob(this.temp);
+          promises.push({ name: key, promise: rectangle.toBlob, config: this.config[key].rectangle });
           break;
         case "rhombus":
           let rhombus = new Rhombus(this.canvas, this.config[key].rhombus);
-
-          async function rhombusBlob(temp) {
-            let blob = await rhombus.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          rhombusBlob(this.temp);
+          promises.push({ name: key, promise: rhombus.toBlob, config: this.config[key].rhombus });
           break;
         case "pentagon":
           let pentagon = new Pentagon(this.canvas, this.config[key].pentagon);
-
-          async function pentagonBlob(temp) {
-            let blob = await pentagon.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          pentagonBlob(this.temp);
+          promises.push({ name: key, promise: pentagon.toBlob, config: this.config[key].pentagon });
           break;
         case "hexagon":
           let hexagon = new Hexagon(this.canvas, this.config[key].hexagon);
-
-          async function hexagonBlob(temp) {
-            let blob = await hexagon.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          hexagonBlob(this.temp);
+          promises.push({ name: key, promise: hexagon.toBlob, config: this.config[key].hexagon });
           break;
         case "heptagon":
           let heptagon = new Heptagon(this.canvas, this.config[key].heptagon);
-
-          async function heptagonBlob(temp) {
-            let blob = await heptagon.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          heptagonBlob(this.temp);
+          promises.push({ name: key, promise: heptagon.toBlob, config: this.config[key].heptagon });
           break;
         case "star":
           let star = new Star(this.canvas, this.config[key].star);
-
-          async function starBlob(temp) {
-            let blob = await star.toBlob;
-            temp[key] = { "texture": URL.createObjectURL(blob) };
-          }
-
-          starBlob(this.temp);
+          promises.push({ name: key, promise: star.toBlob, config: this.config[key].star });
           break;
         default:
           // TODO : Throw error and shapes link
           break;
       }
     }
-    return { styles: this.temp }
+
+    Promise.all(promises.map(item => { return item.promise })).then(blobs => {
+      blobs.map((item, index) => {
+        temp[promises[index].name] = { "texture": URL.createObjectURL(item) };
+      });
+    });
+
+    return { styles: temp };
   }
 }
 
