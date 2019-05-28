@@ -5655,8 +5655,6 @@ var _primitiveTools = __webpack_require__(/*! ./primitiveTools */ "./src/primiti
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-console.log('test watch');
-
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
