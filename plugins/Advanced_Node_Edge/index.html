@@ -8,11 +8,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="dist/advanced.node.edge.js"></script>
   <script src="dist/ccNetViz.js"></script>
-
+  <style>
+    body {
+      white-space: pre;
+      font-family: monospace;
+    }
+  </style>
 </head>
 
 <body>
   <canvas id="ccNetViz"></canvas>
+  <script>
+    var plugin = new AdvancedNodeEdge(ccNetViz);
+    let styles = {
+      "blueTriangle": {
+        triangle: {
+          textureColor: "red",
+          size: 50,
+          minSize: 10
+        },
+        edge: {
+
+        }
+      },
+      "framedHexagon": {
+        "hexagon": {
+          size: 30,
+          stroke: { size: 3, color: "#cf0101" }
+        }
+      },
+      "framedStar": {
+        "star": {
+          size: 30,
+          textureColor: "rgb(10,220,100)",
+          stroke: { size: 2, color: "rgb(0,0,255)" }
+        }
+      },
+      "rhombus_?": {
+        "rhombus": {
+          size: 50,
+          textureColor: "orange",
+          stroke: {
+            size: 5,
+            color: "#cc0033"
+          }
+        }
+      }
+    }
+
+    let config = plugin.createTexture(styles).then(
+      val => {
+        document.body.innerHTML = JSON.stringify(val, null, 2);
+      }
+    );
+  </script>
 </body>
 
 </html>
