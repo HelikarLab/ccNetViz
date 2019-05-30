@@ -5,7 +5,7 @@ module.exports = {
   entry: './main.js',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'plugin.js',
+    filename: 'advanced.node.edge.js',
   },
   mode: 'development',
   module: {

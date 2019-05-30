@@ -1,6 +1,14 @@
-import { Circle, Ellipse, Triangle, Rectangle, Rhombus, Pentagon, Hexagon, Heptagon, Star } from "./shape.js"
+import Circle from "./shapes/node/circle"
+import Ellipse from "./shapes/node/ellipse"
+import Triangle from "./shapes/node/triangle"
+import Rectangle from "./shapes/node/rectangle"
+import Rhombus from "./shapes/node/rhombus"
+import Pentagon from "./shapes/node/pentagon"
+import Hexagon from "./shapes/node/hexagon"
+import Heptagon from "./shapes/node/heptagon"
+import Star from "./shapes/node/star"
 
-export default class Plugin {
+export default class AdvancedNodeEdge {
   constructor() {
     this.canvas = document.createElement('canvas');
     this.canvas.width = 0;
@@ -8,47 +16,50 @@ export default class Plugin {
     this.canvas.style.display = 'none';
   }
 
-  set(config) {
+  createTexture(config) {
     this.config = config;
     let temp = {};
     let promises = [];
+
     for (let key in this.config) {
-      switch (Object.keys(this.config[key])[0]) {
+      let config = this.config[key];
+
+      switch (Object.keys(config)[0]) {
         case "circle":
-          let circle = new Circle(this.canvas, this.config[key].circle);
-          promises.push({ name: key, promise: circle.toBlob, config: this.config[key].circle });
+          let circle = new Circle(this.canvas, config.circle);
+          promises.push({ name: key, promise: circle.toBlob, config: config.circle });
           break;
         case "ellipse":
-          let ellipse = new Ellipse(this.canvas, this.config[key].ellipse);
-          promises.push({ name: key, promise: ellipse.toBlob, config: this.config[key].ellipse });
+          let ellipse = new Ellipse(this.canvas, config.ellipse);
+          promises.push({ name: key, promise: ellipse.toBlob, config: config.ellipse });
           break;
         case "triangle":
-          let triangle = new Triangle(this.canvas, this.config[key].triangle);
-          promises.push({ name: key, promise: triangle.toBlob, config: this.config[key].triangle });
+          let triangle = new Triangle(this.canvas, config.triangle);
+          promises.push({ name: key, promise: triangle.toBlob, config: config.triangle });
           break;
         case "rectangle":
-          let rectangle = new Rectangle(this.canvas, this.config[key].rectangle);
-          promises.push({ name: key, promise: rectangle.toBlob, config: this.config[key].rectangle });
+          let rectangle = new Rectangle(this.canvas, config.rectangle);
+          promises.push({ name: key, promise: rectangle.toBlob, config: config.rectangle });
           break;
         case "rhombus":
-          let rhombus = new Rhombus(this.canvas, this.config[key].rhombus);
-          promises.push({ name: key, promise: rhombus.toBlob, config: this.config[key].rhombus });
+          let rhombus = new Rhombus(this.canvas, config.rhombus);
+          promises.push({ name: key, promise: rhombus.toBlob, config: config.rhombus });
           break;
         case "pentagon":
-          let pentagon = new Pentagon(this.canvas, this.config[key].pentagon);
-          promises.push({ name: key, promise: pentagon.toBlob, config: this.config[key].pentagon });
+          let pentagon = new Pentagon(this.canvas, config.pentagon);
+          promises.push({ name: key, promise: pentagon.toBlob, config: config.pentagon });
           break;
         case "hexagon":
-          let hexagon = new Hexagon(this.canvas, this.config[key].hexagon);
-          promises.push({ name: key, promise: hexagon.toBlob, config: this.config[key].hexagon });
+          let hexagon = new Hexagon(this.canvas, config.hexagon);
+          promises.push({ name: key, promise: hexagon.toBlob, config: config.hexagon });
           break;
         case "heptagon":
-          let heptagon = new Heptagon(this.canvas, this.config[key].heptagon);
-          promises.push({ name: key, promise: heptagon.toBlob, config: this.config[key].heptagon });
+          let heptagon = new Heptagon(this.canvas, config.heptagon);
+          promises.push({ name: key, promise: heptagon.toBlob, config: config.heptagon });
           break;
         case "star":
-          let star = new Star(this.canvas, this.config[key].star);
-          promises.push({ name: key, promise: star.toBlob, config: this.config[key].star });
+          let star = new Star(this.canvas, config.star);
+          promises.push({ name: key, promise: star.toBlob, config: config.star });
           break;
         default:
           // TODO : Throw error and shapes link
@@ -57,13 +68,18 @@ export default class Plugin {
     }
 
     Promise.all(promises.map(item => { return item.promise })).then(blobs => {
-      blobs.map((item, index) => {
-        temp[promises[index].name] = { "texture": URL.createObjectURL(item) };
+      blobs.map((blob, index) => {
+        let item = promises[index];
+
+        temp[item.name] = {
+          texture: URL.createObjectURL(blob),
+          ...item.config
+        };
       });
     });
 
-    return { styles: temp };
+    return temp;
   }
 }
 
-window.Plugin = Plugin;
+window.AdvancedNodeEdge = AdvancedNodeEdge;
