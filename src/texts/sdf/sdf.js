@@ -118,37 +118,156 @@ export default class {
     return this.atlas.texture;
   }
 
+  alignText(alignment,text,x,y,width,height,markDirty,widthArray,wordWidth) {
+    // x and y are the clipspace co-ordinates between 0 and 1
+   // dx and dy shifts the position of label w.r.t possibly node
+   // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
+   if(!( alignment === 'right' || alignment === 'left' || alignment === 'middle')) {
+    alert('Please check alignment')
+    alignment = 'left';
+   }
+  const textArray = text.split(" ");
+   let dx=0;
+   let dy=0;
 
+   // "ret" must be the return object. "ret" is always the return object
+   let ret = [];
+
+   switch (alignment) {
+    case 'left' :
+        dx = x <= 0.5 ? 0 : -width;
+        dy = y <= 0.5 ? 0 : -height;
+        for (var i=0;i<text.length;i++) {
+     
+          if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
+            dx = x <= 0.5 ? 0  : -width ;
+            dy = dy-Math.floor(height/3);
+          } else {
+              const char = this._getChar(text[i], markDirty);
+              const rect = char.rect || {};
+              let horiBearingX = 3;
+              dx += horiBearingX;
+     
+              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+              ret.push({
+                width: rect.w,
+                height: rect.h,
+                left: rect.x / this.atlas.width, //position in atlas
+                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+                bottom: (rect.y + rect.h) / this.atlas.height, 
+                top: rect.y / this.atlas.height,
+                dx: dx,
+                dy: dy + char.top + (height - rect.h)
+                });
+
+              dx += char.advance;
+              //      dx += rect.w;
+     
+          } //else of first
+        } //for of first
+        break;
+    case 'right' :
+        dx = x <= 0.5 ? width : 0;
+        dy = y<=0.5 ? -(Math.floor(height/3))*(textArray.length-1) : -height-(Math.floor(height/3))*(textArray.length-1)
+        for (var i=text.length-1;i>=0;i--) {
+     
+          if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
+            dx = x <= 0.5 ? 0+width  : 0 ;
+            dy = dy+Math.floor(height/3);
+          } else {
+              const char = this._getChar(text[i], markDirty);
+              const rect = char.rect || {};
+              let horiBearingX = 3;
+              
+              dx -= char.advance;
+              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+              ret.push({
+                width: rect.w,
+                height: rect.h,
+                left: rect.x / this.atlas.width, //position in atlas
+                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+                bottom: (rect.y + rect.h) / this.atlas.height, 
+                top: rect.y / this.atlas.height,
+                dx: dx,
+                dy: dy + char.top + (height - rect.h)
+                });
+              
+              dx -= horiBearingX;
+              
+          }}
+          break;
+
+      case 'middle' :
+          
+          dy = y <= 0.5 ? 0 : -height;
+        for (var i=0;i<textArray.length;i++) {
+          
+          dx = x <= 0.5 ? 0 : -width;
+          dx+=(wordWidth-widthArray[i])/2
+        text = textArray[i]
+        for (var j=0;j<text.length;j++) {
+     
+          
+            
+         
+              const char = this._getChar(text[j], markDirty);
+              const rect = char.rect || {};
+              let horiBearingX = 3;
+              dx += horiBearingX;
+     
+              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+              ret.push({
+                width: rect.w,
+                height: rect.h,
+                left: rect.x / this.atlas.width, //position in atlas
+                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+                bottom: (rect.y + rect.h) / this.atlas.height, 
+                top: rect.y / this.atlas.height,
+                dx: dx,
+                dy: dy + char.top + (height - rect.h)
+                });
+
+              dx += char.advance;
+              //      dx += rect.w;
+     
+        } //for of first
+        dy = dy-Math.floor(height/3);
+        }
+          
+        
+        break;
+    }
+  console.log(ret) 
+   return ret;
+  }
   /**
    * Updates the 'texture' member variable of this.atlas object
    *
    * text = single character which is to be added to the texture of 'this.atlas'
    * markDirty = ??? callback to be called if the size of the texture is resized
    */
-  // TODO: parameter name should be changed from 'text' to 'char'
-  _getChar(text, markDirty) {
+  _getChar(character, markDirty) {
     // curFont is same as style.pbf defined above
     // TODO: We are doing this too many times in this code. Find a better mech.
     const font = this.curFont;
 
-    // glyphId is the character code of the glyph passed in arguments under the name 'text'
    // charCodeAt returns an integer between 0 and 65535 representing the UTF-16 code unit
    // refer https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
 
-    const glyphID = text.charCodeAt(0);
+    const glyphID = character.charCodeAt(0);
 
     // Padding around the glyph
     const buffer = 0;
 
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
-    const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(text);
+    const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(character);
     
-    // Testing code for new developer, if stuck, uncomment the lines below and defined t in sdf.html
-    // The code below renders a testing canvas with first alphabet it encounters
+    // Testing code for new developer, if stuck, uncomment the lines below 
+    // The code below renders a testing canvas with first alphabet it encounters , value of t is in sdf.html
     // if you want to show more alphabets , just increase "t" in sdf.html and 
     // change ctx.putImageData(imgData, 10, 20); to something variable
-    
-    // if(document.getElementById("test-canvas") && typeof t !== "undefined" && t>0) {
+
+    // if(t) {
     //   const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
     //   const testCanvas = document.getElementById("test-canvas");
     //   const ctx = testCanvas.getContext("2d");
@@ -158,7 +277,7 @@ export default class {
     
     // After uncommenting the lines above , comment the "if" code below, this might help in debugging 
 
-    if((document.getElementById("test-canvas") && typeof t === "undefined") || (document.getElementById("test-canvas") && t)) {
+    if(t) {
 
       const testCanvas = document.getElementById("test-canvas");
       testCanvas.width = 0;
@@ -168,7 +287,7 @@ export default class {
     const fontSize = this.spriteGenerator.fontSize;
     
     if (!this._rects[font]) this._rects[font] = {};
-    let rect = this._rects[font][text] = this.atlas.addGlyph(
+    let rect = this._rects[font][character] = this.atlas.addGlyph(
       glyphID, // character id
       this.curFont, // contains url of the font file on server
       glyph, // glyph object
@@ -187,14 +306,18 @@ export default class {
     );
   }
 
-  get(text, x, y, markDirty) {
+  get(text, x, y, markDirty,alignment) {
+    let wordWidth = 0;
     let width = 0;
     let height = 0;
-
+    let widthArray = [];
     const horiBearingX = 3;
     const horiBearingY = 2;
-
+    //replaces the multiple space characters in the text with a single space
+    text = text.replace(/\s+/g, ' ');
     for (let i = 0; i < text.length; i++) {
+      
+      
       const char = this._getChar(text[i], markDirty);
       const rect = char.rect || {};
       
@@ -202,51 +325,20 @@ export default class {
      //decide the height and then max of them is taken each time to have a max height that fits each char
 
       height = Math.max(height, rect.h - char.top);
-
+      wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
+      // highest word length would be selected as the width
+      if ((text[i] === ' ' || i == text.length-1 )) {
+        console.log(wordWidth)
+        width = wordWidth > width ? wordWidth : width
+        widthArray.push(wordWidth)
+        wordWidth = 0
+      }
       // addiding const horiBearingx and char.advance wo get the total width of label
-
-      width += char.advance + horiBearingX;
-    }
-
-    
-   // x and y are the clipspace co-ordinates between 0 and 1
-   // dx and dy shifts the position of label w.r.t possibly node
-   // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
-
-    let dx = x <= 0.5 ? 0 : -width;
-    let dy = y <= 0.5 ? 0 : -height;
-
-
-
-    // "ret" must be the return object. "ret" is always the return object
-    let ret = [];
-
-    for (let i = 0; i < text.length; i++) {
-
-      const char = this._getChar(text[i], markDirty);
-      const rect = char.rect || {};
-
-      let horiAdvance;
       
-      dx += horiBearingX;
-
-      // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc
-
-      ret.push({
-        width: rect.w,
-        height: rect.h,
-        left: rect.x / this.atlas.width,
-        right: (rect.x + rect.w) / this.atlas.width,
-        bottom: (rect.y + rect.h) / this.atlas.height,
-        top: rect.y / this.atlas.height,
-        dx: dx,
-        dy: dy + char.top + (height - rect.h)
-      });
-
-      dx += char.advance;
-      //      dx += rect.w;
     }
-    return ret;
+    
+    let ret = this.alignText(alignment ,text,x,y,width,height,markDirty,widthArray,width)
+   return ret
   }
 
   steps(text) {

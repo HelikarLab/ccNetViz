@@ -52,7 +52,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var y = e.y;
 
                 var ret = false;
-                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
+                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;},e.alignment || style.alignText || 'left');
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   let c = parts[i];
 
