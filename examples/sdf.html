@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ccNetViz example of different styling</title>
+  <style type="text/css">
+    #container {
+      width: 600px;
+      height: 600px;
+      border: 1px solid black;
+    }
+
+    #body {
+      display: inline-block;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+
+<body>
+  <h1>Using SDF font</h1>
+  <div>Example with Signed distance field fonts utilizing the browser-based font generation.</div>
+  <br />
+  <div id='body'>
+    <canvas id="container"></canvas>
+  </div>
+
+  <script>
+
+    var data = {};
+
+    function init() {
+      // $.ajax({ url: 'data/graph-10-2.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/line-1000.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/graph-1000.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/tree1.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/star-1000.json', dataType: 'json' }).done(dataLoaded);
+      $.ajax({ url: 'data/Bronchiseptica.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/CD4.json', dataType: 'json' }).done(dataLoaded);
+      // $.ajax({ url: 'data/circle-100.json', dataType: 'json' }).done(dataLoaded);
+    };
+
+    function dataLoaded(d) {
+      data = d;
+      showGraph();
+    }
+
+    function showGraph() {
+      var startTime = new Date();
+
+      var conf = {
+        styles: {
+          background: {
+            color: "rgb(255, 255, 255)"
+          },
+          node: {
+            minSize: 6,
+            maxSize: 16,
+            color: "rgb(255, 0, 0)",
+            texture: "images/circle.png",
+            label: {
+              color: "rgb(120, 120, 120)",
+              size: 14,
+              font: {
+                type: "sdf",
+              }
+            }
+          },
+          edge: {
+            width: 1,
+            color: "rgb(204, 204, 204)",
+            arrow: {
+              minSize: 6,
+              maxSize: 16,
+              aspect: 1,
+              texture: "images/arrow.png",
+              hideSize: 1
+            }
+          }
+        }
+      };
+
+      var el = document.getElementById('container');
+      var graph = new ccNetViz(el, conf);
+      graph.set(data.nodes, data.edges, "force");
+      graph.draw();
+
+      $('#nodesCnt').text(data.nodes.length);
+      $('#edgesCnt').text(data.edges.length);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10);
+    }
+
+    $(init);
+
+    var t = 1;
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz user defined layout example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>UserDef layout example</h1>
+  <div>In this example, all nodes are manually positioned with x and y attributes.</div>
+  <br />
+
+  <canvas id="container"></canvas>
+  <script>
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } }
+      }});
+    var nodes = [
+      { label: "Hello", x: 0, y: 1 },
+      { label: "World", x: 1, y: 1  },
+      { label: "!", x: 0.5, y: 0  },
+      { label: "I am in center", x: 0.5, y: 0.5 },
+      { label: "Right bottom corner", x: 1, y: 0 },
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[0] },
+      { source: nodes[0], target: nodes[0] },
+      { source: nodes[1], target: nodes[2] },
+      { source: nodes[2], target: nodes[4] }
+    ];
+    graph.set(nodes, edges);
+    graph.draw();
+  </script>
+</body>
+</html>

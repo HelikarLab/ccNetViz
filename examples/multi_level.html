@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      cursor: crosshair;
+    }
+  </style>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Multi level graph example</h1>
+  <div>To enter to deeper node, click on node "Hello" or "World". Then use right button on mouse for going back.</div>
+  <br />
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
+  <script>
+    var el = document.getElementById('container');
+    var graph = new ccNetVizMultiLevel(el, {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } }
+      }});
+
+
+    var nodes1 = [
+      { label: "Node1 of subgraph1" },
+      { label: "Node2 of subgraph1" },
+    ];
+    var edges1 = [
+      { source: nodes1[0], target: nodes1[1] },
+      { source: nodes1[0], target: nodes1[0] },
+      { source: nodes1[1], target: nodes1[0] },
+    ];
+
+
+    var nodes2 = [
+      { label: "Node1 of subgraph2" },
+      { label: "Node2 of subgraph2" },
+      { label: "Node3 of subgraph2" },
+      { label: "Node4 of subgraph2" },
+      { label: "Node5 of subgraph2" },
+    ];
+    var edges2 = [
+      { source: nodes2[0], target: nodes2[1] },
+      { source: nodes2[0], target: nodes2[0] },
+      { source: nodes2[1], target: nodes2[0] },
+      { source: nodes2[3], target: nodes2[4] },
+    ];
+
+
+    var nodes = [
+      { label: "Hello", nodes: nodes2, edges: edges2 },
+      { label: "World", nodes: nodes1, edges: edges1 },
+      { label: "!" }
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[0] },
+      { source: nodes[0], target: nodes[0] },
+      { source: nodes[1], target: nodes[2] },
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 700px;
+      height: 300px;
+      cursor: crosshair;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Interactivity for mouse hover</h1>
+  <div>move mouse over node or edge to make them blue</div>  
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
+  <script>
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      styles: {
+        node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } },
+        edgeHover: {
+          color: "rgb(0, 0, 255)"
+        },
+        nodeHover: {
+          texture: "images/node.png", label: { hideSize: 16 }
+        }
+      }
+    });
+    var nodes = [
+      { label: "Hello" },
+      { label: "World" },
+      { label: "!" }
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[0] },
+      { source: nodes[0], target: nodes[0] },
+      { source: nodes[1], target: nodes[2] },
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+
+    
+    function onEdgeIn(e){
+      e.style = 'edgeHover';
+      graph.updateEdge(e).applyChanges();
+    }
+    
+    function onEdgeOut(e){
+      if(e.style !== undefined)
+        delete e.style;
+
+      graph.updateEdge(e).applyChanges();
+    }
+    
+    function onNodeIn(n){
+      n.style = 'nodeHover';
+      graph.updateNode(n).applyChanges();
+    }
+    
+    function onNodeOut(n){
+      if(n.style !== undefined)
+        delete n.style;
+    
+      graph.updateNode(n).applyChanges();
+    }
+    
+    
+    class ccNetVizElementsEvents{
+      constructor(params){
+        this.onNodeOut = params.onNodeOut || function(){};
+        this.onEdgeOut = params.onEdgeOut || function(){};
+        this.onNodeIn = params.onNodeIn || function(){};
+        this.onEdgeIn = params.onEdgeIn || function(){};
+      
+        this.lastOnHover = {nodes: [], edges: []};
+      }
+      onMove(result){
+        var currentHover = {};
+      
+        $.each([{arr: 'nodes', el: 'node', onOut: this.onNodeOut, onIn: this.onNodeIn},{arr: 'edges', el: 'edge', onOut: this.onEdgeOut, onIn: this.onEdgeIn}], function(i, e){
+        var arr = e.arr;
+        var el  = e.el;
+
+
+        for(var i = 0; i < result[arr].length; i++){
+          var n = result[arr][i][el];
+          var index;
+
+          if((index = lastOnHover[arr].indexOf(n)) < 0){
+            index = lastOnHover[arr].length;
+            lastOnHover[arr].push(n);
+            e.onIn(n);
+          }
+
+          currentHover[index] = true;
+        }
+
+        var n = [];
+        for(var i = 0; i < lastOnHover[arr].length; i++){
+          if(currentHover[i] !== true){
+            e.onOut(lastOnHover[arr][i]);
+          }else{
+            n.push(lastOnHover[arr][i]);
+          }
+        }
+
+        lastOnHover[arr] = n;
+        });
+      }
+    };
+    
+    var events = new ccNetVizElementsEvents({onNodeIn: onNodeIn, onEdgeIn: onEdgeIn, onNodeOut: onNodeOut, onEdgeOut: onEdgeOut});
+    
+    var lastOnHover = {nodes: [], edges: []};
+    
+    el.addEventListener('mousemove', function(e){
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, true);
+      events.onMove(result);
+      
+    });
+  </script>
+</body>
+</html>

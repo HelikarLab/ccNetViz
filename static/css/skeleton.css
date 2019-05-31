@@ -431,4 +431,14 @@ there.
 @media (min-width: 1000px) {}
 
 /* Larger than Desktop HD */
-@media (min-width: 1200px) {}
+@media (min-width: 1200px) {
+  #freq-information{
+    display: block!important;
+  }
+}
+
+@media (min-width: 1480px) {
+  #stats{
+    display: block!important;
+  }
+}

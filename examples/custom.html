@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+  <style type="text/css">
+    #container {
+      width: 900px;
+      margin: auto;
+      height: 500px;
+      display: block;
+      padding: 20px 0;
+    }
+
+    #content {
+      margin: 30px auto;
+      display: block;
+      width: 980px;
+    }
+
+    div {
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+    }
+
+    .style-container {
+      display: block;
+      width: 100%;
+      border-radius: 3px;
+      background: #b5b5b5;
+      box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .item:nth-child(1) {
+      margin-left: 10px;
+    }
+
+    .item {
+      width: 90px;
+      background: #ffffff;
+      text-align: center;
+      padding: 5px;
+      border-radius: 3px;
+      box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+      margin: 10px 5px;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid #ffffff;
+    }
+
+    .item h3 {
+      margin: 0;
+      padding: 10px 0;
+      font-size: 14px;
+      font-weight: normal;
+      font-family: unset;
+      color: #555;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    h1 {
+      font-family: 'Roboto', sans-serif;
+      font-size: 17px;
+      font-weight: normal;
+      margin: 20px 0 10px 0;
+    }
+
+    body p {
+      font-size: 14px;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: rgba(100, 100, 100, 0.1);
+      color: #333;
+    }
+
+    textarea {
+      overflow: hidden;
+      height: 75px;
+      width: 220px;
+      display: inline-block;
+      font-size: 12px;
+      border: none;
+      color: #333;
+    }
+
+    .item-attr {
+      display: none;
+      position: absolute;
+      left: 90px;
+      top: 5px;
+      z-index: 555;
+      background: #ffffff;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 0 2px 1px #0000001f;
+      padding: 5px;
+    }
+
+    .item:hover .item-attr {
+      display: inline-block;
+    }
+
+    .canvas-container {
+      display: block;
+      background: #fff;
+      border-radius: 3px;
+      box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .item.active {
+      border: 2px solid #19e549;
+    }
+
+    #apply {
+      background: #e51937;
+      padding: 5px 20px;
+      border-radius: 2px;
+      width: 80px;
+      text-align: center;
+      margin: auto;
+      display: block;
+      position: relative;
+      top: 20px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <h3>Custom Node And Edge Styling</h3>
+    <div class="canvas-container">
+      <canvas id="container"></canvas>
+      <div id="apply">Apply</div>
+    </div>
+    <h1>Custom node styles</h1>
+    <div class="style-container">
+      <div class="item active" data-type="pie">
+        <canvas id="pie" width="50" height="50"></canvas>
+        <h3>Pie chart</h3>
+        <div class="item-attr">
+          <textarea class="pie-attr" rows="4" cols="10"></textarea>
+        </div>
+      </div>
+      <div class="item" data-type="ellipse">
+        <canvas id="ellipse" width="50" height="50"></canvas>
+        <h3>Ellipse</h3>
+      </div>
+      <div class="item" data-type="triangle">
+        <canvas id="triangle" width="50" height="50"></canvas>
+        <h3>Triangle</h3>
+      </div>
+      <div class="item" data-type="rectangle">
+        <canvas id="rectangle" width="50" height="50"></canvas>
+        <h3>Rectangle</h3>
+      </div>
+      <div class="item" data-type="pentagon">
+        <canvas id="pentagon" width="50" height="50"></canvas>
+        <h3>Pentagon</h3>
+      </div>
+      <div class="item" data-type="star">
+        <canvas id="star" width="50" height="50"></canvas>
+        <h3>Star</h3>
+      </div>
+    </div>
+    <h1>Custom arrow styles</h1>
+    <div class="style-container">
+      <div style="background: #333; color: #fff;" class="item" data-type="arrow">
+        <canvas id="arrow" width="50" height="50"></canvas>
+        <h3 style="color:#fff">Arrow</h3>
+        <div class="item-attr">
+          <textarea class="arrow-attr" rows="4" cols="10"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+
+    function init() {
+      var data = {
+        "nodes": [
+          { "label": "1" },
+          { "label": "2" },
+          { "label": "3" },
+          { "label": "4" },
+          { "label": "5" },
+          { "label": "6" },
+          { "label": "7" },
+          { "label": "8" },
+          { "label": "9" },
+          { "label": "10" },
+          { "label": "11" },
+          { "label": "12" },
+          { "label": "13" }
+        ],
+        "edges": [
+          { "source": 3, "target": 4 },
+          { "source": 3, "target": 0 },
+          { "source": 4, "target": 7 },
+          { "source": 4, "target": 8 },
+          { "source": 0, "target": 1 },
+          { "source": 0, "target": 2 },
+          { "source": 0, "target": 12 },
+          { "source": 2, "target": 10 },
+          { "source": 2, "target": 11 },
+          { "source": 1, "target": 5 },
+          { "source": 5, "target": 9 },
+          { "source": 5, "target": 6 }
+        ]
+      };
+
+      showGraph(data);
+    };
+
+    function showGraph(data, activeCanvas) {
+      function shape() { };
+      // Drawing necessary geometric shapes
+      shape.prototype = {
+        PieChart: function (canvas, config) {
+          var centerX = canvas.width / 2;
+          var centerY = canvas.height / 2;
+          var radius = (canvas.width / 2) - 3;
+          var start = 0, end = 0;
+          canvas.getContext('2d').clearRect(0, 0, 50, 50);
+
+          for (var i = 0; i < config.length; i++) {
+            canvas.getContext('2d').beginPath();
+            canvas.getContext('2d').moveTo(centerX, centerY);
+            end = ((2 * config[i].size / 100) * Math.PI)
+
+            canvas.getContext('2d').arc(centerX, centerY, radius, start, end + start, false);
+            start += ((2 * config[i].size / 100) * Math.PI)
+            canvas.getContext('2d').fillStyle = config[i].color;
+            canvas.getContext('2d').fill();
+          }
+        },
+        Ellipse: function (canvas, color) {
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').ellipse(25, 25, 25, 20, Math.PI / 4, 0, 2 * Math.PI);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        },
+        Triangle: function (canvas, color) {
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').moveTo(0, 0);
+          canvas.getContext('2d').lineTo(25, 50);
+          canvas.getContext('2d').lineTo(50, 0);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        },
+        Rectangle: function (canvas, color) {
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').moveTo(0, 0);
+          canvas.getContext('2d').lineTo(0, 40);
+          canvas.getContext('2d').lineTo(50, 40);
+          canvas.getContext('2d').lineTo(50, 0);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        },
+        Pentagon: function (canvas, color) {
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').moveTo(0, 20);
+          canvas.getContext('2d').lineTo(25, 0);
+          canvas.getContext('2d').lineTo(50, 20);
+          canvas.getContext('2d').lineTo(45, 50);
+          canvas.getContext('2d').lineTo(5, 50);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        },
+        Star: function (canvas, color) {
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').moveTo(25, 5);
+          canvas.getContext('2d').lineTo(45, 45);
+          canvas.getContext('2d').lineTo(0, 20);
+          canvas.getContext('2d').lineTo(50, 20);
+          canvas.getContext('2d').lineTo(5, 45);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        },
+        Arrow: function (canvas, width, thickness, color) {
+          this.width = ((width * 50) / 100);
+          this.height = ((thickness * 25) / 100);
+          canvas.getContext('2d').clearRect(0, 0, 50, 50);
+          canvas.getContext('2d').beginPath();
+          canvas.getContext('2d').moveTo(this.height, 0);
+          canvas.getContext('2d').lineTo(25, this.width);
+          canvas.getContext('2d').lineTo(50 - this.height, 0);
+          canvas.getContext('2d').fillStyle = color || "#000000";
+          canvas.getContext('2d').fill();
+        }
+      }
+
+      var geo = new shape();
+
+      // Draw the pie chart
+      var canvas = document.getElementById('pie');
+
+      // Pie chart config;
+      // color: @color,
+      // size: @float (percent)
+      config = [
+        { color: "#333", size: 40 },
+        { color: "lightblue", size: 20 },
+        { color: "#e51937", size: 40 },
+      ];
+
+      document.querySelector(".pie-attr").value = JSON.stringify(config)
+
+      geo.PieChart(canvas, config)
+      // Set as default active canvas
+      activeCanvas = canvas;
+
+      // Draw the ellipse
+      var ellipse = document.getElementById('ellipse');
+      geo.Ellipse(ellipse, "#e51937");
+
+      // Draw the triangle
+      var triangle = document.getElementById('triangle');
+      geo.Triangle(triangle, "#e51937");
+
+      // Draw the rectangle
+      var rectangle = document.getElementById('rectangle');
+      geo.Rectangle(rectangle, "#e51937")
+
+      // Draw the pentagon
+      var pentagon = document.getElementById('pentagon');
+      geo.Pentagon(pentagon, "#e51937")
+
+      // Draw the start
+      var star = document.getElementById('star');
+      geo.Star(star, "#e51937")
+
+      // Arrow styles
+      var arrow = document.getElementById('arrow');
+      // Arrow config;
+      // color: @color,
+      // width: @float (percent)
+      // thickness: @float (percent)
+
+      config = {
+        width: 100,
+        thickness: 10,
+        color: "#ffffff"
+      };
+
+      geo.Arrow(arrow, config.width, config.thickness, config.color);
+      document.querySelector(".arrow-attr").value = JSON.stringify(config)
+
+      var styles = {
+        background: { color: 'rgb(255,255,255)' },
+        node: {
+          minSize: 8,
+          maxSize: 16,    //maximum size of node representation in pixels, default: 16
+          color: "rgb(255, 255, 255)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
+          texture: "images/circle.png",   //node image
+          label: {
+            hideSize: 16,
+            color: "rgb(120, 120, 120)"  //label color, default: "rgb(120, 120, 120)"
+          }
+        },
+        edge: {
+          width: 2,   //edge width in pixels, default: 1
+          color: "rgb(204, 204, 204)",
+          arrow: {
+            minSize: 6,   //minimum size of arrow in pixels, default: 6
+            maxSize: 12,  //maximum size of arrow, default: 12
+            aspect: 2,  //aspect of arrow image, default: 1
+            hideSize: 2,   //minimum size of arrow to be displayed
+            texture: "images/arrow.png",  //arrow image
+          },
+          type: 'line'
+        },
+      };
+
+      draw([{ canvas: canvas, type: "node" }, { canvas: arrow, type: "arrow" }], styles);
+
+      /*
+        Converts sent canvases to blob and overwrites the current setting file.
+        @draw: slice of canvas,
+        @styles: ccNetViz config file
+      */
+      function draw(draw, styles, type) {
+        const mimeType = 'image/png';
+        draw.map((item) => {
+          // Convert canvas to the blob
+          item.canvas.toBlob(function (blob) {
+            var url = URL.createObjectURL(blob);
+            var startTime = new Date();
+
+            if (item.type === "node") {
+              styles.node.texture = url;
+            }
+            if (item.type === "arrow") {
+              styles.edge.arrow.texture = url;
+            }
+            var conf = { styles: styles };
+
+            var el = document.getElementById('container');
+            var graph = new ccNetViz(el, conf);
+            graph.set(data.nodes, data.edges, "force");
+            graph.draw();
+          }, mimeType);
+        })
+      }
+
+      var items = document.querySelectorAll(".style-container .item");
+      var apply = document.getElementById("apply");
+
+      function setActiveCanvas(canvas, element) {
+        activeCanvas = canvas;
+        document.querySelector(".item.active").classList.remove("active");
+        element.classList.add("active");
+      }
+
+      // Apply button handler
+      apply.addEventListener("click", function () {
+        var attr = JSON.parse(document.querySelector(".arrow-attr").value)
+
+        geo.Arrow(arrow, attr.width, attr.thickness, attr.color);
+        if (activeCanvas.id === "pie") {
+          var attr = JSON.parse(document.querySelector(".pie-attr").value)
+          geo.PieChart(canvas, attr)
+        }
+        draw([
+          { canvas: activeCanvas, type: "node" },
+          { canvas: arrow, type: "arrow" }
+        ], styles);
+      });
+
+      // Each by items and add to active click handler
+      for (var i = 0; i < items.length; i++) {
+        items[i].addEventListener("click", function () {
+          switch (this.getAttribute("data-type")) {
+            case "pie":
+              setActiveCanvas(canvas, this);
+              break;
+            case "ellipse":
+              setActiveCanvas(ellipse, this);
+              break;
+            case "triangle":
+              setActiveCanvas(triangle, this);
+              break;
+            case "rectangle":
+              setActiveCanvas(rectangle, this);
+              break;
+            case "pentagon":
+              setActiveCanvas(pentagon, this);
+              break;
+            case "star":
+              setActiveCanvas(star, this);
+              break;
+            case "arrow":
+              break;
+          }
+        });
+      }
+    }
+    init()
+  </script>
+</body>
+
+</html>

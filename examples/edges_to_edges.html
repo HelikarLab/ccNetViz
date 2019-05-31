@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz complex graphs example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      cursor: crosshair;
+    }
+    
+    #body {
+      display: inline-block;
+    }
+    
+    #info {
+/*      float: right;*/
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Edges to edges example</h1>
+  <div id='body'>
+  <canvas id="container"></canvas>
+  </div>
+  <div id='searchReport' />
+  <script>
+  
+  $(function(){
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      styles: {
+        node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } },
+        edgeHover: {
+          color: "rgb(0, 0, 255)"
+        },
+        nodeHover: {
+	  texture: "images/node.png", label: { hideSize: 16 }
+	}
+      }
+    });
+    var nodes = [
+      { label: "Hello" },
+      { label: "World" },
+      { label: "!" }
+    ];
+
+    var e = { source: nodes[0], target: nodes[1] };
+    var e2 = { source: nodes[1], target: nodes[0] };
+    var e3 = { source: nodes[1], target: nodes[2] };
+    var e4 = { source: nodes[0], target: nodes[0] };
+
+    var edges = [
+      e,
+      e2,
+      e3,
+      e4,
+      { source: nodes[2], target: e2 },
+      { source: nodes[0], target: e3 },
+      { source: e2, target: nodes[2] },
+      { source: nodes[2], target: e4 },
+      { source: e2, target: e2 },
+      { source: e3, target: e3 },
+      { source: e4, target: e4 }
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+    
+    el.addEventListener('mouseup', function(e){
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var x1 = x-radius;
+      var y1 = y-radius;
+      var x2 = x+radius;
+      var y2 = y+radius;
+      
+      var lCoords = graph.getLayerCoords({x1:x1, y1:y1, x2:x2, y2:y2});
+      var result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
+
+      var reportel = document.getElementById("searchReport");
+      reportel.style.display = 'block';
+      var html = "<div>Search for ["+x+","+y+"] px:</div>";
+      html+="<div>Nodes: "+result.nodes.length+"</div>";
+      html+="<div>Edges: "+result.edges.length+"</div>";
+      reportel.innerHTML = html;
+    });
+  
+    
+  });
+
+  
+  </script>
+</body>
+</html> 

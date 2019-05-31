@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example of different styling</title>
+  <link rel="stylesheet" type="text/css" href="css/spectrum.css">
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      border: 1px solid black;
+    }
+    
+    #body {
+      display: inline-block;
+    }
+    
+    #info {
+      float: right;
+    }
+
+    pre {
+      background-color: ghostwhite;
+      border: 1px solid silver;
+      padding: 10px 20px;
+      margin: 20px; 
+    }
+   .json-key {
+      color: brown;
+    }
+    .json-value {
+      color: navy;
+    }
+    .json-string {
+      color: olive;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="./libs/json_prettyprint.js"></script>
+  <script type="text/javascript" src="js/spectrum.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Styling graph example</h1>
+  <div>Example to show styling options for graph.</div>
+  <br />
+  <div id='body'>
+    <canvas id="container"></canvas>
+  </div>
+  
+  
+  <div id='info' />
+    <table>
+    <tr>
+      <td>background - color</td>
+      <td><input id='background_color' value='rgb(255, 255, 255)'></input></td> <!--background color of canvas, default: "rgb(255, 255, 255)"-->
+    </tr>
+    <tr>
+      <th colspan='2'><h3>Node</h3></th>
+    </tr>
+    <tr>
+      <td>minSize</td>
+      <td>
+	<input type='number' id='node_minSize' size='2' value='6' min='1'></input> <!--minimum size of node representation in pixels, default: 6-->
+      </td>
+    </tr>
+    <tr>
+      <td>maxSize</td>
+      <td>
+	<input type='number' id='node_maxSize' size='2' value='16' min='1'></input> <!--maximum size of node representation in pixels, default: 16-->
+      </td>
+    </tr>
+    <tr>
+      <td>color</td>
+      <td>
+	<input id='node_color' value='rgb(255, 0, 0)'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>label - hideSize</td>
+      <td>
+	<input type='number' id='node_label_hideSize' size='2' value='16' min='1'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>label - color</td>
+      <td>
+	<input id='node_label_color' value='rgb(120, 120, 120)'></input> 
+      </td>
+    </tr>
+    <tr>
+      <th colspan='2'><h3>Edge</h3></th>
+    </tr>
+    <tr>
+      <td>width</td>
+      <td>
+	<input type='number' id='edge_width' size='2' value='1' min='1'></input> <!--edge width in pixels, default: 1-->
+      </td>
+    </tr>
+    <tr>
+      <td>color</td>
+      <td>
+	<input id='edge_color' value='rgb(204, 204, 204)'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>arrow - minSize </td>
+      <td>
+	<input type='number' id='edge_arrow_minSize' size='2' value='6' min='1'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>arrow - maxSize</td>
+      <td>
+	<input type='number' id='edge_arrow_maxSize' size='2' value='16' min='1'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>arrow - aspect</td>
+      <td>
+	<input type='number' id='edge_arrow_aspect' size='2' value='1' min='1'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>arrow - hideSize</td>
+      <td>
+	<input type='number' id='edge_arrow_hideSize' size='2' value='1' min='1'></input>
+      </td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>
+	<select id='edge_type'>
+	  <option value='line'>line</option>
+	  <option value='dashed'>dashed</option>
+	  <option value='dotted'>dotted</option>
+	  <option value='chain-dotted'>chain-dotted</option>
+	</select>
+      </td>
+    </tr>
+    <tr>
+    </table>
+
+    <br />
+      <button id='showGraph'>Show graph</button>
+  </div>
+  <div id='report'>
+    <h2>Generated configuration object for graph:</h2>
+    <div id='confel'></div>
+  </div>
+  <script>
+
+    var data = {};
+
+    function init(){
+    
+	//initialize colorpickers
+	$("#node_color, #background_color, #node_label_color").spectrum({
+	  preferredFormat: "rgb",
+	  flat: false,
+	  showInput: true,
+	});
+    
+	$("#showGraph").click(showGraph);
+
+	$.ajax({url: 'data/graph-10-3.json', dataType: 'json'}).done(dataLoaded);
+    };
+
+    function dataLoaded(d){
+	data = d;
+	showGraph();
+    }
+
+    function transformConfig(conf, prefix){
+	prefix = prefix || "";
+
+	for(var key in conf){
+	    if($.isPlainObject(conf[key])){
+		transformConfig(conf[key], prefix+key+"_");
+		continue;
+	    }
+	    
+	    
+	    var c = $("#"+prefix+key);
+	    if(c.length > 0){
+		var val = c.val();
+		if(val !== undefined && val != null){
+		    if(c.attr('type') === 'number')
+			val = parseFloat(val);
+		    conf[key] = val;
+		}
+	    }
+	}
+	    
+    }
+
+    function showGraph(){
+      var startTime = new Date();
+    
+      var styles = {
+	  background: {color: 'rgb(0,0,0)'},
+	  node: { 
+	    minSize: 8,   //minimum size of node representation in pixels, default: 6
+	    maxSize: 16,    //maximum size of node representation in pixels, default: 16
+	    color: "rgb(255, 0, 0)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
+	    texture: "images/circle.png",   //node image
+	    label: {
+	      hideSize: 16,
+	      color: "rgb(120, 0, 0)"  //label color, default: "rgb(120, 120, 120)"
+	    }
+	  },
+	  edge: { 
+	    width: 2,   //edge width in pixels, default: 1
+	    color: "rgb(204, 204, 204)",
+	    arrow: { 
+	      minSize: 6,   //minimum size of arrow in pixels, default: 6
+	      maxSize: 12,  //maximum size of arrow, default: 12
+	      aspect: 2,  //aspect of arrow image, default: 1
+	      texture: "images/arrow.png",  //arrow image
+	      hideSize: 2   //minimum size of arrow to be displayed
+	    },
+	    type: 'line'
+	  },
+      };
+
+      transformConfig(styles);
+
+      var conf = {styles: styles};
+
+      $("#confel").empty().append($("<pre />").html(library.json.prettyPrint(conf)));
+
+      var el = document.getElementById('container');
+      var graph = new ccNetViz(el, conf);
+      graph.set(data.nodes, data.edges, "force");
+      graph.draw();
+
+      $('#nodesCnt').text(data.nodes.length);
+      $('#edgesCnt').text(data.edges.length);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
+    }
+
+    $(init);
+  </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz complex graphs example</title>
+  <style type="text/css">
+    #body, canvas {
+      width: 500px;
+      height: 500px;
+    }
+    
+    #body {
+      display: inline-block;
+    }
+    
+    #info {
+/*      float: right;*/
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Different graphs example</h1>
+  <div id='body'>
+  </div>
+  <div id='info' />
+    <select id='listExamples'></select>
+    <div id='report'>
+      Nodes: <span id='nodesCnt'></span><br />
+      Edges: <span id='edgesCnt'></span><br />
+      Rendered in <span id='renderedIn'></span>ms<br />
+    </div>
+  </div>
+  <script>
+  
+    var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(',');
+    
+    function init(){
+      function onChange(e){
+        var v = $(this).val();
+        
+        $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
+      }
+    
+      //fill in graph names
+      var select = $("#listExamples");
+      $.each(examples, function(index,val){
+        select.append($("<option />", {'value': val}).text(val));
+      });
+      select.change(onChange);
+      
+      //init graph with currently selected data
+      onChange.call(select);
+    };
+
+    var graph;
+    var el;
+    function showGraph(data){
+      adata = data;
+      if(el)
+        el.parentNode.removeChild(el);
+      document.getElementById("body").appendChild(el = document.createElement("canvas"));
+
+      var startTime = new Date();
+
+      if(graph) graph.remove();	//if there was old graph, remove its handlers from DOM content
+
+      graph = new ccNetViz(el, {
+	styles: {
+	  node: { texture: "images/node_bw.png", label: { hideSize: 16 } },
+	  edge: { arrow: { texture: "images/arrow.png" } }
+	}});
+      graph.set(data.nodes, data.edges, "circular", {"starting_angle": Math.PI/4});
+      graph.draw();
+      
+      $('#nodesCnt').text(data.nodes.length);
+      $('#edgesCnt').text(data.edges.length);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
+    }
+
+    $(init);
+  </script>
+</body>
+</html>

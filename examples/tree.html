@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz tree layouts example</title>
+  <style type="text/css">
+    #body, canvas {
+      width: 500px;
+      height: 500px;
+    }
+    
+    #body {
+      display: inline-block;
+    }
+    
+    #info {
+/*      float: right;*/
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Tree layouts example</h1>
+  <div id='body'>
+  </div>
+  <div id='info' />
+    graph: <select id='listExamples'></select>
+    layout: <select id='listLayouts'></select>
+    <div id='report'>
+      Nodes: <span id='nodesCnt'></span><br />
+      Edges: <span id='edgesCnt'></span><br />
+      Rendered in <span id='renderedIn'></span>ms<br />
+    </div>
+  </div>
+  <script>
+  
+    var examples = 'tree1.json,tree2.json'.split(',');
+    
+    function init(){
+      function onChange(e){
+        var v = $(this).val();
+        
+        $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
+      }
+      function onChange2(e){
+        layout = $(this).val();
+        showGraph(adata);
+      }
+    
+      //fill in graph names
+      var select = $("#listExamples");
+      $.each(examples, function(index,val){
+        select.append($("<option />", {'value': val}).text(val));
+      });
+      select.change(onChange);
+      
+      //init graph with currently selected data
+      onChange.call(select);
+
+      //fill in layout names
+      var select2 = $("#listLayouts");
+      $.each(["tree", "tree2"], function(index,val){
+        select2.append($("<option />", {'value': val}).text(val));
+      });
+      select2.change(onChange2);
+      
+      //init graph with currently selected layout
+      onChange2.call(select2);
+    };
+
+    var graph;
+    var el;
+    function showGraph(data){
+      adata = data;
+      if(el)
+        el.parentNode.removeChild(el);
+      document.getElementById("body").appendChild(el = document.createElement("canvas"));
+
+      var startTime = new Date();
+
+      if(graph) graph.remove();	//if there was an old graph, remove its handlers from DOM content
+
+      graph = new ccNetViz(el, {
+        styles: {
+          node: { texture: "images/node.png", label: { hideSize: 16 } },
+          edge: { arrow: { texture: "images/arrow.png" } }
+        }}
+      );
+      if (layout == null){
+          layout = "tree";
+      }
+      graph.set(data.nodes, data.edges, layout);
+      console.log("antes do draw");
+      graph.draw();
+      console.log("depois do draw");
+      
+      $('#nodesCnt').text(data.nodes.length);
+      $('#edgesCnt').text(data.edges.length);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
+    }
+
+    $(init);
+  </script>
+</body>
+</html>

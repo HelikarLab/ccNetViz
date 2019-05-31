@@ -13,6 +13,7 @@ canvas#ccnetviz {
 }
 div#slogan
 {
+  padding: 10px 0px;
 	text-align:center;
 	background:rgba(78,120,112,1);
 	background:-moz-linear-gradient(-45deg,rgba(78,120,112,1) 0%,rgba(43,43,43,1) 100%);
@@ -133,11 +134,14 @@ div#download a.offset-by-four.columns.four:hover
 
 .image-container
 {
-	height:150px;
 	border-radius:2px;
 	overflow:hidden;
 }
-
+.image-container img {
+    width: 100%;
+    padding: 10px 0;
+    max-width: 280px;
+}
 .demo span
 {
 	display:block;
@@ -291,7 +295,7 @@ div.documentation
 }
 
 span.usage-container {
-    color: #7ea7ca;
+    color: #2257a4;
     background: rgba(0,0,0,0.1);
     padding: 5px;
     border-radius: 2px;
@@ -304,13 +308,14 @@ span.usage-container {
     }
 
     #stats {
-      position: absolute;
-      z-index: 55;
-      left: 5px;
-      bottom: 5px;
-      color: rgba(255, 255, 255, 0.7);
-      font-family: 'Open Sans', sans-serif;
-      font-size: 12px;
+    position: absolute;
+    z-index: 2;
+    left: 5px;
+    bottom: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    display: none;
     }
 
     input#range-slider::-webkit-slider-thumb {
@@ -339,13 +344,14 @@ span.usage-container {
       border-radius: 2px;
       position: relative;
       top: 2px;
+      direction: rtl;
     }
 
     input#range-slider:hover {
       background: rgba(255, 255, 255, 0.9);
     }
 
-    div#freq-information {
+    #freq-information {
       position: absolute;
       bottom: 7px;
       right: 5px;
@@ -353,6 +359,7 @@ span.usage-container {
       font-size: 12px;
       font-family: 'Open Sans', sans-serif;
       z-index: 2;
+      display: none;
     }
 
     div#freq-information label {
@@ -362,3 +369,46 @@ span.usage-container {
       font-weight: bold;
       letter-spacing: 0.3px;
     }
+    div#slogan a {
+    text-decoration: none;
+    font-family: 'Open Sans',sans-serif;
+    font-size: 16px;
+    color: rgba(255,255,255,0.8);
+}
+
+.inform {
+    display: inline-block;
+    background: #2257a41a;
+    padding: 5px 10px;
+    border-radius: 2px;
+    box-shadow: 0 0 2px #00000040;
+    margin: 10px 0px;
+    color:#444444;
+}
+.inform a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+table a {
+    background: #2257a4;
+    padding: 5px 10px;
+    color: rgba(255,255,255,0.9);
+    border-radius: 2px;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+table a {
+    background: #2257a4;
+    padding: 5px 10px;
+    color: rgba(255,255,255,0.9);
+    border-radius: 2px;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+table a:hover {
+    color: rgba(255,255,255,1);
+}

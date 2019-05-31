@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example of different styling</title>
+  <style type="text/css">
+    #container {
+      width: 600px;
+      height: 600px;
+      border: 1px solid black;
+    }
+
+    #container2 {
+      width: 550px;
+      height: 200px;
+      border: 1px solid black;
+    }
+    
+    #container3 {
+      width: 200px;
+      height: 550px;
+      border: 1px solid black;
+    }    
+
+    #container4 {
+      width: 250px;
+      height: 250px;
+      border: 1px solid black;
+    }    
+    
+    #body {
+      display: inline-block;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Different sizes example</h1>
+  <div>Example to show how graph would be rendered in different sizes with different aspects.</div>
+  <br />
+  <div id='body'>
+    <h2>1:1 aspect</h2>
+    <canvas id="container"></canvas>
+    <br />
+    <canvas id="container4"></canvas>
+    <br />
+    <h2>non 1:1 aspect</h2>
+    <canvas id="container2"></canvas>
+    <br />
+    <canvas id="container3"></canvas>
+  </div>
+  
+  <script>
+
+    var data = {};
+
+    function init(){
+	$.ajax({url: 'data/graph-10-2.json', dataType: 'json'}).done(dataLoaded);
+    };
+
+    function dataLoaded(d){
+	data = d;
+	showGraph();
+    }
+
+    function showGraph(){
+      var startTime = new Date();
+    
+      var conf = {
+		    styles: {
+			background: {
+			  color: "rgb(255, 255, 255)"
+			},
+			node: {
+			  minSize: 6,
+			  maxSize: 16,
+			  color: "rgb(255, 0, 0)",
+			  texture: "images/circle.png",
+			  label: {
+			      hideSize: 16,
+			      color: "rgb(120, 120, 120)"
+			  }
+			},
+			edge: {
+			  width: 1,
+			  color: "rgb(204, 204, 204)",
+			  arrow: {
+			      minSize: 6,
+			      maxSize: 16,
+			      aspect: 1,
+			      texture: "images/arrow.png",
+			      hideSize: 1
+			  },
+			  type: "dashed"
+			},
+			edgeDotted: {
+			  width: 1,
+			  color: "rgb(204, 204, 204)",
+			  arrow: {
+			      minSize: 6,
+			      maxSize: 16,
+			      aspect: 1,
+			      texture: "images/arrow.png",
+			      hideSize: 1
+			  },
+			  type: "dotted"
+			}
+		    }
+		  };
+
+      var n = data.nodes[0];
+      data.edges.push({source: n, target: n, style: 'edgeDotted'});
+      for(var i = 0; i < data.edges.length / 2; i++){
+	data.edges[i].style = 'edgeDotted';
+      }
+		  
+      var el = document.getElementById('container');
+      var graph = new ccNetViz(el, conf);
+      graph.set(data.nodes, data.edges, "force");
+      graph.draw();
+      
+      for(var i = 2; ; i++){
+	var el2 = document.getElementById('container'+i);
+	if(!el2)
+	  return;
+	var graph2 = new ccNetViz(el2, conf);
+	graph2.set(data.nodes, data.edges);
+	graph2.draw();
+      }
+      
+      
+      $('#nodesCnt').text(data.nodes.length);
+      $('#edgesCnt').text(data.edges.length);
+      $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime())*10)/10);
+    }
+
+    $(init);
+  </script>
+</body>
+</html>

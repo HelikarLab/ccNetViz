@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      cursor: auto;
+    }
+  </style>
+  <script src="./libs/jquery.min.js"></script>
+  <script src="./libs/jquery.throttle-debounce.min.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Move node example</h1>
+  <div>drag any node</div>
+  <br />
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
+  <script>
+    function init(){
+	$.ajax({url: 'data/graph-1000-3.json', dataType: 'json'}).done(dataLoaded);
+    }
+
+    var el = document.getElementById('container');
+    var graph, nodes, edges;
+    
+    function dataLoaded(d){
+      graph = new ccNetViz(el, {
+	styles: {
+	  node: { 
+	    texture: "images/node_bw.png", 
+	    label: { 
+	      hideSize: 16,
+	      font: {
+          type:    "sdf",
+          texture: "fonts/OpenSans-Regular.png",
+          metrics: "fonts/OpenSans-Regular.json", // "null" - if the image to be generated
+          size:    12
+	      }
+	    } 
+	  },
+	  edge: { arrow: { texture: "images/arrow.png" } },
+	  edgeHover: {
+	    color: "rgb(0, 0, 255)"
+	  },
+	  nodeHover: {
+	    texture: "images/node.png", label: { hideSize: 16 }
+	  }
+	}
+      });
+      
+      
+      nodes = d.nodes;
+      edges = d.edges;
+      graph.set(d.nodes, d.edges, "force");
+      graph.draw();
+      
+    }
+
+    
+    var current_moving_node = undefined;
+    var current_moving_edges = undefined;
+    
+    el.addEventListener('mousedown', function(e){
+      if(!graph) return;
+    
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+      
+      if(result.nodes.length > 0){
+	current_moving_node = result.nodes[0].node;
+	
+	//find all asociated edges
+	current_moving_edges = [];
+	for(var i = 0; i < edges.length; i++){
+	  var e = edges[i];
+	  if(e.source === current_moving_node || e.target === current_moving_node)
+	    current_moving_edges.push(e);
+	}
+      }
+    });
+    
+    function onMove(e){
+      if(!graph) return;
+
+      var bb = el.getBoundingClientRect();
+
+      var x = e.clientX - bb.left;
+      var y = e.clientY - bb.top;
+      var radius = 5;
+      
+      var lCoords = graph.getLayerCoords({radius: radius, x:x, y:y});
+      var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+
+      //update cursor
+      $("#container").css("cursor", current_moving_node || result.nodes.length > 0 ? "pointer" : 'auto')
+      
+      
+      //update currently moving element
+      if(current_moving_node === undefined || current_moving_edges === undefined)
+	return;
+      current_moving_node.x = lCoords.x;
+      current_moving_node.y = lCoords.y;
+      graph.updateNode(current_moving_node).updateEdges(current_moving_edges).applyChanges();
+    }
+    
+    function onUp(e){
+      if(!graph) return;
+
+      if(current_moving_node === undefined)
+	return;
+	
+      onMove(e);
+      graph.reflow();	//we make all dynamic changes static (performance optimalization)
+      current_moving_node = undefined;
+      current_moving_edges = undefined;
+    }
+
+    el.addEventListener('mousemove', $.throttle(20, onMove));
+    el.addEventListener('mouseup', $.throttle(20, onUp));
+    
+    $(init);
+    
+  </script>
+</body>
+</html>
