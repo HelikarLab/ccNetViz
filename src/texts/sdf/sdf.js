@@ -123,7 +123,6 @@ export default class {
    // dx and dy shifts the position of label w.r.t possibly node
    // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
    if(!( alignment === 'right' || alignment === 'left' || alignment === 'middle')) {
-    alert('Please check alignment')
     alignment = 'left';
    }
   const textArray = text.split(" ");
@@ -136,12 +135,12 @@ export default class {
    switch (alignment) {
     case 'left' :
         dx = x <= 0.5 ? 0 : -width;
-        dy = y <= 0.5 ? 0 : -height;
+        dy = y <= 0.5 ? (this.fontSize)*(textArray.length-3) : -height+(this.fontSize)*(textArray.length-3);
         for (var i=0;i<text.length;i++) {
      
           if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
             dx = x <= 0.5 ? 0  : -width ;
-            dy = dy-Math.floor(height/3);
+            dy = dy-this.fontSize;
           } else {
               const char = this._getChar(text[i], markDirty);
               const rect = char.rect || {};
@@ -167,13 +166,13 @@ export default class {
         } //for of first
         break;
     case 'right' :
-        dx = x <= 0.5 ? width : 0;
-        dy = y<=0.5 ? -(Math.floor(height/3))*(textArray.length-1) : -height-(Math.floor(height/3))*(textArray.length-1)
+        dx = x <= 0.5 ? width : -width/4;
+        dy = y<=0.5 ? 0 : -height-(this.fontSize)*(textArray.length-3)
         for (var i=text.length-1;i>=0;i--) {
      
           if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
-            dx = x <= 0.5 ? 0+width  : 0 ;
-            dy = dy+Math.floor(height/3);
+            dx = x <= 0.5 ? width  : -width/4 ;
+            dy = dy+this.fontSize;
           } else {
               const char = this._getChar(text[i], markDirty);
               const rect = char.rect || {};
@@ -198,8 +197,9 @@ export default class {
           break;
 
       case 'middle' :
+        dy = y <= 0.5 ? (this.fontSize)*(textArray.length-3) : -height+(this.fontSize)*(textArray.length-3);
+
           
-          dy = y <= 0.5 ? 0 : -height;
         for (var i=0;i<textArray.length;i++) {
           
           dx = x <= 0.5 ? 0 : -width;
@@ -231,7 +231,7 @@ export default class {
               //      dx += rect.w;
      
         } //for of first
-        dy = dy-Math.floor(height/3);
+        dy = dy-this.fontSize
         }
           
         
@@ -267,7 +267,7 @@ export default class {
     // if you want to show more alphabets , just increase "t" in sdf.html and 
     // change ctx.putImageData(imgData, 10, 20); to something variable
 
-    // if(t) {
+    // if(document.getElementById("test-canvas") && typeof t !== "undefined" && t>0) {
     //   const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
     //   const testCanvas = document.getElementById("test-canvas");
     //   const ctx = testCanvas.getContext("2d");
@@ -277,7 +277,7 @@ export default class {
     
     // After uncommenting the lines above , comment the "if" code below, this might help in debugging 
 
-    if(t) {
+    if((document.getElementById("test-canvas") && typeof t === "undefined") || (document.getElementById("test-canvas") && t)) {
 
       const testCanvas = document.getElementById("test-canvas");
       testCanvas.width = 0;
