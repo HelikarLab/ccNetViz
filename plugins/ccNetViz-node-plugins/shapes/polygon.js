@@ -23,6 +23,4 @@ let Polygon = (config, instance) => {
   return new Polygon(config, instance)
 }
 
-window.Polygon = Polygon;
-
 export default Polygon
