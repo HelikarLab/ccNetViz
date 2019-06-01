@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ccNetViz example</title>
+  <link rel="stylesheet" type="text/css" href="css/spectrum.css">
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      border: 1px solid black;
+    }
+  </style>
+  <script src="../dist/ccNetViz.js"></script>
+</head>
+
+<body>
+  <div id='body'>
+    <canvas id="container"></canvas>
+  </div>
+  <script>
+    var canvas = document.getElementById('container');
+    var graph = new ccNetViz(canvas, {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } },
+        triangle: Triangle({ size: 26, textureColor: "black" }),
+        triangle2: Triangle({
+          size: 30,
+          textureColor: "#cf0101",
+          stroke: { size: 1 },
+          minSize: 25,
+          maxSize: 25,
+          label: {
+            hideSize: 16,
+            color: "rgb(0, 0, 0)"
+          }
+        }),
+        "node rectangle": Rectangle({ size: 20, textureColor: "skyblue", stroke: { size: 3, color: "blue" } }),
+        ellipse: Ellipse(),
+        star: Star({
+          textureColor: "#fff",
+          minSize: 30,
+          maxSize: 30,
+          size: 30,
+          stroke: {
+            size: 4,
+            color: "#000"
+          }
+        }),
+        hexagon: Hexagon({ textureColor: "rgb(140,140,140)" })
+      }
+    });
+
+    var nodes = [
+      { label: "Label 1", style: "triangle" },
+      { label: "Label 2", style: "node rectangle" },
+      { label: "Label 3", style: "triangle2" },
+      { label: "Label 4", style: "ellipse" },
+      { label: "Label 5", style: "star" },
+      { label: "Label 6", style: "hexagon" },
+      { label: "Label 7", style: "triangle" },
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[0] },
+      { source: nodes[0], target: nodes[0] },
+      { source: nodes[1], target: nodes[2] },
+      { source: nodes[2], target: nodes[5] },
+      { source: nodes[4], target: nodes[1] },
+      { source: nodes[0], target: nodes[5] },
+      { source: nodes[3], target: nodes[6] },
+      { source: nodes[4], target: nodes[2] },
+      { source: nodes[6], target: nodes[2] },
+
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+  </script>
+</body>
+
+</html>

@@ -154,8 +154,8 @@ var ccNetViz = function(canvas, options){
   this.set = (n, e, layout, layout_options = {}) => {
     let promises = nodePluginParser();
 
-    Promise.all(promises.map(item => item.config)).then((blobs) => {
-      blobs.map((item, index) => {
+    Promise.all(promises.map(item => item.config)).then((c) => {
+      c.map((item, index) => {
         options.styles[promises[index].name] = item;
       });
 
