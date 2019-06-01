@@ -19,5 +19,4 @@ let Ellipse = (config, instance) => {
   return new Ellipse(config, instance)
 }
 
-window.Ellipse = Ellipse;
 export default Ellipse

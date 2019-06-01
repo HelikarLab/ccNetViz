@@ -19,5 +19,4 @@ let Star = (config, instance) => {
   return new Star(config, instance)
 }
 
-window.Star = Star;
 export default Star

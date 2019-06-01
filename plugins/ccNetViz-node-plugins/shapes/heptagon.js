@@ -22,5 +22,4 @@ let Heptagon = (config, instance) => {
   return new Heptagon(config, instance)
 }
 
-window.Heptagon = Heptagon;
 export default Heptagon

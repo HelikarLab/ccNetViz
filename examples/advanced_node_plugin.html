@@ -24,8 +24,8 @@
       styles: {
         node: { texture: "images/node.png", label: { hideSize: 16 } },
         edge: { arrow: { texture: "images/arrow.png" } },
-        triangle: Triangle({ size: 26, textureColor: "black" }),
-        triangle2: Triangle({
+        triangle: ccNetViz.Shapes.Triangle({ size: 26, textureColor: "black" }),
+        triangle2: ccNetViz.Shapes.Triangle({
           size: 30,
           textureColor: "#cf0101",
           stroke: { size: 1 },
@@ -36,9 +36,9 @@
             color: "rgb(0, 0, 0)"
           }
         }),
-        "node rectangle": Rectangle({ size: 20, textureColor: "skyblue", stroke: { size: 3, color: "blue" } }),
-        ellipse: Ellipse(),
-        star: Star({
+        "node rectangle": ccNetViz.Shapes.Rectangle({ size: 20, textureColor: "skyblue", stroke: { size: 3, color: "blue" } }),
+        ellipse: ccNetViz.Shapes.Ellipse(),
+        star: ccNetViz.Shapes.Star({
           textureColor: "#fff",
           minSize: 30,
           maxSize: 30,
@@ -48,7 +48,7 @@
             color: "#000"
           }
         }),
-        hexagon: Hexagon({ textureColor: "rgb(140,140,140)" })
+        hexagon: ccNetViz.Shapes.Hexagon({ textureColor: "rgb(140,140,140)" })
       }
     });
 

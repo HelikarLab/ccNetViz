@@ -20,5 +20,4 @@ let Pentagon = (config, instance) => {
   return new Pentagon(config, instance)
 }
 
-window.Pentagon = Pentagon;
 export default Pentagon

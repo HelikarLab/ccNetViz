@@ -19,5 +19,4 @@ let Rhombus = (config, instance) => {
   return new Rhombus(config, instance)
 }
 
-window.Rhombus = Rhombus;
 export default Rhombus

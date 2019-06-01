@@ -2,6 +2,9 @@ export default class Shape {
   constructor(config, instance) {
     this.config = config;
     if (typeof instance !== "undefined") {
+      setTimeout(() => {
+        console.log(instance.findArea(0, 0, 1, 1, true, true))
+      }, 5000)
     }
 
     this.canvas = document.createElement('canvas');

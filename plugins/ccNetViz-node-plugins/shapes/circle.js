@@ -18,5 +18,4 @@ let Circle = (config, instance) => {
   return new Circle(config, instance)
 }
 
-window.Circle = Circle;
 export default Circle

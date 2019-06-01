@@ -21,5 +21,4 @@ let Hexagon = (config, instance) => {
   return new Hexagon(config, instance)
 }
 
-window.Hexagon = Hexagon;
 export default Hexagon

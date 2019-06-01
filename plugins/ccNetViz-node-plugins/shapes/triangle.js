@@ -15,8 +15,8 @@ let Triangle = (config, instance) => {
       super._draw();
     }
   }
+
   return new Triangle(config, instance)
 }
 
-window.Triangle = Triangle;
 export default Triangle

@@ -19,5 +19,4 @@ let Rectangle = (config, instance) => {
   return new Rectangle(config, instance)
 }
 
-window.Rectangle = Rectangle;
 export default Rectangle

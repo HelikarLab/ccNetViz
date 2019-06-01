@@ -775,12 +775,21 @@ var ccNetViz = function(canvas, options){
 
 ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
 
-
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
+ccNetViz.Shapes = {};
 
+typeof Circle !== 'undefined' ?   ccNetViz.Shapes.Circle = Circle : false;
+typeof Ellipse !== 'undefined' ?   ccNetViz.Shapes.Ellipse = Ellipse : false;
+typeof Triangle !== 'undefined' ?   ccNetViz.Shapes.Triangle = Triangle : false;
+typeof Rectangle !== 'undefined' ?   ccNetViz.Shapes.Rectangle = Rectangle : false;
+typeof Rhombus !== 'undefined' ?   ccNetViz.Shapes.Rhombus = Rhombus : false;
+typeof Pentagon !== 'undefined' ?   ccNetViz.Shapes.Pentagon = Pentagon : false;
+typeof Hexagon !== 'undefined' ?   ccNetViz.Shapes.Hexagon = Hexagon : false;
+typeof Heptagon !== 'undefined' ?   ccNetViz.Shapes.Heptagon = Heptagon : false;
+typeof Star !== 'undefined' ?   ccNetViz.Shapes.Star = Star : false;
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;
