@@ -134,13 +134,13 @@ export default class {
 
    switch (alignment) {
     case 'left' :
-        dx = x <= 0.5 ? 0 : -width;
-        dy = y <= 0.5 ? (this.fontSize)*(textArray.length-3) : -height+(this.fontSize)*(textArray.length-3);
+        dx = x <= 0.5 ? 0 : -width-10;
+        dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
         for (var i=0;i<text.length;i++) {
      
           if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
-            dx = x <= 0.5 ? 0  : -width ;
-            dy = dy-this.fontSize;
+            dx = x <= 0.5 ? 0  : -width-10 ;
+            dy = dy-Math.floor(height/3);
           } else {
               const char = this._getChar(text[i], markDirty);
               const rect = char.rect || {};
@@ -166,43 +166,56 @@ export default class {
         } //for of first
         break;
     case 'right' :
-        dx = x <= 0.5 ? width : -width/4;
-        dy = y<=0.5 ? 0 : -height-(this.fontSize)*(textArray.length-3)
-        for (var i=text.length-1;i>=0;i--) {
-     
-          if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
-            dx = x <= 0.5 ? width  : -width/4 ;
-            dy = dy+this.fontSize;
-          } else {
-              const char = this._getChar(text[i], markDirty);
-              const rect = char.rect || {};
-              let horiBearingX = 3;
-              
-              dx -= char.advance;
-              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-              ret.push({
-                width: rect.w,
-                height: rect.h,
-                left: rect.x / this.atlas.width, //position in atlas
-                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-                bottom: (rect.y + rect.h) / this.atlas.height, 
-                top: rect.y / this.atlas.height,
-                dx: dx,
-                dy: dy + char.top + (height - rect.h)
-                });
-              
-              dx -= horiBearingX;
-              
-          }}
-          break;
+      dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
+
+          
+      for (var i=0;i<textArray.length;i++) {
+        
+        dx = x <= 0.5 ? 0 : -width-10;
+        dx+=(wordWidth-widthArray[i])
+      text = textArray[i]
+      for (var j=0;j<text.length;j++) {
+   
+        
+          
+       
+            const char = this._getChar(text[j], markDirty);
+            const rect = char.rect || {};
+            let horiBearingX = 3;
+            dx += horiBearingX;
+   
+            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+            ret.push({
+              width: rect.w,
+              height: rect.h,
+              left: rect.x / this.atlas.width, //position in atlas
+              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+              bottom: (rect.y + rect.h) / this.atlas.height, 
+              top: rect.y / this.atlas.height,
+              dx: dx,
+              dy: dy + char.top + (height - rect.h)
+              });
+
+            dx += char.advance;
+            //      dx += rect.w;
+   
+      } //for of first
+      dy = dy-Math.floor(height/3)
+      console.log('font size and rect.h')
+      console.log(this.fontSize)
+      console.log(ret[0].height)
+      }
+        
+      
+      break;
 
       case 'middle' :
-        dy = y <= 0.5 ? (this.fontSize)*(textArray.length-3) : -height+(this.fontSize)*(textArray.length-3);
+        dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
 
           
         for (var i=0;i<textArray.length;i++) {
           
-          dx = x <= 0.5 ? 0 : -width;
+          dx = x <= 0.5 ? 0 : -width-10;
           dx+=(wordWidth-widthArray[i])/2
         text = textArray[i]
         for (var j=0;j<text.length;j++) {
@@ -231,13 +244,12 @@ export default class {
               //      dx += rect.w;
      
         } //for of first
-        dy = dy-this.fontSize
+        dy = dy-Math.floor(height/3)
         }
           
         
         break;
     }
-  console.log(ret) 
    return ret;
   }
   /**
@@ -328,7 +340,6 @@ export default class {
       wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
       // highest word length would be selected as the width
       if ((text[i] === ' ' || i == text.length-1 )) {
-        console.log(wordWidth)
         width = wordWidth > width ? wordWidth : width
         widthArray.push(wordWidth)
         wordWidth = 0
