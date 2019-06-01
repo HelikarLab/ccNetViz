@@ -1,17 +1,17 @@
 export default class Shape {
-  constructor(canvas, config) {
-    this.canvas = canvas;
+  constructor(config, instance) {
     this.config = config;
+    console.log(instance)
+
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = 0;
+    this.canvas.height = 0;
+    this.canvas.style.display = 'none';
     this.default = {};
 
     this._preConf();
     this._setCanvas();
     this._draw();
-    this.toBlob = new Promise((resolve, reject) => {
-      this.canvas.toBlob(blob => {
-        resolve(blob);
-      }, 'image/png');
-    });
   }
 
   // Before the drawing; when the config is existed override the default config.
@@ -69,5 +69,16 @@ export default class Shape {
   // Canvas transform into the 0-1 range
   t(size) {
     return (this.config.stroke.size) + (this.config.size * size);
+  }
+
+  toConfig() {
+    return new Promise((resolve, reject) => {
+      this.canvas.toBlob(blob => {
+        resolve(Object.assign(
+          { texture: URL.createObjectURL(blob) },
+          this.config));
+        this.canvas.remove();
+      }, 'image/png');
+    });;
   }
 }

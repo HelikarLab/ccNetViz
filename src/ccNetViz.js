@@ -11,6 +11,8 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
+import { Circle, Ellipse, Triangle, Rectangle, Rhombus, Pentagon, Hexagon, Heptagon, Star } from  "../plugins/ccNetViz-node-plugins/main"
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -69,7 +71,6 @@ function mergeArrays(a, b, cmp){
 var ccNetViz = function(canvas, options){
   let self = this;
   canvas = canvas || sCanvas;
-
   let backgroundStyle = options.styles.background = options.styles.background || {};
   let backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
 
@@ -150,23 +151,82 @@ var ccNetViz = function(canvas, options){
     return batch;
   };
 
-  this.set = (n, e, layout, layout_options={}) => {
-    if(checkRemoved()) return this;
+  this.set = (n, e, layout, layout_options = {}) => {
+    let promises = nodePluginParser();
 
-    nodes = n || [];
-    edges = e || [];
+    Promise.all(promises.map(item => item.config)).then((blobs) => {
+      blobs.map((item, index) => {
+        options.styles[promises[index].name] = item;
+      });
 
-    nodes.forEach(checkUniqId);
-    edges.forEach(checkUniqId);
+      if (checkRemoved()) return this;
 
-    layers.temp && layers.temp.set([], [], layout, layout_options);
-    layers.main.set(nodes, edges, layout, layout_options);
+      nodes = n || [];
+      edges = e || [];
 
-    //reset batch
-    batch = undefined;
-    setted = true;
-    return this;
+      nodes.forEach(checkUniqId);
+      edges.forEach(checkUniqId);
+
+      layers.temp && layers.temp.set([], [], layout, layout_options);
+      layers.main.set(nodes, edges, layout, layout_options);
+
+      //reset batch
+      batch = undefined;
+      setted = true;
+      return this;
+    });
   };
+
+  let nodePluginParser = function () {
+    let p = [];
+    if (typeof options.styles !== "undefined") {
+      for (let key in options.styles) {
+        let style = options.styles[key];
+
+        switch (style.type) {
+          case 'Circle':
+            let circle = new Circle(style.config, self)
+            p.push({ config: circle.toConfig(), name: key });
+            break;
+          case 'Ellipse':
+            let ellipse = new Ellipse(style.config, self)
+            p.push({ config: ellipse.toConfig(), name: key });
+            break;
+          case 'Heptagon':
+            let heptagon = new Heptagon(style.config, self)
+            p.push({ config: heptagon.toConfig(), name: key });
+            break;
+          case 'Hexagon':
+            let hexagon = new Hexagon(style.config, self)
+            p.push({ config: hexagon.toConfig(), name: key });
+            break;
+          case 'Pentagon':
+            let pentagon = new Pentagon(style.config, self)
+            p.push({ config: pentagon.toConfig(), name: key });
+            break;
+          case 'Rectangle':
+            let rectangle = new Rectangle(style.config, self)
+            p.push({ config: rectangle.toConfig(), name: key });
+            break;
+          case 'Rhombus':
+            let rhombus = new Rhombus(style.config, self)
+            p.push({ config: rhombus.toConfig(), name: key });
+            break;
+          case 'Star':
+            let star = new Star(style.config, self)
+            p.push({ config: star.toConfig(), name: key });
+            break;
+          case 'Triangle':
+            let triangle = new Triangle(style.config, self)
+            p.push({ config: triangle.toConfig(), name: key });
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    return p;
+  }
 
   //make all dynamic changes static
   this.reflow = () => {
