@@ -11,7 +11,7 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import { Circle, Ellipse, Triangle, Rectangle, Rhombus, Pentagon, Hexagon, Heptagon, Star } from  "../plugins/ccNetViz-node-plugins/main"
+import { Circle, Ellipse, Star, Polygon } from  "../plugins/ccNetViz-node-plugins/main"
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -190,33 +190,13 @@ var ccNetViz = function(canvas, options){
             let ellipse = new Ellipse(style.config, self)
             p.push({ config: ellipse.toConfig(), name: key });
             break;
-          case 'Heptagon':
-            let heptagon = new Heptagon(style.config, self)
-            p.push({ config: heptagon.toConfig(), name: key });
-            break;
-          case 'Hexagon':
-            let hexagon = new Hexagon(style.config, self)
-            p.push({ config: hexagon.toConfig(), name: key });
-            break;
-          case 'Pentagon':
-            let pentagon = new Pentagon(style.config, self)
-            p.push({ config: pentagon.toConfig(), name: key });
-            break;
-          case 'Rectangle':
-            let rectangle = new Rectangle(style.config, self)
-            p.push({ config: rectangle.toConfig(), name: key });
-            break;
-          case 'Rhombus':
-            let rhombus = new Rhombus(style.config, self)
-            p.push({ config: rhombus.toConfig(), name: key });
+          case 'Polygon':
+            let polygon = new Polygon(style.config, self)
+            p.push({ config: polygon.toConfig(), name: key });
             break;
           case 'Star':
             let star = new Star(style.config, self)
             p.push({ config: star.toConfig(), name: key });
-            break;
-          case 'Triangle':
-            let triangle = new Triangle(style.config, self)
-            p.push({ config: triangle.toConfig(), name: key });
             break;
           default:
             break;
@@ -783,13 +763,8 @@ ccNetViz.Shapes = {};
 
 typeof Circle !== 'undefined' ?   ccNetViz.Shapes.Circle = Circle : false;
 typeof Ellipse !== 'undefined' ?   ccNetViz.Shapes.Ellipse = Ellipse : false;
-typeof Triangle !== 'undefined' ?   ccNetViz.Shapes.Triangle = Triangle : false;
-typeof Rectangle !== 'undefined' ?   ccNetViz.Shapes.Rectangle = Rectangle : false;
-typeof Rhombus !== 'undefined' ?   ccNetViz.Shapes.Rhombus = Rhombus : false;
-typeof Pentagon !== 'undefined' ?   ccNetViz.Shapes.Pentagon = Pentagon : false;
-typeof Hexagon !== 'undefined' ?   ccNetViz.Shapes.Hexagon = Hexagon : false;
-typeof Heptagon !== 'undefined' ?   ccNetViz.Shapes.Heptagon = Heptagon : false;
 typeof Star !== 'undefined' ?   ccNetViz.Shapes.Star = Star : false;
+typeof Polygon !== 'undefined' ?   ccNetViz.Shapes.Polygon = Polygon : false;
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;
