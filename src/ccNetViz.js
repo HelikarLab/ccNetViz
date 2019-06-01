@@ -152,29 +152,27 @@ var ccNetViz = function(canvas, options){
   };
 
   this.set = (n, e, layout, layout_options = {}) => {
-    let promises = nodePluginParser();
+    if (checkRemoved()) return this;
 
+    nodes = n || [];
+    edges = e || [];
+
+    nodes.forEach(checkUniqId);
+    edges.forEach(checkUniqId);
+
+    let promises = nodePluginParser();
     Promise.all(promises.map(item => item.config)).then((c) => {
       c.map((item, index) => {
         options.styles[promises[index].name] = item;
       });
-
-      if (checkRemoved()) return this;
-
-      nodes = n || [];
-      edges = e || [];
-
-      nodes.forEach(checkUniqId);
-      edges.forEach(checkUniqId);
-
       layers.temp && layers.temp.set([], [], layout, layout_options);
       layers.main.set(nodes, edges, layout, layout_options);
-
-      //reset batch
-      batch = undefined;
-      setted = true;
-      return this;
     });
+
+    //reset batch
+    batch = undefined;
+    setted = true;
+    return this;
   };
 
   let nodePluginParser = function () {
