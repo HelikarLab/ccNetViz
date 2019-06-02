@@ -117,68 +117,75 @@ export default class {
     // TODO: this code is not intuitive, we can write better
     return this.atlas.texture;
   }
+  
+  // function to align text left, right or center
+  alignText(alignment, text, x, y, width, height, markDirty, widthArray, wordWidth) {
 
-  alignText(alignment,text,x,y,width,height,markDirty,widthArray,wordWidth) {
     // x and y are the clipspace co-ordinates between 0 and 1
    // dx and dy shifts the position of label w.r.t possibly node
    // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
+    
    if(!( alignment === 'right' || alignment === 'left' || alignment === 'middle')) {
     alignment = 'left';
-   }
-  const textArray = text.split(" ");
-   let dx=0;
-   let dy=0;
+    }
+    const textArray = text.split(" ");
+    let dx=0;
 
-   // "ret" must be the return object. "ret" is always the return object
-   let ret = [];
+    // dy positioned so that if y< 0.5 i.e. for lower half of canvas it's length should increase dynamically 
+    // so that it characters don't go outside of canvas, also for y>0.5 , it's constant at a particular height
+    // so that it for y===1 it doesn't go beyond the canvas
 
-   switch (alignment) {
-    case 'left' :
-        dx = x <= 0.5 ? 0 : -width-10;
-        dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
+    let dy = y <= 0.5 ? height/3*(textArray.length-1) : -height/3;
+    // "ret" must be the return object. "ret" is always the return object
+    let ret = [];
+
+    switch (alignment) {
+      case 'left' :
+        dx = x <= 0.5 ? 0: -width;
+        
         for (var i=0;i<text.length;i++) {
-     
+
+          // changing line here when it encounters any whitespace character
+
           if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
-            dx = x <= 0.5 ? 0  : -width-10 ;
+            dx = x <= 0.5 ? 0 : -width ;
             dy = dy-Math.floor(height/3);
           } else {
-              const char = this._getChar(text[i], markDirty);
-              const rect = char.rect || {};
-              let horiBearingX = 3;
-              dx += horiBearingX;
+            const char = this._getChar(text[i], markDirty);
+            const rect = char.rect || {};
+            let horiBearingX = 3;
+            dx += horiBearingX;
      
-              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-              ret.push({
-                width: rect.w,
-                height: rect.h,
-                left: rect.x / this.atlas.width, //position in atlas
-                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-                bottom: (rect.y + rect.h) / this.atlas.height, 
-                top: rect.y / this.atlas.height,
-                dx: dx,
-                dy: dy + char.top + (height - rect.h)
-                });
+            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+            ret.push({
+              width: rect.w,
+              height: rect.h,
+              left: rect.x / this.atlas.width, //position in atlas
+              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+              bottom: (rect.y + rect.h) / this.atlas.height, 
+              top: rect.y / this.atlas.height,
+              dx: dx,
+              dy: dy + char.top + (height - rect.h)
+              });
 
-              dx += char.advance;
-              //      dx += rect.w;
+            dx += char.advance; // advancce is the width of the character
      
-          } //else of first
-        } //for of first
+          } 
+        } 
         break;
-    case 'right' :
-      dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
 
-          
-      for (var i=0;i<textArray.length;i++) {
+    case 'right' :
+
+      for (var i=0;i<textArray.length;i++) {  
+        dx = x <= 0.5 ? 0: -width;
         
-        dx = x <= 0.5 ? 0 : -width-10;
-        dx+=(wordWidth-widthArray[i])
-      text = textArray[i]
-      for (var j=0;j<text.length;j++) {
-   
-        
-          
-       
+        // logic here is wordWidth is the max length of word in the wordArray, so if we subtract
+        // width of the word we are currently iterating on and then set dx as given below, we 
+        // will get the exact position from where to start 
+
+        dx+=(wordWidth-widthArray[i]);
+        text = textArray[i];
+        for (var j=0;j<text.length;j++) {
             const char = this._getChar(text[j], markDirty);
             const rect = char.rect || {};
             let horiBearingX = 3;
@@ -197,60 +204,41 @@ export default class {
               });
 
             dx += char.advance;
-            //      dx += rect.w;
-   
-      } //for of first
-      dy = dy-Math.floor(height/3)
-      console.log('font size and rect.h')
-      console.log(this.fontSize)
-      console.log(ret[0].height)
+        }
+        dy = dy-Math.floor(height/3);
       }
-        
-      
       break;
 
-      case 'middle' :
-        dy = y <= 0.5 ? (this.fontSize)*(textArray.length) : -this.fontSize;
+    case 'middle' :
 
-          
-        for (var i=0;i<textArray.length;i++) {
-          
-          dx = x <= 0.5 ? 0 : -width-10;
-          dx+=(wordWidth-widthArray[i])/2
-        text = textArray[i]
+      for (var i=0;i<textArray.length;i++) {      
+        dx = x <= 0.5 ? 0: -width;
+        dx+=(wordWidth-widthArray[i])/2;
+        text = textArray[i];
         for (var j=0;j<text.length;j++) {
-     
-          
-            
-         
-              const char = this._getChar(text[j], markDirty);
-              const rect = char.rect || {};
-              let horiBearingX = 3;
-              dx += horiBearingX;
-     
-              // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-              ret.push({
-                width: rect.w,
-                height: rect.h,
-                left: rect.x / this.atlas.width, //position in atlas
-                right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-                bottom: (rect.y + rect.h) / this.atlas.height, 
-                top: rect.y / this.atlas.height,
-                dx: dx,
-                dy: dy + char.top + (height - rect.h)
-                });
+          const char = this._getChar(text[j], markDirty);
+          const rect = char.rect || {};
+          let horiBearingX = 3;
+          dx += horiBearingX;
 
-              dx += char.advance;
-              //      dx += rect.w;
-     
-        } //for of first
-        dy = dy-Math.floor(height/3)
+            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+            ret.push({
+              width: rect.w,
+              height: rect.h,
+              left: rect.x / this.atlas.width, //position in atlas
+              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+              bottom: (rect.y + rect.h) / this.atlas.height, 
+              top: rect.y / this.atlas.height,
+              dx: dx,
+              dy: dy + char.top + (height - rect.h)
+              });
+            dx += char.advance;
+            } 
+          dy = dy-Math.floor(height/3);
         }
-          
-        
-        break;
+      break;
     }
-   return ret;
+  return ret;
   }
   /**
    * Updates the 'texture' member variable of this.atlas object
@@ -336,7 +324,7 @@ export default class {
      // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
      //decide the height and then max of them is taken each time to have a max height that fits each char
 
-      height = Math.max(height, rect.h - char.top);
+      height = rect.h
       wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
       // highest word length would be selected as the width
       if ((text[i] === ' ' || i == text.length-1 )) {
@@ -348,7 +336,7 @@ export default class {
       
     }
     
-    let ret = this.alignText(alignment ,text,x,y,width,height,markDirty,widthArray,width)
+    let ret = this.alignText(alignment, text, x, y, width, height, markDirty, widthArray, width)
    return ret
   }
 

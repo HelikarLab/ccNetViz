@@ -31,6 +31,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         set: (v, e, iV, iI) => {
             let x = e.x;
             let y = e.y;
+            // places vertex values of nodes in buffer , v.position is buffer
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
             ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
             if(v.color){
@@ -52,12 +53,24 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var y = e.y;
 
                 var ret = false;
-                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;},e.alignment || style.alignText || 'left');
+                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;},e.alignment || style.alignment || 'left');
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
+                  // parts is the array of characters, character description and position w.r.t node 
                   let c = parts[i];
-
+                  //position of the node
                   ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-                  ccNetViz_primitive.vertices(v.relative, iV, c.dx, c.dy, c.width + c.dx, c.dy, c.width + c.dx, c.height + c.dy, c.dx, c.height + c.dy);
+                  //position of the vertices of box of label to be rendered
+                  if (i==0) {
+
+                    // bring the center of box of character to the center of node (incase if you are wondering
+                    // why not c.width/2 and c.height/2 , it's because for c.width/2, it will exactly coincide with
+                    // center of node, so some of the node labels could go out of canvas)
+
+                    var boxMinusX = c.width/3;
+                    var boxMinusY = c.height/3;
+                  }
+                  ccNetViz_primitive.vertices(v.relative, iV, c.dx-boxMinusX, c.dy-boxMinusY, c.width + c.dx-boxMinusX, c.dy-boxMinusY, c.width + c.dx-boxMinusX, c.height + c.dy-boxMinusY, c.dx-boxMinusX, c.height + c.dy-boxMinusY);
+                  // position of characters in atlas
                   ccNetViz_primitive.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
