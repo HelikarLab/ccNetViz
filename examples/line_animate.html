@@ -2,18 +2,26 @@
 <html>
   <head>
     <title>ccNetViz line animation example</title>
+    <script src="./libs/jquery.min.js"></script>
     <script src="../dist/ccNetViz.js"></script>
   </head>
   <body>
     <h1>Line animation example</h1>
-    <canvas
-      id="main"
-      width="800"
-      height="600"
-      style="border: 1px solid;"
-    ></canvas>
+    <div
+        id="main"
+        width="800"
+        height="600"
+        style="border: 1px solid;"
+      >
+    </div>
+    <label>animation type:</label>
+    <select id="animate-select" onchange="onAnimationChange()">
+      <option value="none">None</option>
+      <option value="basic">Basic</option>
+      <option value="gradient">Gradient</option>
+    </select>
     <script>
-      data = {
+      const data = {
         nodes: [{ label: "1" }, { label: "2" }, { label: "3" }, { label: "4" }],
         edges: [
           { source: 0, target: 1 },
@@ -22,8 +30,7 @@
         ]
       };
 
-      const el = document.querySelector("#main");
-      const graph = new ccNetViz(el, {
+      options = {
         styles: {
           node: {
             texture: "images/node.png"
@@ -37,9 +44,29 @@
             animateColor: "rgb(240, 80, 100)"
           }
         }
-      });
-      graph.set(data.nodes, data.edges, "force");
-      graph.draw();
+      };
+
+      function onAnimationChange() {
+        const el = document.querySelector("#animate-select");
+        const val = el.options[el.selectedIndex].value;
+        window.options.styles.edge.animateType = val;
+        showGraph(window.options);
+      }
+
+      function showGraph(options) {
+        const el = document.querySelector("#main");
+        el.innerHTML = "";
+        canvas = document.createElement("canvas");
+        canvas.width = 800;
+        canvas.height = 600;
+        el.appendChild(canvas);
+
+        const graph = new ccNetViz(canvas, options);
+        graph.set(data.nodes, data.edges, "force");
+        graph.draw();
+      }
+
+      showGraph(options);
     </script>
   </body>
 </html>
