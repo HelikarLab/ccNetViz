@@ -667,6 +667,22 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "}",
     ]
 
+    const isAnimateCoveredGradient = [
+        "float isAnimateCoveredGradient() {",
+        "   vec2 pos = gl_FragCoord.xy;",
+        "   vec2 viewport = 2. * v_screen;",
+        "   vec2 startPos = viewport * v_startPos;",
+        "   vec2 endPos = viewport * v_endPos;",
+        "   float totalLen = distance(startPos, endPos);",
+        "   float len = distance(pos, startPos);",
+        "   float gradLen = 180.;", // TODO: can config
+        "   float r = fract(v_time / 3.) * totalLen;",
+        "   // float r = 0.5 * totalLen;",
+        "   float draw = fract(smoothstep(r - gradLen, r, len));",
+        "   return draw;",
+        "}",
+    ]
+
     scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
             "precision mediump float;",
             "attribute vec2 position;",
@@ -713,13 +729,16 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "varying vec2 v_screen;",
             "varying vec2 v_lengthSoFar;",
             "uniform float lineSize;",
-        ].concat(isAnimateCovered).concat([
+        ]
+        .concat(isAnimateCovered)
+        .concat(isAnimateCoveredGradient).concat([
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
 	    ]).concat(lineTypes).concat([
             "   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "   // gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
-            "   gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
+            "   // gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
+            "   gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
             "   // gl_FragColor.a = gl_FragColor.a - length(n);",
             "}"
         ]), c => {
