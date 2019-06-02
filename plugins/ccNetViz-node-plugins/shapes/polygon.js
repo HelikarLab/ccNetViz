@@ -8,7 +8,7 @@ let Polygon = (config, instance) => {
     }
     _draw() {
       this.context.beginPath();
-      let edges = this.config.edges;
+      let edges = this.config.edges || 3;
       let degree = 360 / edges;
       let radius = this.config.size / 2;
 
@@ -17,6 +17,7 @@ let Polygon = (config, instance) => {
         let y = radius + this.config.stroke.size + (radius * Math.sin((degree * (i + 1)) * (Math.PI / 180)));
         this.context.lineTo(x, y);
       }
+
       super._draw();
     }
   }

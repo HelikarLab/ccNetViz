@@ -8,11 +8,24 @@ let Star = (config, instance) => {
     }
     _draw() {
       this.context.beginPath();
-      this.context.moveTo(this.t(0.5), this.t(0));
-      this.context.lineTo(this.t(0.8), this.t(1));
-      this.context.lineTo(this.t(0), this.t(0.4));
-      this.context.lineTo(this.t(1), this.t(0.4));
-      this.context.lineTo(this.t(0.2), this.t(1));
+      let spikes = this.config.spikes || 5;
+      let radius = this.config.size / 2;
+
+      for (var i = 1; i <= spikes * 2; i++) {
+        let x, y;
+        let theta = i * (Math.PI * 2) / (spikes * 2);
+
+        if (i % 2 == 0) {
+          x = radius + this.config.stroke.size + (radius * Math.cos(theta));
+          y = radius + this.config.stroke.size + (radius * Math.sin(theta));
+        } else {
+          x = radius + this.config.stroke.size + ((radius / 2) * Math.cos(theta));
+          y = radius + this.config.stroke.size + ((radius / 2) * Math.sin(theta));
+        }
+
+        this.context.lineTo(x, y);
+      }
+
       super._draw();
     }
   }
