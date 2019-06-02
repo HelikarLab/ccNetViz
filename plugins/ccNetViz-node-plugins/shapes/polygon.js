@@ -13,8 +13,11 @@ let Polygon = (config, instance) => {
       let radius = this.config.size / 2;
 
       for (let i = 0; i < edges; i++) {
-        let x = radius + this.config.stroke.size + (radius * Math.cos((degree * (i + 1)) * (Math.PI / 180)));
-        let y = radius + this.config.stroke.size + (radius * Math.sin((degree * (i + 1)) * (Math.PI / 180)));
+        let theta = (degree * (i + 1)) * (Math.PI / 180);
+        let center = radius + this.config.stroke.size;
+
+        let x = center + (radius * Math.cos(theta));
+        let y = center + (radius * Math.sin(theta));
         this.context.lineTo(x, y);
       }
 
