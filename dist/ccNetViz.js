@@ -5775,6 +5775,7 @@ var ccNetViz = function ccNetViz(canvas, options) {
   var edgeStyle = options.styles.edge = options.styles.edge || {};
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+  edgeStyle.animateColor = edgeStyle.animateColor || "rgb(240, 80, 120)";
 
   var onLoad = function onLoad() {
     if (!options.onLoad || options.onLoad()) {

@@ -90,6 +90,7 @@ var ccNetViz = function(canvas, options){
   let edgeStyle = options.styles.edge = options.styles.edge || {};
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+  edgeStyle.animateColor = edgeStyle.animateColor || "rgb(240, 80, 120)";
 
   let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
 
