@@ -114,6 +114,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
                 ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
                 ccNetViz_primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
+                ccNetViz_primitive.vertices(v.startPos, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+                ccNetViz_primitive.vertices(v.endPos, iV, t.x, t.y, t.x, t.y, t.x, t.y, t.x, t.y);
+
                 ccNetViz_primitive.quad(v.indices, iV, iI);
             }})),
        'curves': (style => ({
@@ -649,13 +652,19 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     ];
 
     const isAnimateCovered = [
-        "float isAnimateCovered() {" +
-        "   vec2 pos = gl_FragCoord.xy;"+
-        "   float len = distance(pos, v_position);"+
-        "   float r = 300.;"+
-        "   float draw = step(r, len);"+
-        "   return draw;"+
-        "}"
+        "float isAnimateCovered() {",
+        "   vec2 pos = gl_FragCoord.xy;",
+        "   vec2 viewport = 2. * v_screen;",
+        "   vec2 startPos = viewport * v_startPos;",
+        "   vec2 endPos = viewport * v_endPos;",
+        "   float totalLen = distance(startPos, endPos);",
+        "   float len = distance(pos, startPos);",
+        "   // float r = 300.;",
+        "   float r = fract(v_time / 3.) * totalLen;",
+        "   // float r = 0.5 * totalLen;",
+        "   float draw = 1. - step(r, len);",
+        "   return draw;",
+        "}",
     ]
 
     scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
@@ -663,6 +672,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "attribute vec2 position;",
             "attribute vec2 normal;",
             "attribute vec2 lengthSoFar;",
+            "attribute vec2 startPos;",
+            "attribute vec2 endPos;",
             "uniform float time;",
             "uniform float exc;",
             "uniform vec2 size;",
@@ -672,6 +683,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "uniform vec2 width;",
             "uniform mat4 transform;",
             "varying float v_time;",
+            "varying vec2 v_startPos;",
+            "varying vec2 v_endPos;",
+            "varying vec2 v_screen;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;"
             ].concat(getShiftFuncs).concat([
@@ -681,6 +695,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "   vec4 p = transform*vec4(lengthSoFar,0,0);",
             "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
             "   v_time = time;",
+            "   v_startPos = startPos;",
+            "   v_endPos = endPos;",
+            "   v_screen = screen;",
 
             "   n = normal;",
             "}"
@@ -691,13 +708,19 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "uniform vec4 animateColor;",
             "varying vec2 n;",
             "varying float v_time;",
+            "varying vec2 v_startPos;",
+            "varying vec2 v_endPos;",
+            "varying vec2 v_screen;",
             "varying vec2 v_lengthSoFar;",
             "uniform float lineSize;",
+        ].concat(isAnimateCovered).concat([
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
-	    ].concat(lineTypes).concat([
+	    ]).concat(lineTypes).concat([
             "   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
-            "   gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
+            "   // gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
+            "   gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
+            "   // gl_FragColor.a = gl_FragColor.a - length(n);",
             "}"
         ]), c => {
             let uniforms = c.shader.uniforms;
