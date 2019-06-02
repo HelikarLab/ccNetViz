@@ -6044,17 +6044,24 @@ var ccNetViz = function ccNetViz(canvas, options) {
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
     var startTime = Date.now();
-    var drawLoop = function drawLoop() {
-      context.renderTime = (Date.now() - startTime) / 1000.0;
 
+    var drawOnce = function drawOnce() {
       for (var i = 0; i < layers.main.scene.elements.length; i++) {
         layers.main.scene.elements[i].draw(context);
         layers.temp && layers.temp.scene.elements[i].draw(context);
       }
+    };
+    var drawLoop = function drawLoop() {
+      context.renderTime = (Date.now() - startTime) / 1000.0;
+      drawOnce();
       requestAnimationFrame(drawLoop);
     };
 
-    drawLoop();
+    if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
+      drawLoop();
+    } else {
+      drawOnce();
+    }
   };
   drawFunc = this.draw.bind(this);
 

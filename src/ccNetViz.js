@@ -321,17 +321,24 @@ var ccNetViz = function(canvas, options){
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
     const startTime = Date.now();
-    const drawLoop = () => {
-        context.renderTime = (Date.now() - startTime) / 1000.0;
 
+    const drawOnce = () => {
         for(let i = 0; i < layers.main.scene.elements.length; i++){
             layers.main.scene.elements[i].draw(context);
             layers.temp && layers.temp.scene.elements[i].draw(context);
         }
+    }
+    const drawLoop = () => {
+        context.renderTime = (Date.now() - startTime) / 1000.0;
+        drawOnce();
         requestAnimationFrame(drawLoop);
     }
 
-    drawLoop();
+    if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
+        drawLoop();
+    } else {
+        drawOnce();
+    }
   };
   drawFunc = this.draw.bind(this);
 
