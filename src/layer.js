@@ -765,11 +765,6 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         ]).concat(lineTypes)
         .concat(lineAnimateTypes)
         .concat([
-            "   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
-            "   // gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
-            "   // gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
-            "   // gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
-            "   // gl_FragColor.a = gl_FragColor.a - length(n);",
             "}"
         ]), c => {
             let uniforms = c.shader.uniforms;
