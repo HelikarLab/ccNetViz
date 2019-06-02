@@ -543,6 +543,22 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       return t;
     };
 
+    let animateStylesTransl = {
+      'none': 0,
+      'basic': 1,
+      'gradient': 2,
+    }
+    let getEdgeAnimateType = (t) => {
+        if(t !== undefined){
+          t = animateStylesTransl[t];
+        }
+  
+        if(t === undefined || typeof t !== 'number'){
+          t = 0;
+        }
+  
+        return t;
+      };
 
     this.nodes = [];
     this.edges = [];
@@ -611,6 +627,17 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "      if(part < 0.5) discard;",
         "   }"
     ];
+
+    const lineAnimateTypes = [
+        "   if (animateType >= 1.5) {",
+        "       gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
+        "   } else if (animateType >= 0.5) {",
+        "       gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
+        "   } else {",
+        "       gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
+        "   }",
+    ]
+
     const fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
         "#ifdef GL_ES",
@@ -676,7 +703,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   float gradLen = 180.;", // TODO: can config
-        "   float r = fract(v_time / 3.) * totalLen;",
+        "   float r = fract(v_time / 3.) * (totalLen + gradLen);",
         "   // float r = 0.5 * totalLen;",
         "   float draw = fract(smoothstep(r - gradLen, r, len));",
         "   return draw;",
@@ -720,6 +747,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         ]), [
             "precision mediump float;",
             "uniform float type;",
+            "uniform float animateType;",
             "uniform vec4 color;",
             "uniform vec4 animateColor;",
             "varying vec2 n;",
@@ -734,11 +762,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         .concat(isAnimateCoveredGradient).concat([
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
-	    ]).concat(lineTypes).concat([
+        ]).concat(lineTypes)
+        .concat(lineAnimateTypes)
+        .concat([
             "   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
             "   // gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
             "   // gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
-            "   gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
+            "   // gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
             "   // gl_FragColor.a = gl_FragColor.a - length(n);",
             "}"
         ]), c => {
@@ -752,6 +782,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform1f(uniforms.aspect, c.aspect);
             gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+            gl.uniform1f(uniforms.animateType, getEdgeAnimateType(c.style.animateType));
             ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
             ccNetViz_gl.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
         })
