@@ -34,6 +34,7 @@ function getPartitionStyle(style, baseStyle, styleProperty){
         style && copy(style[styleProperty]);
     }
     result.color = result.color && new ccNetViz_color(result.color);
+    result.animateColor = result.animateColor && new ccNetViz_color(result.animateColor);
     return result;
 };
 

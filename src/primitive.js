@@ -220,6 +220,7 @@ export default class primitive{
         shader.bind();
 
         gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
+        gl.uniform1f(shader.uniforms.time, context.renderTime);
 
         sections.forEach(section => {
             if (section.style.texture) {

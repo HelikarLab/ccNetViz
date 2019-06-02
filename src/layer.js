@@ -648,11 +648,22 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "}"
     ];
 
+    const isAnimateCovered = [
+        "float isAnimateCovered() {" +
+        "   vec2 pos = gl_FragCoord.xy;"+
+        "   float len = distance(pos, v_position);"+
+        "   float r = 300.;"+
+        "   float draw = step(r, len);"+
+        "   return draw;"+
+        "}"
+    ]
+
     scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
             "precision mediump float;",
             "attribute vec2 position;",
             "attribute vec2 normal;",
             "attribute vec2 lengthSoFar;",
+            "uniform float time;",
             "uniform float exc;",
             "uniform vec2 size;",
             "uniform vec2 screen;",
@@ -660,6 +671,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "uniform float aspect;",
             "uniform vec2 width;",
             "uniform mat4 transform;",
+            "varying float v_time;",
             "varying vec2 n;",
             "varying vec2 v_lengthSoFar;"
             ].concat(getShiftFuncs).concat([
@@ -668,6 +680,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
             "   vec4 p = transform*vec4(lengthSoFar,0,0);",
             "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
+            "   v_time = time;",
 
             "   n = normal;",
             "}"
@@ -675,13 +688,16 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             "precision mediump float;",
             "uniform float type;",
             "uniform vec4 color;",
+            "uniform vec4 animateColor;",
             "varying vec2 n;",
+            "varying float v_time;",
             "varying vec2 v_lengthSoFar;",
             "uniform float lineSize;",
             "void main(void) {",
             "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
 	    ].concat(lineTypes).concat([
-            "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
+            "   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
+            "   gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));",
             "}"
         ]), c => {
             let uniforms = c.shader.uniforms;
@@ -695,6 +711,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
             ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+            ccNetViz_gl.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
         })
     );
 

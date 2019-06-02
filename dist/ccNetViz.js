@@ -6042,10 +6042,18 @@ var ccNetViz = function ccNetViz(canvas, options) {
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    for (var i = 0; i < layers.main.scene.elements.length; i++) {
-      layers.main.scene.elements[i].draw(context);
-      layers.temp && layers.temp.scene.elements[i].draw(context);
-    }
+    var startTime = Date.now();
+    var drawLoop = function drawLoop() {
+      context.renderTime = (Date.now() - startTime) / 1000.0;
+
+      for (var i = 0; i < layers.main.scene.elements.length; i++) {
+        layers.main.scene.elements[i].draw(context);
+        layers.temp && layers.temp.scene.elements[i].draw(context);
+      }
+      requestAnimationFrame(drawLoop);
+    };
+
+    drawLoop();
   };
   drawFunc = this.draw.bind(this);
 
@@ -8026,7 +8034,9 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
     var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 
-    scene.add("lines", new _primitive2.default(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "varying vec2 n;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"].concat(lineTypes).concat(["   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "}"]), function (c) {
+    var isAnimateCovered = ["float isAnimateCovered() {" + "   vec2 pos = gl_FragCoord.xy;" + "   float len = distance(pos, v_position);" + "   float r = 300.;" + "   float draw = step(r, len);" + "   return draw;" + "}"];
+
+    scene.add("lines", new _primitive2.default(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "uniform float time;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying float v_time;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   v_time = time;", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform vec4 color;", "uniform vec4 animateColor;", "varying vec2 n;", "varying float v_time;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;", "void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"].concat(lineTypes).concat(["   // gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));", "   gl_FragColor = sin(v_time) * vec4(color.r, color.g, color.b, color.a - length(n));", "}"]), function (c) {
         var uniforms = c.shader.uniforms;
         uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
         gl.uniform2f(uniforms.screen, c.width, c.height);
@@ -8038,6 +8048,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
         gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
         gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
         _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
+        _gl2.default.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
     }));
 
     if (extensions.OES_standard_derivatives) {
@@ -10406,6 +10417,7 @@ var primitive = function () {
             shader.bind();
 
             gl.uniformMatrix4fv(shader.uniforms.transform, false, context.transform);
+            gl.uniform1f(shader.uniforms.time, context.renderTime);
 
             sections.forEach(function (section) {
                 if (section.style.texture) {
@@ -10542,6 +10554,7 @@ function getPartitionStyle(style, baseStyle, styleProperty) {
         style && copy(style[styleProperty]);
     }
     result.color = result.color && new _color2.default(result.color);
+    result.animateColor = result.animateColor && new _color2.default(result.animateColor);
     return result;
 };
 
