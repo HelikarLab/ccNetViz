@@ -9,7 +9,6 @@
       height: 600px;
       border: 1px solid black;
     }
-
     #body {
       display: inline-block;
     }
@@ -24,13 +23,10 @@
   <br />
   <div id='body'>
     <canvas id="container"></canvas>
-    <canvas id="test-canvas" width=1000 height=200 style="border: 1px solid black"></canvas>
   </div>
 
   <script>
-
     var data = {};
-
     function init() {
       // $.ajax({ url: 'data/graph-10-2.json', dataType: 'json' }).done(dataLoaded);
       // $.ajax({ url: 'data/line-1000.json', dataType: 'json' }).done(dataLoaded);
@@ -42,15 +38,12 @@
       // $.ajax({ url: 'data/CD4.json', dataType: 'json' }).done(dataLoaded);
       // $.ajax({ url: 'data/circle-100.json', dataType: 'json' }).done(dataLoaded);
     };
-
     function dataLoaded(d) {
       data = d;
       showGraph();
     }
-
     function showGraph() {
       var startTime = new Date();
-
       var conf = {
         styles: {
           background: {
@@ -82,19 +75,15 @@
           }
         }
       };
-
       var el = document.getElementById('container');
       var graph = new ccNetViz(el, conf);
       graph.set(data.nodes, data.edges, "force");
       graph.draw();
-
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);
       $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10);
     }
-
     $(init);
-
     var t = 1;
   </script>
 </body>
