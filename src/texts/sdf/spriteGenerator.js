@@ -17,7 +17,7 @@ export default class SpriteGenerator {
         this.fontWeight = 'normal';
         // this.fontWeight = 'bold';
         // Size of one box of character
-        let size = this.size = this.fontSize + 2 * this.buffer;
+        let size = this.size = this.fontSize + this.buffer * 2;
 
         // Member varaibles for single canvas element on which single character is to be drawn
         this.canvas = document.createElement('canvas');
