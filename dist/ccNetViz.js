@@ -86,129 +86,175 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./node_modules/ml-array-max/src/index.js":
+/***/ "./node_modules/is-any-array/src/index.js":
 /*!************************************************!*\
-  !*** ./node_modules/ml-array-max/src/index.js ***!
+  !*** ./node_modules/is-any-array/src/index.js ***!
   \************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return max; });
-/**
- * Computes the maximum of the given values
- * @param {Array<number>} input
- * @return {number}
- */
-function max(input) {
-    if (!Array.isArray(input)) {
-        throw new Error('input must be an array');
-    }
 
-    if (input.length === 0) {
-        throw new Error('input must not be empty');
-    }
 
-    var max = input[0];
-    for (var i = 1; i < input.length; i++) {
-        if (input[i] > max) max = input[i];
-    }
-    return max;
+const toString = Object.prototype.toString;
+
+function isAnyArray(object) {
+  return toString.call(object).endsWith('Array]');
 }
+
+module.exports = isAnyArray;
 
 
 /***/ }),
 
-/***/ "./node_modules/ml-array-min/src/index.js":
-/*!************************************************!*\
-  !*** ./node_modules/ml-array-min/src/index.js ***!
-  \************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return min; });
-/**
- * Computes the minimum of the given values
- * @param {Array<number>} input
- * @return {number}
- */
-function min(input) {
-    if (!Array.isArray(input)) {
-        throw new Error('input must be an array');
-    }
-
-    if (input.length === 0) {
-        throw new Error('input must not be empty');
-    }
-
-    var min = input[0];
-    for (var i = 1; i < input.length; i++) {
-        if (input[i] < min) min = input[i];
-    }
-    return min;
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/ml-array-rescale/src/index.js":
+/***/ "./node_modules/ml-array-max/lib-es6/index.js":
 /*!****************************************************!*\
-  !*** ./node_modules/ml-array-rescale/src/index.js ***!
+  !*** ./node_modules/ml-array-max/lib-es6/index.js ***!
   \****************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return rescale; });
-/* harmony import */ var ml_array_max__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-max */ "./node_modules/ml-array-max/src/index.js");
-/* harmony import */ var ml_array_min__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ml-array-min */ "./node_modules/ml-array-min/src/index.js");
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! is-any-array */ "./node_modules/is-any-array/src/index.js");
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(is_any_array__WEBPACK_IMPORTED_MODULE_0__);
 
 
+/**
+ * Computes the maximum of the given values
+ * @param {Array<number>} input
+ * @return {number}
+ */
 
-function rescale(input, options = {}) {
-    if (!Array.isArray(input)) {
-        throw new TypeError('input must be an array');
-    } else if (input.length === 0) {
-        throw new TypeError('input must not be empty');
-    }
+function max(input) {
+  if (!is_any_array__WEBPACK_IMPORTED_MODULE_0___default()(input)) {
+    throw new TypeError('input must be an array');
+  }
 
-    let output;
-    if (options.output !== undefined) {
-        if (!Array.isArray(options.output)) {
-            throw new TypeError('output option must be an array if specified');
-        }
-        output = options.output;
-    } else {
-        output = new Array(input.length);
-    }
+  if (input.length === 0) {
+    throw new TypeError('input must not be empty');
+  }
 
-    const currentMin = Object(ml_array_min__WEBPACK_IMPORTED_MODULE_1__["default"])(input);
-    const currentMax = Object(ml_array_max__WEBPACK_IMPORTED_MODULE_0__["default"])(input);
+  var max = input[0];
 
-    if (currentMin === currentMax) {
-        throw new RangeError('minimum and maximum input values are equal. Cannot rescale a constant array');
-    }
+  for (var i = 1; i < input.length; i++) {
+    if (input[i] > max) max = input[i];
+  }
 
-    const {
-        min: minValue = options.autoMinMax ? currentMin : 0,
-        max: maxValue = options.autoMinMax ? currentMax : 1
-    } = options;
-
-    if (minValue >= maxValue) {
-        throw new RangeError('min option must be smaller than max option');
-    }
-
-    const factor = (maxValue - minValue) / (currentMax - currentMin);
-    for (var i = 0; i < input.length; i++) {
-        output[i] = (input[i] - currentMin) * factor + minValue;
-    }
-
-    return output;
+  return max;
 }
+
+/* harmony default export */ __webpack_exports__["default"] = (max);
+
+
+/***/ }),
+
+/***/ "./node_modules/ml-array-min/lib-es6/index.js":
+/*!****************************************************!*\
+  !*** ./node_modules/ml-array-min/lib-es6/index.js ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! is-any-array */ "./node_modules/is-any-array/src/index.js");
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(is_any_array__WEBPACK_IMPORTED_MODULE_0__);
+
+
+/**
+ * Computes the minimum of the given values
+ * @param {Array<number>} input
+ * @return {number}
+ */
+
+function min(input) {
+  if (!is_any_array__WEBPACK_IMPORTED_MODULE_0___default()(input)) {
+    throw new TypeError('input must be an array');
+  }
+
+  if (input.length === 0) {
+    throw new TypeError('input must not be empty');
+  }
+
+  var min = input[0];
+
+  for (var i = 1; i < input.length; i++) {
+    if (input[i] < min) min = input[i];
+  }
+
+  return min;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (min);
+
+
+/***/ }),
+
+/***/ "./node_modules/ml-array-rescale/lib-es6/index.js":
+/*!********************************************************!*\
+  !*** ./node_modules/ml-array-rescale/lib-es6/index.js ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ml_array_max__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-max */ "./node_modules/ml-array-max/lib-es6/index.js");
+/* harmony import */ var ml_array_min__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ml-array-min */ "./node_modules/ml-array-min/lib-es6/index.js");
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! is-any-array */ "./node_modules/is-any-array/src/index.js");
+/* harmony import */ var is_any_array__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(is_any_array__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+function rescale(input) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (!is_any_array__WEBPACK_IMPORTED_MODULE_2___default()(input)) {
+    throw new TypeError('input must be an array');
+  } else if (input.length === 0) {
+    throw new TypeError('input must not be empty');
+  }
+
+  var output;
+
+  if (options.output !== undefined) {
+    if (!is_any_array__WEBPACK_IMPORTED_MODULE_2___default()(options.output)) {
+      throw new TypeError('output option must be an array if specified');
+    }
+
+    output = options.output;
+  } else {
+    output = new Array(input.length);
+  }
+
+  var currentMin = Object(ml_array_min__WEBPACK_IMPORTED_MODULE_1__["default"])(input);
+  var currentMax = Object(ml_array_max__WEBPACK_IMPORTED_MODULE_0__["default"])(input);
+
+  if (currentMin === currentMax) {
+    throw new RangeError('minimum and maximum input values are equal. Cannot rescale a constant array');
+  }
+
+  var _options$min = options.min,
+      minValue = _options$min === void 0 ? options.autoMinMax ? currentMin : 0 : _options$min,
+      _options$max = options.max,
+      maxValue = _options$max === void 0 ? options.autoMinMax ? currentMax : 1 : _options$max;
+
+  if (minValue >= maxValue) {
+    throw new RangeError('min option must be smaller than max option');
+  }
+
+  var factor = (maxValue - minValue) / (currentMax - currentMin);
+
+  for (var i = 0; i < input.length; i++) {
+    output[i] = (input[i] - currentMin) * factor + minValue;
+  }
+
+  return output;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (rescale);
 
 
 /***/ }),
@@ -223,7 +269,7 @@ function rescale(input, options = {}) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AbstractMatrix; });
-/* harmony import */ var ml_array_rescale__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-rescale */ "./node_modules/ml-array-rescale/src/index.js");
+/* harmony import */ var ml_array_rescale__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-rescale */ "./node_modules/ml-array-rescale/lib-es6/index.js");
 /* harmony import */ var _dc_lu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dc/lu */ "./node_modules/ml-matrix/src/dc/lu.js");
 /* harmony import */ var _dc_svd__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dc/svd */ "./node_modules/ml-matrix/src/dc/svd.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./util */ "./node_modules/ml-matrix/src/util.js");
@@ -4231,7 +4277,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "linearDependencies", function() { return linearDependencies; });
-/* harmony import */ var ml_array_max__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-max */ "./node_modules/ml-array-max/src/index.js");
+/* harmony import */ var ml_array_max__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ml-array-max */ "./node_modules/ml-array-max/lib-es6/index.js");
 /* harmony import */ var _matrix__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./matrix */ "./node_modules/ml-matrix/src/matrix.js");
 /* harmony import */ var _dc_svd__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dc/svd */ "./node_modules/ml-matrix/src/dc/svd.js");
 
@@ -6564,9 +6610,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *  Author: David Tichy
  */
 
+/**
+ * @class
+ * @classdesc Describes color properties that could be given to the shader.
+ * @member {number} r
+ * @member {number} g
+ * @member {number} b
+ * @member {number} a
+ */
+
 var Color = function Color(color) {
     _classCallCheck(this, Color);
 
+    // Default value for red, blue and green.
+    // Black color is rendered.
+    this.r = this.g = this.b = 0;
     this.a = 1;
 
     if (color instanceof Color) {
@@ -6575,11 +6633,17 @@ var Color = function Color(color) {
         this.b = color.b;
         this.a = color.a;
     } else if (arguments.length >= 3) {
+
+        // color of the form [0.75, 0.75, 0.65, 0.6] is matched  here.
+        // Aplha value is optional.
         this.r = arguments[0];
         this.g = arguments[1];
         this.b = arguments[2];
         arguments.length > 3 && (this.a = arguments[3]);
     } else if (/^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
+
+        // color of the form "rgba(205, 201, 021, 0.5)" is matched here.
+        // Aplha value is optional.
         color = /^rgba\((\d+), ?(\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
         var get = function get(v) {
             return parseInt(v, 10) / 255;
@@ -6590,6 +6654,8 @@ var Color = function Color(color) {
         this.b = get(color[3]);
         this.a = get(color[4]);
     } else if (/^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.test(color)) {
+
+        // color of the form "rgb(205, 201, 021)" is matched here.
         color = /^rgb\((\d+), ?(\d+), ?(\d+)\)$/i.exec(color);
         var _get = function _get(v) {
             return parseInt(v, 10) / 255;
@@ -6599,6 +6665,8 @@ var Color = function Color(color) {
         this.g = _get(color[2]);
         this.b = _get(color[3]);
     } else if (/^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.test(color)) {
+
+        // color of the form "rgb(90%, 10%, 20%)" is matched here.
         color = /^rgb\((\d+)\%, ?(\d+)\%, ?(\d+)\%\)$/i.exec(color);
         var _get2 = function _get2(v) {
             return parseInt(v, 10) / 100;
@@ -6608,12 +6676,14 @@ var Color = function Color(color) {
         this.g = _get2(color[2]);
         this.b = _get2(color[3]);
     } else if (/^\#([0-9a-f]{6})$/i.test(color)) {
+
+        // color is of the form '#23ff74'.
         color = parseInt(color.substring(1), 16);
+
+        // Converts to range [0,1] by using bitwise operator.
         this.r = (color >> 16 & 255) / 255;
         this.g = (color >> 8 & 255) / 255;
         this.b = (color & 255) / 255;
-    } else {
-        this.r = this.g = this.b = 0;
     }
 };
 
@@ -6747,7 +6817,7 @@ exports.default = _class;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6775,63 +6845,63 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // this file creates webGL type textures of images example custom.html
 
 var _class = function () {
-  function _class(events, onLoad) {
-    _classCallCheck(this, _class);
+    function _class(events, onLoad) {
+        _classCallCheck(this, _class);
 
-    this._load = [events.debounce(onLoad, 5)];
-    this._textures = {}; //already converted to textures
-    this._pending = {}; //pending images 
-    this._n = 0; //counts pending images to be converted to textures
-  }
+        this._load = [events.debounce(onLoad, 5)];
+        this._textures = {}; //already converted to textures
+        this._pending = {}; //pending images 
+        this._n = 0; //counts pending images to be converted to textures
+    }
 
-  _createClass(_class, [{
-    key: 'get',
-    value: function get(gl, img, action, options) {
-      var _this = this;
+    _createClass(_class, [{
+        key: 'get',
+        value: function get(gl, img, action, options) {
+            var _this = this;
 
-      var p = this._pending[img];
-      var t = this._textures[img];
+            var p = this._pending[img];
+            var t = this._textures[img];
 
-      // TODO : add explanation about if-else statements below
-      if (p) {
-        p.push(action);
-      } else if (t) {
-        action && action();
-      }
+            // TODO : add explanation about if-else statements below
+            if (p) {
+                p.push(action);
+            } else if (t) {
+                action && action();
+            }
 
-      // if image is neither in this._pending array nor nor in already converted this._textures array
-      //add the image to the pending, then convert it to texture on line ccNetViz_gl.createTexture(gl, img,function)
-      // and remove it from pending + add it to textures
+            // if image is neither in this._pending array nor nor in already converted this._textures array
+            //add the image to the pending, then convert it to texture on line ccNetViz_gl.createTexture(gl, img,function)
+            // and remove it from pending + add it to textures
 
-      else {
-          p = this._pending[img] = [action];
-          this._n++;
-          this._textures[img] = t = _gl2.default.createTexture(gl, img, function () {
-            p.forEach(function (a) {
-              return a && a();
-            });
-            delete _this._pending[img];
+            else {
+                    p = this._pending[img] = [action];
+                    this._n++;
+                    this._textures[img] = t = _gl2.default.createTexture(gl, img, function () {
+                        p.forEach(function (a) {
+                            return a && a();
+                        });
+                        delete _this._pending[img];
 
-            --_this._n || _this._load.forEach(function (l) {
-              return l();
-            });
-          }, options);
+                        --_this._n || _this._load.forEach(function (l) {
+                            return l();
+                        });
+                    }, options);
+                }
+            return t;
         }
-      return t;
-    }
-  }, {
-    key: 'onLoad',
-    value: function onLoad(action) {
-      if (this.allLoaded()) action();else this._load.push(action);
-    }
-  }, {
-    key: 'allLoaded',
-    value: function allLoaded() {
-      return _utils2.default.emptyObject(this._pending);
-    }
-  }]);
+    }, {
+        key: 'onLoad',
+        value: function onLoad(action) {
+            if (this.allLoaded()) action();else this._load.push(action);
+        }
+    }, {
+        key: 'allLoaded',
+        value: function allLoaded() {
+            return _utils2.default.emptyObject(this._pending);
+        }
+    }]);
 
-  return _class;
+    return _class;
 }();
 
 exports.default = _class;
@@ -10763,7 +10833,7 @@ exports.default = Shader;
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 exports.neq = exports.eq = exports.getBBFromPoints = exports.pDistance2 = exports.distance2 = exports.distance2ToBezier = exports.pointInRect = exports.rectIntersectsRect = exports.lineIntersectsRect = exports.bezierIntersectsLine = exports.bezierIntersectsRect = exports.EPS = undefined;
 
@@ -10791,89 +10861,89 @@ var EPS = Number.EPSILON || 1e-14;
 
 //solving cube analyticaly for bezier curves
 function cuberoot(x) {
-    var y = Math.pow(Math.abs(x), 1 / 3);
-    return x < 0 ? -y : y;
+  var y = Math.pow(Math.abs(x), 1 / 3);
+  return x < 0 ? -y : y;
 }
 
 function solveCubic(a, b, c, d) {
+  if (Math.abs(a) < 1e-8) {
+    // Quadratic case, ax^2+bx+c=0
+    a = b;b = c;c = d;
     if (Math.abs(a) < 1e-8) {
-        // Quadratic case, ax^2+bx+c=0
-        a = b;b = c;c = d;
-        if (Math.abs(a) < 1e-8) {
-            // Linear case, ax+b=0
-            a = b;b = c;
-            if (Math.abs(a) < 1e-8) // Degenerate case
-                return [];
-            return [-b / a];
-        }
-
-        var D = b * b - 4 * a * c;
-        if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
+      // Linear case, ax+b=0
+      a = b;b = c;
+      if (Math.abs(a) < 1e-8) // Degenerate case
         return [];
+      return [-b / a];
     }
 
-    // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
-    var p = (3 * a * c - b * b) / (3 * a * a);
-    var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-    var roots = void 0;
+    var D = b * b - 4 * a * c;
+    if (Math.abs(D) < 1e-8) return [-b / (2 * a)];else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
+    return [];
+  }
 
-    if (Math.abs(p) < 1e-8) {
-        // p = 0 -> t^3 = -q -> t = -q^1/3
-        roots = [cuberoot(-q)];
-    } else if (Math.abs(q) < 1e-8) {
-        // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
-        roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
+  // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
+  var p = (3 * a * c - b * b) / (3 * a * a);
+  var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+  var roots = void 0;
+
+  if (Math.abs(p) < 1e-8) {
+    // p = 0 -> t^3 = -q -> t = -q^1/3
+    roots = [cuberoot(-q)];
+  } else if (Math.abs(q) < 1e-8) {
+    // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
+    roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
+  } else {
+    var _D = q * q / 4 + p * p * p / 27;
+    if (Math.abs(_D) < 1e-8) {
+      // D = 0 -> two roots
+      roots = [-1.5 * q / p, 3 * q / p];
+    } else if (_D > 0) {
+      // Only one real root
+      var u = cuberoot(-q / 2 - Math.sqrt(_D));
+      roots = [u - p / (3 * u)];
     } else {
-        var _D = q * q / 4 + p * p * p / 27;
-        if (Math.abs(_D) < 1e-8) {
-            // D = 0 -> two roots
-            roots = [-1.5 * q / p, 3 * q / p];
-        } else if (_D > 0) {
-            // Only one real root
-            var u = cuberoot(-q / 2 - Math.sqrt(_D));
-            roots = [u - p / (3 * u)];
-        } else {
-            // D < 0, three roots, but needs to use complex numbers/trigonometric solution
-            var _u = 2 * Math.sqrt(-p / 3);
-            var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
-            var k = 2 * Math.PI / 3;
-            roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
-        }
+      // D < 0, three roots, but needs to use complex numbers/trigonometric solution
+      var _u = 2 * Math.sqrt(-p / 3);
+      var t = Math.acos(3 * q / p / _u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
+      var k = 2 * Math.PI / 3;
+      roots = [_u * Math.cos(t), _u * Math.cos(t - k), _u * Math.cos(t - 2 * k)];
     }
+  }
 
-    // Convert back from depressed cubic
-    for (var i = 0; i < roots.length; i++) {
-        roots[i] -= b / (3 * a);
-    }return roots;
+  // Convert back from depressed cubic
+  for (var i = 0; i < roots.length; i++) {
+    roots[i] -= b / (3 * a);
+  }return roots;
 }
 
 //function distanceToBezier(x,y,ax,ay,bx,by,cx,cy){
 function distance2ToBezier(x, y, a, d, b, e, c, f) {
-    //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
+  //based on compute derivation of: d/dt ((X - (a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t))^2 + (Y - (d*(1-t)*(1-t)+2*e*t*(1-t)+f*t*t))^2)
 
-    var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
-    var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
-    var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
-    var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
+  var A = 4 * a * a - 16 * a * b + 8 * a * c + 16 * b * b - 16 * b * c + 4 * c * c + 4 * d * d - 16 * d * e + 8 * d * f + 16 * e * e - 16 * e * f + 4 * f * f;
+  var B = -12 * a * a + 36 * a * b - 12 * a * c - 24 * b * b + 12 * b * c - 12 * d * d + 36 * d * e - 12 * d * f - 24 * e * e + 12 * e * f;
+  var C = 12 * a * a - 24 * a * b + 4 * a * c - 4 * a * x + 8 * b * b + 8 * b * x - 4 * c * x + 12 * d * d - 24 * d * e + 4 * d * f - 4 * d * y + 8 * e * e + 8 * e * y - 4 * f * y;
+  var D = -4 * a * a + 4 * a * b + 4 * a * x - 4 * b * x - 4 * d * d + 4 * d * e + 4 * d * y - 4 * e * y;
 
-    var eqresult = solveCubic(A, B, C, D);
+  var eqresult = solveCubic(A, B, C, D);
 
-    //loop through all possible solitions to find out which point is the nearest
-    var mindist = Infinity;
-    for (var i = 0; i < eqresult.length; i++) {
-        var t = eqresult[i];
+  //loop through all possible solitions to find out which point is the nearest
+  var mindist = Infinity;
+  for (var i = 0; i < eqresult.length; i++) {
+    var t = eqresult[i];
 
-        if (t < 0 || t > 1) continue;
+    if (t < 0 || t > 1) continue;
 
-        //point at bezier curve
-        var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
-        var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
+    //point at bezier curve
+    var px = a * (1 - t) * (1 - t) + 2 * b * t * (1 - t) + c * t * t;
+    var py = d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t;
 
-        var dist = distance2(x, y, px, py);
-        if (dist < mindist) mindist = dist;
-    }
+    var dist = distance2(x, y, px, py);
+    if (dist < mindist) mindist = dist;
+  }
 
-    return mindist;
+  return mindist;
 }
 
 /*
@@ -10881,178 +10951,178 @@ function distance2ToBezier(x, y, a, d, b, e, c, f) {
  * @return array representing bounding box [x1,y1,x2,y2]
  */
 function getBBFromPoints(v) {
-    var xmin = Infinity;
-    var xmax = -xmin;
-    var ymin = Infinity;
-    var ymax = -ymin;
+  var xmin = Infinity;
+  var xmax = -xmin;
+  var ymin = Infinity;
+  var ymax = -ymin;
 
-    //x of points - even indexes in array 
-    for (var i = 0; i < v.length; i += 2) {
-        var val = v[i];
-        if (val < xmin) xmin = val;
-        if (val > xmax) xmax = val;
-    }
+  //x of points - even indexes in array 
+  for (var i = 0; i < v.length; i += 2) {
+    var val = v[i];
+    if (val < xmin) xmin = val;
+    if (val > xmax) xmax = val;
+  }
 
-    //y of points - odd indexes in array 
-    for (var _i = 1; _i < v.length; _i += 2) {
-        var _val = v[_i];
-        if (_val < ymin) ymin = _val;
-        if (_val > ymax) ymax = _val;
-    }
+  //y of points - odd indexes in array 
+  for (var _i = 1; _i < v.length; _i += 2) {
+    var _val = v[_i];
+    if (_val < ymin) ymin = _val;
+    if (_val > ymax) ymax = _val;
+  }
 
-    return [xmin, ymin, xmax, ymax];
+  return [xmin, ymin, xmax, ymax];
 }
 
 //distance from point to point
 function distance2(x1, y1, x2, y2) {
-    var dx = x1 - x2;
-    var dy = y1 - y2;
-    return dx * dx + dy * dy;
+  var dx = x1 - x2;
+  var dy = y1 - y2;
+  return dx * dx + dy * dy;
 }
 
 //distance from point to line
 function pDistance2(x, y, x1, y1, x2, y2) {
-    var A = x - x1;
-    var B = y - y1;
-    var C = x2 - x1;
-    var D = y2 - y1;
+  var A = x - x1;
+  var B = y - y1;
+  var C = x2 - x1;
+  var D = y2 - y1;
 
-    var dot = A * C + B * D;
-    var len_sq = C * C + D * D;
-    var param = -1;
-    if (len_sq != 0) //in case of 0 length line
-        param = dot / len_sq;
+  var dot = A * C + B * D;
+  var len_sq = C * C + D * D;
+  var param = -1;
+  if (len_sq != 0) //in case of 0 length line
+    param = dot / len_sq;
 
-    var xx = void 0,
-        yy = void 0;
+  var xx = void 0,
+      yy = void 0;
 
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  } else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  } else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
 
-    return distance2(x, y, xx, yy);
+  return distance2(x, y, xx, yy);
 }
 
 function lineIntersectsLine(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y) {
-    var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
-    var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
+  var q = (l1p1y - l2p1y) * (l2p2x - l2p1x) - (l1p1x - l2p1x) * (l2p2y - l2p1y);
+  var d = (l1p2x - l1p1x) * (l2p2y - l2p1y) - (l1p2y - l1p1y) * (l2p2x - l2p1x);
 
-    if (d == 0) {
-        return false;
-    }
+  if (d == 0) {
+    return false;
+  }
 
-    var r = q / d;
+  var r = q / d;
 
-    q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
-    var s = q / d;
+  q = (l1p1y - l2p1y) * (l1p2x - l1p1x) - (l1p1x - l2p1x) * (l1p2y - l1p1y);
+  var s = q / d;
 
-    if (r < 0 || r > 1 || s < 0 || s > 1) {
-        return false;
-    }
+  if (r < 0 || r > 1 || s < 0 || s > 1) {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 function pointInRect(px, py, x1, y1, x2, y2) {
-    return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
+  return px >= x1 - EPS && px <= x2 + EPS && py >= y1 - EPS && py <= y2 + EPS;
 }
 
 function rectIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
-    return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
+  return p1x <= r2x && p1y <= r2y && p2x >= r1x && p2y >= r1y;
 }
 
 function lineIntersectsRect(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r2y) {
-    if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
+  if (pointInRect(p1x, p1y, r1x, r1y, r2x, r2y) || pointInRect(p2x, p2y, r1x, r1y, r2x, r2y)) return true;
 
-    return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
+  return lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r1y, r2x, r1y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r1y, r2x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r2x, r2y, r1x, r2y) || lineIntersectsLine(p1x, p1y, p2x, p2y, r1x, r2y, r1x, r1y);
 }
 
 function eq(a, b) {
-    return a >= b - EPS && a <= b + EPS;
+  return a >= b - EPS && a <= b + EPS;
 }
 
 function neq(a, b) {
-    return !eq(a, b);
+  return !eq(a, b);
 }
 
 function checkBezierTkoef(a, d, b, e, c, f, t, q, s, r, v) {
-    if (t < 0 || t > 1) return false;
+  if (t < 0 || t > 1) return false;
 
-    if (neq(v - s, 0)) {
-        var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
-        if (x < 0 || x > 1) return false;
-    }
+  if (neq(v - s, 0)) {
+    var x = (d * (1 - t) * (1 - t) + 2 * e * t * (1 - t) + f * t * t) / (v - s);
+    if (x < 0 || x > 1) return false;
+  }
 
-    return true;
+  return true;
 }
 
 function bezierIntersectsLine(a, d, b, e, c, f, q, s, r, v) {
-    //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
+  //based on wolfram alpha: >> solve ((d*(1-x)*(1-x)+2*e*x*(1-x)+f*x*x) = s + ((-a*(x-1)*(x-1) + x*(2*b*(x-1)-c*x)+q)/(q-r))*(v - s)) for x <<
 
-    var t = void 0;
+  var t = void 0;
 
-    var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
-    if (neq(tden, 0)) {
-        if (neq(q - r, 0)) {
-            var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
-            var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
-            if (sq >= 0) {
-                var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
+  var tden = -a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r;
+  if (neq(tden, 0)) {
+    if (neq(q - r, 0)) {
+      var sq1 = 2 * a * s - 2 * a * v - 2 * b * s + 2 * b * v - 2 * d * r + 2 * e * q - 2 * e * r;
+      var sq = sq1 * sq1 - 4 * (-a * s + a * v + d * q - d * r - q * v + r * s) * (-a * s + a * v + 2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r);
+      if (sq >= 0) {
+        var t1 = a * s - a * v - b * s + b * v - d * q + d * r + e * q - e * r;
 
-                t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
-                if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-
-                t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
-                if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-            }
-        }
-    }
-
-    tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
-    if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
-        t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
-        t = t / (2 * tden);
+        t = (t1 - 0.5 * Math.sqrt(sq)) / tden;
         if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-    }
 
-    if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
-        t = (2 * e - f - v) / (2 * (e - f));
+        t = (t1 + 0.5 * Math.sqrt(sq)) / tden;
         if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+      }
     }
+  }
 
-    var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
-    var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
-    if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
-        t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
-        if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
-    }
+  tden = -b * s + b * v + c * s - c * v + e * q - e * r - f * q + f * r;
+  if (eq(d, 2 * e - f) && eq(a, 2 * b - c) && neq(tden, 0) && neq(q * s - q * v - r * s + r * v, 0)) {
+    t = -2 * b * s + 2 * b * v + c * s - c * v + 2 * e * q - 2 * e * r - f * q + f * r - q * v + r * s;
+    t = t / (2 * tden);
+    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+  }
 
-    return false;
+  if (eq(s, v) && eq(d, 2 * e - f) && neq(e - f, 0) && neq(q - r, 0)) {
+    t = (2 * e - f - v) / (2 * (e - f));
+    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+  }
+
+  var aeq = (2 * b * s - 2 * b * v - c * s + c * v + d * q - d * r - 2 * e * q + 2 * e * r + f * q - f * r) / (s - v);
+  var val = b * d * s - b * d * v - 2 * b * e * s + 2 * b * e * v + b * f * s - b * f * v - c * d * s + c * d * v + 2 * c * e * s - 2 * c * e * v - c * f * s + c * f * v - d * e * q + d * e * r + d * f * q - d * f * r + 2 * e * e * q - 2 * e * e * r - 3 * e * f * q + 3 * e * f * r + f * f * q - f * f * r;
+  if (eq(a, aeq) && neq(val, 0) && neq(q - r, 0)) {
+    t = (2 * b * s - 2 * b * v - c * s + c * v - 2 * e * q + 2 * e * r + f * q - f * r + q * v - r * s) / (2 * (b * s - b * v - c * s + c * v - e * q + e * r + f * q - f * r));
+    if (checkBezierTkoef(a, d, b, e, c, f, q, s, r, v, t)) return true;
+  }
+
+  return false;
 }
 
 function bezierIntersectsRect(a, d, b, e, c, f, r1x, r1y, r2x, r2y) {
-    if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
+  if (pointInRect(a, d, r1x, r1y, r2x, r2y) || pointInRect(c, f, r1x, r1y, r2x, r2y)) return true;
 
-    var centerx = (r1x + r2x) / 2;
-    var centery = (r1y + r2y) / 2;
+  var centerx = (r1x + r2x) / 2;
+  var centery = (r1y + r2y) / 2;
 
-    var diffx = r1x - r2x;
-    var diffy = r1y - r2y;
+  var diffx = r1x - r2x;
+  var diffy = r1y - r2y;
 
-    //performance optimalization based on distance
-    var diff2xy = diffx * diffx + diffy * diffy;
-    var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
-    if (dist2 * 4 > diff2xy) return false;
-    if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
+  //performance optimalization based on distance
+  var diff2xy = diffx * diffx + diffy * diffy;
+  var dist2 = distance2ToBezier(centerx, centery, a, d, b, e, c, f);
+  if (dist2 * 4 > diff2xy) return false;
+  if (dist2 * 4 <= Math.min(diffx * diffx, diffy * diffy)) return true;
 
-    return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
+  return bezierIntersectsLine(a, d, b, e, c, f, r1y, r2x, r1y, r1y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r1y, r2x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r2x, r2y, r1x, r2y) || bezierIntersectsLine(a, d, b, e, c, f, r1x, r2y, r1x, r1y);
 }
 
 exports.EPS = EPS;
