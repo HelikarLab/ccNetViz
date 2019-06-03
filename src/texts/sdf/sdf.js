@@ -324,7 +324,7 @@ export default class {
      // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
      //decide the height and then max of them is taken each time to have a max height that fits each char
 
-      height = rect.h
+     height = Math.max(height, rect.h - char.top);
       wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
       // highest word length would be selected as the width
       if ((text[i] === ' ' || i == text.length-1 )) {
