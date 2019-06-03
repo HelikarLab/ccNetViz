@@ -11,7 +11,7 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import { Circle, Ellipse, Star, Polygon } from  "../plugins/ccNetViz-node-plugins/main"
+import { Circle, Ellipse, Star, Polygon, Square } from  "../plugins/ccNetViz-node-plugins/main"
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -160,7 +160,7 @@ var ccNetViz = function(canvas, options){
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
-    let promises = nodePluginParser();
+    let promises = nodePlugin();
     Promise.all(promises.map(item => item.config)).then((c) => {
       c.map((item, index) => {
         options.styles[promises[index].name] = item;
@@ -175,32 +175,61 @@ var ccNetViz = function(canvas, options){
     return this;
   };
 
-  let nodePluginParser = function () {
+  let nodePlugin = function () {
     let p = [];
     if (typeof options.styles !== "undefined") {
-      for (let key in options.styles) {
-        let style = options.styles[key];
+      let pluginConfig = function (f, shapes, type) {
+        shapes.map(shape => {
+          if (typeof options.styles[shape.name] === "undefined") {
+            options.styles[shape.name] = f(shape);
+          } else {
+            options.styles[shape.name] = f(Object.assign(shape, options.styles[shape.name]));
+          }
+        });
 
-        switch (style.type) {
-          case 'Circle':
-            let circle = new Circle(style.config, self)
-            p.push({ config: circle.toConfig(), name: key });
-            break;
-          case 'Ellipse':
-            let ellipse = new Ellipse(style.config, self)
-            p.push({ config: ellipse.toConfig(), name: key });
-            break;
-          case 'Polygon':
-            let polygon = new Polygon(style.config, self)
-            p.push({ config: polygon.toConfig(), name: key });
-            break;
-          case 'Star':
-            let star = new Star(style.config, self)
-            p.push({ config: star.toConfig(), name: key });
-            break;
-          default:
-            break;
+        for (let key in options.styles) {
+          let style = options.styles[key];
+          if (style.type === type) {
+            let shape = new f(style.config, self);
+            p.push({ config: shape.toConfig(), name: key });
+          }
         }
+      }
+
+      if (typeof Polygon !== "undefined") {
+        let s = [
+          { name: 'triangle', edges: 3 },
+          { name: 'quadrilateral', edges: 4 },
+          { name: 'pentagon', edges: 5 },
+          { name: 'hexagon', edges: 6 },
+          { name: 'heptagon', edges: 7 },
+          { name: 'octagon', edges: 8 },
+          { name: 'nonagon', edges: 9 },
+          { name: 'decagon', edges: 9 }
+        ];
+        pluginConfig(Polygon, s, 'Polygon');
+      }
+
+      if (typeof Star !== "undefined") {
+        let s = [
+          { name: 'star', spikes: 7 }
+        ];
+        for (let spike = 3; spike <= 10; spike++) {
+          s.push({ name: `star-${spike}`, spikes: spike })
+        }
+        pluginConfig(Star, s, 'Star');
+      }
+
+      if (typeof Circle !== "undefined") {
+        pluginConfig(Circle, [{ name: 'circle' }], 'Circle');
+      }
+
+      if (typeof Ellipse !== "undefined") {
+        pluginConfig(Ellipse, [{ name: 'ellipse' }], 'Ellipse');
+      }
+
+      if (typeof Square !== "undefined") {
+        pluginConfig(Square, [{ name: "square" }], "Square");
       }
     }
     return p;
@@ -765,6 +794,7 @@ typeof Circle !== 'undefined' ?   ccNetViz.Shapes.Circle = Circle : false;
 typeof Ellipse !== 'undefined' ?   ccNetViz.Shapes.Ellipse = Ellipse : false;
 typeof Star !== 'undefined' ?   ccNetViz.Shapes.Star = Star : false;
 typeof Polygon !== 'undefined' ?   ccNetViz.Shapes.Polygon = Polygon : false;
+typeof Square !== 'undefined' ?   ccNetViz.Shapes.Square = Square : false;
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;

@@ -24,23 +24,11 @@
       styles: {
         node: { texture: "images/node.png", label: { hideSize: 16 } },
         edge: { arrow: { texture: "images/arrow.png" } },
-        triangle: ccNetViz.Shapes.Polygon({ edges: 3, size: 26, textureColor: "black" }),
-        triangle2: ccNetViz.Shapes.Polygon({
-          edges: 3,
-          size: 30,
-          textureColor: "#cf0101",
-          stroke: { size: 1 },
-          minSize: 25,
-          maxSize: 25,
-          label: {
-            hideSize: 16,
-            color: "rgb(0, 0, 0)"
-          }
-        }),
-        "node rectangle": ccNetViz.Shapes.Polygon({ edges: 4, size: 20, textureColor: "skyblue", stroke: { size: 3, color: "blue" } }),
-        ellipse: ccNetViz.Shapes.Ellipse(),
-        star: ccNetViz.Shapes.Star({
-          textureColor: "#fff",
+        triangle: { textureColor: "red" },
+        pentagon: { size: 30, textureColor: "#fff", stroke: { size: 5, color: "blue" } },
+        circle: { textureColor: "#cf0101", size: 20, stroke: { size: 5, color: "#ccc" } },
+        star2: ccNetViz.Shapes.Star({
+          textureColor: "#ffffff",
           minSize: 30,
           maxSize: 30,
           size: 30,
@@ -48,19 +36,18 @@
             size: 4,
             color: "#000"
           }
-        }),
-        hexagon: ccNetViz.Shapes.Polygon({ edges: 6, textureColor: "rgb(140,140,140)" })
+        })
       }
     });
 
     var nodes = [
       { label: "Label 1", style: "triangle" },
-      { label: "Label 2", style: "node rectangle" },
-      { label: "Label 3", style: "triangle2" },
-      { label: "Label 4", style: "ellipse" },
-      { label: "Label 5", style: "star" },
-      { label: "Label 6", style: "hexagon" },
-      { label: "Label 7", style: "triangle" },
+      { label: "Label 2", style: "circle" },
+      { label: "Label 3", style: "heptagon" },
+      { label: "Label 4", style: "pentagon" },
+      { label: "Label 5", style: "star2" },
+      { label: "Label 6", style: "square" },
+      { label: "Label 7", style: "star-10" },
     ];
     var edges = [
       { source: nodes[0], target: nodes[1] },

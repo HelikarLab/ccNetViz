@@ -19,21 +19,40 @@ export default class Shape {
     this.default = {
       stroke: {
         color: "#333333",
-        size: 0,
+        size: 0.00000001,
       },
-      textureColor: "#999999",
-      size: 16
+      textureColor: "#2257a4",
+      size: 20,
+      minSize: 6,
+      maxSize: 16,
+      label: {
+        color: "rgb(120, 120, 120)",
+        font: { type: "Arial, Helvetica, sans-serif", size: 11 }
+      }
     };
 
     if (typeof this.config !== "undefined") {
+
+      // Stroke configuration
       if (typeof this.config.stroke !== "undefined") {
         this.config.stroke.size = this.config.stroke.size || this.default.stroke.size;
         this.config.stroke.color = this.config.stroke.color || this.default.stroke.color;
       } else {
         this.config.stroke = this.default.stroke;
       }
-      this.config.textureColor = this.config.textureColor || this.default.textureColor;
+
+      // Label configuration
+      if (typeof this.config.label !== "undefined") {
+        this.config.label.color = this.config.label.color || this.default.label.color;
+        this.config.label.font = this.config.label.font || this.default.label.font;
+      } else {
+        this.config.label = this.default.label;
+      }
+
       this.config.size = this.config.size || this.default.size;
+      this.config.minSize = this.config.minSize || this.default.maxSize;
+      this.config.maxSize = this.config.maxSize || this.default.maxSize;
+      this.config.textureColor = this.config.textureColor || this.default.textureColor;
 
     } else {
       this.config = this.default;
@@ -55,8 +74,7 @@ export default class Shape {
     this.context = this.canvas.getContext('2d');
     this.context.fillStyle = this.config.textureColor;
     this.context.strokeStyle = this.config.stroke.color;
-    this.context.lineWidth = (this.config.stroke.size);
-    document.body.appendChild(this.canvas);
+    this.context.lineWidth = this.config.stroke.size;
   }
 
   _draw() {
