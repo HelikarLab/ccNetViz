@@ -13,7 +13,9 @@ let Square = (config, instance) => {
       this.context.lineTo(this.t(1), this.t(0));
       this.context.lineTo(this.t(1), this.t(1));
       this.context.lineTo(this.t(0), this.t(1));
-      super._draw();
+      this.context.closePath();
+      this.context.stroke();
+      this.context.fill();
     }
   }
   return new Square(config, instance)

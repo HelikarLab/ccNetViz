@@ -21,7 +21,10 @@ let Polygon = (config, instance) => {
         this.context.lineTo(x, y);
       }
 
-      super._draw();
+
+      this.context.closePath();
+      this.context.stroke();
+      this.context.fill();
     }
   }
   return new Polygon(config, instance)

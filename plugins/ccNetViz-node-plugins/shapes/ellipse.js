@@ -36,7 +36,8 @@ let Ellipse = (config, instance) => {
         (this.config.radiusY) + this.config.stroke.size,
         this.config.radiusX,
         this.config.radiusY, 0, 0, 2 * Math.PI);
-      super._draw();
+      this.context.stroke();
+      this.context.fill();
     }
   }
   return new Ellipse(config, instance)

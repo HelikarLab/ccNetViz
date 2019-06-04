@@ -79,9 +79,6 @@ export default class Shape {
   }
 
   _draw() {
-    this.context.closePath();
-    this.context.stroke();
-    this.context.fill();
   }
 
   // Canvas transform into the 0-1 range
