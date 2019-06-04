@@ -16,9 +16,15 @@ let Ellipse = (config, instance) => {
         x1: this.config.radiusX + ((this.config.stroke.size * 2) + this.config.radiusX),
         y1: this.config.radiusY + ((this.config.stroke.size * 2) + this.config.radiusY)
       };
-      cursor.x1 > cursor.x2 ? cursor.x1 = cursor.x2 : false;
+
+      if (cursor.x1 < cursor.y1) {
+        cursor.x1 = cursor.y1;
+      } else {
+        cursor.y1 = cursor.x1;
+      }
+
       this.canvas.width = cursor.x1;
-      this.canvas.height = cursor.x1;
+      this.canvas.height = cursor.y1;
       this.context = this.canvas.getContext('2d');
       this.context.fillStyle = this.config.textureColor;
       this.context.strokeStyle = this.config.stroke.color;
