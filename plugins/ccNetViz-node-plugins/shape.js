@@ -18,7 +18,7 @@ export default class Shape {
     // Default config
     this.default = {
       stroke: {
-        color: "#333333",
+        color: "#ffffff",
         size: 0.00000001,
       },
       textureColor: "#2257a4",
@@ -75,6 +75,7 @@ export default class Shape {
     this.context.fillStyle = this.config.textureColor;
     this.context.strokeStyle = this.config.stroke.color;
     this.context.lineWidth = this.config.stroke.size;
+    this.context.lineJoin = "round";
   }
 
   _draw() {

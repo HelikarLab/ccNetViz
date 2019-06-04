@@ -11,7 +11,7 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import { Circle, Ellipse, Star, Polygon, Square } from  "../plugins/ccNetViz-node-plugins/main"
+import {Ellipse, Star, Polygon, Square } from  "../plugins/ccNetViz-node-plugins/main"
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -220,12 +220,8 @@ var ccNetViz = function(canvas, options){
         pluginConfig(Star, s, 'Star');
       }
 
-      if (typeof Circle !== "undefined") {
-        pluginConfig(Circle, [{ name: 'circle' }], 'Circle');
-      }
-
       if (typeof Ellipse !== "undefined") {
-        pluginConfig(Ellipse, [{ name: 'ellipse' }], 'Ellipse');
+        pluginConfig(Ellipse, [{ name: 'circle' },{ name: 'ellipse', radiusX:16,radiusY:8 }], 'Ellipse');
       }
 
       if (typeof Square !== "undefined") {
@@ -790,7 +786,6 @@ ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
 ccNetViz.Shapes = {};
 
-typeof Circle !== 'undefined' ?   ccNetViz.Shapes.Circle = Circle : false;
 typeof Ellipse !== 'undefined' ?   ccNetViz.Shapes.Ellipse = Ellipse : false;
 typeof Star !== 'undefined' ?   ccNetViz.Shapes.Star = Star : false;
 typeof Polygon !== 'undefined' ?   ccNetViz.Shapes.Polygon = Polygon : false;

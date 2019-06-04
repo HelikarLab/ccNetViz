@@ -27,6 +27,7 @@
         triangle: { textureColor: "red" },
         pentagon: { size: 30, textureColor: "#fff", stroke: { size: 5, color: "blue" } },
         circle: { textureColor: "#cf0101", size: 20, stroke: { size: 5, color: "#ccc" } },
+        "star-8": { textureColor: "#fbba02", inset: 1.3, size: 30 },
         star2: ccNetViz.Shapes.Star({
           textureColor: "#ffffff",
           minSize: 30,
@@ -42,28 +43,32 @@
 
     var nodes = [
       { label: "Label 1", style: "triangle" },
-      { label: "Label 2", style: "circle" },
-      { label: "Label 3", style: "heptagon" },
-      { label: "Label 4", style: "pentagon" },
-      { label: "Label 5", style: "star2" },
-      { label: "Label 6", style: "square" },
-      { label: "Label 7", style: "star-10" },
+      { label: "Label 2", style: "quadrilateral" },
+      { label: "Label 3", style: "pentagon" },
+      { label: "Label 4", style: "hexagon" },
+      { label: "Label 5", style: "heptagon" },
+      { label: "Label 6", style: "octagon" },
+      { label: "Label 7", style: "nonagon" },
+      { label: "Label 8", style: "nonagon" },
+      { label: "Label 9", style: "circle" },
+      { label: "Label 10", style: "ellipse" },
+      { label: "Label 11", style: "star" },
+      { label: "Label 14", style: "star-3" },
+      { label: "Label 15", style: "star-4" },
+      { label: "Label 16", style: "star-5" },
+      { label: "Label 17", style: "star-6" },
+      { label: "Label 18", style: "star-7" },
+      { label: "Label 19", style: "star-8" },
+      { label: "Label 20", style: "star-9" },
+      { label: "Label 21", style: "star-10" },
+      { label: "Label 22", style: "star2" },
     ];
-    var edges = [
-      { source: nodes[0], target: nodes[1] },
-      { source: nodes[1], target: nodes[0] },
-      { source: nodes[0], target: nodes[0] },
-      { source: nodes[1], target: nodes[2] },
-      { source: nodes[2], target: nodes[5] },
-      { source: nodes[4], target: nodes[1] },
-      { source: nodes[0], target: nodes[5] },
-      { source: nodes[3], target: nodes[6] },
-      { source: nodes[4], target: nodes[2] },
-      { source: nodes[6], target: nodes[2] },
 
-    ];
-
-    graph.set(nodes, edges, "force");
+    var edges = [];
+    for (let i = 0; i < nodes.length - 1; i++) {
+      edges.push({ source: nodes[i], target: nodes[i + 1] })
+    }
+    graph.set(nodes, edges, "circular");
     graph.draw();
   </script>
 </body>
