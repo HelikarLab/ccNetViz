@@ -221,7 +221,7 @@ var ccNetViz = function(canvas, options){
       }
 
       if (typeof Ellipse !== "undefined") {
-        pluginConfig(Ellipse, [{ name: 'circle' },{ name: 'ellipse', radiusX:16,radiusY:8 }], 'Ellipse');
+        pluginConfig(Ellipse, [{ name: 'circle' },{ name: 'ellipse', radiusX:25,radiusY:15 }], 'Ellipse');
       }
 
       if (typeof Square !== "undefined") {
