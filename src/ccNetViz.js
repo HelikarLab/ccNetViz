@@ -175,27 +175,52 @@ var ccNetViz = function(canvas, options){
     return this;
   };
 
+  /**
+  * ccNetViz-node-plugin integration. 
+  * @return {Array} - Array of texture promises.
+  */
   let nodePlugin = function () {
-    let p = [];
-    if (typeof options.styles !== "undefined") {
-      let pluginConfig = function (f, shapes, type) {
-        shapes.map(shape => {
-          if (typeof options.styles[shape.name] === "undefined") {
-            options.styles[shape.name] = f(shape);
-          } else {
-            options.styles[shape.name] = f(Object.assign(shape, options.styles[shape.name]));
-          }
-        });
+    let shapes = [];
 
-        for (let key in options.styles) {
-          let style = options.styles[key];
-          if (style.type === type) {
-            let shape = new f(style.config, self);
-            p.push({ config: shape.toConfig(), name: key });
+    if (typeof options.styles !== "undefined") {
+
+      /**
+       * This function can create-manipulate a ccNetViz config with ccNetViz node, arrow plugins.
+       * @param {f} function - Shape factory.
+       * @param {shapes} Object - Shapes to be created.
+       * @param {type} String - Shape type.
+       * @return {Array} - Array of texture promises.
+       */
+      let pluginConfig = function (f, shapes, type) {
+        try {
+          let p = [];
+
+          shapes.map(shape => {
+            // Adding predefined styles.
+            if (typeof options.styles[shape.name] === "undefined") {
+              options.styles[shape.name] = f(shape);
+            } else {
+              // Overwriting existing predefined styles.
+              options.styles[shape.name] = f(Object.assign(shape, options.styles[shape.name]));
+            }
+          });
+
+          // Creating predefined and user-def styles.
+          for (let key in options.styles) {
+            let style = options.styles[key];
+            if (style.type === type) {
+              let shape = new f(style.config || style, self);
+              p.push({ config: shape.toConfig(), name: key });
+            }
           }
+          return p;
+        } catch (err) {
+          console.error(err);
+          return [];
         }
       }
 
+      // Predefined shapes
       if (typeof Polygon !== "undefined") {
         let s = [
           { name: 'triangle', edges: 3 },
@@ -207,7 +232,7 @@ var ccNetViz = function(canvas, options){
           { name: 'nonagon', edges: 9 },
           { name: 'decagon', edges: 9 }
         ];
-        pluginConfig(Polygon, s, 'Polygon');
+        shapes = shapes.concat(pluginConfig(Polygon, s, 'Polygon'));
       }
 
       if (typeof Star !== "undefined") {
@@ -217,18 +242,21 @@ var ccNetViz = function(canvas, options){
         for (let spike = 3; spike <= 10; spike++) {
           s.push({ name: `star-${spike}`, spikes: spike })
         }
-        pluginConfig(Star, s, 'Star');
+        shapes = shapes.concat(pluginConfig(Star, s, 'Star'));
+
       }
 
       if (typeof Ellipse !== "undefined") {
-        pluginConfig(Ellipse, [{ name: 'circle' },{ name: 'ellipse', radiusX:25,radiusY:15 }], 'Ellipse');
+        let ellipse = pluginConfig(Ellipse, [{ name: 'circle' }, { name: 'ellipse', radiusX: 25, radiusY: 15 }], 'Ellipse');
+        shapes = shapes.concat(ellipse);
       }
 
       if (typeof Square !== "undefined") {
-        pluginConfig(Square, [{ name: "square" }], "Square");
+        let square = pluginConfig(Square, [{ name: "square" }], "Square");
+        shapes = shapes.concat(square);
       }
     }
-    return p;
+    return shapes;
   }
 
   //make all dynamic changes static
@@ -784,12 +812,6 @@ ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
-ccNetViz.Shapes = {};
-
-typeof Ellipse !== 'undefined' ?   ccNetViz.Shapes.Ellipse = Ellipse : false;
-typeof Star !== 'undefined' ?   ccNetViz.Shapes.Star = Star : false;
-typeof Polygon !== 'undefined' ?   ccNetViz.Shapes.Polygon = Polygon : false;
-typeof Square !== 'undefined' ?   ccNetViz.Shapes.Square = Square : false;
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;
