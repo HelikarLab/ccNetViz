@@ -53,7 +53,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var y = e.y;
 
                 var ret = false;
-                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;},e.alignment || style.alignment || 'left');
+                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;}, style.font.alignment || 'left');
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   // parts is the array of characters, character description and position w.r.t node 
                   let c = parts[i];

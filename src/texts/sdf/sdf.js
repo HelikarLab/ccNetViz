@@ -117,7 +117,23 @@ export default class {
     // TODO: this code is not intuitive, we can write better
     return this.atlas.texture;
   }
-  
+  _getCharArray(charArray, char, height, dx, dy, markDirty) {
+    const rect = char.rect || {};
+    // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
+    charArray.push({
+      width: rect.w,
+      height: rect.h,
+      left: rect.x / this.atlas.width, //position in atlas
+      right: (rect.x + rect.w) / this.atlas.width, //position in atlas
+      bottom: (rect.y + rect.h) / this.atlas.height, 
+      top: rect.y / this.atlas.height,
+      dx: dx,
+      dy: dy + char.top + (height - rect.h)
+      });
+
+    
+    return charArray;
+  }
   // function to align text left, right or center
   alignText(alignment, text, x, y, width, height, markDirty, widthArray, wordWidth) {
 
@@ -125,7 +141,7 @@ export default class {
    // dx and dy shifts the position of label w.r.t possibly node
    // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
     
-   if(!( alignment === 'right' || alignment === 'left' || alignment === 'middle')) {
+   if(!( alignment == 'right' || alignment == 'left' || alignment == 'center')) {
     alignment = 'left';
     }
     const textArray = text.split(" ");
@@ -155,19 +171,7 @@ export default class {
             const rect = char.rect || {};
             let horiBearingX = 3;
             dx += horiBearingX;
-     
-            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-            ret.push({
-              width: rect.w,
-              height: rect.h,
-              left: rect.x / this.atlas.width, //position in atlas
-              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-              bottom: (rect.y + rect.h) / this.atlas.height, 
-              top: rect.y / this.atlas.height,
-              dx: dx,
-              dy: dy + char.top + (height - rect.h)
-              });
-
+            ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
             dx += char.advance; // advancce is the width of the character
      
           } 
@@ -186,30 +190,18 @@ export default class {
         dx+=(wordWidth-widthArray[i]);
         text = textArray[i];
         for (var j=0;j<text.length;j++) {
-            const char = this._getChar(text[j], markDirty);
-            const rect = char.rect || {};
-            let horiBearingX = 3;
-            dx += horiBearingX;
-   
-            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-            ret.push({
-              width: rect.w,
-              height: rect.h,
-              left: rect.x / this.atlas.width, //position in atlas
-              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-              bottom: (rect.y + rect.h) / this.atlas.height, 
-              top: rect.y / this.atlas.height,
-              dx: dx,
-              dy: dy + char.top + (height - rect.h)
-              });
-
-            dx += char.advance;
+          const char = this._getChar(text[j], markDirty);
+          let horiBearingX = 3;
+          dx += horiBearingX;
+          // get array of characters
+          ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
+          dx += char.advance;
         }
         dy = dy-Math.floor(height/3);
       }
       break;
 
-    case 'middle' :
+    case 'center' :
 
       for (var i=0;i<textArray.length;i++) {      
         dx = x <= 0.5 ? 0: -width;
@@ -217,27 +209,16 @@ export default class {
         text = textArray[i];
         for (var j=0;j<text.length;j++) {
           const char = this._getChar(text[j], markDirty);
-          const rect = char.rect || {};
           let horiBearingX = 3;
           dx += horiBearingX;
-
-            // rect.x rect.w rect.h rect.y are all atlas widths heigths x y positions etc 
-            ret.push({
-              width: rect.w,
-              height: rect.h,
-              left: rect.x / this.atlas.width, //position in atlas
-              right: (rect.x + rect.w) / this.atlas.width, //position in atlas
-              bottom: (rect.y + rect.h) / this.atlas.height, 
-              top: rect.y / this.atlas.height,
-              dx: dx,
-              dy: dy + char.top + (height - rect.h)
-              });
-            dx += char.advance;
-            } 
-          dy = dy-Math.floor(height/3);
-        }
+          ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
+          
+          dx += char.advance;
+        } 
+        dy = dy-Math.floor(height/3);
+      }
       break;
-    }
+      }
   return ret;
   }
   /**
