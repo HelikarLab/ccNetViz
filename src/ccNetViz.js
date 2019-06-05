@@ -11,7 +11,7 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import {Ellipse, Star, Polygon, Square } from  "../plugins/ccNetViz-node-plugins/main"
+import {Ellipse, Star, Polygon, Custom } from  "../plugins/ccNetViz-node-plugins/main"
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -250,9 +250,18 @@ var ccNetViz = function(canvas, options){
         shapes = shapes.concat(ellipse);
       }
 
-      if (typeof Square !== "undefined") {
-        let square = pluginConfig(Square, [{ name: "square" }], "Square");
-        shapes = shapes.concat(square);
+      if (typeof Custom !== "undefined") {
+        let customShapes = [{
+          name: "square",
+          lines: [{}, { x: 1 }, { x: 1, y: 1 }, { y: 1 }]
+        }, {
+          name: "vee",
+          lines: [{}, { x: 0.5, y: 0.4 }, { x: 1 }, { x: 0.5, y: 1 }, {}]
+        }, {
+          name: "tag",
+          lines: [{}, { x: 0.7 }, { x: 1, y: 0.5 }, { x: 0.7, y: 1 }, { y: 1 }, {}]
+        }];
+        shapes = shapes.concat(pluginConfig(Custom, customShapes, "Custom"));
       }
     }
     return shapes;
