@@ -10,6 +10,7 @@ export default class Shape {
 
     this._preConf();
     this._setCanvas();
+    this._setGradient();
     this._draw();
   }
 
@@ -20,6 +21,7 @@ export default class Shape {
       stroke: {
         color: "#ffffff",
         size: 0.00000001,
+        round: false
       },
       textureColor: "#2257a4",
       size: 20,
@@ -37,6 +39,7 @@ export default class Shape {
       if (typeof this.config.stroke !== "undefined") {
         this.config.stroke.size = this.config.stroke.size || this.default.stroke.size;
         this.config.stroke.color = this.config.stroke.color || this.default.stroke.color;
+        this.config.stroke.round = this.config.stroke.round || this.default.stroke.round;
       } else {
         this.config.stroke = this.default.stroke;
       }
@@ -75,7 +78,17 @@ export default class Shape {
     this.context.fillStyle = this.config.textureColor;
     this.context.strokeStyle = this.config.stroke.color;
     this.context.lineWidth = this.config.stroke.size;
-    this.context.lineJoin = "round";
+    this.config.stroke.round ? this.context.lineJoin = "round" : false;
+  }
+
+  _setGradient() {
+    if (typeof this.config.textureGradient !== "undefined") {
+      let gradient = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
+      this.config.textureGradient.map(item => {
+        gradient.addColorStop(item.x || 0, item.color || this.config.textureColor);
+      });
+      this.context.fillStyle = gradient;
+    }
   }
 
   _draw() {

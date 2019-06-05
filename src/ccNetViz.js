@@ -243,7 +243,6 @@ var ccNetViz = function(canvas, options){
           s.push({ name: `star-${spike}`, spikes: spike })
         }
         shapes = shapes.concat(pluginConfig(Star, s, 'Star'));
-
       }
 
       if (typeof Ellipse !== "undefined") {
