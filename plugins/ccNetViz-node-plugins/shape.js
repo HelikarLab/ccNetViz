@@ -83,9 +83,11 @@ export default class Shape {
 
   _setGradient() {
     if (typeof this.config.textureGradient !== "undefined") {
-      let gradient = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
+      let gradient = this.context.createLinearGradient(0, 0,
+        typeof this.config.textureGradient[0].x !== "undefined" ? this.canvas.width : 0,
+        typeof this.config.textureGradient[0].y !== "undefined" ? this.canvas.height : 0);
       this.config.textureGradient.map(item => {
-        gradient.addColorStop(item.x || 0, item.color || this.config.textureColor);
+        gradient.addColorStop(item.x || item.y || 0, item.color || this.config.textureColor);
       });
       this.context.fillStyle = gradient;
     }
