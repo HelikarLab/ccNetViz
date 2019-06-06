@@ -12,7 +12,7 @@ import SpriteGenerator from './spriteGenerator';
 
 // A simplified representation of the glyph containing only the properties needed for shaping.
 class SimpleGlyph {
-  constructor(glyph, rect, buffer) {
+  constructor(glyph, rect, buffer,style) {
     const padding = 1;
     this.advance = glyph.advance;
     this.left = glyph.left - buffer - padding;
@@ -70,8 +70,7 @@ export default class {
     // glyphs that are cached from previous draw call of label for next one
     this._cachedGlyphs = {};
 
-    // Client-Side builder of spritesheet
-    this.spriteGenerator = new SpriteGenerator();
+    
   }
 
 
@@ -103,12 +102,12 @@ export default class {
   }
 
   //
-  getTexture(style, onLoad) {
+  getTexture(fontStyle, onLoad) {
     // init with first most-used ASCII chars
     for (let i = 0; i < 128; i++) {
       // Cache the most used characters prior to the knowledge if they would be used in lables or not
       // TODO: Ideally get methods should return something which in-turn should pe passed to other variables
-      this._getChar(String.fromCharCode(i));
+      this._getChar(String.fromCharCode(i), fontStyle);
     }
     onLoad && onLoad.apply(this, arguments);
 
@@ -135,7 +134,7 @@ export default class {
     return charArray;
   }
   // function to align text left, right or center
-  alignText(alignment, text, x, y, width, height, markDirty, widthArray, wordWidth) {
+  alignText(alignment, text, x, y, width, height, markDirty, widthArray, wordWidth, fontStyle  ) {
 
     // x and y are the clipspace co-ordinates between 0 and 1
    // dx and dy shifts the position of label w.r.t possibly node
@@ -167,7 +166,7 @@ export default class {
             dx = x <= 0.5 ? 0 : -width ;
             dy = dy-Math.floor(height/3);
           } else {
-            const char = this._getChar(text[i], markDirty);
+            const char = this._getChar(text[i], fontStyle, markDirty);
             const rect = char.rect || {};
             let horiBearingX = 3;
             dx += horiBearingX;
@@ -190,7 +189,7 @@ export default class {
         dx+=(wordWidth-widthArray[i]);
         text = textArray[i];
         for (var j=0;j<text.length;j++) {
-          const char = this._getChar(text[j], markDirty);
+          const char = this._getChar(text[j], fontStyle, markDirty);
           let horiBearingX = 3;
           dx += horiBearingX;
           // get array of characters
@@ -208,7 +207,7 @@ export default class {
         dx+=(wordWidth-widthArray[i])/2;
         text = textArray[i];
         for (var j=0;j<text.length;j++) {
-          const char = this._getChar(text[j], markDirty);
+          const char = this._getChar(text[j], fontStyle, markDirty);
           let horiBearingX = 3;
           dx += horiBearingX;
           ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
@@ -224,14 +223,13 @@ export default class {
   /**
    * Updates the 'texture' member variable of this.atlas object
    *
-   * text = single character which is to be added to the texture of 'this.atlas'
    * markDirty = ??? callback to be called if the size of the texture is resized
    */
-  _getChar(character, markDirty) {
+  _getChar(character, fontStyle, markDirty) {
     // curFont is same as style.pbf defined above
     // TODO: We are doing this too many times in this code. Find a better mech.
     const font = this.curFont;
-
+    const spriteGenerator = new SpriteGenerator(fontStyle);
    // charCodeAt returns an integer between 0 and 65535 representing the UTF-16 code unit
    // refer https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
 
@@ -241,7 +239,7 @@ export default class {
     const buffer = 0;
 
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
-    const glyph = (cache[glyphID] && cache[glyphID].glyph) || this.spriteGenerator.draw(character);
+    const glyph = (cache[glyphID] && cache[glyphID].glyph) || spriteGenerator.draw(character);
     
     // Testing code for new developer, if stuck, uncomment the lines below 
     // The code below renders a testing canvas with first alphabet it encounters , value of t is in sdf.html
@@ -249,7 +247,7 @@ export default class {
     // change ctx.putImageData(imgData, 10, 20); to something variable
 
     // if(document.getElementById("test-canvas") && typeof t !== "undefined" && t>0) {
-    //   const imgData = this.spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
+    //   const imgData = spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
     //   const testCanvas = document.getElementById("test-canvas");
     //   const ctx = testCanvas.getContext("2d");
     //   ctx.putImageData(imgData, 10, 20);
@@ -265,7 +263,7 @@ export default class {
       testCanvas.height = 0;
     }
 
-    const fontSize = this.spriteGenerator.fontSize;
+    const fontSize = spriteGenerator.fontSize;
     
     if (!this._rects[font]) this._rects[font] = {};
     let rect = this._rects[font][character] = this.atlas.addGlyph(
@@ -287,7 +285,8 @@ export default class {
     );
   }
 
-  get(text, x, y, markDirty,alignment) {
+  get(text, x, y, markDirty,fontStyle) {
+    let alignment = fontStyle.alignment;
     let wordWidth = 0;
     let width = 0;
     let height = 0;
@@ -299,7 +298,7 @@ export default class {
     for (let i = 0; i < text.length; i++) {
       
       
-      const char = this._getChar(text[i], markDirty);
+      const char = this._getChar(text[i], fontStyle, markDirty);
       const rect = char.rect || {};
       
      // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
@@ -313,11 +312,10 @@ export default class {
         widthArray.push(wordWidth)
         wordWidth = 0
       }
-      // addiding const horiBearingx and char.advance wo get the total width of label
-      
+     
     }
     
-    let ret = this.alignText(alignment, text, x, y, width, height, markDirty, widthArray, width)
+    let ret = this.alignText(alignment, text, x, y, width, height, markDirty, widthArray, width, fontStyle)
    return ret
   }
 
