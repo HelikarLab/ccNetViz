@@ -695,7 +695,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   // float r = 300.;",
-        "   float r = fract(v_time * 0.2 * maxLen / totalLen) * totalLen;",
+        "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * totalLen;",
         "   // float r = 0.5 * totalLen;",
         "   float draw = 1. - step(r, len);",
         "   return draw;",
@@ -712,7 +712,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   float gradLen = 180.;", // TODO: can config
-        "   float r = fract(v_time * 0.2 * maxLen / totalLen) * (totalLen + gradLen);",
+        "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * (totalLen + gradLen);", // NOTE: use 0.2 as a proper factor
         "   // float r = 0.5 * totalLen;",
         "   float draw = fract(smoothstep(r - gradLen, r, len));",
         "   return draw;",
@@ -760,6 +760,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 "uniform float animateType;",
                 "uniform vec4 color;",
                 "uniform vec4 animateColor;",
+                "uniform float animateSpeed;",
                 "varying vec2 n;",
                 "varying float v_time;",
                 "varying vec2 v_startPos;",
@@ -788,6 +789,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
                 gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
                 gl.uniform1f(uniforms.animateType, getEdgeAnimateType(c.style.animateType));
+                gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
                 ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
                 ccNetViz_gl.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
             })

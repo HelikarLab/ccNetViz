@@ -5776,6 +5776,7 @@ var ccNetViz = function ccNetViz(canvas, options) {
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
   edgeStyle.animateColor = edgeStyle.animateColor || "rgb(240, 80, 120)";
+  edgeStyle.animateSpeed = edgeStyle.animateSpeed || 1.0;
 
   var onLoad = function onLoad() {
     if (!options.onLoad || options.onLoad()) {
@@ -8072,13 +8073,14 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
     var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 
-    var isAnimateCovered = ["float isAnimateCovered() {", "   vec2 pos = gl_FragCoord.xy;", "   vec2 viewport = 2. * v_screen;", "   float maxLen = length(viewport);", "   vec2 startPos = viewport * v_startPos;", "   vec2 endPos = viewport * v_endPos;", "   float totalLen = distance(startPos, endPos);", "   float len = distance(pos, startPos);", "   // float r = 300.;", "   float r = fract(v_time * 0.2 * maxLen / totalLen) * totalLen;", "   // float r = 0.5 * totalLen;", "   float draw = 1. - step(r, len);", "   return draw;", "}"];
+    var isAnimateCovered = ["float isAnimateCovered() {", "   vec2 pos = gl_FragCoord.xy;", "   vec2 viewport = 2. * v_screen;", "   float maxLen = length(viewport);", "   vec2 startPos = viewport * v_startPos;", "   vec2 endPos = viewport * v_endPos;", "   float totalLen = distance(startPos, endPos);", "   float len = distance(pos, startPos);", "   // float r = 300.;", "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * totalLen;", "   // float r = 0.5 * totalLen;", "   float draw = 1. - step(r, len);", "   return draw;", "}"];
 
     var isAnimateCoveredGradient = ["float isAnimateCoveredGradient() {", "   vec2 pos = gl_FragCoord.xy;", "   vec2 viewport = 2. * v_screen;", "   float maxLen = length(viewport);", "   vec2 startPos = viewport * v_startPos;", "   vec2 endPos = viewport * v_endPos;", "   float totalLen = distance(startPos, endPos);", "   float len = distance(pos, startPos);", "   float gradLen = 180.;", // TODO: can config
-    "   float r = fract(v_time * 0.2 * maxLen / totalLen) * (totalLen + gradLen);", "   // float r = 0.5 * totalLen;", "   float draw = fract(smoothstep(r - gradLen, r, len));", "   return draw;", "}"];
+    "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * (totalLen + gradLen);", // NOTE: use 0.2 as a proper factor
+    "   // float r = 0.5 * totalLen;", "   float draw = fract(smoothstep(r - gradLen, r, len));", "   return draw;", "}"];
 
     if (this.hasEdgeAnimation) {
-        scene.add("lines", new _primitive2.default(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "attribute vec2 startPos;", "attribute vec2 endPos;", "uniform float time;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying float v_time;", "varying vec2 v_startPos;", "varying vec2 v_endPos;", "varying vec2 v_screen;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   v_time = time;", "   v_startPos = startPos;", "   v_endPos = endPos;", "   v_screen = screen;", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform float animateType;", "uniform vec4 color;", "uniform vec4 animateColor;", "varying vec2 n;", "varying float v_time;", "varying vec2 v_startPos;", "varying vec2 v_endPos;", "varying vec2 v_screen;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;"].concat(isAnimateCovered).concat(isAnimateCoveredGradient).concat(["void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"]).concat(lineTypes).concat(lineAnimateTypes).concat(["}"]), function (c) {
+        scene.add("lines", new _primitive2.default(gl, edgeStyle, null, ["precision mediump float;", "attribute vec2 position;", "attribute vec2 normal;", "attribute vec2 lengthSoFar;", "attribute vec2 startPos;", "attribute vec2 endPos;", "uniform float time;", "uniform float exc;", "uniform vec2 size;", "uniform vec2 screen;", "uniform float aspect2;", "uniform float aspect;", "uniform vec2 width;", "uniform mat4 transform;", "varying float v_time;", "varying vec2 v_startPos;", "varying vec2 v_endPos;", "varying vec2 v_screen;", "varying vec2 n;", "varying vec2 v_lengthSoFar;"].concat(getShiftFuncs).concat(["void main(void) {", "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);", "   vec4 p = transform*vec4(lengthSoFar,0,0);", "   v_lengthSoFar = vec2(p.x, p.y/aspect);", "   v_time = time;", "   v_startPos = startPos;", "   v_endPos = endPos;", "   v_screen = screen;", "   n = normal;", "}"]), ["precision mediump float;", "uniform float type;", "uniform float animateType;", "uniform vec4 color;", "uniform vec4 animateColor;", "uniform float animateSpeed;", "varying vec2 n;", "varying float v_time;", "varying vec2 v_startPos;", "varying vec2 v_endPos;", "varying vec2 v_screen;", "varying vec2 v_lengthSoFar;", "uniform float lineSize;"].concat(isAnimateCovered).concat(isAnimateCoveredGradient).concat(["void main(void) {", "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"]).concat(lineTypes).concat(lineAnimateTypes).concat(["}"]), function (c) {
             var uniforms = c.shader.uniforms;
             uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
             gl.uniform2f(uniforms.screen, c.width, c.height);
@@ -8090,6 +8092,7 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
             gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
             gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
             gl.uniform1f(uniforms.animateType, getEdgeAnimateType(c.style.animateType));
+            gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
             _gl2.default.uniformColor(gl, uniforms.color, c.style.color);
             _gl2.default.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
         }));
