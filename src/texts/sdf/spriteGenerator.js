@@ -6,16 +6,16 @@ export default class SpriteGenerator {
 
     constructor(fontStyle) {
         // Member variables for configurations for font-style and box of the font
-        const textSize = fontStyle.size;
+        const textSize = fontStyle.size || 23;
         this.fontSize = Math.round(textSize / 4) * 4;
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
-        this.fontFamily = fontStyle.family;
+        this.fontFamily = fontStyle.family || 'sans-serif';
         // this.fontFamily = 'sans-serif';
         // this.fontFamily = 'vedana';
         // this.fontFamily = 'arial';
-        this.fontWeight = fontStyle.weight;
+        this.fontWeight = fontStyle.weight || 'normal';
         // this.fontWeight = 'normal';
         // this.fontWeight = 'bold';
         // Size of one box of character
