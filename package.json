@@ -13,6 +13,7 @@
     "jshint": "^2.9.5",
     "npm-watch": "^0.6.0",
     "path": "^0.12.7",
+    "raw-loader": "^3.0.0",
     "webpack": "^4.16.2"
   },
   "licence": "GPL v3",

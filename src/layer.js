@@ -6,6 +6,8 @@ import ccNetViz_geomutils from './geomutils' ;
 import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
+import {easeFunctions} from './shaders'
+
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -685,6 +687,10 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "}"
     ];
 
+    const easeFunctionPart = [
+        `${easeFunctions.bounceOut}`
+    ];
+
     const isAnimateCovered = [
         "float isAnimateCovered() {",
         "   vec2 pos = gl_FragCoord.xy;",
@@ -695,7 +701,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   // float r = 300.;",
-        "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * totalLen;",
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;",
         "   // float r = 0.5 * totalLen;",
         "   float draw = 1. - step(r, len);",
         "   return draw;",
@@ -769,6 +775,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 "varying vec2 v_lengthSoFar;",
                 "uniform float lineSize;",
             ]
+            .concat(easeFunctionPart)
             .concat(isAnimateCovered)
             .concat(isAnimateCoveredGradient).concat([
                 "void main(void) {",
