@@ -59,8 +59,8 @@ Inbuilt support for multiple layouts such as the **Force**, **Hierarchical**, **
 
 Inbuilt support for two modifications of **Tree** layout.
 
-* Graph layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/layouts.html)
-* Tree-specific layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/tree.html)
+* Graph layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/layouts.html)
+* Tree-specific layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/tree.html)
 
 If you want to use one of our in-built layout ( see the https://github.com/HelikarLab/ccNetViz/tree/master/src/layout for list of all available ones ),
 pass it as second parameter into the set function such as:
@@ -73,16 +73,15 @@ pass it as second parameter into the set function such as:
 
 **Advanced Examples**
 
-* Advanced styling - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
-* Complex graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/complex.html)
-* Mouse event on hover - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_hover.html)
-* Mouse events on move - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
-* Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/multi_level.html)
-* Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
-* Using SDF fonts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/sdf.html)
-* User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
-* Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
-* Save graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/save_graph.html)
+* Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
+* Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
+* Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
+* Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
+* Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
+* Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
+* Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
+* User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
+* Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
 
 **Documentation**
 
