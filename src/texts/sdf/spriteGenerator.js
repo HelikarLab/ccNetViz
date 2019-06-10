@@ -11,6 +11,7 @@ export default class SpriteGenerator {
         this.buffer = this.fontSize / 8;
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
+        this.strokeText = fontStyle.strokeText || false;
         this.fontFamily = fontStyle.family || 'sans-serif';
         // this.fontFamily = 'sans-serif';
         // this.fontFamily = 'vedana';
@@ -28,7 +29,7 @@ export default class SpriteGenerator {
         this.ctx.font = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
         this.ctx.textBaseline = 'middle';
         this.ctx.fillStyle = 'black';
-
+        
         // Work-around: https://bugzilla.mozilla.org/show_bug.cgi?id=737852
         this.middle = Math.round((size / 2) * (navigator.userAgent.indexOf('Gecko/') >= 0 ? 1.2 : 1));
 
@@ -62,7 +63,7 @@ export default class SpriteGenerator {
     draw(char) {
         // Clear the area and draw the glyph
         this.ctx.clearRect(0, 0, this.size, this.size);
-        this.ctx.fillText(char, this.buffer, this.middle);
+        this.strokeText ? this.ctx.strokeText(char, this.buffer, this.middle) : this.ctx.fillText(char, this.buffer, this.middle)
         let imgData = this.ctx.getImageData(0, 0, this.size, this.size);
         let alphaChannel = new Uint8ClampedArray(this.size * this.size);
 
