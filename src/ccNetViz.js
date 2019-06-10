@@ -11,8 +11,9 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import {Ellipse, Star, Polygon, Custom } from  "../plugins/ccNetViz-node-plugins/main"
+import {Ellipse, Star, Polygon, Custom } from  "../plugins/ccNetViz-node-plugin/main"
 
+import {Arrow} from "../plugins/ccNetViz-arrow-plugin/main"
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -88,17 +89,19 @@ var ccNetViz = function(canvas, options){
       s.font = s.font || {type:"Arial, Helvetica, sans-serif", size: 11};
   }
 
-  let edgeStyle = options.styles.edge = options.styles.edge || {};
+  let edgeStyle = options.styles.edge = options.styles.edge || { arrow: { } };
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
 
   let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
 
   if (edgeStyle.arrow) {
+    if(typeof edgeStyle.arrow.texture !== "undefined"){
       let s = edgeStyle.arrow;
       s.minSize = s.minSize != null ? s.minSize : 6;
       s.maxSize = s.maxSize || 12;
       s.aspect = 1;
+    }
   }
 
 
@@ -161,9 +164,16 @@ var ccNetViz = function(canvas, options){
     edges.forEach(checkUniqId);
 
     let promises = nodePlugin();
+    let arrowTextures = arrowPlugin();
+    promises = promises.concat(arrowTextures);
+
     Promise.all(promises.map(item => item.config)).then((c) => {
       c.map((item, index) => {
-        options.styles[promises[index].name] = item;
+        if(item.plugin === "arrow"){
+          options.styles[promises[index].name].arrow = item;
+        }else{
+          options.styles[promises[index].name] = item;
+        }
       });
       layers.temp && layers.temp.set([], [], layout, layout_options);
       layers.main.set(nodes, edges, layout, layout_options);
@@ -222,16 +232,7 @@ var ccNetViz = function(canvas, options){
 
       // Predefined shapes
       if (typeof Polygon !== "undefined") {
-        let s = [
-          { name: 'triangle', edges: 3 },
-          { name: 'quadrilateral', edges: 4 },
-          { name: 'pentagon', edges: 5 },
-          { name: 'hexagon', edges: 6 },
-          { name: 'heptagon', edges: 7 },
-          { name: 'octagon', edges: 8 },
-          { name: 'nonagon', edges: 9 },
-          { name: 'decagon', edges: 9 }
-        ];
+        let s = [{ name: 'triangle', edges: 3 }, { name: 'quadrilateral', edges: 4 }, { name: 'pentagon', edges: 5 }, { name: 'hexagon', edges: 6 }, { name: 'heptagon', edges: 7 }, { name: 'octagon', edges: 8 }, { name: 'nonagon', edges: 9 }, { name: 'decagon', edges: 9 }];
         shapes = shapes.concat(pluginConfig(Polygon, s, 'Polygon'));
       }
 
@@ -266,7 +267,39 @@ var ccNetViz = function(canvas, options){
     }
     return shapes;
   }
-
+  /**
+  * ccNetViz-arrow-plugin integration. 
+  * @return {Array} - Array of texture promises.
+  */
+  let arrowPlugin = function () {
+    let shapes = [];
+    if (typeof Arrow !== "undefined") {
+      if (typeof options.styles !== "undefined") {
+        // Predefined styles
+        let arrows = ['arrow', 'arrow short', 'delta', 'delta short', 'diamond', 'diamond short', 'T', 'harpoon up', 'harpoon down', 'thin arrow'];
+        for (let i = 0; i < arrows.length; i++) {
+          const type = arrows[i];
+          if (typeof options.styles[type] === "undefined") {
+            options.styles[type] = { arrow: { type: type } };
+          } else {
+            // Overwriting existing predefined styles.
+            options.styles[type].arrow = Object.assign({ type: type }, options.styles[type].arrow);
+          }
+        }
+        // Generating styles
+        for (let key in options.styles) {
+          if (typeof options.styles[key].arrow !== "undefined") {
+            if (typeof options.styles[key].arrow.type !== "undefined") {
+              let style = options.styles[key].arrow;
+              let shape = new Arrow(Object.assign(style, { plugin: 'arrow', key: key }), self);
+              shapes.push({ config: shape.toConfig(), name: key, plugin: 'arrow' });
+            }
+          }
+        }
+      }
+    }
+    return shapes;
+  }
   //make all dynamic changes static
   this.reflow = () => {
     if(checkRemoved()) return;

@@ -21,7 +21,6 @@ let Polygon = (config, instance) => {
         this.context.lineTo(x, y);
       }
 
-
       this.context.closePath();
       this.context.stroke();
       this.context.fill();

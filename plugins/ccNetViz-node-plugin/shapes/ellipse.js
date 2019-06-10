@@ -17,9 +17,16 @@ let Ellipse = (config, instance) => {
         y1: this.config.radiusY + ((this.config.stroke.size * 2) + this.config.radiusY)
       };
 
+      this.config.offset = {
+        x: 0,
+        y: 0
+      }
+
       if (cursor.x1 < cursor.y1) {
+        this.config.offset.x = cursor.y1 - cursor.x1;
         cursor.x1 = cursor.y1;
       } else {
+        this.config.offset.y = cursor.x1 - cursor.y1;
         cursor.y1 = cursor.x1;
       }
 
@@ -32,8 +39,8 @@ let Ellipse = (config, instance) => {
     }
     _draw() {
       this.context.ellipse(
-        (this.config.radiusX) + this.config.stroke.size,
-        (this.config.radiusY) + this.config.stroke.size,
+        (this.config.radiusX) + this.config.stroke.size + (this.config.offset.x / 2),
+        (this.config.radiusY) + this.config.stroke.size + (this.config.offset.y / 2),
         this.config.radiusX,
         this.config.radiusY, 0, 0, 2 * Math.PI);
       this.context.stroke();
