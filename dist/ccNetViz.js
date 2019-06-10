@@ -8073,12 +8073,12 @@ exports.default = function (canvas, context, view, gl, textures, files, texts, e
 
     var getShiftFuncs = ["attribute vec2 curveShift;", "vec4 getShiftCurve(void) {", "   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);", "   float length = length(screen * shiftN);", "   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);", "}", "attribute vec2 circleShift;", "vec4 getShiftCircle(void) {", "   return vec4(size*circleShift,0,0);", "}"];
 
-    var easeFunctionPart = ['' + _shaders.easeFunctions.bounceOut];
+    var easeFunctionPart = ['' + _shaders.easeFunctions[edgeStyle.animateEase ? edgeStyle.animateEase : 'linear']];
 
     var isAnimateCovered = ["float isAnimateCovered() {", "   vec2 pos = gl_FragCoord.xy;", "   vec2 viewport = 2. * v_screen;", "   float maxLen = length(viewport);", "   vec2 startPos = viewport * v_startPos;", "   vec2 endPos = viewport * v_endPos;", "   float totalLen = distance(startPos, endPos);", "   float len = distance(pos, startPos);", "   // float r = 300.;", "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;", "   // float r = 0.5 * totalLen;", "   float draw = 1. - step(r, len);", "   return draw;", "}"];
 
     var isAnimateCoveredGradient = ["float isAnimateCoveredGradient() {", "   vec2 pos = gl_FragCoord.xy;", "   vec2 viewport = 2. * v_screen;", "   float maxLen = length(viewport);", "   vec2 startPos = viewport * v_startPos;", "   vec2 endPos = viewport * v_endPos;", "   float totalLen = distance(startPos, endPos);", "   float len = distance(pos, startPos);", "   float gradLen = 180.;", // TODO: can config
-    "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * (totalLen + gradLen);", // NOTE: use 0.2 as a proper factor
+    "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + gradLen / 2.);", // NOTE: use 0.2 as a proper factor
     "   // float r = 0.5 * totalLen;", "   float draw = fract(smoothstep(r - gradLen, r, len));", "   return draw;", "}"];
 
     if (this.hasEdgeAnimation) {
@@ -10900,6 +10900,40 @@ exports.default = Shader;
 
 /***/ }),
 
+/***/ "./src/shaders/easeFunctions/bounce-in.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/bounce-in.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "#ifndef PI\r\n#define PI 3.141592653589793\r\n#endif\r\n\r\nfloat bounceOut(float t) {\r\n  const float a = 4.0 / 11.0;\r\n  const float b = 8.0 / 11.0;\r\n  const float c = 9.0 / 10.0;\r\n\r\n  const float ca = 4356.0 / 361.0;\r\n  const float cb = 35442.0 / 1805.0;\r\n  const float cc = 16061.0 / 1805.0;\r\n\r\n  float t2 = t * t;\r\n\r\n  return t < a\r\n    ? 7.5625 * t2\r\n    : t < b\r\n      ? 9.075 * t2 - 9.9 * t + 3.4\r\n      : t < c\r\n        ? ca * t2 - cb * t + cc\r\n        : 10.8 * t * t - 20.52 * t + 10.72;\r\n}\r\n\r\n\r\nfloat ease(float t) {\r\n  return 1.0 - bounceOut(1.0 - t);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/bounce-inout.glsl":
+/*!*****************************************************!*\
+  !*** ./src/shaders/easeFunctions/bounce-inout.glsl ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "#ifndef PI\r\n#define PI 3.141592653589793\r\n#endif\r\n\r\nfloat bounceOut(float t) {\r\n  const float a = 4.0 / 11.0;\r\n  const float b = 8.0 / 11.0;\r\n  const float c = 9.0 / 10.0;\r\n\r\n  const float ca = 4356.0 / 361.0;\r\n  const float cb = 35442.0 / 1805.0;\r\n  const float cc = 16061.0 / 1805.0;\r\n\r\n  float t2 = t * t;\r\n\r\n  return t < a\r\n    ? 7.5625 * t2\r\n    : t < b\r\n      ? 9.075 * t2 - 9.9 * t + 3.4\r\n      : t < c\r\n        ? ca * t2 - cb * t + cc\r\n        : 10.8 * t * t - 20.52 * t + 10.72;\r\n}\r\n\r\nfloat ease(float t) {\r\n  return t < 0.5\r\n    ? 0.5 * (1.0 - bounceOut(1.0 - t * 2.0))\r\n    : 0.5 * bounceOut(t * 2.0 - 1.0) + 0.5;\r\n}";
+
+/***/ }),
+
 /***/ "./src/shaders/easeFunctions/bounce-out.glsl":
 /*!***************************************************!*\
   !*** ./src/shaders/easeFunctions/bounce-out.glsl ***!
@@ -10914,6 +10948,57 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = "#ifndef PI\r\n#define PI 3.141592653589793\r\n#endif\r\n\r\nfloat ease(float t) {\r\n  const float a = 4.0 / 11.0;\r\n  const float b = 8.0 / 11.0;\r\n  const float c = 9.0 / 10.0;\r\n\r\n  const float ca = 4356.0 / 361.0;\r\n  const float cb = 35442.0 / 1805.0;\r\n  const float cc = 16061.0 / 1805.0;\r\n\r\n  float t2 = t * t;\r\n\r\n  return t < a\r\n    ? 7.5625 * t2\r\n    : t < b\r\n      ? 9.075 * t2 - 9.9 * t + 3.4\r\n      : t < c\r\n        ? ca * t2 - cb * t + cc\r\n        : 10.8 * t * t - 20.52 * t + 10.72;\r\n}\r\n";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/exp-in.glsl":
+/*!***********************************************!*\
+  !*** ./src/shaders/easeFunctions/exp-in.glsl ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t == 0.0 ? t : pow(2.0, 10.0 * (t - 1.0));\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/exp-inout.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/exp-inout.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t == 0.0 || t == 1.0\r\n    ? t\r\n    : t < 0.5\r\n      ? +0.5 * pow(2.0, (20.0 * t) - 10.0)\r\n      : -0.5 * pow(2.0, 10.0 - (t * 20.0)) + 1.0;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/exp-out.glsl":
+/*!************************************************!*\
+  !*** ./src/shaders/easeFunctions/exp-out.glsl ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t == 1.0 ? t : 1.0 - pow(2.0, -10.0 * t);\r\n}\r\n";
 
 /***/ }),
 
@@ -10932,17 +11017,130 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.easeFunctions = undefined;
 
+var _linear = __webpack_require__(/*! ./linear.glsl */ "./src/shaders/easeFunctions/linear.glsl");
+
+var _linear2 = _interopRequireDefault(_linear);
+
+var _sinIn = __webpack_require__(/*! ./sin-in.glsl */ "./src/shaders/easeFunctions/sin-in.glsl");
+
+var _sinIn2 = _interopRequireDefault(_sinIn);
+
+var _sinOut = __webpack_require__(/*! ./sin-out.glsl */ "./src/shaders/easeFunctions/sin-out.glsl");
+
+var _sinOut2 = _interopRequireDefault(_sinOut);
+
+var _sinInout = __webpack_require__(/*! ./sin-inout.glsl */ "./src/shaders/easeFunctions/sin-inout.glsl");
+
+var _sinInout2 = _interopRequireDefault(_sinInout);
+
+var _expIn = __webpack_require__(/*! ./exp-in.glsl */ "./src/shaders/easeFunctions/exp-in.glsl");
+
+var _expIn2 = _interopRequireDefault(_expIn);
+
+var _expOut = __webpack_require__(/*! ./exp-out.glsl */ "./src/shaders/easeFunctions/exp-out.glsl");
+
+var _expOut2 = _interopRequireDefault(_expOut);
+
+var _expInout = __webpack_require__(/*! ./exp-inout.glsl */ "./src/shaders/easeFunctions/exp-inout.glsl");
+
+var _expInout2 = _interopRequireDefault(_expInout);
+
+var _bounceIn = __webpack_require__(/*! ./bounce-in.glsl */ "./src/shaders/easeFunctions/bounce-in.glsl");
+
+var _bounceIn2 = _interopRequireDefault(_bounceIn);
+
 var _bounceOut = __webpack_require__(/*! ./bounce-out.glsl */ "./src/shaders/easeFunctions/bounce-out.glsl");
 
 var _bounceOut2 = _interopRequireDefault(_bounceOut);
 
+var _bounceInout = __webpack_require__(/*! ./bounce-inout.glsl */ "./src/shaders/easeFunctions/bounce-inout.glsl");
+
+var _bounceInout2 = _interopRequireDefault(_bounceInout);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var easeFunctions = {
-    bounceOut: _bounceOut2.default
+    'linear': _linear2.default,
+    'sin-in': _sinIn2.default,
+    'sin-out': _sinOut2.default,
+    'sin-inout': _sinInout2.default,
+    'exp-in': _expIn2.default,
+    'exp-out': _expOut2.default,
+    'exp-inout': _expInout2.default,
+    'bounce-in': _bounceIn2.default,
+    'bounce-out': _bounceOut2.default,
+    'bounce-inout': _bounceInout2.default
 };
 
 exports.easeFunctions = easeFunctions;
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/linear.glsl":
+/*!***********************************************!*\
+  !*** ./src/shaders/easeFunctions/linear.glsl ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t;\r\n}\r\n";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/sin-in.glsl":
+/*!***********************************************!*\
+  !*** ./src/shaders/easeFunctions/sin-in.glsl ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "#ifndef HALF_PI\r\n#define HALF_PI 1.5707963267948966\r\n#endif\r\n\r\nfloat ease(float t) {\r\n  return sin((t - 1.0) * HALF_PI) + 1.0;\r\n}\r\n";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/sin-inout.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/sin-inout.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "#ifndef PI\r\n#define PI 3.141592653589793\r\n#endif\r\n\r\nfloat ease(float t) {\r\n  return -0.5 * (cos(PI * t) - 1.0);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/sin-out.glsl":
+/*!************************************************!*\
+  !*** ./src/shaders/easeFunctions/sin-out.glsl ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "#ifndef HALF_PI\r\n#define HALF_PI 1.5707963267948966\r\n#endif\r\n\r\nfloat ease(float t) {\r\n  return sin(t * HALF_PI);\r\n}";
 
 /***/ }),
 

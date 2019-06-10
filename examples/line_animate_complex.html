@@ -11,8 +11,8 @@
     <label>animation type:</label>
     <select id="animate-select" onchange="onAnimationChange()">
       <option value="none">None</option>
-      <option selected value="basic">Basic</option>
-      <option value="gradient">Gradient</option>
+      <option value="basic">Basic</option>
+      <option selected value="gradient">Gradient</option>
     </select>
     <script>
       const data = {
@@ -44,8 +44,9 @@
             type: "dotted",
             color: "rgb(200, 200, 200)",
 
-            animateType: "basic", // "basic", "gradient", "none"
+            animateType: "gradient", // "basic", "gradient", "none"
             animateSpeed: 2,
+            animateEase: "sin-out", // default is "linear"
             animateColor: "rgb(240, 80, 100)"
           }
         }

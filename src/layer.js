@@ -688,7 +688,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
     ];
 
     const easeFunctionPart = [
-        `${easeFunctions.bounceOut}`
+        `${easeFunctions[edgeStyle.animateEase ? edgeStyle.animateEase : 'linear']}`
     ];
 
     const isAnimateCovered = [
@@ -718,7 +718,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   float gradLen = 180.;", // TODO: can config
-        "   float r = fract(v_time * animateSpeed * 0.2 * maxLen / totalLen) * (totalLen + gradLen);", // NOTE: use 0.2 as a proper factor
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + gradLen / 2.);", // NOTE: use 0.2 as a proper factor
         "   // float r = 0.5 * totalLen;",
         "   float draw = fract(smoothstep(r - gradLen, r, len));",
         "   return draw;",
