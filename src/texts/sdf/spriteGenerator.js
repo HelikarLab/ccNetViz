@@ -8,7 +8,11 @@ export default class SpriteGenerator {
         // Member variables for configurations for font-style and box of the font
         const textSize = fontStyle.size || 23;
         this.fontSize = Math.round(textSize / 4) * 4;
+        // Whitespace buffer around a glyph in pixels 
+        //TODO : Add more information about this.buffer
         this.buffer = this.fontSize / 8;
+        // How many pixels around the glyph shape to use for encoding distance. Bigger radius can have more halo effect.
+        // Refer http://www.supergeotek.com/SP_ENG_HTML/label.htm for halo effect
         this.radius = this.fontSize / 3;
         this.cutoff = 0.25;
         this.strokeText = fontStyle.strokeText || false;
@@ -38,14 +42,16 @@ export default class SpriteGenerator {
         this.gridOuter = new Float64Array(size * size);
         this.gridInner = new Float64Array(size * size);
         this.f = new Float64Array(size);
-        this.d = new Float64Array(size);
         this.z = new Float64Array(size + 1);
-        this.v = new Int16Array(size);
+        this.v = new Uint16Array(size);
 
         // Glyph Trimmer
         this.trimmer = new Trimmer(0);
         this.count = 1;
     }
+
+    // Convert alpha-only to RGBA so we can use convenient
+    // `putImageData` for building the composite bitmap
 
     _makeRGBAImageData(alphaChannel, width, height) {
         let imageData = this.ctx.createImageData(width, height);
@@ -73,11 +79,11 @@ export default class SpriteGenerator {
             this.gridInner[i] = a === 1 ? INF : a === 0 ? 0 : Math.pow(Math.max(0, a - 0.5), 2);
         }
 
-        this._edt(this.gridOuter, this.size, this.size, this.f, this.d, this.v, this.z);
-        this._edt(this.gridInner, this.size, this.size, this.f, this.d, this.v, this.z);
+        this._edt(this.gridOuter, this.size, this.size, this.f, this.v, this.z);
+        this._edt(this.gridInner, this.size, this.size, this.f, this.v, this.z);
 
         for (let i = 0; i < this.size * this.size; i++) {
-            let d = this.gridOuter[i] - this.gridInner[i];
+            var d = Math.sqrt(this.gridOuter[i]) - Math.sqrt(this.gridInner[i]);
             alphaChannel[i] = Math.max(0, Math.min(255, Math.round(255 - 255 * (d / this.radius + this.cutoff))));
         }
 
@@ -110,49 +116,39 @@ export default class SpriteGenerator {
         return glyph;
     }
 
-    // 2D Euclidean distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
-    _edt(data, width, height, f, d, v, z) {
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                f[y] = data[y * width + x];
-            }
-            this._edt1d(f, d, v, z, height);
-            for (let y = 0; y < height; y++) {
-                data[y * width + x] = d[y];
-            }
-        }
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                f[x] = data[y * width + x];
-            }
-            this._edt1d(f, d, v, z, width);
-            for (let x = 0; x < width; x++) {
-                data[y * width + x] = Math.sqrt(d[x]);
-            }
-        }
+    // 2D Euclidean squared distance transform by Felzenszwalb & Huttenlocher https://cs.brown.edu/~pff/papers/dt-final.pdf
+    
+    _edt(data, width, height, f, v, z) {
+    for (var x = 0; x < width; x++) this._edt1d(data, x, width, height, f, v, z);
+    for (var y = 0; y < height; y++) this._edt1d(data, y * width, 1, width, f, v, z);
     }
 
     // 1D squared distance transform
-    _edt1d(f, d, v, z, n) {
-        v[0] = 0;
-        z[0] = -INF;
-        z[1] = +INF;
+    
+    _edt1d(grid, offset, stride, length, f, v, z) {
+    var q, k, s, r;
+    v[0] = 0;
+    z[0] = -INF;
+    z[1] = INF;
 
-        for (let q = 1, k = 0; q < n; q++) {
-            var s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            while (s <= z[k]) {
-                k--;
-                s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            }
-            k++;
-            v[k] = q;
-            z[k] = s;
-            z[k + 1] = +INF;
-        }
+    for (q = 0; q < length; q++) f[q] = grid[offset + q * stride];
 
-        for (let q = 0, k = 0; q < n; q++) {
-            while (z[k + 1] < q) k++;
-            d[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
+    for (q = 1, k = 0, s = 0; q < length; q++) {
+        do {
+            r = v[k];
+            s = (f[q] - f[r] + q * q - r * r) / (q - r) / 2;
+        } while (s <= z[k--]);
+
+        k += 2;
+        v[k] = q;
+        z[k] = s;
+        z[k + 1] = INF;
+    }
+
+    for (q = 0, k = 0; q < length; q++) {
+        while (z[k + 1] < q) k++;
+        r = v[k];
+        grid[offset + q * stride] = f[r] + (q - r) * (q - r);
         }
     }
-}
+} 
