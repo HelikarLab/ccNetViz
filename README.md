@@ -180,10 +180,6 @@ All default property values of these styles can be overriden (as in example abov
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
-When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from
-[our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with
-[node-fontnik](https://github.com/mapbox/node-fontnik).
-
 ***set(nodes, edges, layout)***
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
