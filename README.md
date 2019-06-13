@@ -1,4 +1,7 @@
-[ccNetViz](http://helikarlab.github.io/ccNetViz/) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+# [ccNetViz](http://helikarlab.github.io/ccNetViz/)
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 ====================================
 
 Graph theory (a.k.a. network) library for analysis and visualisation
@@ -262,14 +265,18 @@ Property to access edges data of given graph. Use this just to read current valu
 ### Development in ccNetViz
 This is the pipeline you should follow to make changes to ccNetViz:
 
-0. Fork ccNetViz repository e.g. from [HeilikarLab]. Start a server
+1. Clone the repository.
+2. Run `npm install` inside the cloned repository.
+   3.Start a server
    (such as Apache or using http-server globally) with a path to the ccNetViz directory.
-1. Make changes to src/ tree.
-2. Run "$ npm update" to download needed packages.
-3. Build with "$ npm run build" on the ccNetViz root directory.
-4. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
-5. Run a test page (e.g. anyone in examples/) at the browser to see the results.
-6. Commit changes to your fork and make a pull request e.g. on the repository you forked.
+3. Make changes to src/ tree.
+4. Build with `npm run build` on the ccNetViz root directory.
+5. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+6. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+
+### Contributing
+
+If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
 [HeilikarLab]: https://github.com/HelikarLab/ccNetViz
 
