@@ -13,6 +13,7 @@
     "jshint": "^2.9.5",
     "npm-watch": "^0.6.0",
     "path": "^0.12.7",
+    "standard-version": "^6.0.1",
     "webpack": "^4.16.2"
   },
   "licence": "GPL v3",
@@ -74,6 +75,47 @@
     "dev": "webpack --mode development && node build.js",
     "webpack-help": "webpack --help",
     "watch": "npm-watch",
-    "compiled": "node build.js compile"
+    "compiled": "node build.js compile",
+    "release": "standard-version"
+  },
+  "standard-version": {
+    "types": [
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "docs",
+        "section": "Docs"
+      },
+      {
+        "type": "perf",
+        "section": "Perfomance Changes"
+      },
+      {
+        "type": "improvement",
+        "hiddes": true
+      },
+      {
+        "type": "test",
+        "hidden": true
+      },
+      {
+        "type": "chore",
+        "hidden": true
+      },
+      {
+        "type": "refactor",
+        "hidden": true
+      },
+      {
+        "type": "style",
+        "hidden": true
+      }
+    ]
   }
 }
