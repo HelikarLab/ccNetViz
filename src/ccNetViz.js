@@ -90,6 +90,7 @@ var ccNetViz = function(canvas, options){
   let edgeStyle = options.styles.edge = options.styles.edge || {};
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
+  edgeStyle.animateColor = edgeStyle.animateColor || "rgb(240, 80, 120)";
 
   let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
 
@@ -319,9 +320,24 @@ var ccNetViz = function(canvas, options){
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    for(let i = 0; i < layers.main.scene.elements.length; i++){
-      layers.main.scene.elements[i].draw(context);
-      layers.temp && layers.temp.scene.elements[i].draw(context);
+    const startTime = Date.now();
+
+    const drawOnce = () => {
+        for(let i = 0; i < layers.main.scene.elements.length; i++){
+            layers.main.scene.elements[i].draw(context);
+            layers.temp && layers.temp.scene.elements[i].draw(context);
+        }
+    }
+    const drawLoop = () => {
+        context.renderTime = (Date.now() - startTime) / 1000.0;
+        drawOnce();
+        requestAnimationFrame(drawLoop);
+    }
+
+    if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
+        drawLoop();
+    } else {
+        drawOnce();
     }
   };
   drawFunc = this.draw.bind(this);
