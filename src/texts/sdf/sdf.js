@@ -93,7 +93,9 @@ export default class {
   setFont(style) {
     // curFont => current_font
     // style.pbf examplar value = http://helikarlab.github.io/ccNetViz/fonts/FineHand/0-65535.pbf
-    this.curFont = style.pbf;
+    this.fontStyle = style;
+    this.curFont = JSON.stringify(style);
+   
   }
 
   // FontSize is fixed and hardcoded i.e. 24
@@ -285,7 +287,8 @@ export default class {
     );
   }
 
-  get(text, x, y, markDirty,fontStyle) {
+  get(text, x, y,markDirty) {
+    const fontStyle = this.fontStyle;
     let alignment = fontStyle.alignment;
     let wordWidth = 0;
     let width = 0;

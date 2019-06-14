@@ -53,7 +53,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 var y = e.y;
 
                 var ret = false;
-                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;}, style.font);
+                var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
                 for(var i = 0; i < parts.length; i++, iV += 4, iI += 6){
                   // parts is the array of characters, character description and position w.r.t node 
                   let c = parts[i];
@@ -74,7 +74,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                   ccNetViz_primitive.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
-
+                console.log(ret);
                 return ret;
               },
               size: (v,e) => {
