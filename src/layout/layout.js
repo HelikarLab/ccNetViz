@@ -4,7 +4,7 @@ import layoutCircular from './circular' ;
 import layoutTree from './tree' ;
 import layoutTreeT from './treeT' ;
 import layoutHierarchical from './hierarchical' ;
-import layoutHierarchical2 from './hierarchical2' ;
+//import layoutHierarchical2 from './hierarchical2' ;
 import layoutSpectral from './spectral' ;
 import layoutSpectral2 from './spectral2' ;
 import layoutHive from './hive' ;
@@ -38,9 +38,9 @@ export default class {
   static get hierarchical(){
     return layoutHierarchical;
   }
-  static get hierarchical2(){
+/*  static get hierarchical2(){
     return layoutHierarchical2;
-  }
+  }*/
   static get spectral(){
     return layoutSpectral;
   }

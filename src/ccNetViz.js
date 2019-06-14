@@ -425,11 +425,13 @@ var ccNetViz = function(canvas, options){
 
   let onDownThis = onMouseDown.bind(this);
 
+  const onWheelThis = onWheel.bind(this);
+
   let zoomevts;
   addEvts(canvas, zoomevts = {
     'mousedown': onDownThis,
     'touchstart': onDownThis,
-    'wheel': onWheel.bind(this),
+    'wheel': onWheelThis,
     'contextmenu': options.onContextMenu
   })
 

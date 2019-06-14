@@ -1,0 +1,146 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn install
+
+PATH: 
+  /home/ales/bin:/home/ales/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/ProgramData/Oracle/Java/javapath_target_675994812:/mnt/c/Program Files (x86)/Intel/iCLS Client:/mnt/c/Program Files/Intel/iCLS Client:/mnt/c/Windows/System32:/mnt/c/Windows:/mnt/c/Windows/System32/wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:/mnt/c/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL:/mnt/c/Program Files/Intel/Intel(R) Management Engine Components/DAL:/mnt/c/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT:/mnt/c/Program Files/Intel/Intel(R) Management Engine Components/IPT:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Intel/WiFi/bin:/mnt/c/Program Files/Common Files/Intel/WirelessCommon:/mnt/c/Windows/System32/OpenSSH:/mnt/c/Program Files/nodejs:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Program Files/Microsoft VS Code/bin:/mnt/c/Program Files/dotnet:/mnt/c/Program Files/Microsoft SQL Server/130/Tools/Binn:/mnt/c/Users/aless/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/aless/AppData/Local/atom/bin:/mnt/c/Users/aless/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/aless/AppData/Local/Microsoft/WindowsApps:/mnt/c/texlive/2017/bin/win32:/mnt/c/Program Files/Microsoft VS Code/bin:/mnt/c/Users/aless/AppData/Roaming/npm:/mnt/c/Program Files/Docker Toolbox:/snap/bin:/usr/lib/postgresql/9.5/bin:/usr/lib/postgresql/9.5/bin
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  8.11.3
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile '/home/ales/.cache/yarn/v4/npm-core-js-2.6.9-6b4b214620c834152e179323727fc19741b084f2/node_modules/core-js/library/es7/map.js' -> '/mnt/c/Users/aless/helikarlab/gsoc_2019/ccNetViz/node_modules/core-js/library/es7/map.js'
+
+npm manifest: 
+  {
+    "name": "ccnetviz",
+    "version": "1.0.17",
+    "main": "lib/ccNetViz.js",
+    "devDependencies": {
+      "babel-cli": "^6.26.0",
+      "babel-core": "^6.26.3",
+      "babel-loader": "^7.1.5",
+      "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+      "babel-preset-es2015": "^6.24.1",
+      "google-closure-compiler": "^20180716.0.1",
+      "http-server": "^0.11.1",
+      "jshint": "^2.9.5",
+      "npm-watch": "^0.6.0",
+      "path": "^0.12.7",
+      "standard-version": "^6.0.1",
+      "webpack": "^4.16.2"
+    },
+    "licence": "GPL v3",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/HelikarLab/ccNetViz.git"
+    },
+    "keywords": [
+      "graph",
+      "graph-theory",
+      "visualization",
+      "network",
+      "node",
+      "edge",
+      "vertex",
+      "link",
+      "analysis",
+      "efficiency",
+      "performance",
+      "fast",
+      "speed",
+      "visualisation",
+      "visualization",
+      "draw",
+      "render",
+      "biojs",
+      "cytoscape",
+      "WebGL"
+    ],
+    "dependencies": {
+      "jsdoc": "3.5.5",
+      "ml-matrix": "^5.0.0",
+      "pbf": "^3.0.5",
+      "shelf-pack": "^2.0.1",
+      "webpack-cli": "^3.1.0"
+    },
+    "contributors": [
+      {
+        "name": "HelikarLab",
+        "url": "http://helikarlab.org"
+      },
+      {
+        "name": "Ales Saska",
+        "email": "mail@alessaska.cz",
+        "url": "http://alessaska.cz"
+      },
+      {
+        "name": "Renato Fabbri",
+        "email": "renato.fabbri@gmail.com"
+      }
+    ],
+    "watch": {
+      "dev": "./src"
+    },
+    "scripts": {
+      "lint": "jshint ./dist/ccNetViz.js",
+      "start": "./node_modules/.bin/http-server ./ localhost -p 3000",
+      "build": "webpack --mode production && node build.js",
+      "dev": "webpack --mode development && node build.js",
+      "webpack-help": "webpack --help",
+      "watch": "npm-watch",
+      "compiled": "node build.js compile",
+      "release": "cp dist/* lib && npx standard-version"
+    },
+    "standard-version": {
+      "types": [
+        {
+          "type": "feat",
+          "section": "Features"
+        },
+        {
+          "type": "fix",
+          "section": "Bug Fixes"
+        },
+        {
+          "type": "docs",
+          "section": "Docs"
+        },
+        {
+          "type": "perf",
+          "section": "Perfomance Changes"
+        },
+        {
+          "type": "improvement",
+          "hiddes": true
+        },
+        {
+          "type": "test",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "hidden": true
+        },
+        {
+          "type": "refactor",
+          "hidden": true
+        },
+        {
+          "type": "style",
+          "hidden": true
+        }
+      ]
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
