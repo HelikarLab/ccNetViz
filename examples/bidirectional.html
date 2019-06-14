@@ -20,7 +20,7 @@
   <script>
     var el = document.getElementById('container');
     var graph = new ccNetViz(el, {
-      bidirectional: true,
+      bidirectional: "overlap",
       styles: {
         node: { texture: "images/node.png", label: { hideSize: 16 } },
         edge: { arrow: { texture: "images/arrow.png" } }
