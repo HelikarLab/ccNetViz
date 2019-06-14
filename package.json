@@ -1,7 +1,7 @@
 {
   "name": "ccnetviz",
-  "version": "1.0.17",
-  "main": "dist/ccNetViz.js",
+  "version": "1.0.18",
+  "main": "lib/ccNetViz.js",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -71,12 +71,11 @@
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "./node_modules/.bin/http-server ./ localhost -p 3000",
-    "build": "webpack --mode production && node build.js",
-    "dev": "webpack --mode development && node build.js",
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development",
     "webpack-help": "webpack --help",
     "watch": "npm-watch",
-    "compiled": "node build.js compile",
-    "release": "standard-version"
+    "release": "cp dist/* lib && npx standard-version"
   },
   "standard-version": {
     "types": [
