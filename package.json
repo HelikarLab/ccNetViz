@@ -71,11 +71,11 @@
   "scripts": {
     "lint": "jshint ./dist/ccNetViz.js",
     "start": "./node_modules/.bin/http-server ./ localhost -p 3000",
-    "build": "webpack --mode production",
+    "build": "webpack --mode production && cp dist/* lib",
     "dev": "webpack --mode development",
     "webpack-help": "webpack --help",
     "watch": "npm-watch",
-    "release": "cp dist/* lib && npx standard-version"
+    "release": "npx standard-version"
   },
   "standard-version": {
     "types": [

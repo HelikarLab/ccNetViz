@@ -294,6 +294,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
 
+                //enable the "curve" feature
+                const is_bidirectional_overlap = options.bidirectional === 'overlap';
+
                 for (let i = 0; i < edges.length; i++) {
                     let target, e = edges[i];
 
@@ -307,7 +310,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                         t = circlesd;
                     }else {
                         let m = map[ti];
-                        if(m && m[si]){
+                        if(m && m[si] && is_bidirectional_overlap){
                           e.t = 1;	//curve
                           target = curves;
                           t = curvesd;

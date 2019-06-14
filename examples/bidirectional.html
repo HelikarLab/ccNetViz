@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ccNetViz example</title>
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      cursor: crosshair;
+    }
+  </style>
+  <script src="../lib/ccNetViz.js"></script>
+</head>
+<body>
+  <h1>Bidirectional graphs example</h1>
+  <div>To enter to deeper node, click on node "Hello" or "World". Then use right button on mouse for going back.</div>
+  <br />
+  <canvas id="container"></canvas>
+  <div id='searchReport' />
+  <script>
+    var el = document.getElementById('container');
+    var graph = new ccNetViz(el, {
+      bidirectional: true,
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } }
+      }});
+
+
+    var nodes = [
+      { label: "Hello"},
+      { label: "World"},
+      { label: "!" }
+    ];
+    var edges = [
+      { source: nodes[0], target: nodes[1] },
+      { source: nodes[1], target: nodes[0] },
+      { source: nodes[0], target: nodes[0] },
+      { source: nodes[1], target: nodes[2] },
+    ];
+
+    graph.set(nodes, edges, "force");
+    graph.draw();
+
+  </script>
+</body>
+</html>

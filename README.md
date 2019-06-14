@@ -169,7 +169,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
   onZoom: function(viewport){}, //zoom event, disable original event in case of return false
   onClick: function(){},	//called on click on graph
   onDblClick: function(){},	//called on double click on graph
-  passiveEvts: false //make mouse events passive for performance reasons ( default false )
+  passiveEvts: false, //make mouse events passive for performance reasons ( default false )
+  bidirectional: "curves" // ["curves"|"overlap"] how to show bidirectional nodes ( default "curves" ), if overlap then the edges are shown like line with two arrows
 }
 ```
 
