@@ -418,7 +418,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 texts.clear();
                 isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
                 isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
+                if (nodeStyle.label.labelColor){
                 isDirty = isDirty || scene.labels_background.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsBackgroundFiller);
+                }
                 texts.bind();
             }
 
@@ -1030,7 +1032,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
             let color;
             if(is_outline && f)
-                color = new ccNetViz_color(f.outlineColor || l.labelColor);
+                color = new ccNetViz_color(f.outlineColor || l.labelColor || backgroundColor);
             else
             // colour option in label
             color = c.style.color;
