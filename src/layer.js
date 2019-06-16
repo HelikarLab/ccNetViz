@@ -71,10 +71,11 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                   }
                   ccNetViz_primitive.vertices(v.relative, iV, c.dx-boxMinusX, c.dy-boxMinusY, c.width + c.dx-boxMinusX, c.dy-boxMinusY, c.width + c.dx-boxMinusX, c.height + c.dy-boxMinusY, c.dx-boxMinusX, c.height + c.dy-boxMinusY);
                   // position of characters in atlas
+                  if (v.textureCoord) {
                   ccNetViz_primitive.vertices(v.textureCoord, iV, c.left, c.bottom, c.right, c.bottom, c.right, c.top, c.left, c.top);
+                  }
                   ccNetViz_primitive.quad(v.indices, iV, iI);
                 }
-                console.log(ret);
                 return ret;
               },
               size: (v,e) => {
@@ -83,7 +84,28 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             };
         })(style);
     });
-
+    let labelsBackgroundFiller = (
+      style => ({
+        set: (v, e, iV, iI) => {
+            let textEngine = texts.getEngine(style.font);
+            textEngine.setFont(style.font);
+            var ret = false;
+            
+            var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
+            let width = 0;
+            for(var i=0;i<parts.length;i++) {
+              width = width > Math.abs(parts[i].dx) ? width : Math.abs(parts[i].dx);
+            }
+            
+            let x = e.x;
+            let y = e.y;
+            let height = y<=0.5 ? Math.abs((parts[parts.length-1].dy)) : -Math.abs((parts[parts.length-1].dy));
+            width = x<=0.5 ? width : -width;
+            ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+            ccNetViz_primitive.vertices(v.relative, iV, 0, 0, width , 0, width, height , 0, height );
+            ccNetViz_primitive.quad(v.indices, iV, iI);
+        }})
+    );
     let normalize = (a, b) => {
         let x = b.x - a.x;
         let y = b.y - a.y;
@@ -396,6 +418,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 texts.clear();
                 isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
                 isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
+                isDirty = isDirty || scene.labels_background.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsBackgroundFiller);
                 texts.bind();
             }
 
@@ -925,7 +948,39 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.size, size / c.width, size / c.height);
         })
     );
-
+    scene.add("labels_background", new ccNetViz_primitive(gl, nodeStyle, "label", [
+      "attribute vec2 position;",
+      "attribute vec2 relative;",
+      "uniform vec2 scale;",
+      "uniform mat4 transform;", 
+      "uniform float fontScale;",
+      "uniform float offset;",
+      "void main(void) {",
+      "   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);",
+      
+      "}"
+    ], [
+      "precision mediump float;",
+      "uniform vec4 labelColor;",
+      "void main() {",
+      "   gl_FragColor = vec4(labelColor.r, labelColor.g, labelColor.b,1);",
+      "}"],  c => {
+        let uniforms = c.shader.uniforms;
+        
+        let l = c.style.label;
+        let f = l.font;
+        let textEngine = texts.getEngine(f);
+        textEngine.setFont(f);
+        let fontScale = 1.0;
+        let sdfSize = textEngine.fontSize;
+        let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize );
+        if(wantedSize === 0){ fontScale = 0; };
+        gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+        gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+        gl.uniform1f(uniforms.fontScale, fontScale);
+        let labelColor = new ccNetViz_color(l.labelColor || backgroundColor);
+        ccNetViz_gl.uniformColor(gl, uniforms.labelColor, labelColor);
+    } ))
     let vsLabelsShader = [
             "attribute vec2 position;",
             "attribute vec2 relative;",
@@ -973,12 +1028,12 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform1f(uniforms.height_font, sdfSize);
             gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
-
             let color;
             if(is_outline && f)
-                color = new ccNetViz_color(f.outlineColor || backgroundColor);
+                color = new ccNetViz_color(f.outlineColor || l.labelColor);
             else
-                color = c.style.color;
+            // colour option in label
+            color = c.style.color;
             ccNetViz_gl.uniformColor(gl, uniforms.color, color);
         };
     };
