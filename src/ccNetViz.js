@@ -11,9 +11,6 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import {getPartitionStyle}    from './primitiveTools' ;
 
-import {Ellipse, Star, Polygon, Custom } from  "../plugins/ccNetViz-node-plugin/main"
-
-import {Arrow} from "../plugins/ccNetViz-arrow-plugin/main"
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -163,9 +160,13 @@ var ccNetViz = function(canvas, options){
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
-    let promises = nodePlugin();
-    let arrowTextures = arrowPlugin();
-    promises = promises.concat(arrowTextures);
+    let promises = [];
+    if(typeof ccNetVizPlugins !== "undefined"){
+      if(typeof ccNetVizPlugins.node !== "undefined")
+        promises = nodePlugin();
+      if(typeof ccNetVizPlugins.Arrow !== "undefined")
+        promises = promises.concat(arrowPlugin());
+    }
 
     Promise.all(promises.map(item => item.config)).then((c) => {
       c.map((item, index) => {
@@ -202,67 +203,51 @@ var ccNetViz = function(canvas, options){
        * @return {Array} - Array of texture promises.
        */
       let pluginConfig = function (f, shapes, type) {
-        try {
-          let p = [];
+        let p = [];
 
-          shapes.map(shape => {
-            // Adding predefined styles.
-            if (typeof options.styles[shape.name] === "undefined") {
-              options.styles[shape.name] = f(shape);
-            } else {
-              // Overwriting existing predefined styles.
-              options.styles[shape.name] = f(Object.assign(shape, options.styles[shape.name]));
-            }
-          });
-
-          // Creating predefined and user-def styles.
-          for (let key in options.styles) {
-            let style = options.styles[key];
-            if (style.type === type) {
-              let shape = new f(style.config || style, self);
-              p.push({ config: shape.toConfig(), name: key });
-            }
+        shapes.map(shape => {
+          // Adding predefined styles.
+          if (typeof options.styles[shape] === "undefined") {
+            options.styles[shape] = f({type:shape});
+          } else {
+            // Overwriting existing predefined styles.
+            options.styles[shape] = f(Object.assign({type:shape}, options.styles[shape.name]));
           }
-          return p;
-        } catch (err) {
-          console.error(err);
-          return [];
+        });
+
+        // Creating predefined and user-def styles.
+        for (let key in options.styles) {
+          let style = options.styles[key];
+          if (style.type === type) {
+            let shape = new f(style.config || style, self);
+            p.push({ config: shape.toConfig(), name: key });
+          }
         }
+        return p;
       }
 
       // Predefined shapes
-      if (typeof Polygon !== "undefined") {
-        let s = [{ name: 'triangle', edges: 3 }, { name: 'quadrilateral', edges: 4 }, { name: 'pentagon', edges: 5 }, { name: 'hexagon', edges: 6 }, { name: 'heptagon', edges: 7 }, { name: 'octagon', edges: 8 }, { name: 'nonagon', edges: 9 }, { name: 'decagon', edges: 9 }];
-        shapes = shapes.concat(pluginConfig(Polygon, s, 'Polygon'));
+      if (typeof ccNetVizPlugins.node.Polygon !== "undefined") {
+        let s = ['triangle','quadrilateral','pentagon','hexagon','heptagon','octagon','nonagon'];
+        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Polygon, s, 'Polygon'));
       }
 
-      if (typeof Star !== "undefined") {
-        let s = [
-          { name: 'star', spikes: 7 }
-        ];
+      if (typeof ccNetVizPlugins.node.Star !== "undefined") {
+        let s = ['star'];
         for (let spike = 3; spike <= 10; spike++) {
-          s.push({ name: `star-${spike}`, spikes: spike })
+          s.push(`star-${spike}`)
         }
-        shapes = shapes.concat(pluginConfig(Star, s, 'Star'));
+        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Star, s, 'Star'));
       }
 
-      if (typeof Ellipse !== "undefined") {
-        let ellipse = pluginConfig(Ellipse, [{ name: 'circle' }, { name: 'ellipse', radiusX: 25, radiusY: 15 }], 'Ellipse');
+      if (typeof ccNetVizPlugins.node.Ellipse !== "undefined") {
+        let ellipse = pluginConfig(ccNetVizPlugins.node.Ellipse, ['circle','ellipse'], 'Ellipse');
         shapes = shapes.concat(ellipse);
       }
 
-      if (typeof Custom !== "undefined") {
-        let customShapes = [{
-          name: "square",
-          lines: [{}, { x: 1 }, { x: 1, y: 1 }, { y: 1 }]
-        }, {
-          name: "vee",
-          lines: [{}, { x: 0.5, y: 0.4 }, { x: 1 }, { x: 0.5, y: 1 }, {}]
-        }, {
-          name: "tag",
-          lines: [{}, { x: 0.7 }, { x: 1, y: 0.5 }, { x: 0.7, y: 1 }, { y: 1 }, {}]
-        }];
-        shapes = shapes.concat(pluginConfig(Custom, customShapes, "Custom"));
+      if (typeof ccNetVizPlugins.node.Custom !== "undefined") {
+        let customShapes = ['square','vee','tag'];
+        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Custom, customShapes, "Custom"));
       }
     }
     return shapes;
@@ -273,7 +258,7 @@ var ccNetViz = function(canvas, options){
   */
   let arrowPlugin = function () {
     let shapes = [];
-    if (typeof Arrow !== "undefined") {
+    if (typeof ccNetVizPlugins.Arrow !== "undefined") {
       if (typeof options.styles !== "undefined") {
         // Predefined styles
         let arrows = ['arrow', 'arrow short', 'delta', 'delta short', 'diamond', 'diamond short', 'T', 'harpoon up', 'harpoon down', 'thin arrow'];
@@ -291,7 +276,7 @@ var ccNetViz = function(canvas, options){
           if (typeof options.styles[key].arrow !== "undefined") {
             if (typeof options.styles[key].arrow.type !== "undefined") {
               let style = options.styles[key].arrow;
-              let shape = new Arrow(Object.assign(style, { plugin: 'arrow', key: key }), self);
+              let shape = new ccNetVizPlugins.Arrow(Object.assign(style, { plugin: 'arrow', key: key }), self);
               shapes.push({ config: shape.toConfig(), name: key, plugin: 'arrow' });
             }
           }
