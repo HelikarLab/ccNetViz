@@ -1,7 +1,12 @@
-ccNetViz [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+# [ccNetViz](http://helikarlab.github.io/ccNetViz/)
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 ====================================
 
 Graph theory (a.k.a. network) library for analysis and visualisation
+
+Visit our [webpage](http://helikarlab.github.io/ccNetViz/) to see the detailed docs and examples.
 
 **Description**
 
@@ -22,7 +27,7 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
       height: 500px;
     }
   </style>
-  <script src="dist/ccNetViz.js"></script>
+  <script src="lib/ccNetViz.js"></script>
 </head>
 <body>
   <canvas id="container"/>
@@ -57,8 +62,8 @@ Inbuilt support for multiple layouts such as the **Force**, **Hierarchical**, **
 
 Inbuilt support for two modifications of **Tree** layout.
 
-* Graph layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/layouts.html)
-* Tree-specific layouts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/tree.html)
+* Graph layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/layouts.html)
+* Tree-specific layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/tree.html)
 
 If you want to use one of our in-built layout ( see the https://github.com/HelikarLab/ccNetViz/tree/master/src/layout for list of all available ones ),
 pass it as second parameter into the set function such as:
@@ -71,16 +76,15 @@ pass it as second parameter into the set function such as:
 
 **Advanced Examples**
 
-* Advanced styling - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
-* Complex graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/complex.html)
-* Mouse event on hover - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_hover.html)
-* Mouse events on move - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/interactivity_move.html)
-* Multi level - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/multi_level.html)
-* Styles - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/styles.html)
-* Using SDF fonts - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/sdf.html)
-* User definied layout - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/userdef_layout.html)
-* Edges-to-edges support - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/edges_to_edges.html)
-* Save graphs - [live example](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/save_graph.html)
+* Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
+* Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
+* Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
+* Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
+* Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
+* Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
+* Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
+* User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
+* Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
 
 **Documentation**
 
@@ -165,7 +169,8 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
   onZoom: function(viewport){}, //zoom event, disable original event in case of return false
   onClick: function(){},	//called on click on graph
   onDblClick: function(){},	//called on double click on graph
-  passiveEvts: false //make mouse events passive for performance reasons ( default false )
+  passiveEvts: false, //make mouse events passive for performance reasons ( default false )
+  bidirectional: "curves" // ["curves"|"overlap"] how to show bidirectional nodes ( default "curves" ), if overlap then the edges are shown like line with two arrows
 }
 ```
 
@@ -261,14 +266,18 @@ Property to access edges data of given graph. Use this just to read current valu
 ### Development in ccNetViz
 This is the pipeline you should follow to make changes to ccNetViz:
 
-0. Fork ccNetViz repository e.g. from [HeilikarLab]. Start a server
+1. Clone the repository.
+2. Run `npm install` inside the cloned repository.
+   3.Start a server
    (such as Apache or using http-server globally) with a path to the ccNetViz directory.
-1. Make changes to src/ tree.
-2. Run "$ npm update" to download needed packages.
-3. Build with "$ npm run build" on the ccNetViz root directory.
-4. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
-5. Run a test page (e.g. anyone in examples/) at the browser to see the results.
-6. Commit changes to your fork and make a pull request e.g. on the repository you forked.
+3. Make changes to src/ tree.
+4. Build with `npm run build` on the ccNetViz root directory.
+5. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
+6. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+
+### Contributing
+
+If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
 [HeilikarLab]: https://github.com/HelikarLab/ccNetViz
 
