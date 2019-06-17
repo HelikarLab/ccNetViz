@@ -6,6 +6,16 @@ let Star = (config, instance) => {
       super(config, instance);
       this.type = 'Star';
     }
+    _preDraw() {
+      if (this.config.type === 'star') {
+        this.config.spikes = 7;
+      } else {
+        for (let spike = 3; spike <= 10; spike++) {
+          if (this.config.type === `star-${spike}`)
+            this.config.spikes = spike;
+        }
+      }
+    }
     _draw() {
       this.context.beginPath();
       let spikes = this.config.spikes || 5;

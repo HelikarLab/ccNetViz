@@ -37,6 +37,12 @@ let Ellipse = (config, instance) => {
       this.context.strokeStyle = this.config.stroke.color;
       this.context.lineWidth = this.config.stroke.size;
     }
+    _preDraw() {
+      if (this.config.type === 'ellipse') {
+        this.config.radiusX = 25;
+        this.config.radiusY = 15;
+      }
+    }
     _draw() {
       this.context.ellipse(
         (this.config.radiusX) + this.config.stroke.size + (this.config.offset.x / 2),
