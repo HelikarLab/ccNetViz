@@ -11,6 +11,7 @@ export default class Shape {
     this._preConf();
     this._setCanvas();
     this._setGradient();
+    this._preDraw();
     this._draw();
   }
 
@@ -92,6 +93,8 @@ export default class Shape {
       this.context.fillStyle = gradient;
     }
   }
+
+  _preDraw() { }
 
   _draw() {
   }
