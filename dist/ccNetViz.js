@@ -10951,6 +10951,108 @@ exports.default = "#ifndef PI\r\n#define PI 3.141592653589793\r\n#endif\r\n\r\nf
 
 /***/ }),
 
+/***/ "./src/shaders/easeFunctions/circular-in.glsl":
+/*!****************************************************!*\
+  !*** ./src/shaders/easeFunctions/circular-in.glsl ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return 1.0 - sqrt(1.0 - t * t);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/circular-inout.glsl":
+/*!*******************************************************!*\
+  !*** ./src/shaders/easeFunctions/circular-inout.glsl ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t < 0.5\r\n    ? 0.5 * (1.0 - sqrt(1.0 - 4.0 * t * t))\r\n    : 0.5 * (sqrt((3.0 - 2.0 * t) * (2.0 * t - 1.0)) + 1.0);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/circular-out.glsl":
+/*!*****************************************************!*\
+  !*** ./src/shaders/easeFunctions/circular-out.glsl ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return sqrt((2.0 - t) * t);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/cubic-in.glsl":
+/*!*************************************************!*\
+  !*** ./src/shaders/easeFunctions/cubic-in.glsl ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t * t * t;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/cubic-inout.glsl":
+/*!****************************************************!*\
+  !*** ./src/shaders/easeFunctions/cubic-inout.glsl ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t < 0.5\r\n    ? 4.0 * t * t * t\r\n    : 0.5 * pow(2.0 * t - 2.0, 3.0) + 1.0;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/cubic-out.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/cubic-out.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  float f = t - 1.0;\r\n  return f * f * f + 1.0;\r\n}";
+
+/***/ }),
+
 /***/ "./src/shaders/easeFunctions/exp-in.glsl":
 /*!***********************************************!*\
   !*** ./src/shaders/easeFunctions/exp-in.glsl ***!
@@ -11057,6 +11159,66 @@ var _bounceInout = __webpack_require__(/*! ./bounce-inout.glsl */ "./src/shaders
 
 var _bounceInout2 = _interopRequireDefault(_bounceInout);
 
+var _circularIn = __webpack_require__(/*! ./circular-in.glsl */ "./src/shaders/easeFunctions/circular-in.glsl");
+
+var _circularIn2 = _interopRequireDefault(_circularIn);
+
+var _circularOut = __webpack_require__(/*! ./circular-out.glsl */ "./src/shaders/easeFunctions/circular-out.glsl");
+
+var _circularOut2 = _interopRequireDefault(_circularOut);
+
+var _circularInout = __webpack_require__(/*! ./circular-inout.glsl */ "./src/shaders/easeFunctions/circular-inout.glsl");
+
+var _circularInout2 = _interopRequireDefault(_circularInout);
+
+var _quadIn = __webpack_require__(/*! ./quad-in.glsl */ "./src/shaders/easeFunctions/quad-in.glsl");
+
+var _quadIn2 = _interopRequireDefault(_quadIn);
+
+var _quadOut = __webpack_require__(/*! ./quad-out.glsl */ "./src/shaders/easeFunctions/quad-out.glsl");
+
+var _quadOut2 = _interopRequireDefault(_quadOut);
+
+var _quadInout = __webpack_require__(/*! ./quad-inout.glsl */ "./src/shaders/easeFunctions/quad-inout.glsl");
+
+var _quadInout2 = _interopRequireDefault(_quadInout);
+
+var _cubicIn = __webpack_require__(/*! ./cubic-in.glsl */ "./src/shaders/easeFunctions/cubic-in.glsl");
+
+var _cubicIn2 = _interopRequireDefault(_cubicIn);
+
+var _cubicOut = __webpack_require__(/*! ./cubic-out.glsl */ "./src/shaders/easeFunctions/cubic-out.glsl");
+
+var _cubicOut2 = _interopRequireDefault(_cubicOut);
+
+var _cubicInout = __webpack_require__(/*! ./cubic-inout.glsl */ "./src/shaders/easeFunctions/cubic-inout.glsl");
+
+var _cubicInout2 = _interopRequireDefault(_cubicInout);
+
+var _quartIn = __webpack_require__(/*! ./quart-in.glsl */ "./src/shaders/easeFunctions/quart-in.glsl");
+
+var _quartIn2 = _interopRequireDefault(_quartIn);
+
+var _quartOut = __webpack_require__(/*! ./quart-out.glsl */ "./src/shaders/easeFunctions/quart-out.glsl");
+
+var _quartOut2 = _interopRequireDefault(_quartOut);
+
+var _quartInout = __webpack_require__(/*! ./quart-inout.glsl */ "./src/shaders/easeFunctions/quart-inout.glsl");
+
+var _quartInout2 = _interopRequireDefault(_quartInout);
+
+var _quintIn = __webpack_require__(/*! ./quint-in.glsl */ "./src/shaders/easeFunctions/quint-in.glsl");
+
+var _quintIn2 = _interopRequireDefault(_quintIn);
+
+var _quintOut = __webpack_require__(/*! ./quint-out.glsl */ "./src/shaders/easeFunctions/quint-out.glsl");
+
+var _quintOut2 = _interopRequireDefault(_quintOut);
+
+var _quintInout = __webpack_require__(/*! ./quint-inout.glsl */ "./src/shaders/easeFunctions/quint-inout.glsl");
+
+var _quintInout2 = _interopRequireDefault(_quintInout);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var easeFunctions = {
@@ -11069,7 +11231,22 @@ var easeFunctions = {
     'exp-inout': _expInout2.default,
     'bounce-in': _bounceIn2.default,
     'bounce-out': _bounceOut2.default,
-    'bounce-inout': _bounceInout2.default
+    'bounce-inout': _bounceInout2.default,
+    'circular-in': _circularIn2.default,
+    'circular-out': _circularOut2.default,
+    'circular-inout': _circularInout2.default,
+    'quad-in': _quadIn2.default,
+    'quad-out': _quadOut2.default,
+    'quad-inout': _quadInout2.default,
+    'cubic-in': _cubicIn2.default,
+    'cubic-out': _cubicOut2.default,
+    'cubic-inout': _cubicInout2.default,
+    'quart-in': _quartIn2.default,
+    'quart-out': _quartOut2.default,
+    'quart-inout': _quartInout2.default,
+    'quint-in': _quintIn2.default,
+    'quint-out': _quintOut2.default,
+    'quint-inout': _quintInout2.default
 };
 
 exports.easeFunctions = easeFunctions;
@@ -11090,6 +11267,159 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = "float ease(float t) {\r\n  return t;\r\n}\r\n";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quad-in.glsl":
+/*!************************************************!*\
+  !*** ./src/shaders/easeFunctions/quad-in.glsl ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t * t;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quad-inout.glsl":
+/*!***************************************************!*\
+  !*** ./src/shaders/easeFunctions/quad-inout.glsl ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t < 0.5\r\n    ? +8.0 * pow(t, 4.0)\r\n    : -8.0 * pow(t - 1.0, 4.0) + 1.0;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quad-out.glsl":
+/*!*************************************************!*\
+  !*** ./src/shaders/easeFunctions/quad-out.glsl ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return -t * (t - 2.0);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quart-in.glsl":
+/*!*************************************************!*\
+  !*** ./src/shaders/easeFunctions/quart-in.glsl ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return pow(t, 4.0);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quart-inout.glsl":
+/*!****************************************************!*\
+  !*** ./src/shaders/easeFunctions/quart-inout.glsl ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t < 0.5\r\n    ? +8.0 * pow(t, 4.0)\r\n    : -8.0 * pow(t - 1.0, 4.0) + 1.0;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quart-out.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/quart-out.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return pow(t - 1.0, 3.0) * (1.0 - t) + 1.0;\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quint-in.glsl":
+/*!*************************************************!*\
+  !*** ./src/shaders/easeFunctions/quint-in.glsl ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return pow(t, 5.0);\r\n}";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quint-inout.glsl":
+/*!****************************************************!*\
+  !*** ./src/shaders/easeFunctions/quint-inout.glsl ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return t < 0.5\r\n    ? +16.0 * pow(t, 5.0)\r\n    : 0.5 * pow(2.0 * t - 2.0, 5.0) + 1.0; // NOTE: fix original bug, no '-'\r\n}\r\n";
+
+/***/ }),
+
+/***/ "./src/shaders/easeFunctions/quint-out.glsl":
+/*!**************************************************!*\
+  !*** ./src/shaders/easeFunctions/quint-out.glsl ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "float ease(float t) {\r\n  return 1.0 + (pow(t - 1.0, 5.0)); // NOTE: fix original bug '-' -> '+'\r\n}";
 
 /***/ }),
 
