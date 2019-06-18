@@ -163,9 +163,9 @@ var ccNetViz = function(canvas, options){
     let promises = [];
     if(typeof ccNetVizPlugins !== "undefined"){
       if(typeof ccNetVizPlugins.node !== "undefined")
-        promises = nodePlugin();
-      if(typeof ccNetVizPlugins.Arrow !== "undefined")
-        promises = promises.concat(arrowPlugin());
+        promises = ccNetVizPlugins.node.Integration(options,self).shapes;
+      if(typeof ccNetVizPlugins.arrow !== "undefined")
+        promises = promises.concat(ccNetVizPlugins.arrow.Integration(options,self).shapes);
     }
 
     Promise.all(promises.map(item => item.config)).then((c) => {
@@ -186,105 +186,6 @@ var ccNetViz = function(canvas, options){
     return this;
   };
 
-  /**
-  * ccNetViz-node-plugin integration. 
-  * @return {Array} - Array of texture promises.
-  */
-  let nodePlugin = function () {
-    let shapes = [];
-
-    if (typeof options.styles !== "undefined") {
-
-      /**
-       * This function can create-manipulate a ccNetViz config with ccNetViz node, arrow plugins.
-       * @param {f} function - Shape factory.
-       * @param {shapes} Object - Shapes to be created.
-       * @param {type} String - Shape type.
-       * @return {Array} - Array of texture promises.
-       */
-      let pluginConfig = function (f, shapes, type) {
-        let p = [];
-
-        shapes.map(shape => {
-          // Adding predefined styles.
-          if (typeof options.styles[shape] === "undefined") {
-            options.styles[shape] = f({type:shape});
-          } else {
-            // Overwriting existing predefined styles.
-            options.styles[shape] = f(Object.assign({type:shape}, options.styles[shape.name]));
-          }
-        });
-
-        // Creating predefined and user-def styles.
-        for (let key in options.styles) {
-          let style = options.styles[key];
-          if (style.type === type) {
-            let shape = new f(style.config || style, self);
-            p.push({ config: shape.toConfig(), name: key });
-          }
-        }
-        return p;
-      }
-
-      // Predefined shapes
-      if (typeof ccNetVizPlugins.node.Polygon !== "undefined") {
-        let s = ['triangle','quadrilateral','pentagon','hexagon','heptagon','octagon','nonagon'];
-        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Polygon, s, 'Polygon'));
-      }
-
-      if (typeof ccNetVizPlugins.node.Star !== "undefined") {
-        let s = ['star'];
-        for (let spike = 3; spike <= 10; spike++) {
-          s.push(`star-${spike}`)
-        }
-        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Star, s, 'Star'));
-      }
-
-      if (typeof ccNetVizPlugins.node.Ellipse !== "undefined") {
-        let ellipse = pluginConfig(ccNetVizPlugins.node.Ellipse, ['circle','ellipse'], 'Ellipse');
-        shapes = shapes.concat(ellipse);
-      }
-
-      if (typeof ccNetVizPlugins.node.Custom !== "undefined") {
-        let customShapes = ['square','vee','tag'];
-        shapes = shapes.concat(pluginConfig(ccNetVizPlugins.node.Custom, customShapes, "Custom"));
-      }
-    }
-    return shapes;
-  }
-  /**
-  * ccNetViz-arrow-plugin integration. 
-  * @return {Array} - Array of texture promises.
-  */
-  let arrowPlugin = function () {
-    let shapes = [];
-    if (typeof ccNetVizPlugins.Arrow !== "undefined") {
-      if (typeof options.styles !== "undefined") {
-        // Predefined styles
-        let arrows = ['arrow', 'arrow short', 'delta', 'delta short', 'diamond', 'diamond short', 'T', 'harpoon up', 'harpoon down', 'thin arrow'];
-        for (let i = 0; i < arrows.length; i++) {
-          const type = arrows[i];
-          if (typeof options.styles[type] === "undefined") {
-            options.styles[type] = { arrow: { type: type } };
-          } else {
-            // Overwriting existing predefined styles.
-            options.styles[type].arrow = Object.assign({ type: type }, options.styles[type].arrow);
-          }
-        }
-        // Generating styles
-        for (let key in options.styles) {
-          if (typeof options.styles[key].arrow !== "undefined") {
-            if (typeof options.styles[key].arrow.type !== "undefined") {
-              let style = options.styles[key].arrow;
-              let shape = new ccNetVizPlugins.Arrow(Object.assign(style, { plugin: 'arrow', key: key }), self);
-              shapes.push({ config: shape.toConfig(), name: key, plugin: 'arrow' });
-            }
-          }
-        }
-      }
-    }
-    return shapes;
-  }
   //make all dynamic changes static
   this.reflow = () => {
     if(checkRemoved()) return;
