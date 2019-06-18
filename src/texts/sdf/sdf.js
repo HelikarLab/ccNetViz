@@ -129,7 +129,8 @@ export default class {
       bottom: (rect.y + rect.h) / this.atlas.height, 
       top: rect.y / this.atlas.height,
       dx: dx,
-      dy: dy + char.top + (height - rect.h)
+      dy: dy + char.top + (height - rect.h),
+      advance: char.advance
       });
 
     

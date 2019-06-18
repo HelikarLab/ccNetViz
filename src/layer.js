@@ -96,13 +96,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             for(var i=0;i<parts.length;i++) {
               width = width > Math.abs(parts[i].dx) ? width : Math.abs(parts[i].dx);
             }
-            
+            let extraSpace = 0; 
             let x = e.x;
             let y = e.y;
-            let height = y<=0.5 ? Math.abs((parts[parts.length-1].dy)) : -Math.abs((parts[parts.length-1].dy));
-            width = x<=0.5 ? width : -width;
+            let height = y<=0.5 ? Math.abs((parts[parts.length-1].dy))+extraSpace : -Math.abs((parts[parts.length-1].dy))-extraSpace;
+            width = x<=0.5 ? width+extraSpace : -width-extraSpace;
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-            ccNetViz_primitive.vertices(v.relative, iV, 0, 0, width , 0, width, height , 0, height );
+            ccNetViz_primitive.vertices(v.relative, iV, dx, 0, width , dx, width , height , 0, height );
             ccNetViz_primitive.quad(v.indices, iV, iI);
         }})
     );
@@ -977,6 +977,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         let sdfSize = textEngine.fontSize;
         let wantedSize = ( textEngine.isSDF ? getLabelSize(context, l || {}) : sdfSize );
         if(wantedSize === 0){ fontScale = 0; };
+        if(wantedSize && sdfSize){
+          fontScale *= wantedSize / sdfSize;
+        }
         gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
         gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
         gl.uniform1f(uniforms.fontScale, fontScale);
