@@ -1,3 +1,4 @@
 /node_modules/
 /dist/ccNetViz*
 *.swp
+**/node_modules
