@@ -69,7 +69,6 @@ function mergeArrays(a, b, cmp){
 var ccNetViz = function(canvas, options){
   let self = this;
   canvas = canvas || sCanvas;
-
   let backgroundStyle = options.styles.background = options.styles.background || {};
   let backgroundColor = new ccNetViz_color(backgroundStyle.color || "rgb(255, 255, 255)");
 
@@ -87,7 +86,7 @@ var ccNetViz = function(canvas, options){
       s.font = s.font || {type:"Arial, Helvetica, sans-serif", size: 11};
   }
 
-  let edgeStyle = options.styles.edge = options.styles.edge || {};
+  let edgeStyle = options.styles.edge = options.styles.edge || { arrow: { } };
   edgeStyle.width = edgeStyle.width || 1;
   edgeStyle.color = edgeStyle.color || "rgb(204, 204, 204)";
   edgeStyle.animateColor = edgeStyle.animateColor || "rgb(240, 80, 120)";
@@ -95,10 +94,12 @@ var ccNetViz = function(canvas, options){
   let onLoad = () => { if(!options.onLoad || options.onLoad()){this.draw(true);} };
 
   if (edgeStyle.arrow) {
+    if(typeof edgeStyle.arrow.texture !== "undefined"){
       let s = edgeStyle.arrow;
       s.minSize = s.minSize != null ? s.minSize : 6;
       s.maxSize = s.maxSize || 12;
       s.aspect = 1;
+    }
   }
 
 
@@ -151,8 +152,8 @@ var ccNetViz = function(canvas, options){
     return batch;
   };
 
-  this.set = (n, e, layout, layout_options={}) => {
-    if(checkRemoved()) return this;
+  this.set = (n, e, layout, layout_options = {}) => {
+    if (checkRemoved()) return this;
 
     nodes = n || [];
     edges = e || [];
@@ -160,8 +161,25 @@ var ccNetViz = function(canvas, options){
     nodes.forEach(checkUniqId);
     edges.forEach(checkUniqId);
 
-    layers.temp && layers.temp.set([], [], layout, layout_options);
-    layers.main.set(nodes, edges, layout, layout_options);
+    let promises = [];
+    if(typeof ccNetVizPlugins !== "undefined"){
+      if(typeof ccNetVizPlugins.node !== "undefined")
+        promises = ccNetVizPlugins.node.Integration(options,self).shapes;
+      if(typeof ccNetVizPlugins.arrow !== "undefined")
+        promises = promises.concat(ccNetVizPlugins.arrow.Integration(options,self).shapes);
+    }
+
+    Promise.all(promises.map(item => item.config)).then((c) => {
+      c.map((item, index) => {
+        if(item.plugin === "arrow"){
+          options.styles[promises[index].name].arrow = item;
+        }else{
+          options.styles[promises[index].name] = item;
+        }
+      });
+      layers.temp && layers.temp.set([], [], layout, layout_options);
+      layers.main.set(nodes, edges, layout, layout_options);
+    });
 
     //reset batch
     batch = undefined;
@@ -735,12 +753,10 @@ var ccNetViz = function(canvas, options){
 
 ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
 
-
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
-
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;
