@@ -6,6 +6,8 @@ import ccNetViz_geomutils from './geomutils' ;
 import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
+import {easeFunctions} from './shaders'
+
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -688,16 +690,21 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "}"
     ];
 
+    const easeFunctionPart = [
+        `${easeFunctions[edgeStyle.animateEase ? edgeStyle.animateEase : 'linear']}`
+    ];
+
     const isAnimateCovered = [
         "float isAnimateCovered() {",
         "   vec2 pos = gl_FragCoord.xy;",
         "   vec2 viewport = 2. * v_screen;",
+        "   float maxLen = length(viewport);",
         "   vec2 startPos = viewport * v_startPos;",
         "   vec2 endPos = viewport * v_endPos;",
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   // float r = 300.;",
-        "   float r = fract(v_time / 3.) * totalLen;",
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;",
         "   // float r = 0.5 * totalLen;",
         "   float draw = 1. - step(r, len);",
         "   return draw;",
@@ -708,12 +715,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "float isAnimateCoveredGradient() {",
         "   vec2 pos = gl_FragCoord.xy;",
         "   vec2 viewport = 2. * v_screen;",
+        "   float maxLen = length(viewport);",
         "   vec2 startPos = viewport * v_startPos;",
         "   vec2 endPos = viewport * v_endPos;",
         "   float totalLen = distance(startPos, endPos);",
         "   float len = distance(pos, startPos);",
         "   float gradLen = 180.;", // TODO: can config
-        "   float r = fract(v_time / 3.) * (totalLen + gradLen);",
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + gradLen / 2.);", // NOTE: use 0.2 as a proper factor
         "   // float r = 0.5 * totalLen;",
         "   float draw = fract(smoothstep(r - gradLen, r, len));",
         "   return draw;",
@@ -761,6 +769,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 "uniform float animateType;",
                 "uniform vec4 color;",
                 "uniform vec4 animateColor;",
+                "uniform float animateSpeed;",
                 "varying vec2 n;",
                 "varying float v_time;",
                 "varying vec2 v_startPos;",
@@ -769,6 +778,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 "varying vec2 v_lengthSoFar;",
                 "uniform float lineSize;",
             ]
+            .concat(easeFunctionPart)
             .concat(isAnimateCovered)
             .concat(isAnimateCoveredGradient).concat([
                 "void main(void) {",
@@ -789,6 +799,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
                 gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
                 gl.uniform1f(uniforms.animateType, getEdgeAnimateType(c.style.animateType));
+                gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
                 ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
                 ccNetViz_gl.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
             })

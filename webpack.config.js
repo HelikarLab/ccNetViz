@@ -35,6 +35,10 @@ module.exports = {
                     presets: ['es2015']
                 },
             },
+            {
+                test: /\.glsl$/,
+                use: { loader: 'raw-loader'},
+            },
 
             // Loader 2
             {
