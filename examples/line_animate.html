@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz line animation example</title>
+    <script src="./libs/jquery.min.js"></script>
+    <script src="../dist/ccNetViz.js"></script>
+  </head>
+  <body>
+    <h1>Line animation example</h1>
+    <div
+        id="main"
+        style="width:800px; height: 600px; border: 1px solid;"
+      >
+    </div>
+    <label>animation type:</label>
+    <select id="animate-select" onchange="onAnimationChange()">
+      <option value="none">None</option>
+      <option selected value="basic">Basic</option>
+      <option value="gradient">Gradient</option>
+    </select>
+    <script>
+      const data = {
+        nodes: [{ label: "1" }, { label: "2" }, { label: "3" }, { label: "4" }],
+        edges: [
+          { source: 0, target: 1 },
+          { source: 1, target: 2 },
+          { source: 2, target: 3 }
+        ]
+      };
+
+      options = {
+        styles: {
+          node: {
+            texture: "images/node.png"
+          },
+          edge: {
+            width: 5,
+            type: "dotted",
+            color: "rgb(200, 200, 200)",
+
+            animateType: "basic", // "basic", "gradient", "none"
+            animateColor: "rgb(240, 80, 100)"
+          }
+        }
+      };
+
+      function onAnimationChange() {
+        const el = document.querySelector("#animate-select");
+        const val = el.options[el.selectedIndex].value;
+        window.options.styles.edge.animateType = val;
+        showGraph(window.options);
+      }
+
+      function showGraph(options) {
+        const el = document.querySelector("#main");
+        el.innerHTML = "";
+        canvas = document.createElement("canvas");
+        canvas.width = 800;
+        canvas.height = 600;
+        el.appendChild(canvas);
+
+        const graph = new ccNetViz(canvas, options);
+        graph.set(data.nodes, data.edges, "force");
+        graph.draw();
+      }
+
+      showGraph(options);
+    </script>
+  </body>
+</html>
