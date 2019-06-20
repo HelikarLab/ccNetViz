@@ -24,7 +24,6 @@ let Custom = (config, instance, t) => {
 
     _draw() {
       this.context.beginPath();
-      // if (typeof this.config.lines !== "undefined")
         this.config.lines.map(line => {
           this.context.lineTo(this.t(line.x || 0), this.t(line.y || 0));
         });
