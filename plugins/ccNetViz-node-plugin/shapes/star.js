@@ -1,9 +1,9 @@
 import Shape from "../shape"
 
-let Star = (config, instance) => {
+let Star = (config, instance, t) => {
   class Star extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Star';
     }
     _preDraw() {
@@ -43,7 +43,7 @@ let Star = (config, instance) => {
       this.context.fill();
     }
   }
-  return new Star(config, instance)
+  return new Star(config, instance, t);
 }
 
 export default Star

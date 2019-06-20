@@ -1,9 +1,9 @@
 import Shape from "../shape"
 
-let Ellipse = (config, instance) => {
+let Ellipse = (config, instance, t) => {
   class Ellipse extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Ellipse';
     }
     _setCanvas() {
@@ -53,7 +53,7 @@ let Ellipse = (config, instance) => {
       this.context.fill();
     }
   }
-  return new Ellipse(config, instance)
+  return new Ellipse(config, instance, t);
 }
 
 export default Ellipse

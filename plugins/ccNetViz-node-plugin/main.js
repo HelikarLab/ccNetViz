@@ -30,7 +30,23 @@ let Integration = (o, i) => {
         options.styles[shape] = f({ type: shape });
       } else {
         // Overwriting existing predefined styles.
-        options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape.name]));
+        if (typeof options.styles[shape].temp === "undefined") {
+          let config = options.styles[shape];
+          let animation = config.animation;
+          if (typeof animation !== "undefined") {
+            if (animation.status === false) {
+              config.texture = animation.textureFrame[animation.scene + 1];
+              options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]), undefined, true);
+              return;
+            } else {
+              if (typeof animation.textureFrame === "undefined")
+                animation.textureFrame = [];
+              animation.textureFrame.push(config.texture);
+              delete config.texture;
+            }
+          }
+          options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]));
+        }
       }
     });
 
@@ -38,6 +54,14 @@ let Integration = (o, i) => {
     for (let key in options.styles) {
       let style = options.styles[key];
       if (style.type === type) {
+        if (typeof style.config !== "undefined") {
+          if (typeof style.config.animation !== "undefined")
+            if (style.config.animation.status === false) {
+              let shape = new f(style.config || style, instance, true);
+              p.push({ config: shape.toTexture(), name: key });
+              continue;
+            }
+        }
         let shape = new f(style.config || style, instance);
         p.push({ config: shape.toConfig(), name: key });
       }

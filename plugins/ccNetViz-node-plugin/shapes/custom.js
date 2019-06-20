@@ -1,9 +1,9 @@
 import Shape from "../shape"
 
-let Custom = (config, instance) => {
+let Custom = (config, instance, t) => {
   class Custom extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Custom';
     }
     _preDraw() {
@@ -24,15 +24,16 @@ let Custom = (config, instance) => {
 
     _draw() {
       this.context.beginPath();
-      this.config.lines.map(line => {
-        this.context.lineTo(this.t(line.x || 0), this.t(line.y || 0));
-      });
+      // if (typeof this.config.lines !== "undefined")
+        this.config.lines.map(line => {
+          this.context.lineTo(this.t(line.x || 0), this.t(line.y || 0));
+        });
       this.context.closePath();
       this.context.stroke();
       this.context.fill();
     }
   }
-  return new Custom(config, instance)
+  return new Custom(config, instance, t)
 }
 
 export default Custom

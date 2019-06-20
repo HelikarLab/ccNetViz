@@ -1,9 +1,9 @@
 import Shape from "../shape"
 
-let Polygon = (config, instance) => {
+let Polygon = (config, instance, t) => {
   class Polygon extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Polygon';
     }
     _preDraw() {
@@ -56,7 +56,7 @@ let Polygon = (config, instance) => {
       this.context.fill();
     }
   }
-  return new Polygon(config, instance)
+  return new Polygon(config, instance, t)
 }
 
 export default Polygon
