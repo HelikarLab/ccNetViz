@@ -1,3 +1,4 @@
+    
 import ccNetViz_color     from './color' ;
 import ccNetViz_gl        from './gl' ;
 import ccNetViz_primitive from './primitive' ;
@@ -89,22 +90,34 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         set: (v, e, iV, iI) => {
             let textEngine = texts.getEngine(style.font);
             textEngine.setFont(style.font);
-            var ret = false;
-            
-            var parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
-            let width = 0;
+            let ret = false;
+            let parts = textEngine.get(e.label || "", x, y, () => {ret = true;});
+            let c = 0;
+            // finding max dx
             for(var i=0;i<parts.length;i++) {
-              width = width > Math.abs(parts[i].dx) ? width : Math.abs(parts[i].dx);
+              c = Math.abs(parts[c].dx ) > Math.abs(parts[i].dx) ? c : i;
             }
-            let extraSpace = 0; 
+            
             let x = e.x;
             let y = e.y;
-            let height = y<=0.5 ? Math.abs((parts[parts.length-1].dy))+extraSpace : -Math.abs((parts[parts.length-1].dy))-extraSpace;
-            width = x<=0.5 ? width+extraSpace : -width-extraSpace;
+            // The positions here are somewhat tricky, if you understand alignText function in sdf.js , here's the explanation
+            // parts[c].dx === max width of label
+            // similarly for dy
+            // now part[c].width is added for x<=0.5 as 
+            // i) dx only gives the starting position and not the ending position
+            // ii) labelBackground size depends both on fontSize and labelSize
+            // parts[c].width is the glyph width from spritegenerator , it's added because as the labelSize increses,
+            // the block of char (last char) also increases, if only dx is used, then it's basically the wordWidth
+            // (which does not varies with the labelSize), so it had a problem to go out for a label or at best
+            // be suitable for a certain labelSize and varying fontSize 
+            let endPosX = x<=0.5 ? Math.abs(parts[c].dx) + (parts[c].width)/4 : -Math.abs(parts[c].dx);
+            let startPosX = x<=0.5 ? 0 : parts[c].width/4;
+            let height = y<=0.5 ? Math.abs((parts[parts.length-1].dy)) : -Math.abs((parts[parts.length-1].dy));
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-            ccNetViz_primitive.vertices(v.relative, iV, dx, 0, width , dx, width , height , 0, height );
+            ccNetViz_primitive.vertices(v.relative, iV, startPosX, 0, endPosX , 0, endPosX , height , startPosX, height );
             ccNetViz_primitive.quad(v.indices, iV, iI);
-        }})
+        }
+      })
     );
     let normalize = (a, b) => {
         let x = b.x - a.x;
@@ -418,8 +431,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 texts.clear();
                 isDirty = isDirty || scene.labelsOutline.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
                 isDirty = isDirty || scene.labels.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsFiller);
-                if (nodeStyle.label.labelColor){
-                isDirty = isDirty || scene.labels_background.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsBackgroundFiller);
+                if (nodeStyle.label.backgroundColor){
+                isDirty = isDirty || scene.labelsBackground.set(gl, options.styles, labelAdder, nodes, nodesParts, labelsBackgroundFiller);
                 }
                 texts.bind();
             }
@@ -476,6 +489,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(gl, n, i, nodesFiller);
       scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
       scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
+      scene.labelsBackground && scene.labelsBackground.updateEl(gl, n, i, labelsBackgroundFiller);
 
     };
 
@@ -950,7 +964,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.size, size / c.width, size / c.height);
         })
     );
-    scene.add("labels_background", new ccNetViz_primitive(gl, nodeStyle, "label", [
+    scene.add("labelsBackground", new ccNetViz_primitive(gl, nodeStyle, "label", [
       "attribute vec2 position;",
       "attribute vec2 relative;",
       "uniform vec2 scale;",
@@ -963,12 +977,11 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       "}"
     ], [
       "precision mediump float;",
-      "uniform vec4 labelColor;",
+      "uniform vec4 backgroundColor;",
       "void main() {",
-      "   gl_FragColor = vec4(labelColor.r, labelColor.g, labelColor.b,1);",
+      "   gl_FragColor = vec4(backgroundColor.r, backgroundColor.g, backgroundColor.b,1);",
       "}"],  c => {
         let uniforms = c.shader.uniforms;
-        
         let l = c.style.label;
         let f = l.font;
         let textEngine = texts.getEngine(f);
@@ -983,8 +996,8 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
         gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
         gl.uniform1f(uniforms.fontScale, fontScale);
-        let labelColor = new ccNetViz_color(l.labelColor || backgroundColor);
-        ccNetViz_gl.uniformColor(gl, uniforms.labelColor, labelColor);
+        let backgroundColor = new ccNetViz_color(l.backgroundColor || backgroundColor);
+        ccNetViz_gl.uniformColor(gl, uniforms.backgroundColor, backgroundColor);
     } ))
     let vsLabelsShader = [
             "attribute vec2 position;",
@@ -1035,7 +1048,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
             gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
             let color;
             if(is_outline && f)
-                color = new ccNetViz_color(f.outlineColor || l.labelColor || backgroundColor);
+                color = new ccNetViz_color(f.outlineColor || l.backgroundColor || backgroundColor);
             else
             // colour option in label
             color = c.style.color;

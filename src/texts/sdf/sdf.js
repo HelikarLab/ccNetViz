@@ -103,7 +103,34 @@ export default class {
     return 24;
   }
 
-  //
+  getWidthAndHeight(text, fontStyle, markDirty  ) {
+    let wordWidth = 0;
+    let width = 0;
+    let height = 0;
+    let widthArray = [];
+    const horiBearingX = 3;
+    //replaces the multiple space characters in the text with a single space
+    text = text.replace(/\s+/g, ' ');
+    for (let i = 0; i < text.length; i++) {
+      const char = this._getChar(text[i], fontStyle, markDirty);
+      const rect = char.rect || {};
+      
+     // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
+     //decide the height and then max of them is taken each time to have a max height that fits each char
+
+     height = Math.max(height, rect.h - char.top);
+      wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
+      // highest word length would be selected as the width
+      if ((text[i] === ' ' || i == text.length-1 )) {
+        width = wordWidth > width ? wordWidth : width
+        widthArray.push(wordWidth)
+        wordWidth = 0
+      }
+     
+    }
+    return {width: width, height: height, widthArray:widthArray}
+  }
+  
   getTexture(fontStyle, onLoad) {
     // init with first most-used ASCII chars
     for (let i = 0; i < 128; i++) {
@@ -277,7 +304,6 @@ export default class {
       fontSize, // fontSize
       markDirty, // callback function to be called if texture resizes
     );
-
     return (
       cache[glyphID] ||
       (cache[glyphID] = new SimpleGlyph(
@@ -291,33 +317,14 @@ export default class {
   get(text, x, y,markDirty) {
     const fontStyle = this.fontStyle;
     let alignment = fontStyle.alignment;
-    let wordWidth = 0;
-    let width = 0;
-    let height = 0;
-    let widthArray = [];
-    const horiBearingX = 3;
-    const horiBearingY = 2;
+
     //replaces the multiple space characters in the text with a single space
     text = text.replace(/\s+/g, ' ');
-    for (let i = 0; i < text.length; i++) {
-      
-      
-      const char = this._getChar(text[i], fontStyle, markDirty);
-      const rect = char.rect || {};
-      
-     // Initially in the "get" function , height is undefined so , height = 0 , now rect.h and char.top
-     //decide the height and then max of them is taken each time to have a max height that fits each char
 
-     height = Math.max(height, rect.h - char.top);
-      wordWidth+=text[i] === ' '? 0 : char.advance + horiBearingX;
-      // highest word length would be selected as the width
-      if ((text[i] === ' ' || i == text.length-1 )) {
-        width = wordWidth > width ? wordWidth : width
-        widthArray.push(wordWidth)
-        wordWidth = 0
-      }
-     
-    }
+    let widthAndHeightObj = this.getWidthAndHeight(text,fontStyle,markDirty);
+    let height = widthAndHeightObj.height
+    let width = widthAndHeightObj.width
+    let widthArray = widthAndHeightObj.widthArray
     
     let ret = this.alignText(alignment, text, x, y, width, height, markDirty, widthArray, width, fontStyle)
    return ret
