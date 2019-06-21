@@ -4,10 +4,13 @@ export default class Shape {
   constructor(config, instance, t) {
     this.config = config;
     this.textureReady = t;
+
     if (typeof this.textureReady === "undefined") {
       this._preConf();
+      this._preAnimation();
+    } else {
+      this.config.animation.scene = animation.config.scene;
     }
-    this._preAnimation();
     this._setAnimation(instance);
 
     if (typeof this.textureReady === "undefined") {
@@ -21,10 +24,6 @@ export default class Shape {
       this._preDraw();
       this._draw();
     }
-  }
-
-  triggerNow(instance) {
-    this._setAnimation(instance);
   }
 
   // Before the drawing; when the config is existed override the default config.
@@ -220,8 +219,7 @@ export default class Shape {
 
   _preDraw() { }
 
-  _draw() {
-  }
+  _draw() { }
 
   // Canvas transform into the 0-1 range
   t(size) {
