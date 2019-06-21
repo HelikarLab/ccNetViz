@@ -31,6 +31,13 @@ let Integration = (o, i) => {
       } else {
         // Overwriting existing predefined styles.
         if (typeof options.styles[shape].temp === "undefined") {
+          let config = options.styles[shape];
+          if (typeof config.animation !== "undefined") {
+            if (config.animation.status === false) {
+              options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]), undefined, true);
+              return;
+            }
+          }
           options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]));
         }
       }
