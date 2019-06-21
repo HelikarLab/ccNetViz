@@ -26,7 +26,12 @@ class Animation {
     if (this.frameBatch.length >= Object.keys(this.listener).length) {
       await this.fps();
       if (this.frameBatch.length) {
-        this.instance.reflow();
+        if (typeof ccNetVizPlugins !== "undefined") {
+          if (typeof ccNetVizPlugins.animationHandler === "undefined")
+            ccNetVizPlugins.animationHandler = "node";
+          if (ccNetVizPlugins.animationHandler === "node")
+            this.instance.reflow();
+        }
         if (frame > this.config.frameCount) {
           this.status = false;
         }
