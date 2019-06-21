@@ -1,9 +1,9 @@
 import Shape from "../shape"
 
-let Custom = (config, instance) => {
+let Custom = (config, instance, t) => {
   class Custom extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Arrow';
     }
 
@@ -54,7 +54,7 @@ let Custom = (config, instance) => {
       this.context.fill();
     }
   }
-  return new Custom(config, instance)
+  return new Custom(config, instance, t);
 }
 
 export default Custom
