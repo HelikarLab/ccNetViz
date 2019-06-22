@@ -119,6 +119,8 @@ export default class {
   }
 
   placeAdditional(){
+      const sep = 0;
+
       // place non-visited nodes in between layers
       let aux_layers = {};
       let c = this.components[this.components.current_component];
@@ -269,6 +271,6 @@ export default class {
               }
           }
       }
-      this.placeOrphans(this.orphans);
+      this.placeOrphans(this.orphans, 0);
   }
 };

@@ -95,8 +95,8 @@ export default function(points) {
         (function find(node, x1, y1, x2, y2) {
             if (x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;
 
+            let point;
             if (point = node.point) {
-                let point;
                 let dx = x - node.x;
                 let dy = y - node.y;
                 let distance2 = dx * dx + dy * dy;

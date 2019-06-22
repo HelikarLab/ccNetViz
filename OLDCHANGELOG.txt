@@ -1,12 +1,8 @@
 -------------------- ver. 1.0.0 -----------------------------
 Initial commit
 
-
-
 -------------------- ver. 1.0.1 -----------------------------
 Added find function for searching inside circular area (x,y, radius)
-
-
 
 -------------------- ver. 1.0.2 -----------------------------
 Added support for interactivity

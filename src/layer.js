@@ -7,6 +7,8 @@ import ccNetViz_geomutils from './geomutils' ;
 import ccNetViz_utils     from './utils' ;
 import {partitionByStyle} from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch' ;
+import {easeFunctions} from './shaders'
+
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -26,6 +28,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
 
     options = options || {};
     options.styles = options.styles || {};
+
+    // set animation flag
+    this.hasEdgeAnimation = (!!edgeStyle.animateType && edgeStyle.animateType !== 'none')
 
     let nodesFiller = (
       style => ({
@@ -162,6 +167,13 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                 ccNetViz_primitive.vertices(v.position, iV, s.x, s.y, s.x, s.y, t.x, t.y, t.x, t.y);
                 ccNetViz_primitive.vertices(v.lengthSoFar, iV, 0, 0,0,0,dx, dy, dx, dy);
                 ccNetViz_primitive.vertices(v.normal, iV, -d.y, d.x, d.y, -d.x, d.y, -d.x, -d.y, d.x);
+                
+                if (this.hasEdgeAnimation) {
+                    // when do edge animation, shader need to know the startPos and endPos
+                    ccNetViz_primitive.vertices(v.startPos, iV, s.x, s.y, s.x, s.y, s.x, s.y, s.x, s.y);
+                    ccNetViz_primitive.vertices(v.endPos, iV, t.x, t.y, t.x, t.y, t.x, t.y, t.x, t.y);
+                }
+
                 ccNetViz_primitive.quad(v.indices, iV, iI);
             }})),
        'curves': (style => ({
@@ -342,6 +354,9 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                     (map[si] || (map[si] = {}))[ti] = true;
                 }
 
+                //enable the "curve" feature
+                const is_bidirectional_overlap = options.bidirectional === 'overlap';
+
                 for (let i = 0; i < edges.length; i++) {
                     let target, e = edges[i];
 
@@ -355,7 +370,7 @@ export default function(canvas, context, view, gl, textures, files, texts, event
                         t = circlesd;
                     }else {
                         let m = map[ti];
-                        if(m && m[si]){
+                        if(m && m[si] && is_bidirectional_overlap){
                           e.t = 1;	//curve
                           target = curves;
                           t = curvesd;
@@ -592,6 +607,22 @@ export default function(canvas, context, view, gl, textures, files, texts, event
       return t;
     };
 
+    let animateStylesTransl = {
+      'none': 0,
+      'basic': 1,
+      'gradient': 2,
+    }
+    let getEdgeAnimateType = (t) => {
+        if(t !== undefined){
+          t = animateStylesTransl[t];
+        }
+  
+        if(t === undefined || typeof t !== 'number'){
+          t = 0;
+        }
+  
+        return t;
+      };
 
     this.nodes = [];
     this.edges = [];
@@ -660,6 +691,17 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "      if(part < 0.5) discard;",
         "   }"
     ];
+
+    const lineAnimateTypes = [
+        "   if (animateType >= 1.5) {",
+        "       gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;",
+        "   } else if (animateType >= 0.5) {",
+        "       gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;",
+        "   } else {",
+        "       gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
+        "   }",
+    ]
+
     const fsCurve = [
         "#extension GL_OES_standard_derivatives : enable",
         "#ifdef GL_ES",
@@ -700,55 +742,172 @@ export default function(canvas, context, view, gl, textures, files, texts, event
         "}"
     ];
 
-    scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
-            "precision mediump float;",
-            "attribute vec2 position;",
-            "attribute vec2 normal;",
-            "attribute vec2 lengthSoFar;",
-            "uniform float exc;",
-            "uniform vec2 size;",
-            "uniform vec2 screen;",
-            "uniform float aspect2;",
-            "uniform float aspect;",
-            "uniform vec2 width;",
-            "uniform mat4 transform;",
-            "varying vec2 n;",
-            "varying vec2 v_lengthSoFar;"
-            ].concat(getShiftFuncs).concat([
-            "void main(void) {",
-            "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+    const easeFunctionPart = [
+        `${easeFunctions[edgeStyle.animateEase ? edgeStyle.animateEase : 'linear']}`
+    ];
 
-            "   vec4 p = transform*vec4(lengthSoFar,0,0);",
-            "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
+    const isAnimateCovered = [
+        "float isAnimateCovered() {",
+        "   vec2 pos = gl_FragCoord.xy;",
+        "   vec2 viewport = 2. * v_screen;",
+        "   float maxLen = length(viewport);",
+        "   vec2 startPos = viewport * v_startPos;",
+        "   vec2 endPos = viewport * v_endPos;",
+        "   float totalLen = distance(startPos, endPos);",
+        "   float len = distance(pos, startPos);",
+        "   // float r = 300.;",
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;",
+        "   // float r = 0.5 * totalLen;",
+        "   float draw = 1. - step(r, len);",
+        "   return draw;",
+        "}",
+    ]
 
-            "   n = normal;",
-            "}"
-        ]), [
-            "precision mediump float;",
-            "uniform float type;",
-            "uniform vec4 color;",
-            "varying vec2 n;",
-            "varying vec2 v_lengthSoFar;",
-            "uniform float lineSize;",
-            "void main(void) {",
-            "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
-	    ].concat(lineTypes).concat([
-            "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
-            "}"
-        ]), c => {
-            let uniforms = c.shader.uniforms;
-            uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
-            gl.uniform2f(uniforms.screen, c.width, c.height);
-            let size = 2.5 * c.nodeSize;
-            uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-            gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
-            gl.uniform1f(uniforms.aspect2, c.aspect2);
-            gl.uniform1f(uniforms.aspect, c.aspect);
-            gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
-            gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-            ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-        })
-    );
+    const isAnimateCoveredGradient = [
+        "float isAnimateCoveredGradient() {",
+        "   vec2 pos = gl_FragCoord.xy;",
+        "   vec2 viewport = 2. * v_screen;",
+        "   float maxLen = length(viewport);",
+        "   vec2 startPos = viewport * v_startPos;",
+        "   vec2 endPos = viewport * v_endPos;",
+        "   float totalLen = distance(startPos, endPos);",
+        "   float len = distance(pos, startPos);",
+        "   float gradLen = 180.;", // TODO: can config
+        "   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + gradLen / 2.);", // NOTE: use 0.2 as a proper factor
+        "   // float r = 0.5 * totalLen;",
+        "   float draw = fract(smoothstep(r - gradLen, r, len));",
+        "   return draw;",
+        "}",
+    ]
+
+    if (this.hasEdgeAnimation) {
+        scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
+                "precision mediump float;",
+                "attribute vec2 position;",
+                "attribute vec2 normal;",
+                "attribute vec2 lengthSoFar;",
+                "attribute vec2 startPos;",
+                "attribute vec2 endPos;",
+                "uniform float time;",
+                "uniform float exc;",
+                "uniform vec2 size;",
+                "uniform vec2 screen;",
+                "uniform float aspect2;",
+                "uniform float aspect;",
+                "uniform vec2 width;",
+                "uniform mat4 transform;",
+                "varying float v_time;",
+                "varying vec2 v_startPos;",
+                "varying vec2 v_endPos;",
+                "varying vec2 v_screen;",
+                "varying vec2 n;",
+                "varying vec2 v_lengthSoFar;"
+                ].concat(getShiftFuncs).concat([
+                "void main(void) {",
+                "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+
+                "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+                "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
+                "   v_time = time;",
+                "   v_startPos = startPos;",
+                "   v_endPos = endPos;",
+                "   v_screen = screen;",
+
+                "   n = normal;",
+                "}"
+            ]), [
+                "precision mediump float;",
+                "uniform float type;",
+                "uniform float animateType;",
+                "uniform vec4 color;",
+                "uniform vec4 animateColor;",
+                "uniform float animateSpeed;",
+                "varying vec2 n;",
+                "varying float v_time;",
+                "varying vec2 v_startPos;",
+                "varying vec2 v_endPos;",
+                "varying vec2 v_screen;",
+                "varying vec2 v_lengthSoFar;",
+                "uniform float lineSize;",
+            ]
+            .concat(easeFunctionPart)
+            .concat(isAnimateCovered)
+            .concat(isAnimateCoveredGradient).concat([
+                "void main(void) {",
+                "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
+            ]).concat(lineTypes)
+            .concat(lineAnimateTypes)
+            .concat([
+                "}"
+            ]), c => {
+                let uniforms = c.shader.uniforms;
+                uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+                gl.uniform2f(uniforms.screen, c.width, c.height);
+                let size = 2.5 * c.nodeSize;
+                uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+                gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+                gl.uniform1f(uniforms.aspect2, c.aspect2);
+                gl.uniform1f(uniforms.aspect, c.aspect);
+                gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
+                gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+                gl.uniform1f(uniforms.animateType, getEdgeAnimateType(c.style.animateType));
+                gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
+                ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+                ccNetViz_gl.uniformColor(gl, uniforms.animateColor, c.style.animateColor);
+            })
+        );
+    } else {
+        scene.add("lines", new ccNetViz_primitive(gl, edgeStyle, null, [
+                "precision mediump float;",
+                "attribute vec2 position;",
+                "attribute vec2 normal;",
+                "attribute vec2 lengthSoFar;",
+                "uniform float exc;",
+                "uniform vec2 size;",
+                "uniform vec2 screen;",
+                "uniform float aspect2;",
+                "uniform float aspect;",
+                "uniform vec2 width;",
+                "uniform mat4 transform;",
+                "varying vec2 n;",
+                "varying vec2 v_lengthSoFar;"
+                ].concat(getShiftFuncs).concat([
+                "void main(void) {",
+                "   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);",
+
+                "   vec4 p = transform*vec4(lengthSoFar,0,0);",
+                "   v_lengthSoFar = vec2(p.x, p.y/aspect);",
+
+                "   n = normal;",
+                "}"
+            ]), [
+                "precision mediump float;",
+                "uniform float type;",
+                "uniform vec4 color;",
+                "varying vec2 n;",
+                "varying vec2 v_lengthSoFar;",
+                "uniform float lineSize;",
+                "void main(void) {",
+                "   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));"
+            ].concat(lineTypes).concat([
+                "   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));",
+                "}"
+            ]), c => {
+                let uniforms = c.shader.uniforms;
+                uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+                gl.uniform2f(uniforms.screen, c.width, c.height);
+                let size = 2.5 * c.nodeSize;
+                uniforms.size && gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+                gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+                gl.uniform1f(uniforms.aspect2, c.aspect2);
+                gl.uniform1f(uniforms.aspect, c.aspect);
+                gl.uniform2f(uniforms.width, c.style.width / c.width, c.style.width / c.height);
+                gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+                ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+            })
+        );
+    }
+
 
     if (extensions.OES_standard_derivatives) {
         scene.add("curves", new ccNetViz_primitive(gl, edgeStyle, null, [
