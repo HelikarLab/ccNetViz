@@ -170,9 +170,6 @@ export default class {
    // dx and dy shifts the position of label w.r.t possibly node
    // (TODO: dx and dy are calculated w.r.t what is not clear , please clear it if you find out)
     
-   if(!( alignment == 'right' || alignment == 'left' || alignment == 'center')) {
-    alignment = 'left';
-    }
     const textArray = text.split(" ");
     let dx=0;
 
@@ -185,27 +182,6 @@ export default class {
     let ret = [];
 
     switch (alignment) {
-      case 'left' :
-        dx = x <= 0.5 ? 0: -width;
-        
-        for (var i=0;i<text.length;i++) {
-
-          // changing line here when it encounters any whitespace character
-
-          if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
-            dx = x <= 0.5 ? 0 : -width ;
-            dy = dy-Math.floor(height/3);
-          } else {
-            const char = this._getChar(text[i], fontStyle, markDirty);
-            const rect = char.rect || {};
-            let horiBearingX = 3;
-            dx += horiBearingX;
-            ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
-            dx += char.advance; // advancce is the width of the character
-     
-          } 
-        } 
-        break;
 
     case 'right' :
 
@@ -247,6 +223,27 @@ export default class {
         dy = dy-Math.floor(height/3);
       }
       break;
+      
+    default :
+      dx = x <= 0.5 ? 0: -width;
+        
+      for (var i=0;i<text.length;i++) {
+
+        // changing line here when it encounters any whitespace character
+
+        if ((text[i] === ' ') && (i != 0 || i != text.length-1) ) {
+          dx = x <= 0.5 ? 0 : -width ;
+          dy = dy-Math.floor(height/3);
+        } else {
+          const char = this._getChar(text[i], fontStyle, markDirty);
+          const rect = char.rect || {};
+          let horiBearingX = 3;
+          dx += horiBearingX;
+          ret = this._getCharArray(ret, char,  height, dx, dy, markDirty)
+          dx += char.advance; // advancce is the width of the character
+     
+        } 
+      } 
       }
   return ret;
   }
@@ -271,28 +268,6 @@ export default class {
     const cache = (this._cachedGlyphs[font] || (this._cachedGlyphs[font] = {}));
     const glyph = (cache[glyphID] && cache[glyphID].glyph) || spriteGenerator.draw(character);
     
-    // Testing code for new developer, if stuck, uncomment the lines below 
-    // The code below renders a testing canvas with first alphabet it encounters , value of t is in sdf.html
-    // if you want to show more alphabets , just increase "t" in sdf.html and 
-    // change ctx.putImageData(imgData, 10, 20); to something variable
-
-    // if(document.getElementById("test-canvas") && typeof t !== "undefined" && t>0) {
-    //   const imgData = spriteGenerator._makeRGBAImageData(glyph.bitmap, glyph.width, glyph.height);
-    //   const testCanvas = document.getElementById("test-canvas");
-    //   const ctx = testCanvas.getContext("2d");
-    //   ctx.putImageData(imgData, 10, 20);
-    //   --t;
-    // }
-    
-    // After uncommenting the lines above , comment the "if" code below, this might help in debugging 
-
-    if((document.getElementById("test-canvas") && typeof t === "undefined") || (document.getElementById("test-canvas") && t)) {
-
-      const testCanvas = document.getElementById("test-canvas");
-      testCanvas.width = 0;
-      testCanvas.height = 0;
-    }
-
     const fontSize = spriteGenerator.fontSize;
     
     if (!this._rects[font]) this._rects[font] = {};
