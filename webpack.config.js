@@ -1,55 +1,26 @@
-var Webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
-
-    entry: './src/ccNetVizMultiLevel.js',
-
-    output: {
-        path: path.join(__dirname, 'dist'),
-        filename: 'ccNetViz.js',
-    },
-
-
-    /**
-     *   | devtool value  | build   | rebuild | production  | quality
-     *   | 'source-map'   | slow    | slow    | yes         | original source
-     */
-    devtool: 'source-map',
-
-    module: {
-        rules: [
-            // Loader 1
-            {
-                // Target Files
-                // test: /\.js?$/g,
-
-                // Excluded folders
-                exclude: /(node_modules|bower_components)/,
-
-                // The Loader
-                loader: 'babel-loader',
-
-                // Loader Configurations
-                query: {
-                    presets: ['es2015']
-                },
-            },
-            {
-                test: /\.glsl$/,
-                use: { loader: 'raw-loader'},
-            },
-
-            // Loader 2
-            {
-                test: /\.worker\.js$/,
-                use: { loader: 'worker-loader' }
-            }
-        ]
-    },
-    plugins: [
-        new Webpack.LoaderOptionsPlugin({
-            debug: true
-        })
+  entry: './src/ccNetViz.js',
+  output: {
+    path: path.join(__dirname, 'lib'),
+    filename: 'ccNetViz.js',
+    libraryTarget: 'umd',
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [
+      // Babel Loader
+      {
+        exclude: /(node_modules|bower_components)/,
+        test: /\.js$/,
+        loader: 'babel-loader',
+      },
+      // GLSL Loader
+      {
+        test: /\.glsl$/,
+        use: { loader: 'raw-loader' },
+      },
     ],
+  },
 };
