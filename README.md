@@ -8,49 +8,47 @@ Graph theory (a.k.a. network) library for analysis and visualisation
 
 Visit our [webpage](http://helikarlab.github.io/ccNetViz/) to see the detailed docs and examples.
 
-**Description**
+## Description
 
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs (see [graph theory](https://en.wikipedia.org/wiki/Graph_theory)) visualization using WebGL.
 It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
-**Basic Example**
+## Basic Example
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>ccNetViz example</title>
-  <style type="text/css">
-    #container {
-      width: 500px;
-      height: 500px;
-    }
-  </style>
-  <script src="lib/ccNetViz.js"></script>
-</head>
-<body>
-  <canvas id="container"/>
-  <script>
-    var graph = new ccNetViz(document.getElementById('container'), {
-      styles: {
-        node: { texture: "images/node.png", label: { hideSize: 16 } },
-        edge: { arrow: { texture: "images/arrow.png" } }
-      }});
-    var nodes = [
-      { label: "Hello" },
-      { label: "World" },
-      { label: "!" }
-    ];
-    var edges = [
-      { source: nodes[0], target: nodes[1] },
-      { source: nodes[1], target: nodes[2] },
-      { source: nodes[2], target: nodes[1] }
-    ];
-    graph.set(nodes, edges, "force");
-    graph.draw();
-  </script>
-</body>
+  <head>
+    <title>ccNetViz example</title>
+    <style type="text/css">
+      #container {
+        width: 500px;
+        height: 500px;
+      }
+    </style>
+    <script src="lib/ccNetViz.js"></script>
+  </head>
+  <body>
+    <canvas id="container" />
+    <script>
+      var graph = new ccNetViz(document.getElementById('container'), {
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
+      var nodes = [{ label: 'Hello' }, { label: 'World' }, { label: '!' }];
+      var edges = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[1] },
+      ];
+      graph.set(nodes, edges, 'force');
+      graph.draw();
+    </script>
+  </body>
 </html>
 ```
 
@@ -62,37 +60,35 @@ Inbuilt support for multiple layouts such as the **Force**, **Hierarchical**, **
 
 Inbuilt support for two modifications of **Tree** layout.
 
-* Graph layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/layouts.html)
-* Tree-specific layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/tree.html)
+- Graph layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/layouts.html)
+- Tree-specific layouts - [live example](http://helikarlab.github.io/ccNetViz/examples/tree.html)
 
 If you want to use one of our in-built layout ( see the https://github.com/HelikarLab/ccNetViz/tree/master/src/layout for list of all available ones ),
 pass it as second parameter into the set function such as:
 
 ```javascript
-  graph.set(nodes, edges, "force"); //set the force layout
+graph.set(nodes, edges, 'force'); //set the force layout
 ```
 
+## Advanced Examples
 
+- Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
+- Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
+- Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
+- Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
+- Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
+- Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
+- Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
+- User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
+- Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
 
-**Advanced Examples**
+## Documentation
 
-* Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
-* Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
-* Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
-* Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
-* Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
-* Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
-* Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
-* User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
-* Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
-
-**Documentation**
-
-***ccNetViz(element, options)***
+**_ccNetViz(element, options)_**
 
 Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles defined in styles property of options parameter.
 
-*Example options*
+_Example options_
 
 ```javascript
 {
@@ -175,58 +171,51 @@ Creates new ccNetViz graph renderer attached to canvas element specified as firs
 ```
 
 There are three predefined styles:
-* node: default style used for all nodes
-* edge: default style used for all edges
-* background: default style used for canvas background
+
+- node: default style used for all nodes
+- edge: default style used for all edges
+- background: default style used for canvas background
 
 All default property values of these styles can be overriden (as in example above).
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
-When you want to use SDF (signed distance field) fonts, you can use one of our predefined style from
-[our github io page](http://helikarlab.github.io/ccNetViz/fonts) or generate your own with
-[node-fontnik](https://github.com/mapbox/node-fontnik).
+All of our texts are rendered with as a Signed Distance Field fonts which make them high qualty with keeping the performance high.
 
-***set(nodes, edges, layout)***
+**_set(nodes, edges, layout)_**
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
-* label (optional): text label for given node (displayed if node labels are enabled by node label style)
-* x, y (optional): predefined position for given node (if "layout" argument is not specified these positions will be used for graph layout)
-* color (optional): ccNetViz.color object defining color for this given node (use this in case of coloring each node separately, for coloring groups of nodes use color property of node style)
-* style (optional): name of custom style class used for this node (for example: "nodeBlue" see above section for how to define custom styles)
+
+- label (optional): text label for given node (displayed if node labels are enabled by node label style)
+- x, y (optional): predefined position for given node (if "layout" argument is not specified these positions will be used for graph layout)
+- color (optional): ccNetViz.color object defining color for this given node (use this in case of coloring each node separately, for coloring groups of nodes use color property of node style)
+- style (optional): name of custom style class used for this node (for example: "nodeBlue" see above section for how to define custom styles)
 
 "edges" argument is an array of objects describing directed graph edges. Each edge has following properties:
-* source: pointer to given source node object
-* target: pointer to given target node object
-* style (optional): name of custom style class used for this edge
+
+- source: pointer to given source node object
+- target: pointer to given target node object
+- style (optional): name of custom style class used for this edge
 
 Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular", "tree". If not specified, positions are taken from each node x, y properties.
 
+**_find(x, y, radius, nodes, edges)_**
 
-***find(x, y, radius, nodes, edges)***
+**_findArea(x1, y1, x2, y2, nodes, edges)_**
 
-
-***findArea(x1, y1, x2, y2, nodes, edges)***
-
-
-
-
-***draw()***
+**_draw()_**
 
 Renders current data.
 
-
-***resize()***
+**_resize()_**
 
 Adjust graph for current canvas size.
 
-
-***resetView()***
+**_resetView()_**
 
 Reset zoom and panning.
 
-
-***setViewport(viewport)***
+**_setViewport(viewport)_**
 
 Set graph viewport.
 
@@ -240,55 +229,42 @@ Set graph viewport.
 }
 ```
 
-***cntShownNodes()***
+**_cntShownNodes()_**
 
 Get number of nodes
 
-***cntShownEdges()***
+**_cntShownEdges()_**
 
 Get number of edges
 
-
-***remove()***
+**_remove()_**
 
 Clear graph and remove internal events from DOM.
 
-
-***nodes***
+**_nodes_**
 
 Property to access nodes data of given graph. Use this just to read current values, for modification use "set" method instead.
 
-
-***edges***
+**_edges_**
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
 
-### Development in ccNetViz
-This is the pipeline you should follow to make changes to ccNetViz:
+## Development in ccNetViz
+
+Please follow the below instructions to get started with development in ccNetViz:
+
+> You need to have [Node](https://nodejs.org/) and [yarn](https://yarnpkg.com/) .
 
 1. Clone the repository.
-2. Run `npm install` inside the cloned repository.
-   3.Start a server
-   (such as Apache or using http-server globally) with a path to the ccNetViz directory.
-3. Make changes to src/ tree.
-4. Build with `npm run build` on the ccNetViz root directory.
-5. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
-6. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+2. Run `yarn install` inside the cloned repository to install dependencies.
+3. Run `yarn dev` and go to `http://localhost:8080`. From here go to any of the examples or tests.
+4. Making any changes to the src/ directory will trigger an auto reload and build of the webpage.
+5. Finally when you are done with the changes run `yarn build` to create the final build.
 
-### Contributing
+_Note: if your having any problem with seeing changes, clear the browser cache._
+
+## Contributing
 
 If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
-[HeilikarLab]: https://github.com/HelikarLab/ccNetViz
-
-### Commands to set up a Local Server
-
-Run "$ npm start" in the root directory.
-
-Notes:
-* If the file tree does not get updated, there might be issues with the files you are trying to update.
-You can try: "$ ./node\_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
-* You have to build the package (e.g. into dist/) to run new code, i.e. you cannot make changes to src/ tree and load them to the browser.
-* E.g. in Chrome, it always reused the package from cache
-(ctrl+shift+r does not force it to reload recently built package),
-i.e. you have to clear the cache.
+[heilikarlab]: https://github.com/HelikarLab/ccNetViz

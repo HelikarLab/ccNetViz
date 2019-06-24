@@ -1055,7 +1055,6 @@ export default function(
     );
   }
 
-  console.log(elementShaders.vsCurve);
   if (extensions.OES_standard_derivatives) {
     scene.add(
       'curves',
