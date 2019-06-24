@@ -89,3 +89,5 @@ typings/
 
 /dist/ccNetViz*
 *.swp
+
+.vscode

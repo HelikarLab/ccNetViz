@@ -6,4 +6,3 @@ vec4 getShiftCurve(void) {
 }
 attribute vec2 circleShift;
 vec4 getShiftCircle(void) { return vec4(size * circleShift, 0, 0); }
-

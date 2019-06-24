@@ -9889,46 +9889,6 @@
             return 0;
           };
 
-          var lineTypes = [
-            '   if(type >= 2.5){', //3.0 dotted
-            '      part = fract(part*3.0);',
-            '      if(part < 0.5) discard;',
-            '   }else if(type >= 1.5){', //2.0 - chain dotted
-            '      if(part < 0.15) discard;',
-            '      if(part > 0.30 && part < 0.45) discard;',
-            '   }else if(type >= 0.5){', //1.0 - dashed
-            '      if(part < 0.5) discard;',
-            '   }',
-          ];
-
-          var fsCurve = [
-            '#extension GL_OES_standard_derivatives : enable',
-            '#ifdef GL_ES',
-            'precision highp float;',
-            '#endif',
-            'uniform float width;',
-            'uniform vec4 color;',
-            'uniform float type;',
-            'uniform float lineStepSize;',
-            'uniform float lineSize;',
-            'varying vec2 c;',
-            'varying vec2 v_lengthSoFar;',
-            'void main(void) {',
-            '   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));',
-          ]
-            .concat(lineTypes)
-            .concat([
-              '   vec2 px = dFdx(c);',
-              '   vec2 py = dFdy(c);',
-              '   float fx = 2.0 * c.x * px.x - px.y;',
-              '   float fy = 2.0 * c.y * py.x - py.y;',
-              '   float sd = (c.x * c.x - c.y) / sqrt(fx * fx + fy * fy);',
-              '   float alpha = 1.0 - abs(sd) / width;',
-              '   if (alpha < 0.0) discard;',
-              '   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));',
-              '}',
-            ]);
-
           var getShiftFuncs = [
             'attribute vec2 curveShift;',
             'vec4 getShiftCurve(void) {',
@@ -10020,6 +9980,7 @@
             );
           }
 
+          console.log(_shaders.elementShaders.vsCurve);
           if (extensions.OES_standard_derivatives) {
             scene.add(
               'curves',
@@ -10027,34 +9988,8 @@
                 gl,
                 edgeStyle,
                 null,
-                [
-                  'precision highp float;',
-                  'attribute vec2 position;',
-                  'attribute vec2 normal;',
-                  'attribute vec2 curve;',
-                  'attribute vec2 lengthSoFar;',
-                  'uniform vec2 size;',
-                  'uniform float exc;',
-                  'uniform vec2 screen;',
-                  'uniform float aspect2;',
-                  'uniform float aspect;',
-                  'uniform mat4 transform;',
-                  'varying vec2 v_lengthSoFar;',
-                  'varying vec2 c;',
-                ]
-                  .concat(getShiftFuncs)
-                  .concat([
-                    'void main(void) {',
-                    '   vec2 n = vec2(normal.x, aspect2 * normal.y);',
-                    '   float length = length(screen * n);',
-                    '   n = length == 0.0 ? vec2(0, 0) : n / length;',
-                    '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);',
-                    '   c = curve;',
-                    '   vec4 p = transform*vec4(lengthSoFar,0,0);',
-                    '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-                    '}',
-                  ]),
-                fsCurve,
+                _shaders.elementShaders.vsCurve,
+                _shaders.elementShaders.fsCurve,
                 function(c) {
                   var uniforms = c.shader.uniforms;
                   gl.uniform1f(uniforms.width, c.style.width);
@@ -10107,7 +10042,7 @@
                     '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
                     '}',
                   ]),
-                fsCurve,
+                _shaders.elementShaders.fsCurve,
                 function(c) {
                   var uniforms = c.shader.uniforms;
                   uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -13947,6 +13882,23 @@
         /***/
       },
 
+    /***/ './src/shaders/elements/fsCurve.glsl':
+      /*!*******************************************!*\
+  !*** ./src/shaders/elements/fsCurve.glsl ***!
+  \*******************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          '#extension GL_OES_standard_derivatives : enable\r\n#ifdef GL_ES\r\nprecision highp float;\r\n#endif\r\nuniform float width;\r\nuniform vec4 color;\r\nuniform float type;\r\nuniform float lineStepSize;\r\nuniform float lineSize;\r\nvarying vec2 c;\r\nvarying vec2 v_lengthSoFar;\r\nvoid main(void) {\r\n  float part = abs(fract(length(v_lengthSoFar) * lineStepSize * lineSize));\r\n\r\n  // line types\r\n  if (type >= 2.5) { // 3.0 dotted\r\n    part = fract(part * 3.0);\r\n    if (part < 0.5)\r\n      discard;\r\n  } else if (type >= 1.5) { // 2.0 - chain dotted\r\n    if (part < 0.15)\r\n      discard;\r\n    if (part > 0.30 && part < 0.45)\r\n      discard;\r\n  } else if (type >= 0.5) { // 1.0 - dashed\r\n    if (part < 0.5)\r\n      discard;\r\n  }\r\n\r\n  vec2 px = dFdx(c);\r\n  vec2 py = dFdy(c);\r\n  float fx = 2.0 * c.x * px.x - px.y;\r\n  float fy = 2.0 * c.y * py.x - py.y;\r\n  float sd = (c.x * c.x - c.y) / sqrt(fx * fx + fy * fy);\r\n  float alpha = 1.0 - abs(sd) / width;\r\n  if (alpha < 0.0)\r\n    discard;\r\n  gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));\r\n}';
+
+        /***/
+      },
+
     /***/ './src/shaders/elements/fsLabelTexture.glsl':
       /*!**************************************************!*\
   !*** ./src/shaders/elements/fsLabelTexture.glsl ***!
@@ -14066,6 +14018,23 @@
         /***/
       },
 
+    /***/ './src/shaders/elements/getShiftFuncs.glsl':
+      /*!*************************************************!*\
+  !*** ./src/shaders/elements/getShiftFuncs.glsl ***!
+  \*************************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          'attribute vec2 curveShift;\r\nvec4 getShiftCurve(void) {\r\n  vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);\r\n  float length = length(screen * shiftN);\r\n  return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);\r\n}\r\nattribute vec2 circleShift;\r\nvec4 getShiftCircle(void) { return vec4(size * circleShift, 0, 0); }';
+
+        /***/
+      },
+
     /***/ './src/shaders/elements/index.js':
       /*!***************************************!*\
   !*** ./src/shaders/elements/index.js ***!
@@ -14097,13 +14066,11 @@
 
         var _vsLineMain2 = _interopRequireDefault(_vsLineMain);
 
-        var _vsLineGetShiftFuncs = __webpack_require__(
-          /*! ./vsLineGetShiftFuncs.glsl */ './src/shaders/elements/vsLineGetShiftFuncs.glsl'
+        var _getShiftFuncs = __webpack_require__(
+          /*! ./getShiftFuncs.glsl */ './src/shaders/elements/getShiftFuncs.glsl'
         );
 
-        var _vsLineGetShiftFuncs2 = _interopRequireDefault(
-          _vsLineGetShiftFuncs
-        );
+        var _getShiftFuncs2 = _interopRequireDefault(_getShiftFuncs);
 
         var _easeFunctions = __webpack_require__(
           /*! ../easeFunctions */ './src/shaders/easeFunctions/index.js'
@@ -14159,14 +14126,37 @@
 
         var _fsLabelTexture2 = _interopRequireDefault(_fsLabelTexture);
 
+        var _fsCurve = __webpack_require__(
+          /*! ./fsCurve.glsl */ './src/shaders/elements/fsCurve.glsl'
+        );
+
+        var _fsCurve2 = _interopRequireDefault(_fsCurve);
+
+        var _vsCurveHead = __webpack_require__(
+          /*! ./vsCurveHead.glsl */ './src/shaders/elements/vsCurveHead.glsl'
+        );
+
+        var _vsCurveHead2 = _interopRequireDefault(_vsCurveHead);
+
+        var _vsCurveMain = __webpack_require__(
+          /*! ./vsCurveMain.glsl */ './src/shaders/elements/vsCurveMain.glsl'
+        );
+
+        var _vsCurveMain2 = _interopRequireDefault(_vsCurveMain);
+
         function _interopRequireDefault(obj) {
           return obj && obj.__esModule ? obj : { default: obj };
         }
 
         var vsLine = [
           _vsLineHead2.default,
-          _vsLineGetShiftFuncs2.default,
+          _getShiftFuncs2.default,
           _vsLineMain2.default,
+        ].join('\n');
+        var vsCurve = [
+          _vsCurveHead2.default,
+          _getShiftFuncs2.default,
+          _vsCurveMain2.default,
         ].join('\n');
 
         var easeFunctionPart = function easeFunctionPart(ease) {
@@ -14191,9 +14181,45 @@
           fsVarColorTexture: _fsVarColorTexture2.default,
           vsLabelsShader: _vsLabelsShader2.default,
           fsLabelTexture: _fsLabelTexture2.default,
+          fsCurve: _fsCurve2.default,
+          vsCurve: vsCurve,
         };
 
         exports.elementShaders = elementShaders;
+
+        /***/
+      },
+
+    /***/ './src/shaders/elements/vsCurveHead.glsl':
+      /*!***********************************************!*\
+  !*** ./src/shaders/elements/vsCurveHead.glsl ***!
+  \***********************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          'precision highp float;\r\nattribute vec2 position;\r\nattribute vec2 normal;\r\nattribute vec2 curve;\r\nattribute vec2 lengthSoFar;\r\nuniform vec2 size;\r\nuniform float exc;\r\nuniform vec2 screen;\r\nuniform float aspect2;\r\nuniform float aspect;\r\nuniform mat4 transform;\r\nvarying vec2 v_lengthSoFar;\r\nvarying vec2 c;';
+
+        /***/
+      },
+
+    /***/ './src/shaders/elements/vsCurveMain.glsl':
+      /*!***********************************************!*\
+  !*** ./src/shaders/elements/vsCurveMain.glsl ***!
+  \***********************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          'void main(void) {\r\n  vec2 n = vec2(normal.x, aspect2 * normal.y);\r\n  float length = length(screen * n);\r\n  n = length == 0.0 ? vec2(0, 0) : n / length;\r\n  gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) +\r\n                transform * vec4(position, 0, 1);\r\n  c = curve;\r\n\r\n  vec4 p = transform * vec4(lengthSoFar, 0, 0);\r\n  v_lengthSoFar = vec2(p.x, p.y / aspect);\r\n}';
 
         /***/
       },
@@ -14211,23 +14237,6 @@
         });
         exports.default =
           'attribute vec2 position;\r\nattribute vec2 relative;\r\nattribute vec2 textureCoord;\r\nuniform float offset;\r\nuniform vec2 scale;\r\nuniform float fontScale;\r\nuniform mat4 transform;\r\nvarying vec2 tc;\r\nvoid main(void) {\r\n   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);\r\n   tc = textureCoord;\r\n}';
-
-        /***/
-      },
-
-    /***/ './src/shaders/elements/vsLineGetShiftFuncs.glsl':
-      /*!*******************************************************!*\
-  !*** ./src/shaders/elements/vsLineGetShiftFuncs.glsl ***!
-  \*******************************************************/
-      /*! no static exports found */
-      /***/ function(module, exports, __webpack_require__) {
-        'use strict';
-
-        Object.defineProperty(exports, '__esModule', {
-          value: true,
-        });
-        exports.default =
-          'attribute vec2 curveShift;\r\nvec4 getShiftCurve(void) {\r\n  vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);\r\n  float length = length(screen * shiftN);\r\n  return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);\r\n}\r\nattribute vec2 circleShift;\r\nvec4 getShiftCircle(void) { return vec4(size * circleShift, 0, 0); }\r\n\r\n';
 
         /***/
       },
