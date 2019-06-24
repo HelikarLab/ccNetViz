@@ -1,5 +1,4 @@
 import vsLabelsShader from './vsLabelsShader.glsl';
-import fsLabelsShader from './fsLabelsShader.glsl';
 
 import vsLineHead from './vsLineHead.glsl';
 import vsLineMain from './vsLineMain.glsl';
@@ -11,6 +10,10 @@ import fsLineAnimateBasic from './fsLineAnimateBasic.glsl';
 import fsLineAnimateGradient from './fsLineAnimateGradient.glsl';
 import fsLineMain from './fsLineMain.glsl';
 import fsLineBasic from './fsLineBasic.glsl';
+
+import fsColorTexture from './fsColorTexture.glsl';
+import fsVarColorTexture from './fsVarColorTexture.glsl';
+import fsLabelTexture from './fsLabelTexture.glsl';
 
 const vsLine = [vsLineHead, vsLineGetShiftFuncs, vsLineMain].join('\n');
 
@@ -29,11 +32,13 @@ const fsLineAnimate = ease => {
 };
 
 const elementShaders = {
-  vsLabels: vsLabelsShader,
-  fsLabels: fsLabelsShader,
   vsLine: vsLine,
-  fsLineAnimate: fsLineAnimate,
-  fsLineBasic: fsLineBasic,
+  fsLineAnimate,
+  fsLineBasic,
+  fsColorTexture,
+  fsVarColorTexture,
+  vsLabelsShader,
+  fsLabelTexture,
 };
 
 export { elementShaders };

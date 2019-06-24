@@ -9889,47 +9889,6 @@
             return 0;
           };
 
-          var fsColorTexture = [
-            'precision mediump float;',
-            'uniform vec4 color;',
-            'uniform sampler2D texture;',
-            'varying vec2 tc;',
-            'void main(void) {',
-            '   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-            '}',
-          ];
-
-          var fsLabelTexture = [
-            'precision mediump float;',
-            'uniform lowp sampler2D texture;',
-            'uniform mediump vec4 color;',
-            'uniform mediump float height_font;',
-            'uniform float type;',
-            'uniform float buffer;',
-            'uniform float boldness;',
-            'float gamma = 4.0 * 1.4142 * boldness / height_font;',
-            'varying mediump vec2 tc;',
-            'void main() {',
-            '  if(type > 0.5){', //SDF
-            '    float tx=texture2D(texture, tc).a;',
-            '    float a= smoothstep(buffer - gamma, buffer + gamma, tx);',
-            '    gl_FragColor=vec4(color.rgb, a*color.a);',
-            '  }else{', //NORMAL FONT
-            '    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-            '  }',
-            '}',
-          ];
-
-          var fsVarColorTexture = [
-            'precision mediump float;',
-            'uniform sampler2D texture;',
-            'varying vec2 tc;',
-            'varying vec4 c;',
-            'void main(void) {',
-            '   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));',
-            '}',
-          ];
-
           var lineTypes = [
             '   if(type >= 2.5){', //3.0 dotted
             '      part = fract(part*3.0);',
@@ -10226,7 +10185,7 @@
                     '   tc = textureCoord;',
                     '}',
                   ]),
-                fsColorTexture,
+                _shaders.elementShaders.fsColorTexture,
                 bind,
                 shaderparams
               )
@@ -10266,7 +10225,7 @@
                       '   tc = textureCoord;',
                       '}',
                     ]),
-                  fsColorTexture,
+                  _shaders.elementShaders.fsColorTexture,
                   bind,
                   shaderparams
                 )
@@ -10300,7 +10259,7 @@
                       '   tc = textureCoord;',
                       '}',
                     ]),
-                  fsColorTexture,
+                  _shaders.elementShaders.fsColorTexture,
                   bind,
                   shaderparams
                 )
@@ -10325,7 +10284,7 @@
                 '   tc = textureCoord;',
                 '}',
               ],
-              fsColorTexture,
+              _shaders.elementShaders.fsColorTexture,
               function(c) {
                 var size = getNodeSize(c);
                 var uniforms = c.shader.uniforms;
@@ -10354,7 +10313,7 @@
                 '   c = color;',
                 '}',
               ],
-              fsVarColorTexture,
+              _shaders.elementShaders.fsVarColorTexture,
               function(c) {
                 var size = getNodeSize(c);
                 var uniforms = c.shader.uniforms;
@@ -10363,20 +10322,6 @@
             )
           );
 
-          var vsLabelsShader = [
-            'attribute vec2 position;',
-            'attribute vec2 relative;',
-            'attribute vec2 textureCoord;',
-            'uniform float offset;',
-            'uniform vec2 scale;',
-            'uniform float fontScale;',
-            'uniform mat4 transform;',
-            'varying vec2 tc;',
-            'void main(void) {',
-            '   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);',
-            '   tc = textureCoord;',
-            '}',
-          ];
           var bindLabels = function bindLabels(is_outline) {
             return function(c) {
               if (!getNodeSize(c)) return true;
@@ -10434,8 +10379,8 @@
                 gl,
                 nodeStyle,
                 'label',
-                vsLabelsShader,
-                fsLabelTexture,
+                _shaders.elementShaders.vsLabelsShader,
+                _shaders.elementShaders.fsLabelTexture,
                 bindLabels(true)
               )
             );
@@ -10446,8 +10391,8 @@
                 gl,
                 nodeStyle,
                 'label',
-                vsLabelsShader,
-                fsLabelTexture,
+                _shaders.elementShaders.vsLabelsShader,
+                _shaders.elementShaders.fsLabelTexture,
                 bindLabels(false)
               )
             );
@@ -13985,9 +13930,26 @@
         /***/
       },
 
-    /***/ './src/shaders/elements/fsLabelsShader.glsl':
+    /***/ './src/shaders/elements/fsColorTexture.glsl':
       /*!**************************************************!*\
-  !*** ./src/shaders/elements/fsLabelsShader.glsl ***!
+  !*** ./src/shaders/elements/fsColorTexture.glsl ***!
+  \**************************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          'precision mediump float;\r\nuniform vec4 color;\r\nuniform sampler2D texture;\r\nvarying vec2 tc;\r\nvoid main(void) {\r\n   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));\r\n}';
+
+        /***/
+      },
+
+    /***/ './src/shaders/elements/fsLabelTexture.glsl':
+      /*!**************************************************!*\
+  !*** ./src/shaders/elements/fsLabelTexture.glsl ***!
   \**************************************************/
       /*! no static exports found */
       /***/ function(module, exports, __webpack_require__) {
@@ -14087,6 +14049,23 @@
         /***/
       },
 
+    /***/ './src/shaders/elements/fsVarColorTexture.glsl':
+      /*!*****************************************************!*\
+  !*** ./src/shaders/elements/fsVarColorTexture.glsl ***!
+  \*****************************************************/
+      /*! no static exports found */
+      /***/ function(module, exports, __webpack_require__) {
+        'use strict';
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true,
+        });
+        exports.default =
+          'precision mediump float;\r\nuniform sampler2D texture;\r\nvarying vec2 tc;\r\nvarying vec4 c;\r\nvoid main(void) {\r\n   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));\r\n}';
+
+        /***/
+      },
+
     /***/ './src/shaders/elements/index.js':
       /*!***************************************!*\
   !*** ./src/shaders/elements/index.js ***!
@@ -14105,12 +14084,6 @@
         );
 
         var _vsLabelsShader2 = _interopRequireDefault(_vsLabelsShader);
-
-        var _fsLabelsShader = __webpack_require__(
-          /*! ./fsLabelsShader.glsl */ './src/shaders/elements/fsLabelsShader.glsl'
-        );
-
-        var _fsLabelsShader2 = _interopRequireDefault(_fsLabelsShader);
 
         var _vsLineHead = __webpack_require__(
           /*! ./vsLineHead.glsl */ './src/shaders/elements/vsLineHead.glsl'
@@ -14168,6 +14141,24 @@
 
         var _fsLineBasic2 = _interopRequireDefault(_fsLineBasic);
 
+        var _fsColorTexture = __webpack_require__(
+          /*! ./fsColorTexture.glsl */ './src/shaders/elements/fsColorTexture.glsl'
+        );
+
+        var _fsColorTexture2 = _interopRequireDefault(_fsColorTexture);
+
+        var _fsVarColorTexture = __webpack_require__(
+          /*! ./fsVarColorTexture.glsl */ './src/shaders/elements/fsVarColorTexture.glsl'
+        );
+
+        var _fsVarColorTexture2 = _interopRequireDefault(_fsVarColorTexture);
+
+        var _fsLabelTexture = __webpack_require__(
+          /*! ./fsLabelTexture.glsl */ './src/shaders/elements/fsLabelTexture.glsl'
+        );
+
+        var _fsLabelTexture2 = _interopRequireDefault(_fsLabelTexture);
+
         function _interopRequireDefault(obj) {
           return obj && obj.__esModule ? obj : { default: obj };
         }
@@ -14193,11 +14184,13 @@
         };
 
         var elementShaders = {
-          vsLabels: _vsLabelsShader2.default,
-          fsLabels: _fsLabelsShader2.default,
           vsLine: vsLine,
           fsLineAnimate: fsLineAnimate,
           fsLineBasic: _fsLineBasic2.default,
+          fsColorTexture: _fsColorTexture2.default,
+          fsVarColorTexture: _fsVarColorTexture2.default,
+          vsLabelsShader: _vsLabelsShader2.default,
+          fsLabelTexture: _fsLabelTexture2.default,
         };
 
         exports.elementShaders = elementShaders;

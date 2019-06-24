@@ -972,47 +972,6 @@ export default function(
     return 0;
   };
 
-  const fsColorTexture = [
-    'precision mediump float;',
-    'uniform vec4 color;',
-    'uniform sampler2D texture;',
-    'varying vec2 tc;',
-    'void main(void) {',
-    '   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-    '}',
-  ];
-
-  const fsLabelTexture = [
-    'precision mediump float;',
-    'uniform lowp sampler2D texture;',
-    'uniform mediump vec4 color;',
-    'uniform mediump float height_font;',
-    'uniform float type;',
-    'uniform float buffer;',
-    'uniform float boldness;',
-    'float gamma = 4.0 * 1.4142 * boldness / height_font;',
-    'varying mediump vec2 tc;',
-    'void main() {',
-    '  if(type > 0.5){', //SDF
-    '    float tx=texture2D(texture, tc).a;',
-    '    float a= smoothstep(buffer - gamma, buffer + gamma, tx);',
-    '    gl_FragColor=vec4(color.rgb, a*color.a);',
-    '  }else{', //NORMAL FONT
-    '    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-    '  }',
-    '}',
-  ];
-
-  const fsVarColorTexture = [
-    'precision mediump float;',
-    'uniform sampler2D texture;',
-    'varying vec2 tc;',
-    'varying vec4 c;',
-    'void main(void) {',
-    '   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));',
-    '}',
-  ];
-
   const lineTypes = [
     '   if(type >= 2.5){', //3.0 dotted
     '      part = fract(part*3.0);',
@@ -1294,7 +1253,7 @@ export default function(
             '   tc = textureCoord;',
             '}',
           ]),
-        fsColorTexture,
+        elementShaders.fsColorTexture,
         bind,
         shaderparams
       )
@@ -1334,7 +1293,7 @@ export default function(
               '   tc = textureCoord;',
               '}',
             ]),
-          fsColorTexture,
+          elementShaders.fsColorTexture,
           bind,
           shaderparams
         )
@@ -1368,7 +1327,7 @@ export default function(
               '   tc = textureCoord;',
               '}',
             ]),
-          fsColorTexture,
+          elementShaders.fsColorTexture,
           bind,
           shaderparams
         )
@@ -1393,7 +1352,7 @@ export default function(
         '   tc = textureCoord;',
         '}',
       ],
-      fsColorTexture,
+      elementShaders.fsColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;
@@ -1422,7 +1381,7 @@ export default function(
         '   c = color;',
         '}',
       ],
-      fsVarColorTexture,
+      elementShaders.fsVarColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;
@@ -1431,20 +1390,6 @@ export default function(
     )
   );
 
-  let vsLabelsShader = [
-    'attribute vec2 position;',
-    'attribute vec2 relative;',
-    'attribute vec2 textureCoord;',
-    'uniform float offset;',
-    'uniform vec2 scale;',
-    'uniform float fontScale;',
-    'uniform mat4 transform;',
-    'varying vec2 tc;',
-    'void main(void) {',
-    '   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);',
-    '   tc = textureCoord;',
-    '}',
-  ];
   let bindLabels = is_outline => {
     return c => {
       if (!getNodeSize(c)) return true;
@@ -1499,8 +1444,8 @@ export default function(
         gl,
         nodeStyle,
         'label',
-        vsLabelsShader,
-        fsLabelTexture,
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
         bindLabels(true)
       )
     );
@@ -1511,8 +1456,8 @@ export default function(
         gl,
         nodeStyle,
         'label',
-        vsLabelsShader,
-        fsLabelTexture,
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
         bindLabels(false)
       )
     );
