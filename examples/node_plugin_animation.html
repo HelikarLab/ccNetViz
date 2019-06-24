@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ccNetViz example</title>
+  <link rel="stylesheet" type="text/css" href="css/spectrum.css">
+  <style type="text/css">
+    #container {
+      width: 500px;
+      height: 500px;
+      border: 1px solid black;
+    }
+  </style>
+  <script src="../lib/plugins/ccNetViz-node-plugin.js"></script>
+  <script src="../lib/ccNetViz.js"></script>
+</head>
+
+<body>
+  <div id='body'>
+    <canvas id="container"></canvas>
+  </div>
+  <script>
+    var canvas = document.getElementById('container');
+    var graph = new ccNetViz(canvas, {
+      styles: {
+        node: { texture: "images/node.png", label: { hideSize: 16 } },
+        edge: { arrow: { texture: "images/arrow.png" } },
+        tag: {
+          textureColor: "#0000ff",
+          stroke: {
+            size: 4,
+            color: "#333"
+          },
+          animation: {
+            type: "color",
+            color: "#00ff00",
+          },
+          size: 34
+        },
+        triangle: {
+          textureColor: "#ff0000",
+          animation: {
+            type: "color",
+            color: "#00ff00",
+          },
+          size: 34
+        },
+        pentagon: {
+          textureColor: "#fff",
+          stroke: { size: 5, color: "blue" },
+          animation: { type: "size" },
+          size: 35
+        },
+        "star-8": {
+          textureColor: "#fbba02",
+          inset: 1.3,
+          size: 48,
+          animation: {
+            type: 'stroke',
+            color: '#cf0101'
+          }
+        }
+      }
+    });
+
+    var nodes = [
+      { style: "triangle" },
+      { style: "pentagon" },
+      { style: "star-8" },
+      { style: "tag" },
+    ];
+
+    var edges = [];
+    for (let i = 0; i < nodes.length - 1; i++) {
+      edges.push({ source: nodes[i], target: nodes[i + 1] });
+    }
+    graph.set(nodes, edges, "circular");
+    graph.draw();
+  </script>
+</body>
+
+</html>

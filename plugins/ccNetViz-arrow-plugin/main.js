@@ -27,6 +27,22 @@ let Integration = (o, i) => {
     if (typeof options.styles[key].arrow !== "undefined") {
       if (typeof options.styles[key].arrow.type !== "undefined") {
         let style = options.styles[key].arrow;
+        if (typeof style.animation !== "undefined") {
+          if (style.animation.status === false) {
+            style.texture = style.animation.textureFrame[style.animation.scene + 1];
+
+            let shape = new Arrow(Object.assign(style, { plugin: 'arrow', key: key }), instance, true);
+            shapes.push({ config: shape.toTexture(), name: key, plugin: 'arrow' });
+            continue;
+          } else {
+            if (typeof style.animation.textureFrame === "undefined")
+              style.animation.textureFrame = [];
+            style.animation.textureFrame.push(style.texture);
+            delete style.texture;
+          }
+        } else if (typeof style.temp !== "undefined") {
+          continue;
+        }
         let shape = new Arrow(Object.assign(style, { plugin: 'arrow', key: key }), instance);
         shapes.push({ config: shape.toConfig(), name: key, plugin: 'arrow' });
       }

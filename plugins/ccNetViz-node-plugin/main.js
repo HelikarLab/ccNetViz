@@ -30,7 +30,16 @@ let Integration = (o, i) => {
         options.styles[shape] = f({ type: shape });
       } else {
         // Overwriting existing predefined styles.
-        options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape.name]));
+        if (typeof options.styles[shape].temp === "undefined") {
+          let config = options.styles[shape];
+          if (typeof config.animation !== "undefined") {
+            if (config.animation.status === false) {
+              options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]), undefined, true);
+              return;
+            }
+          }
+          options.styles[shape] = f(Object.assign({ type: shape }, options.styles[shape]));
+        }
       }
     });
 
@@ -38,6 +47,24 @@ let Integration = (o, i) => {
     for (let key in options.styles) {
       let style = options.styles[key];
       if (style.type === type) {
+        let path = style;
+        if (typeof style.config !== "undefined") {
+          path = style.config;
+        }
+        if (typeof path.animation !== "undefined") {
+          if (path.animation.status === false) {
+            path.texture = path.animation.textureFrame[path.animation.scene + 1];
+            let shape = new f(path, instance, true);
+            p.push({ config: shape.toTexture(), name: key });
+            continue;
+          } else {
+            if (typeof path.animation.textureFrame === "undefined")
+              path.animation.textureFrame = [];
+            path.animation.textureFrame.push(path.texture);
+            delete path.texture;
+          }
+        }
+
         let shape = new f(style.config || style, instance);
         p.push({ config: shape.toConfig(), name: key });
       }
