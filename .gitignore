@@ -87,6 +87,6 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-/dist/ccNetViz*
+
+dist/
 *.swp
-**/node_modules

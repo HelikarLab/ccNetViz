@@ -1,0 +1,10 @@
+src/
+plugins/
+tests/
+.babelrc
+.eslintrc.json
+.prettierrc
+commitlint.config.js
+notes.txt
+file_information
+webpack.config.js
