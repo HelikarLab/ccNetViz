@@ -15,7 +15,13 @@ import {getPartitionStyle} from './primitiveTools';
 
 export default class primitive{
   constructor(gl, baseStyle, styleProperty, vs, fs, bind, shaderParams) {
-    let shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
+    let shader;
+    if (Array.isArray(vs) && Array.isArray(fs)) {
+      shader = new ccNetViz_shader(gl, vs.join('\n'), fs.join('\n'), shaderParams);
+    } else {
+      // new shader format, just a string
+      shader = new ccNetViz_shader(gl, vs, fs, shaderParams);
+    }
     let buffers = [];
     let sections = [];   
     
