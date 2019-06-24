@@ -684,7 +684,6 @@ export default function(
           is ? nodesParts : {},
           nodesFiller
         );
-
       if (nodeStyle.label) {
         texts.clear();
         isDirty =
