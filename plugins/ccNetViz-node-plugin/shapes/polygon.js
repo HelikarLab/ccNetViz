@@ -1,4 +1,4 @@
-import Shape from "../shape"
+import Shape from '../shape';
 
 let Polygon = (config, instance, t) => {
   class Polygon extends Shape {
@@ -43,11 +43,11 @@ let Polygon = (config, instance, t) => {
       let radius = this.config.size / 2;
 
       for (let i = 0; i < edges; i++) {
-        let theta = (degree * (i + 1)) * (Math.PI / 180);
+        let theta = degree * (i + 1) * (Math.PI / 180);
         let center = radius + this.config.stroke.size;
 
-        let x = center + (radius * Math.cos(theta));
-        let y = center + (radius * Math.sin(theta));
+        let x = center + radius * Math.cos(theta);
+        let y = center + radius * Math.sin(theta);
         this.context.lineTo(x, y);
       }
 
@@ -56,7 +56,7 @@ let Polygon = (config, instance, t) => {
       this.context.fill();
     }
   }
-  return new Polygon(config, instance, t)
-}
+  return new Polygon(config, instance, t);
+};
 
-export default Polygon
+export default Polygon;

@@ -1,71 +1,64 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title>ccNetViz example</title>
-  <link rel="stylesheet" type="text/css" href="css/spectrum.css">
-  <style type="text/css">
-    #container {
-      width: 500px;
-      height: 500px;
-      border: 1px solid black;
-    }
-  </style>
-  <script src="../lib/plugins/ccNetViz-arrow-plugin.js"></script>
-  <script src="../lib/ccNetViz.js"></script>
-</head>
-
-<body>
-  <div id='body'>
-    <canvas id="container"></canvas>
-  </div>
-  <script>
-    var canvas = document.getElementById('container');
-    var graph = new ccNetViz(canvas, {
-      styles: {
-        node: { texture: "images/node.png", label: { hideSize: 16 } },
-        edge: { arrow: { texture: "images/arrow.png" } },
-        "new arrow": {
-          arrow: {
-            animation: { type: "size" },
-            type: "delta",
-            size: 12
-          }
-        },
-        "color arrow": {
-          arrow: {
-            animation: { type: "color", color: "#cf0101" },
-            type: "diamond",
-            size: 16
-          }
-        },
-        "stroke arrow": {
-          arrow: {
-            animation: { type: "stroke", color: "#cf0101" },
-            type: "delta short",
-            size: 16
-          }
-        },
+  <head>
+    <title>ccNetViz example</title>
+    <link rel="stylesheet" type="text/css" href="css/spectrum.css" />
+    <style type="text/css">
+      #container {
+        width: 500px;
+        height: 500px;
+        border: 1px solid black;
       }
-    });
+    </style>
+    <script src="../lib/plugins/ccNetViz-arrow-plugin.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+  </head>
 
-    let nodes = [
-      {},
-      {},
-      {},
-      {},
-    ];
+  <body>
+    <div id="body">
+      <canvas id="container"></canvas>
+    </div>
+    <script>
+      var canvas = document.getElementById('container');
+      var graph = new ccNetViz(canvas, {
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+          'new arrow': {
+            arrow: {
+              animation: { type: 'size' },
+              type: 'delta',
+              size: 12,
+            },
+          },
+          'color arrow': {
+            arrow: {
+              animation: { type: 'color', color: '#cf0101' },
+              type: 'diamond',
+              size: 16,
+            },
+          },
+          'stroke arrow': {
+            arrow: {
+              animation: { type: 'stroke', color: '#cf0101' },
+              type: 'delta short',
+              size: 16,
+            },
+          },
+        },
+      });
 
-    let edges = [
-      { source: nodes[0], style: 'stroke arrow', target: nodes[1] },
-      { source: nodes[1], style: 'new arrow', target: nodes[2] },
-      { source: nodes[2], style: 'harpoon down', target: nodes[3] },
-      { source: nodes[3], style: 'color arrow', target: nodes[0] }
-    ];
+      let nodes = [{}, {}, {}, {}];
 
-    graph.set(nodes, edges, "circular");
-    graph.draw();
-  </script>
-</body>
+      let edges = [
+        { source: nodes[0], style: 'stroke arrow', target: nodes[1] },
+        { source: nodes[1], style: 'new arrow', target: nodes[2] },
+        { source: nodes[2], style: 'harpoon down', target: nodes[3] },
+        { source: nodes[3], style: 'color arrow', target: nodes[0] },
+      ];
 
+      graph.set(nodes, edges, 'circular');
+      graph.draw();
+    </script>
+  </body>
 </html>
