@@ -5,7 +5,7 @@ class Animation {
       duration: 2000,
       frame: 0,
       frameCount: 0,
-      scene: 0
+      scene: 0,
     };
     this.listener = {};
     this.status = true;
@@ -20,16 +20,16 @@ class Animation {
 
   async draw(instance, frame) {
     this.frameBatch.push(frame);
-    if (typeof this.instance === "undefined") {
+    if (typeof this.instance === 'undefined') {
       this.instance = instance;
     }
     if (this.frameBatch.length >= Object.keys(this.listener).length) {
       await this.fps();
       if (this.frameBatch.length) {
-        if (typeof ccNetVizPlugins !== "undefined") {
-          if (typeof ccNetVizPlugins.animationHandler === "undefined")
-            ccNetVizPlugins.animationHandler = "node";
-          if (ccNetVizPlugins.animationHandler === "node")
+        if (typeof ccNetVizPlugins !== 'undefined') {
+          if (typeof ccNetVizPlugins.animationHandler === 'undefined')
+            ccNetVizPlugins.animationHandler = 'node';
+          if (ccNetVizPlugins.animationHandler === 'node')
             this.instance.reflow();
         }
         if (frame > this.config.frameCount) {
