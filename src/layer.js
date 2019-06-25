@@ -972,19 +972,6 @@ export default function(
     return 0;
   };
 
-  const getShiftFuncs = [
-    'attribute vec2 curveShift;',
-    'vec4 getShiftCurve(void) {',
-    '   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);',
-    '   float length = length(screen * shiftN);',
-    '   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);',
-    '}',
-    'attribute vec2 circleShift;',
-    'vec4 getShiftCircle(void) {',
-    '   return vec4(size*circleShift,0,0);',
-    '}',
-  ];
-
   if (this.hasEdgeAnimation) {
     scene.add(
       'lines',
@@ -1081,38 +1068,15 @@ export default function(
         }
       )
     );
+
     scene.add(
       'circles',
       new ccNetViz_primitive(
         gl,
         edgeStyle,
         null,
-        [
-          'precision highp float;',
-          'attribute vec2 position;',
-          'attribute vec2 normal;',
-          'attribute vec2 curve;',
-          'attribute vec2 lengthSoFar;',
-          'uniform float exc;',
-          'uniform vec2 screen;',
-          'uniform float aspect2;',
-          'uniform float aspect;',
-          'uniform vec2 size;',
-          'uniform mat4 transform;',
-          'varying vec2 c;',
-          'varying vec2 v_lengthSoFar;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);',
-            '   c = curve;',
-
-            '   vec4 p = transform*vec4(size * lengthSoFar,0,0);',
-            '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-            '}',
-          ]),
-        elementShaders.fsCurve,
+        elementShaders.vsCircle,
+        elementShaders.fsCircle,
         c => {
           let uniforms = c.shader.uniforms;
           uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -1161,30 +1125,7 @@ export default function(
         gl,
         edgeStyle,
         'arrow',
-        [
-          'attribute vec2 position;',
-          'attribute vec2 direction;',
-          'attribute vec2 textureCoord;',
-          'attribute float offsetMul;',
-          'uniform float offset;',
-          'uniform vec2 arrowsize;',
-          'uniform vec2 size;',
-          'uniform vec2 screen;',
-          'uniform float exc;',
-          'uniform float aspect2;',
-          'uniform mat4 transform;',
-          'varying vec2 tc;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   vec2 u = direction / length(screen * direction);',
-            '   vec2 v = vec2(u.y, -aspect2 * u.x);',
-            '   v = v / length(screen * v);',
-            '   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);',
-            '   tc = textureCoord;',
-            '}',
-          ]),
+        elementShaders.vsLineArrow,
         elementShaders.fsColorTexture,
         bind,
         shaderparams
@@ -1198,33 +1139,7 @@ export default function(
           gl,
           edgeStyle,
           'arrow',
-          [
-            'attribute vec2 position;',
-            'attribute vec2 direction;',
-            'attribute vec2 textureCoord;',
-            'attribute float offsetMul;',
-            'uniform float offset;',
-            'uniform vec2 arrowsize;',
-            'uniform vec2 size;',
-            'uniform float exc;',
-            'uniform float cexc;',
-            'uniform vec2 screen;',
-            'uniform float aspect2;',
-            'uniform mat4 transform;',
-            'varying vec2 tc;',
-          ]
-            .concat(getShiftFuncs)
-            .concat([
-              'void main(void) {',
-              '   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));',
-              '   u = normalize(direction - cexc * u / length(screen * u));',
-              '   u = u / length(screen * u);',
-              '   vec2 v = vec2(u.y, -aspect2 * u.x);',
-              '   v = v / length(screen * v);',
-              '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);',
-              '   tc = textureCoord;',
-              '}',
-            ]),
+          elementShaders.vsCurveArrow,
           elementShaders.fsColorTexture,
           bind,
           shaderparams
@@ -1236,29 +1151,7 @@ export default function(
           gl,
           edgeStyle,
           'arrow',
-          [
-            'attribute vec2 position;',
-            'attribute vec2 direction;',
-            'attribute vec2 textureCoord;',
-            'attribute float offsetMul;',
-            'uniform float offset;',
-            'uniform vec2 arrowsize;',
-            'uniform vec2 size;',
-            'uniform vec2 screen;',
-            'uniform float exc;',
-            'uniform float aspect2;',
-            'uniform mat4 transform;',
-            'varying vec2 tc;',
-          ]
-            .concat(getShiftFuncs)
-            .concat([
-              'void main(void) {',
-              '   vec2 u = direction;',
-              '   vec2 v = vec2(direction.y, -direction.x);',
-              '   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);',
-              '   tc = textureCoord;',
-              '}',
-            ]),
+          elementShaders.vsCircleArrow,
           elementShaders.fsColorTexture,
           bind,
           shaderparams
@@ -1273,17 +1166,7 @@ export default function(
       gl,
       nodeStyle,
       null,
-      [
-        'attribute vec2 position;',
-        'attribute vec2 textureCoord;',
-        'uniform vec2 size;',
-        'uniform mat4 transform;',
-        'varying vec2 tc;',
-        'void main(void) {',
-        '   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);',
-        '   tc = textureCoord;',
-        '}',
-      ],
+      elementShaders.vsNode,
       elementShaders.fsColorTexture,
       c => {
         let size = getNodeSize(c);
@@ -1293,26 +1176,14 @@ export default function(
       }
     )
   );
+
   scene.add(
     'nodesColored',
     new ccNetViz_primitive(
       gl,
       nodeStyle,
       null,
-      [
-        'attribute vec2 position;',
-        'attribute vec2 textureCoord;',
-        'attribute vec4 color;',
-        'uniform vec2 size;',
-        'uniform mat4 transform;',
-        'varying vec2 tc;',
-        'varying vec4 c;',
-        'void main(void) {',
-        '   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);',
-        '   tc = textureCoord;',
-        '   c = color;',
-        '}',
-      ],
+      elementShaders.vsNodeColored,
       elementShaders.fsVarColorTexture,
       c => {
         let size = getNodeSize(c);
@@ -1368,7 +1239,7 @@ export default function(
       ccNetViz_gl.uniformColor(gl, uniforms.color, color);
     };
   };
-  // TODO: delete two line, not change anything?
+
   nodeStyle.label &&
     scene.add(
       'labelsOutline',
