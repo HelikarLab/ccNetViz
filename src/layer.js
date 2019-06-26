@@ -153,19 +153,10 @@ export default function(
       for (var i = 0; i < parts.length; i++) {
         c = Math.abs(parts[c].dx) > Math.abs(parts[i].dx) ? c : i;
       }
-
+      // c denotes the character having the max dx position, it's basically for finding the highest word length
       let x = e.x;
       let y = e.y;
-      // The positions here are somewhat tricky, if you understand alignText function in sdf.js , here's the explanation
-      // parts[c].dx === max width of label
-      // similarly for dy
-      // now part[c].width is added for x<=0.5 as
-      // i) dx only gives the starting position and not the ending position
-      // ii) labelBackground size depends both on fontSize and labelSize
-      // parts[c].width is the glyph width from spritegenerator , it's added because as the labelSize increses,
-      // the block of char (last char) also increases, if only dx is used, then it's basically the wordWidth
-      // (which does not varies with the labelSize), so it had a problem to go out for a label or at best
-      // be suitable for a certain labelSize and varying fontSize
+
       let endPosX = x <= 0.5 ? Math.abs(parts[c].dx) : -Math.abs(parts[c].dx);
       let startPosX = 0;
       let height =
