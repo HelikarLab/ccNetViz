@@ -7,7 +7,7 @@ let PieChart = (config, instance, t) => {
       this.type = 'PieChart';
     }
     _draw() {
-      let spikes = this.config.chart.length || 5;
+      let charts = this.config.chart;
       let radius = this.config.size / 2;
       let center = radius + +this.config.stroke.size;
       let cursor = { end: 0, start: 0 };
@@ -17,8 +17,8 @@ let PieChart = (config, instance, t) => {
       this.context.stroke();
       this.context.fill();
 
-      for (var i = 1; i <= spikes; i++) {
-        let item = this.config.chart[i - 1];
+      for (var i = 1; i <= charts.length; i++) {
+        let item = charts[i - 1];
         let angle = 2 * (item.ratio / 100) * Math.PI;
 
         cursor.end = angle;
