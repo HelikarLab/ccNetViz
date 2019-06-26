@@ -32,7 +32,7 @@ let DoughnutChart = (config, instance, t) => {
           cursor.end + cursor.start,
           false
         );
-        this.context.fillStyle = item.color;
+        this.context.fillStyle = item.color || '#000000';
         this.context.fill();
         cursor.start += angle;
       }

@@ -40,8 +40,8 @@ let RadialHistogram = (config, instance, t) => {
         this.context.lineTo(x, y);
         this.context.lineTo(x1, y1);
         this.context.lineTo(x1, y1);
-        this.context.fillStyle = item.color;
-        this.context.strokeStyle = item.color;
+        this.context.fillStyle = item.color || '#000000';
+        this.context.strokeStyle = item.color || '#000000';
         this.context.lineWidth = 2;
         this.context.lineJoin = 'round';
         this.context.closePath();

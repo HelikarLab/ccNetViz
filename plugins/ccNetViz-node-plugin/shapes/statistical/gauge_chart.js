@@ -87,7 +87,7 @@ let GaugeChart = (config, instance, t) => {
           cursorGauge.end,
           false
         );
-        this.context.fillStyle = item.color;
+        this.context.fillStyle = item.color || '#000000';
 
         if (arrows.length <= 1) {
           this.context.font = `bold ${(center * 60) / 100}px arial`;
