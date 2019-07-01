@@ -1,40 +1,81 @@
-import Shape from "../shape"
+import Shape from '../shape';
 
-let Custom = (config, instance) => {
+let Custom = (config, instance, t) => {
   class Custom extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Arrow';
     }
 
     _preDraw() {
-      if (typeof this.config.lines === "undefined") {
+      if (typeof this.config.lines === 'undefined') {
         switch (this.config.type) {
           case 'delta':
           case 'arrow':
-            this.config.lines = [{ y: 1, x: 0.5 }, { x: 1, y: 0 }, { x: 0, y: 0 }, { y: 1, x: 0.5 }];
+            this.config.lines = [
+              { y: 1, x: 0.5 },
+              { x: 1, y: 0 },
+              { x: 0, y: 0 },
+              { y: 1, x: 0.5 },
+            ];
             break;
           case 'delta short':
           case 'arrow short':
-            this.config.lines = [{ y: 0.7, x: 0.5 }, { x: 1, y: 0 }, { x: 0, y: 0 }, { y: 0.7, x: 0.5 }];
+            this.config.lines = [
+              { y: 0.7, x: 0.5 },
+              { x: 1, y: 0 },
+              { x: 0, y: 0 },
+              { y: 0.7, x: 0.5 },
+            ];
             break;
           case 'diamond':
-            this.config.lines = [{ x: 0.5, y: 0 }, { x: 1, y: 0.5 }, { x: 0.5, y: 1 }, { x: 0, y: 0.5 }, { x: 0.5 }];
+            this.config.lines = [
+              { x: 0.5, y: 0 },
+              { x: 1, y: 0.5 },
+              { x: 0.5, y: 1 },
+              { x: 0, y: 0.5 },
+              { x: 0.5 },
+            ];
             break;
           case 'diamond short':
-            this.config.lines = [{ x: 0.5, y: 0.2 }, { x: 1, y: 0.5 }, { x: 0.5, y: 0.8 }, { x: 0, y: 0.5 }, { x: 0.5, y: 0.2 }];
+            this.config.lines = [
+              { x: 0.5, y: 0.2 },
+              { x: 1, y: 0.5 },
+              { x: 0.5, y: 0.8 },
+              { x: 0, y: 0.5 },
+              { x: 0.5, y: 0.2 },
+            ];
             break;
           case 'T':
-            this.config.lines = [{ x: 0, y: 0.9 }, { x: 1, y: 0.9 }, { x: 1, y: 1 }, { x: 0, y: 1 }, { x: 0, y: 0.9 }];
+            this.config.lines = [
+              { x: 0, y: 0.9 },
+              { x: 1, y: 0.9 },
+              { x: 1, y: 1 },
+              { x: 0, y: 1 },
+              { x: 0, y: 0.9 },
+            ];
             break;
           case 'harpoon up':
-            this.config.lines = [{ x: 0.5 }, { x: 1, y: 0 }, { x: 0.5, y: 1 }, { x: 0.5, y: 0 }];
+            this.config.lines = [
+              { x: 0.5 },
+              { x: 1, y: 0 },
+              { x: 0.5, y: 1 },
+              { x: 0.5, y: 0 },
+            ];
             break;
           case 'harpoon down':
             this.config.lines = [{}, { x: 0.5, y: 1 }, { x: 0.5, y: 0 }, {}];
             break;
           case 'thin arrow':
-            this.config.lines = [{}, { x: 0.5, y: 1 }, { x: 1, y: 0 }, { x: 0.9, y: 0 }, { x: 0.5, y: 0.9 }, { x: 0.1, y: 0 }, {}];
+            this.config.lines = [
+              {},
+              { x: 0.5, y: 1 },
+              { x: 1, y: 0 },
+              { x: 0.9, y: 0 },
+              { x: 0.5, y: 0.9 },
+              { x: 0.1, y: 0 },
+              {},
+            ];
             break;
           default:
             this.config.lines = [];
@@ -54,7 +95,7 @@ let Custom = (config, instance) => {
       this.context.fill();
     }
   }
-  return new Custom(config, instance)
-}
+  return new Custom(config, instance, t);
+};
 
-export default Custom
+export default Custom;

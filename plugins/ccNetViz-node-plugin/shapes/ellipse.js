@@ -1,9 +1,9 @@
-import Shape from "../shape"
+import Shape from '../shape';
 
-let Ellipse = (config, instance) => {
+let Ellipse = (config, instance, t) => {
   class Ellipse extends Shape {
-    constructor(config, instance) {
-      super(config, instance);
+    constructor(config, instance, t) {
+      super(config, instance, t);
       this.type = 'Ellipse';
     }
     _setCanvas() {
@@ -13,14 +13,18 @@ let Ellipse = (config, instance) => {
       let cursor = {
         x0: this.config.radiusX,
         y0: this.config.radiusY,
-        x1: this.config.radiusX + ((this.config.stroke.size * 2) + this.config.radiusX),
-        y1: this.config.radiusY + ((this.config.stroke.size * 2) + this.config.radiusY)
+        x1:
+          this.config.radiusX +
+          (this.config.stroke.size * 2 + this.config.radiusX),
+        y1:
+          this.config.radiusY +
+          (this.config.stroke.size * 2 + this.config.radiusY),
       };
 
       this.config.offset = {
         x: 0,
-        y: 0
-      }
+        y: 0,
+      };
 
       if (cursor.x1 < cursor.y1) {
         this.config.offset.x = cursor.y1 - cursor.x1;
@@ -45,15 +49,23 @@ let Ellipse = (config, instance) => {
     }
     _draw() {
       this.context.ellipse(
-        (this.config.radiusX) + this.config.stroke.size + (this.config.offset.x / 2),
-        (this.config.radiusY) + this.config.stroke.size + (this.config.offset.y / 2),
+        this.config.radiusX +
+          this.config.stroke.size +
+          this.config.offset.x / 2,
+        this.config.radiusY +
+          this.config.stroke.size +
+          this.config.offset.y / 2,
         this.config.radiusX,
-        this.config.radiusY, 0, 0, 2 * Math.PI);
+        this.config.radiusY,
+        0,
+        0,
+        2 * Math.PI
+      );
       this.context.stroke();
       this.context.fill();
     }
   }
-  return new Ellipse(config, instance)
-}
+  return new Ellipse(config, instance, t);
+};
 
-export default Ellipse
+export default Ellipse;

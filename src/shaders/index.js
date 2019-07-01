@@ -1,5 +1,4 @@
-import { easeFunctions } from "./easeFunctions";
+import { easeFunctions } from './easeFunctions';
+import { elementShaders } from './elements';
 
-export {
-    easeFunctions,
-}
+export { easeFunctions, elementShaders };

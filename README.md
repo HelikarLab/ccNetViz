@@ -8,14 +8,20 @@ Graph theory (a.k.a. network) library for analysis and visualisation
 
 Visit our [webpage](http://helikarlab.github.io/ccNetViz/) to see the detailed docs and examples.
 
-**Description**
+## Description
 
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs (see [graph theory](https://en.wikipedia.org/wiki/Graph_theory)) visualization using WebGL.
 It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
+<<<<<<< HEAD
 **Basic Example**
+=======
+
+## Basic Example
+
+> > > > > > > upstream/master
 
 ```html
 <!DOCTYPE html>
@@ -70,6 +76,7 @@ pass it as second parameter into the set function such as:
 graph.set(nodes, edges, 'force'); //set the force layout
 ```
 
+<<<<<<< HEAD
 **Advanced Examples**
 
 - Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
@@ -84,7 +91,24 @@ graph.set(nodes, edges, 'force'); //set the force layout
 
 **Documentation**
 
-**_ccNetViz(element, options)_**
+=======
+
+## Advanced Examples
+
+- Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
+- Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
+- Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
+- Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
+- Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
+- Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
+- Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
+- User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
+- Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
+
+## Documentation
+
+> > > > > > > upstream/master
+> > > > > > > **_ccNetViz(element, options)_**
 
 Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles defined in styles property of options parameter.
 
@@ -183,7 +207,12 @@ All default property values of these styles can be overriden (as in example abov
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
-**_set(nodes, edges, layout)_**
+# <<<<<<< HEAD
+
+All of our texts are rendered with as a Signed Distance Field fonts which make them high qualty with keeping the performance high.
+
+> > > > > > > upstream/master
+> > > > > > > **_set(nodes, edges, layout)_**
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
 
@@ -250,27 +279,36 @@ Property to access nodes data of given graph. Use this just to read current valu
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
 
+<<<<<<< HEAD
+
 ### Development in ccNetViz
 
-This is the pipeline you should follow to make changes to ccNetViz:
+# This is the pipeline you should follow to make changes to ccNetViz:
+
+## Development in ccNetViz
+
+> > > > > > > upstream/master
+
+Please follow the below instructions to get started with development in ccNetViz:
+
+> You need to have [Node](https://nodejs.org/) and [yarn](https://yarnpkg.com/) .
 
 1. Clone the repository.
-2. Run `npm install` inside the cloned repository.
-   3.Start a server
-   (such as Apache or using http-server globally) with a path to the ccNetViz directory.
-3. Make changes to src/ tree.
-4. Build with `npm run build` on the ccNetViz root directory.
-5. Clear cache from browser if updates are not loading: e.g. in Chrome, go to settings->privacy->Clear Browsing Data->select only "Cache images and files" and click "Clear browsing data".
-6. Run a test page (e.g. anyone in examples/) at the browser to see the results.
+2. Run `yarn install` inside the cloned repository to install dependencies.
+3. Run `yarn dev` and go to `http://localhost:8080`. From here go to any of the examples or tests.
+4. Making any changes to the src/ directory will trigger an auto reload and build of the webpage.
+5. Finally when you are done with the changes run `yarn build` to create the final build.
 
-### Contributing
-
-If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
-
+<<<<<<< HEAD
 [heilikarlab]: https://github.com/HelikarLab/ccNetViz
+=======
+_Note: if your having any problem with seeing changes, clear the browser cache._
 
-### Commands to set up a Local Server
+> > > > > > > upstream/master
 
+## Contributing
+
+<<<<<<< HEAD
 Run "\$ npm start" in the root directory.
 
 Notes:
@@ -281,3 +319,9 @@ Notes:
 - E.g. in Chrome, it always reused the package from cache
   (ctrl+shift+r does not force it to reload recently built package),
   i.e. you have to clear the cache.
+  =======
+  If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
+
+[heilikarlab]: https://github.com/HelikarLab/ccNetViz
+
+> > > > > > > upstream/master

@@ -6,7 +6,7 @@ import ccNetViz_geomutils from './geomutils';
 import ccNetViz_utils from './utils';
 import { partitionByStyle } from './primitiveTools';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
-import { easeFunctions } from './shaders';
+import { elementShaders } from './shaders';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -90,48 +90,36 @@ export default function(
             ret = true;
           });
           for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
-            // parts is the array of characters, character description and position w.r.t node
             let c = parts[i];
-            //position of the node
+
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-            //position of the vertices of box of label to be rendered
-            if (i == 0) {
-              // bring the center of box of character to the center of node (incase if you are wondering
-              // why not c.width/2 and c.height/2 , it's because for c.width/2, it will exactly coincide with
-              // center of node, so some of the node labels could go out of canvas)
-              //UPDATE : for x<=0.5 , we need to bring to centre of node for new labelBackground shader
-              var boxMinusX = x <= 0.5 ? c.width / 2 : c.width / 3;
-              var boxMinusY = c.height / 3;
-            }
             ccNetViz_primitive.vertices(
               v.relative,
               iV,
-              c.dx - boxMinusX,
-              c.dy - boxMinusY,
-              c.width + c.dx - boxMinusX,
-              c.dy - boxMinusY,
-              c.width + c.dx - boxMinusX,
-              c.height + c.dy - boxMinusY,
-              c.dx - boxMinusX,
-              c.height + c.dy - boxMinusY
+              c.dx,
+              c.dy,
+              c.width + c.dx,
+              c.dy,
+              c.width + c.dx,
+              c.height + c.dy,
+              c.dx,
+              c.height + c.dy
             );
-            // position of characters in atlas
-            if (v.textureCoord) {
-              ccNetViz_primitive.vertices(
-                v.textureCoord,
-                iV,
-                c.left,
-                c.bottom,
-                c.right,
-                c.bottom,
-                c.right,
-                c.top,
-                c.left,
-                c.top
-              );
-            }
+            ccNetViz_primitive.vertices(
+              v.textureCoord,
+              iV,
+              c.left,
+              c.bottom,
+              c.right,
+              c.bottom,
+              c.right,
+              c.top,
+              c.left,
+              c.top
+            );
             ccNetViz_primitive.quad(v.indices, iV, iI);
           }
+
           return ret;
         },
         size: (v, e) => {
@@ -140,45 +128,59 @@ export default function(
       };
     })(style);
   };
-  let labelsBackgroundFiller = style => ({
+
+  // TODO: make this function simpler to understand
+  let getLabelVertices = (font, label, x, y) => {
+    let textEngine = texts.getEngine(font);
+    textEngine.setFont(font);
+    let ret = false;
+    let parts = textEngine.get(label || '', x, y, () => {
+      ret = true;
+    });
+    // c denotes the character having the max dx position, it's basically for finding the highest word length
+    let c = 0;
+    let height = 0;
+    // finding max dx and dy
+
+    for (let i = 0; i < parts.length; i++) {
+      c = Math.abs(parts[c].dx) > Math.abs(parts[i].dx) ? c : i;
+      height = height > Math.abs(parts[i].dy) ? height : Math.abs(parts[i].dy);
+    }
+
+    // height refers to max dy
+    // endPosX and startPosX calculation requires clear understanding of alignText function in sdf.js
+    let endPosX =
+      x <= 0.5
+        ? Math.abs(parts[c].dx) + parts[c].advance
+        : -Math.abs(parts[c].dx);
+    let startPosX = x <= 0.5 ? -5 : 0;
+    height = y <= 0.5 ? height + parts[c].height / 3 : -height;
+    return { startPosX: startPosX, endPosX: endPosX, height: height };
+  };
+
+  let labelBackgroundFiller = style => ({
     set: (v, e, iV, iI) => {
-      let textEngine = texts.getEngine(style.font);
-      textEngine.setFont(style.font);
-      let ret = false;
-      let parts = textEngine.get(e.label || '', x, y, () => {
-        ret = true;
-      });
-      let c = 0;
-      // finding max dx
-      for (var i = 0; i < parts.length; i++) {
-        c = Math.abs(parts[c].dx) > Math.abs(parts[i].dx) ? c : i;
-      }
-      // c denotes the character having the max dx position, it's basically for finding the highest word length
       let x = e.x;
       let y = e.y;
+      let rect = getLabelVertices(style.font, e.label, x, y);
 
-      let endPosX = x <= 0.5 ? Math.abs(parts[c].dx) : -Math.abs(parts[c].dx);
-      let startPosX = 0;
-      let height =
-        y <= 0.5
-          ? Math.abs(parts[parts.length - 1].dy)
-          : -Math.abs(parts[parts.length - 1].dy);
       ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
       ccNetViz_primitive.vertices(
         v.relative,
         iV,
-        startPosX,
+        rect.startPosX,
         0,
-        endPosX,
+        rect.endPosX,
         0,
-        endPosX,
-        height,
-        startPosX,
-        height
+        rect.endPosX,
+        rect.height,
+        rect.startPosX,
+        rect.height
       );
       ccNetViz_primitive.quad(v.indices, iV, iI);
     },
   });
+
   let normalize = (a, b) => {
     let x = b.x - a.x;
     let y = b.y - a.y;
@@ -763,13 +765,13 @@ export default function(
         if (nodeStyle.label.backgroundColor) {
           isDirty =
             isDirty ||
-            scene.labelsBackground.set(
+            scene.labelBackground.set(
               gl,
               options.styles,
               labelAdder,
               nodes,
               nodesParts,
-              labelsBackgroundFiller
+              labelBackgroundFiller
             );
         }
         texts.bind();
@@ -906,8 +908,8 @@ export default function(
     );
     scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
     scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
-    scene.labelsBackground &&
-      scene.labelsBackground.updateEl(gl, n, i, labelsBackgroundFiller);
+    scene.labelBackground &&
+      scene.labelBackground.updateEl(gl, n, i, labelBackgroundFiller);
   };
 
   this.updateEdge = (e, i) => {
@@ -1040,150 +1042,6 @@ export default function(
     return 0;
   };
 
-  const fsColorTexture = [
-    'precision mediump float;',
-    'uniform vec4 color;',
-    'uniform sampler2D texture;',
-    'varying vec2 tc;',
-    'void main(void) {',
-    '   gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-    '}',
-  ];
-
-  const fsLabelTexture = [
-    'precision mediump float;',
-    'uniform lowp sampler2D texture;',
-    'uniform mediump vec4 color;',
-    'uniform mediump float height_font;',
-    'uniform float type;',
-    'uniform float buffer;',
-    'uniform float boldness;',
-    'float gamma = 4.0 * 1.4142 * boldness / height_font;',
-    'varying mediump vec2 tc;',
-    'void main() {',
-    '  if(type > 0.5){', //SDF
-    '    float tx=texture2D(texture, tc).a;',
-    '    float a= smoothstep(buffer - gamma, buffer + gamma, tx);',
-    '    gl_FragColor=vec4(color.rgb, a*color.a);',
-    '  }else{', //NORMAL FONT
-    '    gl_FragColor = color * texture2D(texture, vec2(tc.s, tc.t));',
-    '  }',
-    '}',
-  ];
-
-  const fsVarColorTexture = [
-    'precision mediump float;',
-    'uniform sampler2D texture;',
-    'varying vec2 tc;',
-    'varying vec4 c;',
-    'void main(void) {',
-    '   gl_FragColor = c * texture2D(texture, vec2(tc.s, tc.t));',
-    '}',
-  ];
-
-  const lineTypes = [
-    '   if(type >= 2.5){', //3.0 dotted
-    '      part = fract(part*3.0);',
-    '      if(part < 0.5) discard;',
-    '   }else if(type >= 1.5){', //2.0 - chain dotted
-    '      if(part < 0.15) discard;',
-    '      if(part > 0.30 && part < 0.45) discard;',
-    '   }else if(type >= 0.5){', //1.0 - dashed
-    '      if(part < 0.5) discard;',
-    '   }',
-  ];
-
-  const lineAnimateTypes = [
-    '   if (animateType >= 1.5) {',
-    '       gl_FragColor = isAnimateCoveredGradient() * animateColor + (1. - isAnimateCoveredGradient()) * color;',
-    '   } else if (animateType >= 0.5) {',
-    '       gl_FragColor = isAnimateCovered() * animateColor + (1. - isAnimateCovered()) * color;',
-    '   } else {',
-    '       gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));',
-    '   }',
-  ];
-
-  const fsCurve = [
-    '#extension GL_OES_standard_derivatives : enable',
-    '#ifdef GL_ES',
-    'precision highp float;',
-    '#endif',
-    'uniform float width;',
-    'uniform vec4 color;',
-    'uniform float type;',
-    'uniform float lineStepSize;',
-    'uniform float lineSize;',
-    'varying vec2 c;',
-    'varying vec2 v_lengthSoFar;',
-    'void main(void) {',
-    '   float part = abs(fract(length(v_lengthSoFar)*lineStepSize*lineSize));',
-  ]
-    .concat(lineTypes)
-    .concat([
-      '   vec2 px = dFdx(c);',
-      '   vec2 py = dFdy(c);',
-      '   float fx = 2.0 * c.x * px.x - px.y;',
-      '   float fy = 2.0 * c.y * py.x - py.y;',
-      '   float sd = (c.x * c.x - c.y) / sqrt(fx * fx + fy * fy);',
-      '   float alpha = 1.0 - abs(sd) / width;',
-      '   if (alpha < 0.0) discard;',
-      '   gl_FragColor = vec4(color.r, color.g, color.b, min(alpha, 1.0));',
-      '}',
-    ]);
-
-  const getShiftFuncs = [
-    'attribute vec2 curveShift;',
-    'vec4 getShiftCurve(void) {',
-    '   vec2 shiftN = vec2(curveShift.x, aspect2 * curveShift.y);',
-    '   float length = length(screen * shiftN);',
-    '   return vec4(exc * (length == 0.0 ? vec2(0, 0) : shiftN * 0.5 / length), 0, 0);',
-    '}',
-    'attribute vec2 circleShift;',
-    'vec4 getShiftCircle(void) {',
-    '   return vec4(size*circleShift,0,0);',
-    '}',
-  ];
-
-  const easeFunctionPart = [
-    `${
-      easeFunctions[edgeStyle.animateEase ? edgeStyle.animateEase : 'linear']
-    }`,
-  ];
-
-  const isAnimateCovered = [
-    'float isAnimateCovered() {',
-    '   vec2 pos = gl_FragCoord.xy;',
-    '   vec2 viewport = 2. * v_screen;',
-    '   float maxLen = length(viewport);',
-    '   vec2 startPos = viewport * v_startPos;',
-    '   vec2 endPos = viewport * v_endPos;',
-    '   float totalLen = distance(startPos, endPos);',
-    '   float len = distance(pos, startPos);',
-    '   // float r = 300.;',
-    '   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;',
-    '   // float r = 0.5 * totalLen;',
-    '   float draw = 1. - step(r, len);',
-    '   return draw;',
-    '}',
-  ];
-
-  const isAnimateCoveredGradient = [
-    'float isAnimateCoveredGradient() {',
-    '   vec2 pos = gl_FragCoord.xy;',
-    '   vec2 viewport = 2. * v_screen;',
-    '   float maxLen = length(viewport);',
-    '   vec2 startPos = viewport * v_startPos;',
-    '   vec2 endPos = viewport * v_endPos;',
-    '   float totalLen = distance(startPos, endPos);',
-    '   float len = distance(pos, startPos);',
-    '   float gradLen = 180.;', // TODO: can config
-    '   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + gradLen / 2.);', // NOTE: use 0.2 as a proper factor
-    '   // float r = 0.5 * totalLen;',
-    '   float draw = fract(smoothstep(r - gradLen, r, len));',
-    '   return draw;',
-    '}',
-  ];
-
   if (this.hasEdgeAnimation) {
     scene.add(
       'lines',
@@ -1191,68 +1049,8 @@ export default function(
         gl,
         edgeStyle,
         null,
-        [
-          'precision mediump float;',
-          'attribute vec2 position;',
-          'attribute vec2 normal;',
-          'attribute vec2 lengthSoFar;',
-          'attribute vec2 startPos;',
-          'attribute vec2 endPos;',
-          'uniform float time;',
-          'uniform float exc;',
-          'uniform vec2 size;',
-          'uniform vec2 screen;',
-          'uniform float aspect2;',
-          'uniform float aspect;',
-          'uniform vec2 width;',
-          'uniform mat4 transform;',
-          'varying float v_time;',
-          'varying vec2 v_startPos;',
-          'varying vec2 v_endPos;',
-          'varying vec2 v_screen;',
-          'varying vec2 n;',
-          'varying vec2 v_lengthSoFar;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);',
-
-            '   vec4 p = transform*vec4(lengthSoFar,0,0);',
-            '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-            '   v_time = time;',
-            '   v_startPos = startPos;',
-            '   v_endPos = endPos;',
-            '   v_screen = screen;',
-
-            '   n = normal;',
-            '}',
-          ]),
-        [
-          'precision mediump float;',
-          'uniform float type;',
-          'uniform float animateType;',
-          'uniform vec4 color;',
-          'uniform vec4 animateColor;',
-          'uniform float animateSpeed;',
-          'varying vec2 n;',
-          'varying float v_time;',
-          'varying vec2 v_startPos;',
-          'varying vec2 v_endPos;',
-          'varying vec2 v_screen;',
-          'varying vec2 v_lengthSoFar;',
-          'uniform float lineSize;',
-        ]
-          .concat(easeFunctionPart)
-          .concat(isAnimateCovered)
-          .concat(isAnimateCoveredGradient)
-          .concat([
-            'void main(void) {',
-            '   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));',
-          ])
-          .concat(lineTypes)
-          .concat(lineAnimateTypes)
-          .concat(['}']),
+        elementShaders.vsLine,
+        elementShaders.fsLineAnimate(edgeStyle.animateEase),
         c => {
           let uniforms = c.shader.uniforms;
           uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -1290,47 +1088,8 @@ export default function(
         gl,
         edgeStyle,
         null,
-        [
-          'precision mediump float;',
-          'attribute vec2 position;',
-          'attribute vec2 normal;',
-          'attribute vec2 lengthSoFar;',
-          'uniform float exc;',
-          'uniform vec2 size;',
-          'uniform vec2 screen;',
-          'uniform float aspect2;',
-          'uniform float aspect;',
-          'uniform vec2 width;',
-          'uniform mat4 transform;',
-          'varying vec2 n;',
-          'varying vec2 v_lengthSoFar;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(width * normal, 0, 0) + transform * vec4(position, 0, 1);',
-
-            '   vec4 p = transform*vec4(lengthSoFar,0,0);',
-            '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-
-            '   n = normal;',
-            '}',
-          ]),
-        [
-          'precision mediump float;',
-          'uniform float type;',
-          'uniform vec4 color;',
-          'varying vec2 n;',
-          'varying vec2 v_lengthSoFar;',
-          'uniform float lineSize;',
-          'void main(void) {',
-          '   float part = abs(fract(length(v_lengthSoFar)*lineSize*5.0));',
-        ]
-          .concat(lineTypes)
-          .concat([
-            '   gl_FragColor = vec4(color.r, color.g, color.b, color.a - length(n));',
-            '}',
-          ]),
+        elementShaders.vsLine,
+        elementShaders.fsLineBasic,
         c => {
           let uniforms = c.shader.uniforms;
           uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -1360,36 +1119,8 @@ export default function(
         gl,
         edgeStyle,
         null,
-        [
-          'precision highp float;',
-          'attribute vec2 position;',
-          'attribute vec2 normal;',
-          'attribute vec2 curve;',
-          'attribute vec2 lengthSoFar;',
-          'uniform vec2 size;',
-          'uniform float exc;',
-          'uniform vec2 screen;',
-          'uniform float aspect2;',
-          'uniform float aspect;',
-          'uniform mat4 transform;',
-          'varying vec2 v_lengthSoFar;',
-          'varying vec2 c;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   vec2 n = vec2(normal.x, aspect2 * normal.y);',
-            '   float length = length(screen * n);',
-            '   n = length == 0.0 ? vec2(0, 0) : n / length;',
-            '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(exc * n, 0, 0) + transform * vec4(position, 0, 1);',
-            '   c = curve;',
-
-            '   vec4 p = transform*vec4(lengthSoFar,0,0);',
-            '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-
-            '}',
-          ]),
-        fsCurve,
+        elementShaders.vsCurve,
+        elementShaders.fsCurve,
         c => {
           let uniforms = c.shader.uniforms;
           gl.uniform1f(uniforms.width, c.style.width);
@@ -1407,38 +1138,15 @@ export default function(
         }
       )
     );
+
     scene.add(
       'circles',
       new ccNetViz_primitive(
         gl,
         edgeStyle,
         null,
-        [
-          'precision highp float;',
-          'attribute vec2 position;',
-          'attribute vec2 normal;',
-          'attribute vec2 curve;',
-          'attribute vec2 lengthSoFar;',
-          'uniform float exc;',
-          'uniform vec2 screen;',
-          'uniform float aspect2;',
-          'uniform float aspect;',
-          'uniform vec2 size;',
-          'uniform mat4 transform;',
-          'varying vec2 c;',
-          'varying vec2 v_lengthSoFar;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(size * normal, 0, 0) + transform * vec4(position, 0, 1);',
-            '   c = curve;',
-
-            '   vec4 p = transform*vec4(size * lengthSoFar,0,0);',
-            '   v_lengthSoFar = vec2(p.x, p.y/aspect);',
-            '}',
-          ]),
-        fsCurve,
+        elementShaders.vsCircle,
+        elementShaders.fsCircle,
         c => {
           let uniforms = c.shader.uniforms;
           uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -1487,31 +1195,8 @@ export default function(
         gl,
         edgeStyle,
         'arrow',
-        [
-          'attribute vec2 position;',
-          'attribute vec2 direction;',
-          'attribute vec2 textureCoord;',
-          'attribute float offsetMul;',
-          'uniform float offset;',
-          'uniform vec2 arrowsize;',
-          'uniform vec2 size;',
-          'uniform vec2 screen;',
-          'uniform float exc;',
-          'uniform float aspect2;',
-          'uniform mat4 transform;',
-          'varying vec2 tc;',
-        ]
-          .concat(getShiftFuncs)
-          .concat([
-            'void main(void) {',
-            '   vec2 u = direction / length(screen * direction);',
-            '   vec2 v = vec2(u.y, -aspect2 * u.x);',
-            '   v = v / length(screen * v);',
-            '   gl_Position = getShiftCurve() + getShiftCircle()  + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);',
-            '   tc = textureCoord;',
-            '}',
-          ]),
-        fsColorTexture,
+        elementShaders.vsLineArrow,
+        elementShaders.fsColorTexture,
         bind,
         shaderparams
       )
@@ -1524,34 +1209,8 @@ export default function(
           gl,
           edgeStyle,
           'arrow',
-          [
-            'attribute vec2 position;',
-            'attribute vec2 direction;',
-            'attribute vec2 textureCoord;',
-            'attribute float offsetMul;',
-            'uniform float offset;',
-            'uniform vec2 arrowsize;',
-            'uniform vec2 size;',
-            'uniform float exc;',
-            'uniform float cexc;',
-            'uniform vec2 screen;',
-            'uniform float aspect2;',
-            'uniform mat4 transform;',
-            'varying vec2 tc;',
-          ]
-            .concat(getShiftFuncs)
-            .concat([
-              'void main(void) {',
-              '   vec2 u = normalize(vec2(direction.y, -aspect2 * direction.x));',
-              '   u = normalize(direction - cexc * u / length(screen * u));',
-              '   u = u / length(screen * u);',
-              '   vec2 v = vec2(u.y, -aspect2 * u.x);',
-              '   v = v / length(screen * v);',
-              '   gl_Position = getShiftCurve() + getShiftCircle() + vec4(arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u, 0, 0) + transform * vec4(position, 0, 1);',
-              '   tc = textureCoord;',
-              '}',
-            ]),
-          fsColorTexture,
+          elementShaders.vsCurveArrow,
+          elementShaders.fsColorTexture,
           bind,
           shaderparams
         )
@@ -1562,30 +1221,8 @@ export default function(
           gl,
           edgeStyle,
           'arrow',
-          [
-            'attribute vec2 position;',
-            'attribute vec2 direction;',
-            'attribute vec2 textureCoord;',
-            'attribute float offsetMul;',
-            'uniform float offset;',
-            'uniform vec2 arrowsize;',
-            'uniform vec2 size;',
-            'uniform vec2 screen;',
-            'uniform float exc;',
-            'uniform float aspect2;',
-            'uniform mat4 transform;',
-            'varying vec2 tc;',
-          ]
-            .concat(getShiftFuncs)
-            .concat([
-              'void main(void) {',
-              '   vec2 u = direction;',
-              '   vec2 v = vec2(direction.y, -direction.x);',
-              '   gl_Position = getShiftCurve() + getShiftCircle() + vec4((arrowsize.x * (0.5 - textureCoord.x) * v - arrowsize.y * textureCoord.y * u - offset * offsetMul * u) / screen, 0, 0) + transform * vec4(position, 0, 1);',
-              '   tc = textureCoord;',
-              '}',
-            ]),
-          fsColorTexture,
+          elementShaders.vsCircleArrow,
+          elementShaders.fsColorTexture,
           bind,
           shaderparams
         )
@@ -1599,18 +1236,8 @@ export default function(
       gl,
       nodeStyle,
       null,
-      [
-        'attribute vec2 position;',
-        'attribute vec2 textureCoord;',
-        'uniform vec2 size;',
-        'uniform mat4 transform;',
-        'varying vec2 tc;',
-        'void main(void) {',
-        '   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);',
-        '   tc = textureCoord;',
-        '}',
-      ],
-      fsColorTexture,
+      elementShaders.vsNode,
+      elementShaders.fsColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;
@@ -1619,27 +1246,15 @@ export default function(
       }
     )
   );
+
   scene.add(
     'nodesColored',
     new ccNetViz_primitive(
       gl,
       nodeStyle,
       null,
-      [
-        'attribute vec2 position;',
-        'attribute vec2 textureCoord;',
-        'attribute vec4 color;',
-        'uniform vec2 size;',
-        'uniform mat4 transform;',
-        'varying vec2 tc;',
-        'varying vec4 c;',
-        'void main(void) {',
-        '   gl_Position = vec4(size * (textureCoord - vec2(0.5, 0.5)), 0, 0) + transform * vec4(position, 0, 1);',
-        '   tc = textureCoord;',
-        '   c = color;',
-        '}',
-      ],
-      fsVarColorTexture,
+      elementShaders.vsNodeColored,
+      elementShaders.fsVarColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;
@@ -1647,72 +1262,7 @@ export default function(
       }
     )
   );
-  scene.add(
-    'labelsBackground',
-    new ccNetViz_primitive(
-      gl,
-      nodeStyle,
-      'label',
-      [
-        'attribute vec2 position;',
-        'attribute vec2 relative;',
-        'uniform vec2 scale;',
-        'uniform mat4 transform;',
-        'uniform float fontScale;',
-        'uniform float offset;',
-        'void main(void) {',
-        '   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);',
 
-        '}',
-      ],
-      [
-        'precision mediump float;',
-        'uniform vec4 backgroundColor;',
-        'void main() {',
-        '   gl_FragColor = vec4(backgroundColor.r, backgroundColor.g, backgroundColor.b,1);',
-        '}',
-      ],
-      c => {
-        let uniforms = c.shader.uniforms;
-        let l = c.style.label;
-        let f = l.font;
-        let textEngine = texts.getEngine(f);
-        textEngine.setFont(f);
-        let fontScale = 1.0;
-        let sdfSize = textEngine.fontSize;
-        let wantedSize = textEngine.isSDF
-          ? getLabelSize(context, l || {})
-          : sdfSize;
-        if (wantedSize === 0) {
-          fontScale = 0;
-        }
-        if (wantedSize && sdfSize) {
-          fontScale *= wantedSize / sdfSize;
-        }
-        gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
-        gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
-        gl.uniform1f(uniforms.fontScale, fontScale);
-        let backgroundColor = new ccNetViz_color(
-          l.backgroundColor || backgroundColor
-        );
-        ccNetViz_gl.uniformColor(gl, uniforms.backgroundColor, backgroundColor);
-      }
-    )
-  );
-  let vsLabelsShader = [
-    'attribute vec2 position;',
-    'attribute vec2 relative;',
-    'attribute vec2 textureCoord;',
-    'uniform float offset;',
-    'uniform vec2 scale;',
-    'uniform float fontScale;',
-    'uniform mat4 transform;',
-    'varying vec2 tc;',
-    'void main(void) {',
-    '   gl_Position = vec4(scale * (relative*fontScale + vec2(0, (2.0 * step(position.y, 0.5) - 1.0) * offset)), 0, 0) + transform * vec4(position, 0, 1);',
-    '   tc = textureCoord;',
-    '}',
-  ];
   let bindLabels = is_outline => {
     return c => {
       if (!getNodeSize(c)) return true;
@@ -1751,16 +1301,15 @@ export default function(
       gl.uniform1f(uniforms.height_font, sdfSize);
       gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
       gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+
       let color;
       if (is_outline && f)
-        color = new ccNetViz_color(
-          f.outlineColor || l.backgroundColor || backgroundColor
-        );
-      // colour option in label
+        color = new ccNetViz_color(f.outlineColor || backgroundColor);
       else color = c.style.color;
       ccNetViz_gl.uniformColor(gl, uniforms.color, color);
     };
   };
+
   nodeStyle.label &&
     scene.add(
       'labelsOutline',
@@ -1768,8 +1317,8 @@ export default function(
         gl,
         nodeStyle,
         'label',
-        vsLabelsShader,
-        fsLabelTexture,
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
         bindLabels(true)
       )
     );
@@ -1780,12 +1329,46 @@ export default function(
         gl,
         nodeStyle,
         'label',
-        vsLabelsShader,
-        fsLabelTexture,
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
         bindLabels(false)
       )
     );
-
+  scene.add(
+    'labelBackground',
+    new ccNetViz_primitive(
+      gl,
+      nodeStyle,
+      'label',
+      elementShaders.vsLabelBackgroundShader,
+      elementShaders.fsLabelBackgroundShader,
+      c => {
+        let uniforms = c.shader.uniforms;
+        let l = c.style.label;
+        let f = l.font;
+        let textEngine = texts.getEngine(f);
+        textEngine.setFont(f);
+        let fontScale = 1.0;
+        let sdfSize = textEngine.fontSize;
+        let wantedSize = textEngine.isSDF
+          ? getLabelSize(context, l || {})
+          : sdfSize;
+        if (wantedSize === 0) {
+          fontScale = 0;
+        }
+        if (wantedSize && sdfSize) {
+          fontScale *= wantedSize / sdfSize;
+        }
+        gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
+        gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
+        gl.uniform1f(uniforms.fontScale, fontScale);
+        let backgroundColor = new ccNetViz_color(
+          l.backgroundColor || backgroundColor
+        );
+        ccNetViz_gl.uniformColor(gl, uniforms.backgroundColor, backgroundColor);
+      }
+    )
+  );
   if (options.onLoad) {
     let styles = options.styles;
     for (let p in styles) {
