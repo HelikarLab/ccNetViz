@@ -730,18 +730,7 @@ export default function(
       is = nodes.length && !nodes[0].color;
       if (nodeStyle.label) {
         texts.clear();
-        if (nodeStyle.label.borderColor) {
-          isDirty =
-            isDirty ||
-            scene.labelsBorder.set(
-              gl,
-              options.styles,
-              labelAdder,
-              nodes,
-              nodesParts,
-              labelsBorderFiller
-            );
-        }
+
         if (!nodeStyle.label.backgroundColor) {
           isDirty =
             isDirty ||
