@@ -90,36 +90,48 @@ export default function(
             ret = true;
           });
           for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
+            // parts is the array of characters, character description and position w.r.t node
             let c = parts[i];
-
+            //position of the node
             ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+            //position of the vertices of box of label to be rendered
+            if (i == 0) {
+              // bring the center of box of character to the center of node (incase if you are wondering
+              // why not c.width/2 and c.height/2 , it's because for c.width/2, it will exactly coincide with
+              // center of node, so some of the node labels could go out of canvas)
+              //UPDATE : for x<=0.5 , we need to bring to centre of node for new labelBackground shader
+              var boxMinusX = x <= 0.5 ? c.width / 2 : c.width / 3;
+              var boxMinusY = c.height / 3;
+            }
             ccNetViz_primitive.vertices(
               v.relative,
               iV,
-              c.dx,
-              c.dy,
-              c.width + c.dx,
-              c.dy,
-              c.width + c.dx,
-              c.height + c.dy,
-              c.dx,
-              c.height + c.dy
+              c.dx - boxMinusX,
+              c.dy - boxMinusY,
+              c.width + c.dx - boxMinusX,
+              c.dy - boxMinusY,
+              c.width + c.dx - boxMinusX,
+              c.height + c.dy - boxMinusY,
+              c.dx - boxMinusX,
+              c.height + c.dy - boxMinusY
             );
-            ccNetViz_primitive.vertices(
-              v.textureCoord,
-              iV,
-              c.left,
-              c.bottom,
-              c.right,
-              c.bottom,
-              c.right,
-              c.top,
-              c.left,
-              c.top
-            );
+            // position of characters in atlas
+            if (v.textureCoord) {
+              ccNetViz_primitive.vertices(
+                v.textureCoord,
+                iV,
+                c.left,
+                c.bottom,
+                c.right,
+                c.bottom,
+                c.right,
+                c.top,
+                c.left,
+                c.top
+              );
+            }
             ccNetViz_primitive.quad(v.indices, iV, iI);
           }
-
           return ret;
         },
         size: (v, e) => {
@@ -716,30 +728,20 @@ export default function(
 
       let is;
       is = nodes.length && !nodes[0].color;
-      isDirty =
-        isDirty ||
-        scene.nodes.set(
-          gl,
-          options.styles,
-          defaultAdder,
-          is ? nodes : [],
-          is ? nodesParts : {},
-          nodesFiller
-        );
-      is = nodes.length && nodes[0].color;
-      isDirty =
-        isDirty ||
-        scene.nodesColored.set(
-          gl,
-          options.styles,
-          defaultAdder,
-          is ? nodes : [],
-          is ? nodesParts : {},
-          nodesFiller
-        );
-
       if (nodeStyle.label) {
         texts.clear();
+        if (nodeStyle.label.borderColor) {
+          isDirty =
+            isDirty ||
+            scene.labelsBorder.set(
+              gl,
+              options.styles,
+              labelAdder,
+              nodes,
+              nodesParts,
+              labelsBorderFiller
+            );
+        }
         if (!nodeStyle.label.backgroundColor) {
           isDirty =
             isDirty ||
@@ -774,6 +776,27 @@ export default function(
               labelBackgroundFiller
             );
         }
+        isDirty =
+          isDirty ||
+          scene.nodes.set(
+            gl,
+            options.styles,
+            defaultAdder,
+            is ? nodes : [],
+            is ? nodesParts : {},
+            nodesFiller
+          );
+        is = nodes.length && nodes[0].color;
+        isDirty =
+          isDirty ||
+          scene.nodesColored.set(
+            gl,
+            options.styles,
+            defaultAdder,
+            is ? nodes : [],
+            is ? nodesParts : {},
+            nodesFiller
+          );
         texts.bind();
       }
 
@@ -1309,31 +1332,6 @@ export default function(
       ccNetViz_gl.uniformColor(gl, uniforms.color, color);
     };
   };
-
-  nodeStyle.label &&
-    scene.add(
-      'labelsOutline',
-      new ccNetViz_primitive(
-        gl,
-        nodeStyle,
-        'label',
-        elementShaders.vsLabelsShader,
-        elementShaders.fsLabelTexture,
-        bindLabels(true)
-      )
-    );
-  nodeStyle.label &&
-    scene.add(
-      'labels',
-      new ccNetViz_primitive(
-        gl,
-        nodeStyle,
-        'label',
-        elementShaders.vsLabelsShader,
-        elementShaders.fsLabelTexture,
-        bindLabels(false)
-      )
-    );
   scene.add(
     'labelBackground',
     new ccNetViz_primitive(
@@ -1369,6 +1367,32 @@ export default function(
       }
     )
   );
+
+  nodeStyle.label &&
+    scene.add(
+      'labelsOutline',
+      new ccNetViz_primitive(
+        gl,
+        nodeStyle,
+        'label',
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
+        bindLabels(true)
+      )
+    );
+  nodeStyle.label &&
+    scene.add(
+      'labels',
+      new ccNetViz_primitive(
+        gl,
+        nodeStyle,
+        'label',
+        elementShaders.vsLabelsShader,
+        elementShaders.fsLabelTexture,
+        bindLabels(false)
+      )
+    );
+
   if (options.onLoad) {
     let styles = options.styles;
     for (let p in styles) {
