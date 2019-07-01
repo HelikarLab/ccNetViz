@@ -15,13 +15,7 @@ It enables custom styling of nodes and edges in css like way, curve edges, dynam
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
-<<<<<<< HEAD
-**Basic Example**
-=======
-
 ## Basic Example
-
-> > > > > > > upstream/master
 
 ```html
 <!DOCTYPE html>
@@ -76,23 +70,6 @@ pass it as second parameter into the set function such as:
 graph.set(nodes, edges, 'force'); //set the force layout
 ```
 
-<<<<<<< HEAD
-**Advanced Examples**
-
-- Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
-- Complex graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/complex.html)
-- Mouse event on hover - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_hover.html)
-- Mouse events on move - [live example](http://helikarlab.github.io/ccNetViz/examples/interactivity_move.html)
-- Multi level - [live example](http://helikarlab.github.io/ccNetViz/examples/multi_level.html)
-- Save graphs - [live example](http://helikarlab.github.io/ccNetViz/examples/save_graph.html)
-- Using SDF fonts - [live example](http://helikarlab.github.io/ccNetViz/examples/sdf.html)
-- User definied layout - [live example](http://helikarlab.github.io/ccNetViz/examples/userdef_layout.html)
-- Edges-to-edges support - [live example](http://helikarlab.github.io/ccNetViz/examples/edges_to_edges.html)
-
-**Documentation**
-
-=======
-
 ## Advanced Examples
 
 - Advanced styling - [live example](http://helikarlab.github.io/ccNetViz/examples/styles.html)
@@ -107,8 +84,7 @@ graph.set(nodes, edges, 'force'); //set the force layout
 
 ## Documentation
 
-> > > > > > > upstream/master
-> > > > > > > **_ccNetViz(element, options)_**
+**_ccNetViz(element, options)_**
 
 Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles defined in styles property of options parameter.
 
@@ -124,14 +100,11 @@ _Example options_
       color: "rgb(255, 0, 0)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
       texture: "images/circle.png",   //node image
       label: {
-        backgroundColor: "rgb(255,255,0)", //default: "rgb(255, 255, 255)"
+        hideSize: 16,   //minimum size (height) for the label to be displayed
         color: "rgb(120, 0, 0)",  //label color, default: "rgb(120, 120, 120)"
         font: { //label font
-          size: 15,
-          family: "Arial, Helvetica, sans-serif", //default: "sans-serif"
-          weight: "normal|bold", //default weight: normal
-          strokeText: false, //default: false
-          alignment: "left|right|center"  //default alignment: left
+          type: "Arial, Helvetica, sans-serif",
+          size: 15
         }
       }
     },
@@ -207,12 +180,9 @@ All default property values of these styles can be overriden (as in example abov
 
 Besides overriding default styles (used for all nodes / edges) it is possible to define custom styles (like "nodeBlue" etc. in example above) and then use this style just for specified subsets of nodes / edges (see bellow how to define style for given node / edge). Property values specified for given custom style override default style values.
 
-# <<<<<<< HEAD
-
 All of our texts are rendered with as a Signed Distance Field fonts which make them high qualty with keeping the performance high.
 
-> > > > > > > upstream/master
-> > > > > > > **_set(nodes, edges, layout)_**
+**_set(nodes, edges, layout)_**
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
 
@@ -279,15 +249,7 @@ Property to access nodes data of given graph. Use this just to read current valu
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
 
-<<<<<<< HEAD
-
-### Development in ccNetViz
-
-# This is the pipeline you should follow to make changes to ccNetViz:
-
 ## Development in ccNetViz
-
-> > > > > > > upstream/master
 
 Please follow the below instructions to get started with development in ccNetViz:
 
@@ -299,29 +261,10 @@ Please follow the below instructions to get started with development in ccNetViz
 4. Making any changes to the src/ directory will trigger an auto reload and build of the webpage.
 5. Finally when you are done with the changes run `yarn build` to create the final build.
 
-<<<<<<< HEAD
-[heilikarlab]: https://github.com/HelikarLab/ccNetViz
-=======
 _Note: if your having any problem with seeing changes, clear the browser cache._
-
-> > > > > > > upstream/master
 
 ## Contributing
 
-<<<<<<< HEAD
-Run "\$ npm start" in the root directory.
-
-Notes:
-
-- If the file tree does not get updated, there might be issues with the files you are trying to update.
-  You can try: "\$ ./node_modules/.bin/babel --presets=es2015 ./src/<path>/<the_new_file>.js" to get things working.
-- You have to build the package (e.g. into dist/) to run new code, i.e. you cannot make changes to src/ tree and load them to the browser.
-- E.g. in Chrome, it always reused the package from cache
-  (ctrl+shift+r does not force it to reload recently built package),
-  i.e. you have to clear the cache.
-  =======
-  If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
+If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
 [heilikarlab]: https://github.com/HelikarLab/ccNetViz
-
-> > > > > > > upstream/master
