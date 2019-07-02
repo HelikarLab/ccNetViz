@@ -217,18 +217,18 @@ _Chart ratios must be range 0-100._
 
 ### Default Parameters
 
-| Parameters            | Description                              | Type                                        | Default          |
-| --------------------- | ---------------------------------------- | ------------------------------------------- | ---------------- |
-| size                  | Node size.                               | Integer                                     | 20               |
-| textureColor          | Node color.                              | String                                      | rgb(34,67,184)   |
-| stroke.size           | Node stroke size.                        | Integer                                     | 0                |
-| stroke.color          | Node stroke color.                       | String                                      | rgb(255,255,255) |
-| stroke.round          | Rounded shape.                           | Boolean                                     | false            |
-| animation.color       | Animation color.                         | String                                      | rgb(0,0,0)       |
-| animation.type        | Animation type.                          | String                                      | size             |
-| textureGradient       | Array of the gradient points and colors. | Array                                       |                  |
-| textureGradient.x     | y                                        | Can able to use only one coordinate system. | Float            | (0-1) Range |
-| textureGradient.color | Gradient color.                          | String                                      | textureColor     |
+| Parameters            | Description                                 | Type              | Default          |
+| --------------------- | ------------------------------------------- | ----------------- | ---------------- |
+| size                  | Node size.                                  | Integer           | 20               |
+| textureColor          | Node color.                                 | String            | rgb(34,67,184)   |
+| stroke.size           | Node stroke size.                           | Integer           | 0                |
+| stroke.color          | Node stroke color.                          | String            | rgb(255,255,255) |
+| stroke.round          | Rounded shape.                              | Boolean           | false            |
+| animation.color       | Animation color.                            | String            | rgb(0,0,0)       |
+| animation.type        | Animation type.                             | String            | size             |
+| textureGradient       | Array of the gradient points and colors.    | Array             |                  |
+| textureGradient.x-y   | Can able to use only one coordinate system. | Float (0-1) Range |                  |
+| textureGradient.color | Gradient color.                             | String            | textureColor     |
 
 ### Ellipse
 
