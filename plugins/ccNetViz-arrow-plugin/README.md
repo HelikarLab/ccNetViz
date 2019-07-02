@@ -140,15 +140,18 @@ Arrow size increased/decreased every frame.
 
 ### Arrow Parameters
 
-| Parameters      | Description                                      | Type    | Default          |
-| --------------- | ------------------------------------------------ | ------- | ---------------- |
-| size            | Arrow size.                                      | Integer | 20               |
-| textureColor    | Arrow color.                                     | String  | rgb(34,67,184)   |
-| stroke.size     | Arrow stroke size.                               | Integer | 0                |
-| stroke.color    | Arrow stroke color.                              | String  | rgb(255,255,255) |
-| stroke.round    | Rounded shape.                                   | Boolean | false            |
-| animation.color | Animation color.                                 | String  | rgb(0,0,0)       |
-| animation.type  | Animation type.                                  | String  | size             |
-| lines           | Array of lines.                                  | Array   |                  |
-| lines.x         | Line location at x-axis. It must be a 0-1 range. | Integer | 0                |
-| lines.y         | Line location at y-axis. It must be a 0-1 range. | Integer | 0                |
+| Parameters            | Description                                      | Type                                        | Default          |
+| --------------------- | ------------------------------------------------ | ------------------------------------------- | ---------------- |
+| size                  | Arrow size.                                      | Integer                                     | 20               |
+| textureColor          | Arrow color.                                     | String                                      | rgb(34,67,184)   |
+| stroke.size           | Arrow stroke size.                               | Integer                                     | 0                |
+| stroke.color          | Arrow stroke color.                              | String                                      | rgb(255,255,255) |
+| stroke.round          | Rounded shape.                                   | Boolean                                     | false            |
+| animation.color       | Animation color.                                 | String                                      | rgb(0,0,0)       |
+| animation.type        | Animation type.                                  | String                                      | size             |
+| lines                 | Array of lines.                                  | Array                                       |                  |
+| lines.x               | Line location at x-axis. It must be a 0-1 range. | Integer                                     | 0                |
+| lines.y               | Line location at y-axis. It must be a 0-1 range. | Integer                                     | 0                |
+| textureGradient       | Array of the gradient points and colors.         | Array                                       |                  |
+| textureGradient.x     | y                                                | Can able to use only one coordinate system. | Float            | (0-1) Range |
+| textureGradient.color | Gradient color.                                  | String                                      | textureColor     |
