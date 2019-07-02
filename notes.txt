@@ -273,7 +273,7 @@ giving error in the browser:
 "missing module"
 doesn't seem to update
 "import layoutRandom from './random' ;"
-line that is on new /src/layout/layout.js
+line that is on new /src/layout/index.js
 
 
 

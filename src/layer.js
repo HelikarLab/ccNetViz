@@ -1,7 +1,7 @@
 import ccNetViz_color from './color';
 import ccNetViz_gl from './gl';
 import ccNetViz_primitive from './primitive';
-import ccNetViz_layout from './layout';
+import ccNetViz_layout from './layout/index';
 import ccNetViz_geomutils from './geomutils';
 import ccNetViz_utils from './utils';
 import { partitionByStyle } from './primitiveTools';
@@ -637,14 +637,19 @@ export default function(
       return spatialSearch;
     };
 
-
-    if (typeof(layout) == "string") {
-        var options_ = new ccNetViz_layout[layout](nodes, edges, layout_options).apply();
-    } else if (typeof(layout) == "function") {
-        var options_ = new layout(nodes, edges, layout_options).apply();
+    if (typeof layout == 'string') {
+      var options_ = new ccNetViz_layout[layout](
+        nodes,
+        edges,
+        layout_options
+      ).apply();
+    } else if (typeof layout == 'function') {
+      var options_ = new layout(nodes, edges, layout_options).apply();
     } else {
-        throw new Error("The layout can only be a string or a function or a class");
-    }    
+      throw new Error(
+        'The layout can only be a string or a function or a class'
+      );
+    }
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 
     if (!gl) return;
