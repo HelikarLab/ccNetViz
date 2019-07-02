@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ccNetViz tree layouts example</title>
+  <title>ccNetViz complex graphs example</title>
   <style type="text/css">
     #body, canvas {
       width: 500px;
@@ -17,15 +17,14 @@
     }
   </style>
   <script src="./libs/jquery.min.js"></script>
-  <script src="../lib/ccNetViz.js"></script>
+  <script src="../dist/ccNetViz.js"></script>
 </head>
 <body>
-  <h1>Tree layouts example</h1>
+  <h1>Different graphs example</h1>
   <div id='body'>
   </div>
   <div id='info' />
-    graph: <select id='listExamples'></select>
-    layout: <select id='listLayouts'></select>
+    <select id='listExamples'></select>
     <div id='report'>
       Nodes: <span id='nodesCnt'></span><br />
       Edges: <span id='edgesCnt'></span><br />
@@ -34,17 +33,13 @@
   </div>
   <script>
   
-    var examples = 'tree1.json,tree2.json'.split(',');
+    var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(',');
     
     function init(){
       function onChange(e){
         var v = $(this).val();
         
         $.ajax({url: 'data/'+v, dataType: 'json'}).done(showGraph);
-      }
-      function onChange2(e){
-        layout = $(this).val();
-        showGraph(adata);
       }
     
       //fill in graph names
@@ -56,16 +51,6 @@
       
       //init graph with currently selected data
       onChange.call(select);
-
-      //fill in layout names
-      var select2 = $("#listLayouts");
-      $.each(["tree", "tree2"], function(index,val){
-        select2.append($("<option />", {'value': val}).text(val));
-      });
-      select2.change(onChange2);
-      
-      //init graph with currently selected layout
-      onChange2.call(select2);
     };
 
     var graph;
@@ -78,27 +63,20 @@
 
       var startTime = new Date();
 
-      if(graph) graph.remove();	//if there was an old graph, remove its handlers from DOM content
+      if(graph) graph.remove();	//if there was old graph, remove its handlers from DOM content
 
       graph = new ccNetViz(el, {
-        styles: {
-          node: { texture: "images/node.png", label: { hideSize: 16 } },
-          edge: { arrow: { texture: "images/arrow.png" } }
-        }}
-      );
-      if (layout == null){
-          layout = "tree";
-      }
+	styles: {
+	  node: { texture: "images/node.png", label: { hideSize: 16 } },
+	  node: { label: { hideSize: 16 } },
+	  edge: { arrow: { texture: "images/arrow.png" } }
+	}});
       let layout_options = {
-         "direction": "top-down",
-         // "direction": "bottom-up",
-         // "direction": "right-left",
-         // "direction": "banana",
-      }
-      graph.set(data.nodes, data.edges, layout, layout_options);
-      console.log("antes do draw");
+         "starting_angle": Math.PI/2,
+         ordering: "topological"
+      };
+      graph.set(data.nodes, data.edges, "circular", layout_options);
       graph.draw();
-      console.log("depois do draw");
       
       $('#nodesCnt').text(data.nodes.length);
       $('#edgesCnt').text(data.edges.length);

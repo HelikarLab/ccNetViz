@@ -11,7 +11,7 @@ Visit our [webpage](http://helikarlab.github.io/ccNetViz/) to see the detailed d
 ## Description
 
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs (see [graph theory](https://en.wikipedia.org/wiki/Graph_theory)) visualization using WebGL.
-It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, force-directed layout and basic graph interactivity.
+It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, a number of layout settings (including force-directed, spectral, hierarchical, circular, versinus, grid and random) and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
@@ -182,7 +182,7 @@ Besides overriding default styles (used for all nodes / edges) it is possible to
 
 All of our texts are rendered with as a Signed Distance Field fonts which make them high qualty with keeping the performance high.
 
-**_set(nodes, edges, layout)_**
+**_set(nodes, edges, layout, layout_options = {})_**
 
 Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an array of objects describing graph nodes. Each node can have following properties:
 
@@ -197,7 +197,10 @@ Sets the data to be displayed by given ccNetViz instance. "nodes" argument is an
 - target: pointer to given target node object
 - style (optional): name of custom style class used for this edge
 
-Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random", "circular", "tree". If not specified, positions are taken from each node x, y properties.
+Optional "layout" argument defines layout used to render this graph. Possible values: circular", "force", "grid", "hierarchical", "hierarchical2", "hive", "random", "spectral", "spectral2", "tree", "treeT", "versinus". If not specified, positions are taken from each node x, y properties.
+
+Special layout options, such as margin and flip, are routed through the layout_options argument.
+See [Advanced circular layout](http://github.alessaska.cz/HelikarLab/ccNetViz/master/examples/circular.html) for an example of further layout options.
 
 **_find(x, y, radius, nodes, edges)_**
 
@@ -268,3 +271,11 @@ _Note: if your having any problem with seeing changes, clear the browser cache._
 If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
 [heilikarlab]: https://github.com/HelikarLab/ccNetViz
+
+#### Developing new layouts
+
+We recommend adding new/other layouts to src/layouts/ directory
+and allowing its usage by routing in src/layouts/layouts.js
+like implemented to the builtin layouts.
+
+See the wiki pages for more information on the layouts implemented and that are possible.
