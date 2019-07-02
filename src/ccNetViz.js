@@ -354,7 +354,7 @@ var ccNetViz = function(canvas, options) {
   };
 
   let getNodeSize = c => getSize(c, c.style, getNodesCnt(), 0.4);
-  let getLabelSize = (c, s) => getSize(c, s, getNodesCnt(), 0.25);
+  let getLabelSize = (c, s) => getSize(c, s.font, getNodesCnt(), 0.25);
 
   let getLabelHideSize = (c, s) => {
     if (s) {
