@@ -119,6 +119,12 @@ _Example options_
         hideSize: 2   //minimum size of arrow to be displayed
       },
       type: "line"    //type of edge (supported types - "line", "dashed", "dotted", "chain-dotted")
+
+      // edge animation configuration
+      animateType: 'gradient', // type of animation: "basic", "gradient", "none"
+      animateSpeed: 2,
+      animateEase: 'sin-out', // default is "linear", refer to line_animation_complex in examples
+      animateColor: 'rgb(240, 80, 100)', // animation color
     },
     nodeBlue: {   //custom style
       color: "rgb(0, 0, 255)"
