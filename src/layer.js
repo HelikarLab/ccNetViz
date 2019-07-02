@@ -531,6 +531,7 @@ export default function(
     };
 
     let init = () => {
+      // NOTE: here init
       for (let i = 0; i < nodes.length; i++) {
         nodes[i].index = i;
       }
