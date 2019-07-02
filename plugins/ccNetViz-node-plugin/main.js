@@ -2,6 +2,10 @@ import Ellipse from './shapes/ellipse';
 import Star from './shapes/star';
 import Polygon from './shapes/polygon';
 import Custom from './shapes/custom';
+import PieChart from './shapes/statistical/pie_chart';
+import GaugeChart from './shapes/statistical/gauge_chart';
+import DoughnutChart from './shapes/statistical/doughnut_chart';
+import RadialHistogram from './shapes/statistical/radial_histogram';
 
 let Integration = (o, i) => {
   let shapes = [];
@@ -93,6 +97,10 @@ let Integration = (o, i) => {
   );
   let ellipse = pluginConfig(Ellipse, ['circle', 'ellipse'], 'Ellipse');
   let custom = pluginConfig(Custom, ['square', 'vee', 'tag'], 'Custom');
+  let pie_chart = pluginConfig(PieChart, [], 'PieChart');
+  let doughnut_chart = pluginConfig(DoughnutChart, [], 'DoughnutChart');
+  let gauge_chart = pluginConfig(GaugeChart, [], 'GaugeChart');
+  let radial_histogram = pluginConfig(RadialHistogram, [], 'RadialHistogram');
 
   let s = ['star'];
   for (let spike = 3; spike <= 10; spike++) {
@@ -105,12 +113,34 @@ let Integration = (o, i) => {
     .concat(polygon)
     .concat(star)
     .concat(ellipse)
-    .concat(custom);
+    .concat(custom)
+    .concat(pie_chart)
+    .concat(gauge_chart)
+    .concat(doughnut_chart)
+    .concat(radial_histogram);
 
   return { options, shapes };
 };
 
 if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.node = { Ellipse, Star, Polygon, Custom, Integration };
+ccNetVizPlugins.node = {
+  Ellipse,
+  Star,
+  Polygon,
+  Custom,
+  PieChart,
+  GaugeChart,
+  DoughnutChart,
+  Integration,
+};
 
-export default { Ellipse, Star, Polygon, Custom, Integration };
+export default {
+  Ellipse,
+  Star,
+  Polygon,
+  Custom,
+  PieChart,
+  GaugeChart,
+  DoughnutChart,
+  Integration,
+};
