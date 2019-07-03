@@ -494,7 +494,6 @@ export default function(
 
   let spatialSearch = undefined;
 
-  let lvl = 0;
   //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
   let set_end = () => {
     let enableLazyRedraw = false;
@@ -909,50 +908,6 @@ export default function(
 
   this.cntShownEdges = () => {
     return this.edges.length - removedEdges;
-  };
-
-  let getEdgeStyleSize = c => {
-    return c.width / 120;
-    /*      let avsize = (c.width + c.height)/2;
-      let koef = (Math.min(Math.max((avsize - 150)/150, 0),1)+1)*1.3;
-      //koef 1 for 150 size and 1.4 for 300 size
-      return c.width/(130*koef);
-*/
-  };
-
-  let stylesTransl = {
-    line: 0,
-    dashed: 1,
-    'chain-dotted': 2,
-    dotted: 3,
-  };
-  let getEdgeType = t => {
-    if (t !== undefined) {
-      t = stylesTransl[t];
-    }
-
-    if (t === undefined || typeof t !== 'number') {
-      t = 0;
-    }
-
-    return t;
-  };
-
-  let animateStylesTransl = {
-    none: 0,
-    basic: 1,
-    gradient: 2,
-  };
-  let getEdgeAnimateType = t => {
-    if (t !== undefined) {
-      t = animateStylesTransl[t];
-    }
-
-    if (t === undefined || typeof t !== 'number') {
-      t = 0;
-    }
-
-    return t;
   };
 
   this.nodes = [];
