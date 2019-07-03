@@ -8,6 +8,7 @@ import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
 import { Line, Curve, Circle } from './shapes/edge';
+import { Node, NodeColored } from './shapes/node';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -1005,38 +1006,12 @@ export default function(
     }
   }
 
-  scene.add(
-    'nodes',
-    new ccNetViz_primitive(
-      gl,
-      nodeStyle,
-      null,
-      elementShaders.vsNode,
-      elementShaders.fsColorTexture,
-      c => {
-        let size = getNodeSize(c);
-        let uniforms = c.shader.uniforms;
-        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-      }
-    )
-  );
+  // TODO: getNodeSize??
+  const node = new Node(gl, nodeStyle, getNodeSize);
+  scene.add('nodes', node.getPrimitive());
 
-  scene.add(
-    'nodesColored',
-    new ccNetViz_primitive(
-      gl,
-      nodeStyle,
-      null,
-      elementShaders.vsNodeColored,
-      elementShaders.fsVarColorTexture,
-      c => {
-        let size = getNodeSize(c);
-        let uniforms = c.shader.uniforms;
-        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-      }
-    )
-  );
+  const nodeColored = new NodeColored(gl, nodeStyle, getNodeSize);
+  scene.add('nodesColored', nodeColored.getPrimitive());
 
   let bindLabels = is_outline => {
     return c => {

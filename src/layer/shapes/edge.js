@@ -1,6 +1,7 @@
 import ccNetViz_primitive from '../../primitive';
 import ccNetViz_gl from '../../gl';
 import { elementShaders } from '../../shaders';
+import { BaseShape } from './baseShape';
 
 const getEdgeStyleSize = c => {
   return c.width / 120;
@@ -46,8 +47,9 @@ const getEdgeAnimateType = t => {
   return t;
 };
 
-class Line {
+class Line extends BaseShape {
   constructor(gl, edgeStyle, hasAnimation) {
+    super();
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -87,14 +89,11 @@ class Line {
       }
     );
   }
-
-  getPrimitive() {
-    return this._primitive;
-  }
 }
 
-class Curve {
+class Curve extends BaseShape {
   constructor(gl, edgeStyle) {
+    super();
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -118,14 +117,11 @@ class Curve {
       }
     );
   }
-
-  getPrimitive() {
-    return this._primitive;
-  }
 }
 
-class Circle {
+class Circle extends BaseShape {
   constructor(gl, edgeStyle) {
+    super();
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -148,10 +144,6 @@ class Circle {
         ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
       }
     );
-  }
-
-  getPrimitive() {
-    return this._primitive;
   }
 }
 
