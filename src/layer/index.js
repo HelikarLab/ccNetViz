@@ -7,7 +7,7 @@ import ccNetViz_utils from '../utils';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
-import { Line } from './shapes/edge';
+import { Line, Curve, Circle } from './shapes/edge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -974,137 +974,16 @@ export default function(
     return 0;
   };
 
-  // NOTE: new added
-  // TODO: getEdgeStyleSize!
-  const line = new Line(gl, edgeStyle, this.hasEdgeAnimation);
-
-  scene.add('lines', line.getPrimitive());
-
-  /*
-  if (this.hasEdgeAnimation) {
-    scene.add(
-      'lines',
-      line.getPrimitive()
-      new ccNetViz_primitive(
-        gl,
-        edgeStyle,
-        null,
-        elementShaders.vsLine,
-        elementShaders.fsLineAnimate(edgeStyle.animateEase),
-        c => {
-          let uniforms = c.shader.uniforms;
-          uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
-          gl.uniform2f(uniforms.screen, c.width, c.height);
-          let size = 2.5 * c.nodeSize;
-          uniforms.size &&
-            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-          gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
-          gl.uniform1f(uniforms.aspect2, c.aspect2);
-          gl.uniform1f(uniforms.aspect, c.aspect);
-          gl.uniform2f(
-            uniforms.width,
-            c.style.width / c.width,
-            c.style.width / c.height
-          );
-          gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-          gl.uniform1f(
-            uniforms.animateType,
-            getEdgeAnimateType(c.style.animateType)
-          );
-          gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
-          ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-          ccNetViz_gl.uniformColor(
-            gl,
-            uniforms.animateColor,
-            c.style.animateColor
-          );
-        }
-      )
-    );
-  } else {
-    scene.add(
-      'lines',
-      new ccNetViz_primitive(
-        gl,
-        edgeStyle,
-        null,
-        elementShaders.vsLine,
-        elementShaders.fsLineBasic,
-        c => {
-          let uniforms = c.shader.uniforms;
-          uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
-          gl.uniform2f(uniforms.screen, c.width, c.height);
-          let size = 2.5 * c.nodeSize;
-          uniforms.size &&
-            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-          gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
-          gl.uniform1f(uniforms.aspect2, c.aspect2);
-          gl.uniform1f(uniforms.aspect, c.aspect);
-          gl.uniform2f(
-            uniforms.width,
-            c.style.width / c.width,
-            c.style.width / c.height
-          );
-          gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-          ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-        }
-      )
-    );
-  }
-  */
+  // NOTE: split to different file and use getPrimitive to get webgl element
+  const lineEdge = new Line(gl, edgeStyle, this.hasEdgeAnimation);
+  scene.add('lines', lineEdge.getPrimitive());
 
   if (extensions.OES_standard_derivatives) {
-    scene.add(
-      'curves',
-      new ccNetViz_primitive(
-        gl,
-        edgeStyle,
-        null,
-        elementShaders.vsCurve,
-        elementShaders.fsCurve,
-        c => {
-          let uniforms = c.shader.uniforms;
-          gl.uniform1f(uniforms.width, c.style.width);
-          gl.uniform1f(uniforms.exc, c.curveExc);
-          gl.uniform2f(uniforms.screen, c.width, c.height);
-          let size = 2.5 * c.nodeSize;
-          uniforms.size &&
-            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-          gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
-          gl.uniform1f(uniforms.aspect2, c.aspect2);
-          gl.uniform1f(uniforms.aspect, c.aspect);
-          gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-          uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5);
-          ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-        }
-      )
-    );
+    const curveEdge = new Curve(gl, edgeStyle);
+    scene.add('curves', curveEdge.getPrimitive());
 
-    scene.add(
-      'circles',
-      new ccNetViz_primitive(
-        gl,
-        edgeStyle,
-        null,
-        elementShaders.vsCircle,
-        elementShaders.fsCircle,
-        c => {
-          let uniforms = c.shader.uniforms;
-          uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
-          gl.uniform1f(uniforms.width, c.style.width);
-          gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
-          gl.uniform2f(uniforms.screen, c.width, c.height);
-          let size = 2.5 * c.nodeSize;
-          uniforms.size &&
-            gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-          gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
-          gl.uniform1f(uniforms.aspect2, c.aspect2);
-          gl.uniform1f(uniforms.aspect, c.aspect);
-          uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5 / 3);
-          ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-        }
-      )
-    );
+    const circleEdge = new Circle(gl, edgeStyle);
+    scene.add('circles', circleEdge.getPrimitive());
   }
 
   if (edgeStyle.arrow) {

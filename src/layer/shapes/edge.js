@@ -93,6 +93,66 @@ class Line {
   }
 }
 
-class LineAnimate {}
+class Curve {
+  constructor(gl, edgeStyle) {
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      edgeStyle,
+      null,
+      elementShaders.vsCurve,
+      elementShaders.fsCurve,
+      c => {
+        let uniforms = c.shader.uniforms;
+        gl.uniform1f(uniforms.width, c.style.width);
+        gl.uniform1f(uniforms.exc, c.curveExc);
+        gl.uniform2f(uniforms.screen, c.width, c.height);
+        let size = 2.5 * c.nodeSize;
+        uniforms.size &&
+          gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+        gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+        gl.uniform1f(uniforms.aspect2, c.aspect2);
+        gl.uniform1f(uniforms.aspect, c.aspect);
+        gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+        uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5);
+        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+      }
+    );
+  }
 
-export { Line };
+  getPrimitive() {
+    return this._primitive;
+  }
+}
+
+class Circle {
+  constructor(gl, edgeStyle) {
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      edgeStyle,
+      null,
+      elementShaders.vsCircle,
+      elementShaders.fsCircle,
+      c => {
+        let uniforms = c.shader.uniforms;
+        uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+        gl.uniform1f(uniforms.width, c.style.width);
+        gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+        gl.uniform2f(uniforms.screen, c.width, c.height);
+        let size = 2.5 * c.nodeSize;
+        uniforms.size &&
+          gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+        gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+        gl.uniform1f(uniforms.aspect2, c.aspect2);
+        gl.uniform1f(uniforms.aspect, c.aspect);
+        uniforms.lineStepSize && gl.uniform1f(uniforms.lineStepSize, 5 / 3);
+        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+      }
+    );
+  }
+
+  getPrimitive() {
+    return this._primitive;
+  }
+}
+
+export { Line, Curve, Circle };
