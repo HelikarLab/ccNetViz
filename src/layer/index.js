@@ -1,12 +1,13 @@
-import ccNetViz_color from './color';
-import ccNetViz_gl from './gl';
-import ccNetViz_primitive from './primitive';
-import ccNetViz_layout from './layout/layout';
-import ccNetViz_geomutils from './geomutils';
-import ccNetViz_utils from './utils';
-import { partitionByStyle } from './primitiveTools';
-import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
-import { elementShaders } from './shaders';
+import ccNetViz_color from '../color';
+import ccNetViz_gl from '../gl';
+import ccNetViz_primitive from '../primitive';
+import ccNetViz_layout from '../layout/layout';
+import ccNetViz_geomutils from '../geomutils';
+import ccNetViz_utils from '../utils';
+import { partitionByStyle } from '../primitiveTools';
+import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
+import { elementShaders } from '../shaders';
+import { Line } from './shapes/edge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -973,9 +974,17 @@ export default function(
     return 0;
   };
 
+  // NOTE: new added
+  // TODO: getEdgeStyleSize!
+  const line = new Line(gl, edgeStyle, this.hasEdgeAnimation);
+
+  scene.add('lines', line.getPrimitive());
+
+  /*
   if (this.hasEdgeAnimation) {
     scene.add(
       'lines',
+      line.getPrimitive()
       new ccNetViz_primitive(
         gl,
         edgeStyle,
@@ -1042,6 +1051,7 @@ export default function(
       )
     );
   }
+  */
 
   if (extensions.OES_standard_derivatives) {
     scene.add(

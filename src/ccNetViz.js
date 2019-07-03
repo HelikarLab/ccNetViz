@@ -1,4 +1,4 @@
-import ccNetViz_layer from './layer';
+import ccNetViz_layer from './layer/index';
 import ccNetViz_layout from './layout/layout';
 import ccNetViz_gl from './gl';
 import ccNetViz_color from './color';
