@@ -495,10 +495,11 @@ export default function(
 
   let lvl = 0;
   //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
-  let set_end = () => {
+  let set_end = (layout, layout_options) => {
     let enableLazyRedraw = false;
     let reset = p => {
-      if (enableLazyRedraw) this.set(this.nodes, this.edges);
+      if (enableLazyRedraw)
+        this.set(this.nodes, this.edges, layout, layout_options);
     };
     files.onLoad(reset);
     textures.onLoad(reset);
@@ -637,19 +638,20 @@ export default function(
       return spatialSearch;
     };
 
-    if (typeof layout == 'string') {
+    if (typeof layout === 'string') {
       var options_ = new ccNetViz_layout[layout](
         nodes,
         edges,
         layout_options
       ).apply();
-    } else if (typeof layout == 'function') {
+    } else if (typeof layout === 'function') {
       var options_ = new layout(nodes, edges, layout_options).apply();
-    } else {
+    } else if (typeof layout === 'number') {
       throw new Error(
         'The layout can only be a string or a function or a class'
       );
     }
+
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 
     if (!gl) return;
@@ -795,7 +797,7 @@ export default function(
     };
 
     while (tryInitPrimitives()); //loop until they are not dirty
-    set_end();
+    set_end(layout, layout_options);
   };
 
   this.update = function(element, attribute, data) {
