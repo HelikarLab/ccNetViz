@@ -4,11 +4,36 @@ This plugin allows you to add different node styles to your ccNetViz library.
 
 ### Supported node styles
 
-- Ellipses - circle - ellipse
-- Polygons - triangle - quadrilateral - pentagon - hexagon - heptagon - octagon - nonagon - decagon
-- Stars - star-3 - star-4 - star-5 - star-6 - star-7 - star-8 - star-9 - star-10
-- Customs - square - vee - tag
-- Statistical nodes - DoughnutChart - GaugeChart - PieChart - RadialHistogram
+- Ellipses 
+  - circle 
+  - ellipse
+- Polygons 
+  - triangle 
+  - quadrilateral 
+  - pentagon 
+  - hexagon 
+  - heptagon 
+  - octagon 
+  - nonagon 
+  - decagon
+- Stars 
+  - star-3 
+  - star-4 
+  - star-5 
+  - star-6 
+  - star-7 
+  - star-8 
+  - star-9 
+  - star-10
+- Customs 
+  - square 
+  - vee 
+  - tag
+- Statistical nodes 
+  - DoughnutChart 
+  - GaugeChart 
+  - PieChart 
+  - RadialHistogram
 
 ## Basic Example
 
