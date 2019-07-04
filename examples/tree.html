@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ccNetViz tree layouts example</title>
-    <style type="text/css">
-      #body,
-      canvas {
-        width: 500px;
-        height: 500px;
-      }
-
-      #body {
-        display: inline-block;
-      }
-
-      #info {
-        /*      float: right;*/
-      }
-    </style>
-    <script src="./libs/jquery.min.js"></script>
+    <title>ccNetViz Tree Layouts Example</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
   </head>
+
   <body>
-    <h1>Tree layouts example</h1>
-    <div id="body"></div>
-    <div id="info">
-      graph:
-      <select id="listExamples"></select>
-      layout:
-      <select id="listLayouts"></select>
-      <div id="report">
-        Nodes: <span id="nodesCnt"></span><br />
-        Edges: <span id="edgesCnt"></span><br />
-        Rendered in <span id="renderedIn"></span>ms<br />
+    <div class="canvas-container">
+      <h3 class="title">Different graphs example</h3>
+      <div class="toolbox">
+        <div class="item">
+          <select id="listExamples"></select>
+        </div>
+      </div>
+      <div class="description">
+        <div id="report">
+          <b>Nodes</b>: <span id="nodesCnt"></span><br />
+          <b>Edges</b>: <span id="edgesCnt"></span><br />
+          Rendered in <span id="renderedIn"></span>ms<br />
+        </div>
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
       </div>
     </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
       var examples = 'tree1.json,tree2.json'.split(',');
 
@@ -75,8 +74,8 @@
         adata = data;
         if (el) el.parentNode.removeChild(el);
         document
-          .getElementById('body')
-          .appendChild((el = document.createElement('canvas')));
+          .querySelector('.canvas-container .title')
+          .after((el = document.createElement('canvas')));
 
         var startTime = new Date();
 

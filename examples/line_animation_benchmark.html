@@ -2,36 +2,38 @@
 <html>
   <head>
     <title>ccNetViz line animation benchmark example</title>
-    <style type="text/css">
-      #body,
-      canvas {
-        width: 500px;
-        height: 500px;
-      }
-
-      #body {
-        display: inline-block;
-      }
-
-      #info {
-        /*      float: right;*/
-      }
-    </style>
-    <script src="./libs/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
   </head>
+
   <body>
-    <h1>Animation benchmark</h1>
-    <div id="body"></div>
-    <div id="info">
-      <select id="listExamples"></select>
-      <div id="report">
-        Nodes: <span id="nodesCnt"></span><br />
-        Edges: <span id="edgesCnt"></span><br />
-        Rendered in <span id="renderedIn"></span>ms<br />
-        FPS: <span id="fps"></span><br />
+    <div class="canvas-container">
+      <h3 class="title">Animation Benchmark</h3>
+      <div class="toolbox">
+        <div class="item">
+          <select id="listExamples"></select>
+        </div>
+      </div>
+      <div class="description">
+        <div id="report">
+          <b>Nodes</b>: <span id="nodesCnt"></span><br />
+          <b>Edges</b>: <span id="edgesCnt"></span><br />
+          Rendered in <span id="renderedIn"></span>ms<br />
+          <b>FPS</b>: <span id="fps"></span><br />
+        </div>
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
       </div>
     </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
       var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(
         ','
@@ -61,8 +63,8 @@
         adata = data;
         if (el) el.parentNode.removeChild(el);
         document
-          .getElementById('body')
-          .appendChild((el = document.createElement('canvas')));
+          .querySelector('.canvas-container .title')
+          .after((el = document.createElement('canvas')));
 
         var startTime = new Date();
 
