@@ -144,13 +144,14 @@ export default function(nodes, edges, layout_options) {
       } else {
         o.x -= (o.px - (o.px = o.x)) * friction;
         o.y -= (o.py - (o.py = o.y)) * friction;
-
-        if (options && options.minX !== undefined) {
-          if (o.x < options.minX || o.x > options.maxX) {
-            o.x = rnd(options.minX, options.maxX);
-          }
-          if (o.y < options.minY || o.y > options.maxY) {
-            o.y = rnd(options.minY, options.maxY);
+        if (typeof options !== 'undefined') {
+          if (typeof options.minX !== 'undefined') {
+            if (o.x < options.minX || o.x > options.maxX) {
+              o.x = rnd(options.minX, options.maxX);
+            }
+            if (o.y < options.minY || o.y > options.maxY) {
+              o.y = rnd(options.minY, options.maxY);
+            }
           }
         }
       }
