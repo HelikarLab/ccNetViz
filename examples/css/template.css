@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
+
+.canvas-container {
+  width: 520px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.canvas-container canvas {
+  width: 500px;
+  height: 500px;
+  margin: auto;
+  border-radius: 2px;
+  box-shadow: 0 0 1px 2px #bebebe;
+}
+
+.canvas-container .description {
+  font-family: 'Roboto', sans-serif;
+  color: #555;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.canvas-container .description a {
+  color: #2452ce !important;
+}
+
+.canvas-container .title {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: normal;
+  color: #333;
+  background: #f3f3f3;
+  padding: 5px 20px;
+  border-radius: 2px;
+  display: inline-block;
+  border-bottom: 2px solid #2257a4;
+}
+
+.canvas-container .toolbox {
+  width: 100%;
+  background: #d2d2d2;
+  border-radius: 2px;
+  margin: 10px 0;
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.2);
+}
+
+.canvas-container .item {
+  width: 32%;
+  display: inline-block;
+  text-align: left;
+  margin: 10px 0;
+}
+
+.canvas-container .item span {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #444;
+  display: inline-block;
+  letter-spacing: 0.3px;
+  width: 25%;
+  overflow: hidden;
+}
+.canvas-container .item label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #444;
+  letter-spacing: 0.3px;
+  display: block;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.canvas-container .item input {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.canvas-container input[type='text'] {
+  background: #f8f8f8;
+  padding: 3px 2%;
+  border-radius: 2px;
+  display: inline-block;
+  margin: 0 2%;
+  width: 92%;
+  margin: 0;
+  color: #444;
+}
+
+.canvas-container select {
+  background: #2452ce;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  width: 96%;
+  padding: 2px 2%;
+  border: none;
+  border-radius: 20px;
+}
+.canvas-container input[type='button'] {
+  width: 96%;
+  margin: 0 2%;
+  background: #2452ce;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  padding: 2px 0;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.canvas-container .item a {
+  width: 96%;
+  margin: 0 2%;
+  background: #2452ce;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  padding: 2px 0;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.canvas-container input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: #2452ce;
+  outline: none;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+  border-radius: 4px;
+  width: 96%;
+  margin: 0 2%;
+}
+
+.canvas-container input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 7px; /* Set a specific slider handle width */
+  height: 15px; /* Slider handle height */
+  background: #fbfbfb; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+  border-radius: 2px;
+  box-shadow: 0 0 2px 0px #203775f2;
+}
+
+.canvas-container input[type='range']::-moz-range-thumb {
+  width: 7px; /* Set a specific slider handle width */
+  height: 15px; /* Slider handle height */
+  background: #fbfbfb; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+  border-radius: 2px;
+  box-shadow: 0 0 2px 0px #203775f2;
+}
+
+#logo {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 555;
+  background: rgba(245, 245, 245, 1);
+  background: -moz-linear-gradient(
+    -45deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgba(189, 189, 189, 1) 100%
+  );
+  background: -webkit-gradient(
+    left top,
+    right bottom,
+    color-stop(0%, rgba(245, 245, 245, 1)),
+    color-stop(100%, rgba(189, 189, 189, 1))
+  );
+  background: -webkit-linear-gradient(
+    -45deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgba(189, 189, 189, 1) 100%
+  );
+  background: -o-linear-gradient(
+    -45deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgba(189, 189, 189, 1) 100%
+  );
+  background: -ms-linear-gradient(
+    -45deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgba(189, 189, 189, 1) 100%
+  );
+  background: linear-gradient(
+    135deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgba(189, 189, 189, 1) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5',endColorstr='#bdbdbd',GradientType=1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.2);
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+#logo img {
+  width: 180px;
+}
+
+body,
+div,
+header {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding-bottom: 50px;
+}
