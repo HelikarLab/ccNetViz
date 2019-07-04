@@ -9,6 +9,7 @@ import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
 import { Line, Curve, Circle } from './shapes/edge';
 import { Node, NodeColored } from './shapes/node';
+import { LineArrow, CurveArrow, CircleArrow } from './shapes/edgeArrow';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -943,8 +944,6 @@ export default function(
   }
 
   if (edgeStyle.arrow) {
-    let shaderparams = { attribute: { offsetMul: 1 } };
-
     let bind = c => {
       let size = getSize(c, c.style, getEdgesCnt(), 0.2);
       if (!size) return true;
@@ -965,44 +964,14 @@ export default function(
       ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
     };
 
-    scene.add(
-      'lineArrows',
-      new ccNetViz_primitive(
-        gl,
-        edgeStyle,
-        'arrow',
-        elementShaders.vsLineArrow,
-        elementShaders.fsColorTexture,
-        bind,
-        shaderparams
-      )
-    );
+    const lineArrow = new LineArrow(gl, edgeStyle, bind);
+    scene.add('lineArrows', lineArrow.getPrimitive());
 
     if (extensions.OES_standard_derivatives) {
-      scene.add(
-        'curveArrows',
-        new ccNetViz_primitive(
-          gl,
-          edgeStyle,
-          'arrow',
-          elementShaders.vsCurveArrow,
-          elementShaders.fsColorTexture,
-          bind,
-          shaderparams
-        )
-      );
-      scene.add(
-        'circleArrows',
-        new ccNetViz_primitive(
-          gl,
-          edgeStyle,
-          'arrow',
-          elementShaders.vsCircleArrow,
-          elementShaders.fsColorTexture,
-          bind,
-          shaderparams
-        )
-      );
+      const curveArrow = new CurveArrow(gl, edgeStyle, bind);
+      scene.add('curveArrows', curveArrow.getPrimitive());
+      const circleArrow = new CircleArrow(gl, edgeStyle, bind);
+      scene.add('circleArrows', circleArrow.getPrimitive());
     }
   }
 
