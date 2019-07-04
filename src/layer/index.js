@@ -944,33 +944,25 @@ export default function(
   }
 
   if (edgeStyle.arrow) {
-    let bind = c => {
-      let size = getSize(c, c.style, getEdgesCnt(), 0.2);
-      if (!size) return true;
-
-      let uniforms = c.shader.uniforms;
-      gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
-      gl.uniform2f(uniforms.arrowsize, size, c.style.aspect * size);
-      gl.uniform1f(uniforms.exc, c.curveExc);
-      uniforms.cexc &&
-        gl.uniform1f(uniforms.cexc, 0.5 * view.size * c.curveExc);
-      if (uniforms.size) {
-        size = 2.5 * c.nodeSize;
-        uniforms.size &&
-          gl.uniform2f(uniforms.size, size / c.width, size / c.height);
-      }
-      gl.uniform2f(uniforms.screen, c.width, c.height);
-      gl.uniform1f(uniforms.aspect2, c.aspect2);
-      ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-    };
-
-    const lineArrow = new LineArrow(gl, edgeStyle, bind);
+    const lineArrow = new LineArrow(gl, view, edgeStyle, getSize, getEdgesCnt);
     scene.add('lineArrows', lineArrow.getPrimitive());
 
     if (extensions.OES_standard_derivatives) {
-      const curveArrow = new CurveArrow(gl, edgeStyle, bind);
+      const curveArrow = new CurveArrow(
+        gl,
+        view,
+        edgeStyle,
+        getSize,
+        getEdgesCnt
+      );
       scene.add('curveArrows', curveArrow.getPrimitive());
-      const circleArrow = new CircleArrow(gl, edgeStyle, bind);
+      const circleArrow = new CircleArrow(
+        gl,
+        view,
+        edgeStyle,
+        getSize,
+        getEdgesCnt
+      );
       scene.add('circleArrows', circleArrow.getPrimitive());
     }
   }
