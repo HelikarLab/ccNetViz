@@ -1,4 +1,4 @@
-import { BaseShape } from './baseShape';
+import { BaseShape, BaseShapeManager } from './baseShape';
 import ccNetViz_primitive from '../../primitive';
 import { elementShaders } from '../../shaders';
 import ccNetViz_gl from '../../gl';
@@ -40,18 +40,23 @@ class NodeColored extends BaseShape {
   }
 }
 
-const nodesFiller = style => ({
-  set: (v, e, iV, iI) => {
-    let x = e.x;
-    let y = e.y;
-    ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-    ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-    if (v.color) {
-      let c = e.color;
-      ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-    }
-    ccNetViz_primitive.quad(v.indices, iV, iI);
-  },
-});
+class NodeManager extends BaseShapeManager {
+  constructor() {
+    super();
+    this._filler = style => ({
+      set: (v, e, iV, iI) => {
+        let x = e.x;
+        let y = e.y;
+        ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+        ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
+        if (v.color) {
+          let c = e.color;
+          ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
+        }
+        ccNetViz_primitive.quad(v.indices, iV, iI);
+      },
+    });
+  }
+}
 
-export { Node, NodeColored, nodesFiller };
+export { Node, NodeColored, NodeManager };

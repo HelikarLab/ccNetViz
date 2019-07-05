@@ -7,8 +7,8 @@ import ccNetViz_utils from '../utils';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
-import { Line, Curve, Circle, edgesFiller } from './shapes/edge';
-import { Node, NodeColored, nodesFiller } from './shapes/node';
+import { Line, Curve, Circle, EdgeManager } from './shapes/edge';
+import { Node, NodeColored, NodeManager } from './shapes/node';
 import {
   LineArrow,
   CurveArrow,
@@ -75,6 +75,12 @@ export default function(
 
   const edgeArrowManager = new EdgeArrowManager();
   const arrowFiller = edgeArrowManager.getFiller();
+
+  const edgeManager = new EdgeManager();
+  const edgesFiller = edgeManager.getFiller();
+
+  const nodeManager = new NodeManager();
+  const nodesFiller = nodeManager.getFiller();
 
   this.getCurrentSpatialSearch = context => {
     if (spatialSearch === undefined) {
