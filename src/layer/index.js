@@ -9,7 +9,12 @@ import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
 import { Line, Curve, Circle, edgesFiller } from './shapes/edge';
 import { Node, NodeColored, nodesFiller } from './shapes/node';
-import { LineArrow, CurveArrow, CircleArrow } from './shapes/edgeArrow';
+import {
+  LineArrow,
+  CurveArrow,
+  CircleArrow,
+  EdgeArrowManager,
+} from './shapes/edgeArrow';
 import { Label, LabelOutline, LabelManager } from './shapes/labels';
 import { normalize } from './util';
 
@@ -68,116 +73,8 @@ export default function(
   const labelManager = new LabelManager(texts);
   const labelsFiller = labelManager.getFiller();
 
-  let dx = Math.cos(0.9);
-  let dy = Math.sin(0.9);
-
-  let ct = {};
-
-  let set = (v, e, s, t, iV, iI, dx, dy) => {
-    let tx = t.x;
-    let ty = t.y;
-
-    let offsetMul;
-    let ctx, cty, citx, city;
-
-    ccNetViz_geomutils.getCurveShift(t.e, ct);
-    ctx = ct.x;
-    cty = ct.y;
-    citx = ct.cx;
-    city = ct.cy;
-
-    if (t.is_edge) {
-      //if target is edge, disable node offset for arrow
-      //normal of that edge
-      offsetMul = 0;
-    } else {
-      offsetMul = 1;
-    }
-    v.curveShift &&
-      ccNetViz_primitive.vertices(
-        v.curveShift,
-        iV,
-        -cty,
-        ctx,
-        -cty,
-        ctx,
-        -cty,
-        ctx,
-        -cty,
-        ctx
-      );
-    v.circleShift &&
-      ccNetViz_primitive.vertices(
-        v.circleShift,
-        iV,
-        -city,
-        citx,
-        -city,
-        citx,
-        -city,
-        citx,
-        -city,
-        citx
-      );
-
-    ccNetViz_primitive.singles(
-      v.offsetMul,
-      iV,
-      offsetMul,
-      offsetMul,
-      offsetMul,
-      offsetMul
-    );
-    ccNetViz_primitive.vertices(v.position, iV, tx, ty, tx, ty, tx, ty, tx, ty);
-    ccNetViz_primitive.vertices(
-      v.direction,
-      iV,
-      dx,
-      dy,
-      dx,
-      dy,
-      dx,
-      dy,
-      dx,
-      dy
-    );
-    ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-    ccNetViz_primitive.quad(v.indices, iV, iI);
-  };
-
-  let arrowFiller = {
-    lineArrows: style => ({
-      set: (v, e, iV, iI) => {
-        let s = ccNetViz_geomutils.edgeSource(e);
-        let t = ccNetViz_geomutils.edgeTarget(e);
-        let d = normalize(s, t);
-        set(v, e, s, t, iV, iI, d.x, d.y);
-      },
-    }),
-    curveArrows: style => ({
-      set: (v, e, iV, iI) => {
-        let s = ccNetViz_geomutils.edgeSource(e);
-        let t = ccNetViz_geomutils.edgeTarget(e);
-        return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
-      },
-    }),
-    circleArrows: style => ({
-      set: (v, e, iV, iI) => {
-        let t = ccNetViz_geomutils.edgeTarget(e);
-        let s = t;
-        return set(
-          v,
-          e,
-          s,
-          t,
-          iV,
-          iI,
-          t.x < 0.5 ? dx : -dx,
-          t.y < 0.5 ? -dy : dy
-        );
-      },
-    }),
-  };
+  const edgeArrowManager = new EdgeArrowManager();
+  const arrowFiller = edgeArrowManager.getFiller();
 
   this.getCurrentSpatialSearch = context => {
     if (spatialSearch === undefined) {

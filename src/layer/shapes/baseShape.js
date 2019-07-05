@@ -7,4 +7,14 @@ class BaseShape {
   }
 }
 
-export { BaseShape };
+class BaseShapeManager {
+  constructor() {
+    this._filler = null;
+  }
+
+  getFiller() {
+    return this._filler;
+  }
+}
+
+export { BaseShape, BaseShapeManager };
