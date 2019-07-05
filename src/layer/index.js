@@ -1,12 +1,8 @@
-import ccNetViz_color from '../color';
 import ccNetViz_gl from '../gl';
 import ccNetViz_primitive from '../primitive';
 import ccNetViz_layout from '../layout/layout';
-import ccNetViz_geomutils from '../geomutils';
-import ccNetViz_utils from '../utils';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
-import { elementShaders } from '../shaders';
 import { Line, Curve, Circle, EdgeManager } from './shapes/edge';
 import { Node, NodeColored, NodeManager } from './shapes/node';
 import {
@@ -574,7 +570,6 @@ export default function(
     }
   }
 
-  // TODO: getNodeSize??
   const node = new Node(gl, nodeStyle, getNodeSize);
   scene.add('nodes', node.getPrimitive());
   const nodeColored = new NodeColored(gl, nodeStyle, getNodeSize);
