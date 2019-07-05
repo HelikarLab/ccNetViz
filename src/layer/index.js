@@ -1,6 +1,6 @@
 import ccNetViz_gl from '../gl';
 import ccNetViz_primitive from '../primitive';
-import ccNetViz_layout from '../layout/layout';
+import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { Line, Curve, Circle, EdgeManager } from './shapes/edge';
@@ -105,10 +105,11 @@ export default function(
   let spatialSearch = undefined;
 
   //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
-  let set_end = () => {
+  let set_end = (layout, layout_options) => {
     let enableLazyRedraw = false;
     let reset = p => {
-      if (enableLazyRedraw) this.set(this.nodes, this.edges);
+      if (enableLazyRedraw)
+        this.set(this.nodes, this.edges, layout, layout_options);
     };
     files.onLoad(reset);
     textures.onLoad(reset);
@@ -248,9 +249,27 @@ export default function(
       return spatialSearch;
     };
 
+    if (typeof layout === 'string') {
+      var options_ = new ccNetViz_layout[layout](
+        nodes,
+        edges,
+        layout_options
+      ).apply();
+    } else if (typeof layout === 'function') {
+      var options_ = new layout(nodes, edges, layout_options).apply();
+    } else if (typeof layout === 'number') {
+      throw new Error(
+        'The layout can only be a string or a function or a class'
+      );
+    }
+
+    layout && ccNetViz_layout.normalize(nodes, undefined, options_);
+
+    /*
     layout &&
       new ccNetViz_layout[layout](nodes, edges, layout_options).apply() &&
       ccNetViz_layout.normalize(nodes);
+      */
 
     if (!gl) return;
 
@@ -395,7 +414,7 @@ export default function(
     };
 
     while (tryInitPrimitives()); //loop until they are not dirty
-    set_end();
+    set_end(layout, layout_options);
   };
 
   this.update = function(element, attribute, data) {

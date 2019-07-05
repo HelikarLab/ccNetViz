@@ -1,5 +1,5 @@
 import ccNetViz_layer from './layer/index';
-import ccNetViz_layout from './layout/layout';
+import ccNetViz_layout from './layout/index';
 import ccNetViz_gl from './gl';
 import ccNetViz_color from './color';
 import ccNetViz_utils from './utils';

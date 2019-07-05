@@ -1,3 +1,47 @@
+Among the networks in our
+examples/data/*
+the d3 hack in networkTests takes /2 the time for the larger networks
+and 1/4 for the smallest ones.
+(using random layout)
+This is an indicative that for large enough networks,
+ccNetViz should really beat d3.
+It would be nice to find out in what scale that happens.
+If I had to guess, I would say 5 or 10k nodes.
+
+I wasn't able to import findRoot from layout/utils.js.
+The only way I could make the hierarchical layouts work
+was by copying the function to each of the 
+hierarchical.js and hierarchical2.js.
+
+
+
+=============================
+
+* comply all layouts with new normalize OK
+* assert circular is working fine with topological ordering OK
+* review hierarquical to assert ability to deal with multiple components
+	and manage roots defined by the user LEAVE IT!
+* put erdos sectioning into vesinus
+* make d3 gadget
+* start table of comparisons
+
+
+================
+1) Implement ability to switch direction ( top-bottom, right-left etc. )
+         This should be done in the generic parent class for all of your layouts as I suggested you before
+2) Implement various user configuration options of the layouts.
+         These vary from layout to layout.
+3) Enchance layouts
+         It would be nice to have option to show more than 1 roots etc. But don't waste on this a lot of time ( I think ca. 4 days max are enough )
+4) Performance and feature comparsion with other libraries
+
+in future
+*) All of the missing above
+=========
++ revisar código dos layouts
++ fazer pull request
+
+=======
 * see ales comments about the roadmap
 * tackle (probably) the insertion of optional arguments to layouts
 
@@ -229,7 +273,7 @@ giving error in the browser:
 "missing module"
 doesn't seem to update
 "import layoutRandom from './random' ;"
-line that is on new /src/layout/layout.js
+line that is on new /src/layout/index.js
 
 
 
