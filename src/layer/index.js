@@ -66,10 +66,6 @@ export default function(
   options = options || {};
   options.styles = options.styles || {};
 
-  // set animation flag
-  this.hasEdgeAnimation =
-    !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
-
   const labelManager = new LabelManager(texts);
   const labelsFiller = labelManager.getFiller();
 
@@ -543,7 +539,7 @@ export default function(
   }
 
   // NOTE: split to different file and use getPrimitive to get webgl element
-  const lineEdge = new Line(gl, edgeStyle, this.hasEdgeAnimation);
+  const lineEdge = new Line(gl, edgeStyle);
   scene.add('lines', lineEdge.getPrimitive());
 
   if (extensions.OES_standard_derivatives) {

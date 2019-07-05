@@ -50,8 +50,10 @@ const getEdgeAnimateType = t => {
 };
 
 class Line extends BaseShape {
-  constructor(gl, edgeStyle, hasAnimation) {
+  constructor(gl, edgeStyle) {
     super();
+    const hasAnimation =
+      !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
