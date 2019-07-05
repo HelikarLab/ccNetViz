@@ -105,4 +105,78 @@ class LabelOutline extends BaseShape {
   }
 }
 
-export { Label, LabelOutline };
+class LabelManager {
+  constructor(texts) {
+    this._filler = style => {
+      return (function(style) {
+        let textEngine = texts.getEngine(style.font);
+
+        textEngine.setFont(style.font);
+
+        return {
+          set: (v, e, iV, iI) => {
+            var x = e.x;
+            var y = e.y;
+
+            var ret = false;
+            var parts = textEngine.get(e.label || '', x, y, () => {
+              ret = true;
+            });
+            for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
+              let c = parts[i];
+
+              ccNetViz_primitive.vertices(
+                v.position,
+                iV,
+                x,
+                y,
+                x,
+                y,
+                x,
+                y,
+                x,
+                y
+              );
+              ccNetViz_primitive.vertices(
+                v.relative,
+                iV,
+                c.dx,
+                c.dy,
+                c.width + c.dx,
+                c.dy,
+                c.width + c.dx,
+                c.height + c.dy,
+                c.dx,
+                c.height + c.dy
+              );
+              ccNetViz_primitive.vertices(
+                v.textureCoord,
+                iV,
+                c.left,
+                c.bottom,
+                c.right,
+                c.bottom,
+                c.right,
+                c.top,
+                c.left,
+                c.top
+              );
+              ccNetViz_primitive.quad(v.indices, iV, iI);
+            }
+
+            return ret;
+          },
+          size: (v, e) => {
+            return textEngine.steps(e.label || '');
+          },
+        };
+      })(style);
+    };
+  }
+
+  getFiller() {
+    return this._filler;
+  }
+}
+
+export { Label, LabelOutline, LabelManager };

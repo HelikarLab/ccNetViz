@@ -8,9 +8,9 @@ import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { elementShaders } from '../shaders';
 import { Line, Curve, Circle, edgesFiller } from './shapes/edge';
-import { Node, NodeColored } from './shapes/node';
+import { Node, NodeColored, nodesFiller } from './shapes/node';
 import { LineArrow, CurveArrow, CircleArrow } from './shapes/edgeArrow';
-import { Label, LabelOutline } from './shapes/labels';
+import { Label, LabelOutline, LabelManager } from './shapes/labels';
 import { normalize } from './util';
 
 /**
@@ -65,82 +65,8 @@ export default function(
   this.hasEdgeAnimation =
     !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
 
-  let nodesFiller = style => ({
-    set: (v, e, iV, iI) => {
-      let x = e.x;
-      let y = e.y;
-      ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-      ccNetViz_primitive.vertices(v.textureCoord, iV, 0, 0, 1, 0, 1, 1, 0, 1);
-      if (v.color) {
-        let c = e.color;
-        ccNetViz_primitive.colors(v.color, iV, c, c, c, c);
-      }
-      ccNetViz_primitive.quad(v.indices, iV, iI);
-    },
-  });
-  let labelsFiller = style => {
-    return (function(style) {
-      let textEngine = texts.getEngine(style.font);
-
-      textEngine.setFont(style.font);
-
-      return {
-        set: (v, e, iV, iI) => {
-          var x = e.x;
-          var y = e.y;
-
-          var ret = false;
-          var parts = textEngine.get(e.label || '', x, y, () => {
-            ret = true;
-          });
-          for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
-            let c = parts[i];
-
-            ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
-            ccNetViz_primitive.vertices(
-              v.relative,
-              iV,
-              c.dx,
-              c.dy,
-              c.width + c.dx,
-              c.dy,
-              c.width + c.dx,
-              c.height + c.dy,
-              c.dx,
-              c.height + c.dy
-            );
-            ccNetViz_primitive.vertices(
-              v.textureCoord,
-              iV,
-              c.left,
-              c.bottom,
-              c.right,
-              c.bottom,
-              c.right,
-              c.top,
-              c.left,
-              c.top
-            );
-            ccNetViz_primitive.quad(v.indices, iV, iI);
-          }
-
-          return ret;
-        },
-        size: (v, e) => {
-          return textEngine.steps(e.label || '');
-        },
-      };
-    })(style);
-  };
-
-  /*
-  let normalize = (a, b) => {
-    let x = b.x - a.x;
-    let y = b.y - a.y;
-    let sc = 1 / Math.sqrt(x * x + y * y);
-    return { x: sc * x, y: sc * y };
-  };
-  */
+  const labelManager = new LabelManager(texts);
+  const labelsFiller = labelManager.getFiller();
 
   let dx = Math.cos(0.9);
   let dy = Math.sin(0.9);
