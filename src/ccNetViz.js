@@ -1,5 +1,5 @@
-import ccNetViz_layer from './layer';
-import ccNetViz_layout from './layout/layout';
+import ccNetViz_layer from './layer/index';
+import ccNetViz_layout from './layout/index';
 import ccNetViz_gl from './gl';
 import ccNetViz_color from './color';
 import ccNetViz_utils from './utils';
@@ -413,6 +413,7 @@ var ccNetViz = function(canvas, options) {
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
     const startTime = Date.now();
+    let drawNums = 0;
 
     const drawOnce = () => {
       for (let i = 0; i < layers.main.scene.elements.length; i++) {
@@ -423,6 +424,8 @@ var ccNetViz = function(canvas, options) {
     const drawLoop = () => {
       context.renderTime = (Date.now() - startTime) / 1000.0;
       drawOnce();
+      drawNums++;
+      this.fps = drawNums / context.renderTime; // TODO: number overflow
       requestAnimationFrame(drawLoop);
     };
 

@@ -2,62 +2,79 @@
 <html>
   <head>
     <title>ccNetViz line speed animation example</title>
-    <script src="./libs/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
   </head>
+
   <body>
-    <h1>Line speed animation example</h1>
-    <div id="main" style="width:800px; height: 600px; border: 1px solid;"></div>
-    <div>
-      <label>animation type:</label>
-      <select id="animate-select" onchange="onAnimationChange()">
-        <option value="none">None</option>
-        <option value="basic">Basic</option>
-        <option selected value="gradient">Gradient</option>
-      </select>
+    <div class="canvas-container">
+      <h3 class="title">Line speed animation example</h3>
+      <div id="canvas-list"></div>
+      <div class="toolbox">
+        <div class="item">
+          <label>Animation type:</label>
+          <select id="animate-select" onchange="onAnimationChange()">
+            <option value="none">None</option>
+            <option value="basic">Basic</option>
+            <option selected value="gradient">Gradient</option>
+          </select>
+        </div>
+        <div class="item">
+          <label>Animation speed: <b id="speed-text">0.1</b></label>
+          <input
+            id="animate-speed"
+            type="range"
+            min="0.1"
+            max="5"
+            value="1.0"
+            step="0.1"
+            onchange="onAnimationSpeedChange()"
+          />
+        </div>
+        <div class="item">
+          <label>Animation ease effects:</label>
+          <select id="animate-ease" onchange="onAnimationEaseChange()">
+            <option value="linear">linear</option>
+            <option value="sin-in">sin-in</option>
+            <option selected value="sin-out">sin-out</option>
+            <option value="sin-inout">sin-inout</option>
+            <option value="bounce-in">bounce-in</option>
+            <option value="bounce-out">bounce-out</option>
+            <option value="bounce-inout">bounce-inout</option>
+            <option value="exp-in">exp-in</option>
+            <option value="exp-out">exp-out</option>
+            <option value="exp-inout">exp-inout</option>
+            <option value="circular-in">circular-in</option>
+            <option value="circular-out">circular-out</option>
+            <option value="circular-inout">circular-inout</option>
+            <option value="quad-in">quad-in</option>
+            <option value="quad-out">quad-out</option>
+            <option value="quad-inout">quad-inout</option>
+            <option value="cubic-in">cubic-in</option>
+            <option value="cubic-out">cubic-out</option>
+            <option value="cubic-inout">cubic-inout</option>
+            <option value="quart-in">quart-in</option>
+            <option value="quart-out">quart-out</option>
+            <option value="quart-inout">quart-inout</option>
+            <option value="quint-in">quint-in</option>
+            <option value="quint-out">quint-out</option>
+            <option value="quint-inout">quint-inout</option>
+          </select>
+        </div>
+      </div>
+      <div class="description">
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
     </div>
-    <div>
-      <label>animation speed: <span id="speed-text">0.1</span></label>
-      <input
-        id="animate-speed"
-        type="range"
-        min="0.1"
-        max="5"
-        value="1.0"
-        step="0.1"
-        onchange="onAnimationSpeedChange()"
-      />
-    </div>
-    <div>
-      <label>animation ease effects:</label>
-      <select id="animate-ease" onchange="onAnimationEaseChange()">
-        <option value="linear">linear</option>
-        <option value="sin-in">sin-in</option>
-        <option selected value="sin-out">sin-out</option>
-        <option value="sin-inout">sin-inout</option>
-        <option value="bounce-in">bounce-in</option>
-        <option value="bounce-out">bounce-out</option>
-        <option value="bounce-inout">bounce-inout</option>
-        <option value="exp-in">exp-in</option>
-        <option value="exp-out">exp-out</option>
-        <option value="exp-inout">exp-inout</option>
-        <option value="circular-in">circular-in</option>
-        <option value="circular-out">circular-out</option>
-        <option value="circular-inout">circular-inout</option>
-        <option value="quad-in">quad-in</option>
-        <option value="quad-out">quad-out</option>
-        <option value="quad-inout">quad-inout</option>
-        <option value="cubic-in">cubic-in</option>
-        <option value="cubic-out">cubic-out</option>
-        <option value="cubic-inout">cubic-inout</option>
-        <option value="quart-in">quart-in</option>
-        <option value="quart-out">quart-out</option>
-        <option value="quart-inout">quart-inout</option>
-        <option value="quint-in">quint-in</option>
-        <option value="quint-out">quint-out</option>
-        <option value="quint-inout">quint-inout</option>
-      </select>
-    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
       const data = {
         nodes: [
@@ -113,7 +130,10 @@
 
       function onAnimationSpeedChange() {
         const el = document.querySelector('#animate-speed');
+        const el2 = document.querySelector('#speed-text');
         const val = el.value;
+        el.innerHTML = el.value;
+        el2.innerHTML = el.value;
         window.options.styles.edge.animateSpeed = Number(val);
         showGraph(window.options);
       }
@@ -126,11 +146,9 @@
       }
 
       function showGraph(options) {
-        const el = document.querySelector('#main');
+        const el = document.querySelector('.canvas-container #canvas-list');
         el.innerHTML = '';
         canvas = document.createElement('canvas');
-        canvas.width = 800;
-        canvas.height = 600;
         el.appendChild(canvas);
 
         const graph = new ccNetViz(canvas, options);

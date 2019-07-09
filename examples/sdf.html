@@ -1,35 +1,34 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
     <title>ccNetViz example of different styling</title>
-    <style type="text/css">
-      #container {
-        width: 600px;
-        height: 600px;
-        border: 1px solid black;
-      }
-      #body {
-        display: inline-block;
-      }
-    </style>
-    <script src="./libs/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
   </head>
 
   <body>
-    <h1>Using SDF font</h1>
-    <div>
-      Example with Signed distance field fonts utilizing the browser-based font
-      generation.
+    <div class="canvas-container">
+      <h3 class="title">Using SDF font</h3>
+      <canvas id="canvas"></canvas>
+      <div class="description">
+        Example with Signed distance field fonts utilizing the browser-based
+        font generation.
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
     </div>
-    <br />
-    <div id="body">
-      <canvas id="container"></canvas>
-    </div>
-
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
       var data = {};
+
       function init() {
         // $.ajax({ url: 'data/graph-10-2.json', dataType: 'json' }).done(dataLoaded);
         // $.ajax({ url: 'data/line-1000.json', dataType: 'json' }).done(dataLoaded);
@@ -47,8 +46,10 @@
         data = d;
         showGraph();
       }
+
       function showGraph() {
         var startTime = new Date();
+
         var conf = {
           styles: {
             background: {
@@ -80,17 +81,22 @@
             },
           },
         };
-        var el = document.getElementById('container');
+
+        var el = document.getElementById('canvas');
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force');
         graph.draw();
+
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);
         $('#renderedIn').text(
           Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10
         );
       }
+
       $(init);
+
+      var t = 1;
     </script>
   </body>
 </html>
