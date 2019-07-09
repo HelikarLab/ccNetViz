@@ -36,6 +36,7 @@ const animateStylesTransl = {
   none: 0,
   basic: 1,
   gradient: 2,
+  'double-gradient': 3,
 };
 const getEdgeAnimateType = t => {
   if (t !== undefined) {
