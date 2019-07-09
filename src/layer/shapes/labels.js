@@ -15,7 +15,8 @@ let bindLabels = (
   getNodeSize,
   getLabelSize,
   texts,
-  backgroundColor
+  backgroundColor,
+  context
 ) => {
   return c => {
     if (!getNodeSize(c)) return true;
@@ -70,7 +71,8 @@ class Label extends BaseShape {
     getNodeSize,
     getLabelSize,
     texts,
-    backgroundColor
+    backgroundColor,
+    context
   ) {
     super();
     this._primitive = new ccNetViz_primitive(
@@ -79,7 +81,15 @@ class Label extends BaseShape {
       'label',
       elementShaders.vsLabelsShader,
       elementShaders.fsLabelTexture,
-      bindLabels(false, gl, getNodeSize, getLabelSize, texts, backgroundColor)
+      bindLabels(
+        false,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context
+      )
     );
   }
 }
@@ -91,7 +101,8 @@ class LabelOutline extends BaseShape {
     getNodeSize,
     getLabelSize,
     texts,
-    backgroundColor
+    backgroundColor,
+    context
   ) {
     super();
     this._primitive = new ccNetViz_primitive(
@@ -100,7 +111,15 @@ class LabelOutline extends BaseShape {
       'label',
       elementShaders.vsLabelsShader,
       elementShaders.fsLabelTexture,
-      bindLabels(true, gl, getNodeSize, getLabelSize, texts, backgroundColor)
+      bindLabels(
+        true,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context
+      )
     );
   }
 }
@@ -124,8 +143,9 @@ class LabelManager extends BaseShapeManager {
               ret = true;
             });
             for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
+              // parts is the array of characters, character description and position w.r.t node
               let c = parts[i];
-
+              //position of the node
               ccNetViz_primitive.vertices(
                 v.position,
                 iV,
@@ -138,33 +158,44 @@ class LabelManager extends BaseShapeManager {
                 x,
                 y
               );
+              //position of the vertices of box of label to be rendered
+              if (i == 0) {
+                // bring the center of box of character to the center of node (incase if you are wondering
+                // why not c.width/2 and c.height/2 , it's because for c.width/2, it will exactly coincide with
+                // center of node, so some of the node labels could go out of canvas)
+                //UPDATE : for x<=0.5 , we need to bring to centre of node for new labelBackground shader
+                var boxMinusX = x <= 0.5 ? c.width / 2 : c.width / 3;
+                var boxMinusY = c.height / 3;
+              }
               ccNetViz_primitive.vertices(
                 v.relative,
                 iV,
-                c.dx,
-                c.dy,
-                c.width + c.dx,
-                c.dy,
-                c.width + c.dx,
-                c.height + c.dy,
-                c.dx,
-                c.height + c.dy
+                c.dx - boxMinusX,
+                c.dy - boxMinusY,
+                c.width + c.dx - boxMinusX,
+                c.dy - boxMinusY,
+                c.width + c.dx - boxMinusX,
+                c.height + c.dy - boxMinusY,
+                c.dx - boxMinusX,
+                c.height + c.dy - boxMinusY
               );
-              ccNetViz_primitive.vertices(
-                v.textureCoord,
-                iV,
-                c.left,
-                c.bottom,
-                c.right,
-                c.bottom,
-                c.right,
-                c.top,
-                c.left,
-                c.top
-              );
+              // position of characters in atlas
+              if (v.textureCoord) {
+                ccNetViz_primitive.vertices(
+                  v.textureCoord,
+                  iV,
+                  c.left,
+                  c.bottom,
+                  c.right,
+                  c.bottom,
+                  c.right,
+                  c.top,
+                  c.left,
+                  c.top
+                );
+              }
               ccNetViz_primitive.quad(v.indices, iV, iI);
             }
-
             return ret;
           },
           size: (v, e) => {

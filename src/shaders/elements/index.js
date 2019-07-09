@@ -1,4 +1,6 @@
 import vsLabelsShader from './vsLabelsShader.glsl';
+import vsLabelsBackgroundShader from './vsLabelsBackgroundShader.glsl';
+import fsLabelsBackgroundShader from './fsLabelsBackgroundShader.glsl';
 
 import vsLineHead from './vsLineHead.glsl';
 import vsLineMain from './vsLineMain.glsl';
@@ -70,6 +72,8 @@ const elementShaders = {
   fsVarColorTexture,
   vsLabelsShader,
   fsLabelTexture,
+  vsLabelsBackgroundShader,
+  fsLabelsBackgroundShader,
   fsCurve,
   vsCurve,
   fsCircle: fsCurve,
