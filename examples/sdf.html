@@ -42,6 +42,7 @@
         // $.ajax({ url: 'data/CD4.json', dataType: 'json' }).done(dataLoaded);
         // $.ajax({ url: 'data/circle-100.json', dataType: 'json' }).done(dataLoaded);
       }
+
       function dataLoaded(d) {
         data = d;
         showGraph();
@@ -62,6 +63,7 @@
               texture: 'images/circle.png',
               label: {
                 color: 'rgb(120, 120, 120)',
+                backgroundColor: 'rgb(255,255,0)',
                 size: 14,
                 font: {
                   type: 'sdf',

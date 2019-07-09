@@ -12,6 +12,10 @@ import {
   EdgeArrowManager,
 } from './shapes/edgeArrow';
 import { Label, LabelOutline, LabelManager } from './shapes/labels';
+import {
+  LabelsBackground,
+  LabelsBackgroundManager,
+} from './shapes/labelsBackground';
 import { normalize } from './util';
 
 /**
@@ -64,6 +68,9 @@ export default function(
 
   const labelManager = new LabelManager(texts);
   const labelsFiller = labelManager.getFiller();
+
+  const labelsBackgroundManager = new LabelsBackgroundManager(texts);
+  const labelsBackgroundFiller = labelsBackgroundManager.getFiller();
 
   const edgeArrowManager = new EdgeArrowManager();
   const arrowFiller = edgeArrowManager.getFiller();
@@ -316,16 +323,18 @@ export default function(
         );
       if (nodeStyle.label) {
         texts.clear();
-        isDirty =
-          isDirty ||
-          scene.labelsOutline.set(
-            gl,
-            options.styles,
-            labelAdder,
-            nodes,
-            nodesParts,
-            labelsFiller
-          );
+        if (!nodeStyle.label.backgroundColor) {
+          isDirty =
+            isDirty ||
+            scene.labelsOutline.set(
+              gl,
+              options.styles,
+              labelAdder,
+              nodes,
+              nodesParts,
+              labelsFiller
+            );
+        }
         isDirty =
           isDirty ||
           scene.labels.set(
@@ -337,6 +346,18 @@ export default function(
             labelsFiller
           );
         texts.bind();
+      }
+      if (nodeStyle.label.backgroundColor) {
+        isDirty =
+          isDirty ||
+          scene.labelsBackground.set(
+            gl,
+            options.styles,
+            labelAdder,
+            nodes,
+            nodesParts,
+            labelsBackgroundFiller.backgroundColor
+          );
       }
 
       isDirty =
@@ -594,6 +615,19 @@ export default function(
   const nodeColored = new NodeColored(gl, nodeStyle, getNodeSize);
   scene.add('nodesColored', nodeColored.getPrimitive());
 
+  if (nodeStyle.label.backgroundColor) {
+    const labelsBackground = new LabelsBackground(
+      gl,
+      nodeStyle,
+      getLabelSize,
+      texts,
+      backgroundColor,
+      context
+    );
+    nodeStyle.label.backgroundColor &&
+      scene.add('labelsBackground', labelsBackground.getPrimitive());
+  }
+
   const labelOutline = new LabelOutline(
     gl,
     nodeStyle,
@@ -604,6 +638,7 @@ export default function(
     context
   );
   nodeStyle.label && scene.add('labelsOutline', labelOutline.getPrimitive());
+
   const label = new Label(
     gl,
     nodeStyle,
