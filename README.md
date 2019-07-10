@@ -101,6 +101,7 @@ _Example options_
       texture: "images/circle.png",   //node image
       label: {
         backgroundColor: "rgb(255,255,0)", //default: "rgb(255, 255, 255)"
+        borderColor: "rgb(0,0,0)",
         color: "rgb(120, 0, 0)",  //label color, default: "rgb(120, 120, 120)"
         font: { //label font
           size: 15,
