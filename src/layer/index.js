@@ -194,7 +194,7 @@ export default function(
             t = circlesd;
           } else {
             let m = map[ti];
-            if (m && m[si] && is_bidirectional_overlap) {
+            if (m && m[si] && !is_bidirectional_overlap) {
               e.t = 1; //curve
               target = curves;
               t = curvesd;
