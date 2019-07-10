@@ -1,7 +1,7 @@
 var path = require('path');
 
 module.exports = {
-  entry: './src/ccNetViz.js',
+  entry: './src/ccNetVizMultiLevel.js',
   output: {
     path: path.join(__dirname, 'lib'),
     filename: 'ccNetViz.js',
