@@ -1,32 +1,27 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ccNetViz Multi Level Graph Example</title>
-    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <title>ccNetViz example</title>
+    <style type="text/css">
+      #container {
+        width: 500px;
+        height: 500px;
+        cursor: crosshair;
+      }
+    </style>
     <script src="../lib/ccNetViz.js"></script>
   </head>
-
   <body>
-    <div class="canvas-container">
-      <h3 class="title">Multi Level Graph Example</h3>
-      <canvas id="canvas"></canvas>
-      <div class="description">
-        To enter to deeper node, click on node "Hello" or "World". Then use
-        right button on mouse for going back.
-        <br />
-        More detailed information please visit the
-        <a href="https://helikarlab.github.io/ccNetViz/#doc"
-          >documentation page</a
-        >.
-      </div>
+    <h1>Multi level graph example</h1>
+    <div>
+      To enter to deeper node, click on node "Hello" or "World". Then use right
+      button on mouse for going back.
     </div>
-    <header id="logo">
-      <a href="https://helikarlab.github.io/ccNetViz/">
-        <img src="images/logo.svg" />
-      </a>
-    </header>
+    <br />
+    <canvas id="container"></canvas>
+    <div id="searchReport" />
     <script>
-      var el = document.getElementById('canvas');
+      var el = document.getElementById('container');
       var graph = new ccNetVizMultiLevel(el, {
         styles: {
           node: { texture: 'images/node.png', label: { hideSize: 16 } },

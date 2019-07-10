@@ -17,7 +17,10 @@ void main(void) {
   }
 
   // line animate types
-  if (animateType >= 1.5) {
+  if (animateType >= 2.5) {
+    gl_FragColor = isAnimateCoveredDoubleGradient() * animateColor +
+                   (1. - isAnimateCoveredDoubleGradient()) * color;
+  } else if (animateType >= 1.5) {
     gl_FragColor = isAnimateCoveredGradient() * animateColor +
                    (1. - isAnimateCoveredGradient()) * color;
   } else if (animateType >= 0.5) {

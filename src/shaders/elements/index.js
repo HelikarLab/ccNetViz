@@ -1,4 +1,8 @@
 import vsLabelsShader from './vsLabelsShader.glsl';
+import vsLabelsBackgroundShader from './vsLabelsBackgroundShader.glsl';
+import vsLabelsBorder from './vsLabelsBorder.glsl';
+import fsLabelsBackgroundShader from './fsLabelsBackgroundShader.glsl';
+import fsLabelsBorder from './fsLabelsBorder.glsl';
 
 import vsLineHead from './vsLineHead.glsl';
 import vsLineMain from './vsLineMain.glsl';
@@ -6,8 +10,7 @@ import getShiftFuncs from './getShiftFuncs.glsl';
 
 import { easeFunctions } from '../easeFunctions';
 import fsLineHead from './fsLineHead.glsl';
-import fsLineAnimateBasic from './fsLineAnimateBasic.glsl';
-import fsLineAnimateGradient from './fsLineAnimateGradient.glsl';
+import fsLineAnimateFuncs from './fsLineAnimateFuncs.glsl';
 import fsLineMain from './fsLineMain.glsl';
 import fsLineBasic from './fsLineBasic.glsl';
 
@@ -56,8 +59,7 @@ const fsLineAnimate = ease => {
   return [
     fsLineHead,
     easeFunctionPart(ease),
-    fsLineAnimateBasic,
-    fsLineAnimateGradient,
+    fsLineAnimateFuncs,
     fsLineMain,
   ].join('\n');
 };
@@ -70,6 +72,10 @@ const elementShaders = {
   fsVarColorTexture,
   vsLabelsShader,
   fsLabelTexture,
+  vsLabelsBackgroundShader,
+  vsLabelsBorder,
+  fsLabelsBackgroundShader,
+  fsLabelsBorder,
   fsCurve,
   vsCurve,
   fsCircle: fsCurve,

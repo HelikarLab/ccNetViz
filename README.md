@@ -100,11 +100,15 @@ _Example options_
       color: "rgb(255, 0, 0)",  //node color (combined with node image), default: "rgb(255, 255, 255)"
       texture: "images/circle.png",   //node image
       label: {
-        hideSize: 16,   //minimum size (height) for the label to be displayed
+        backgroundColor: "rgb(255,255,0)", //default: "rgb(255, 255, 255)"
+        borderColor: "rgb(0,0,0)",
         color: "rgb(120, 0, 0)",  //label color, default: "rgb(120, 120, 120)"
         font: { //label font
-          type: "Arial, Helvetica, sans-serif",
-          size: 15
+          size: 15,
+          family: "Arial, Helvetica, sans-serif", //default: "sans-serif"
+          weight: "normal|bold|italic", //default weight: normal
+          strokeText: false, //default: false
+          alignment: "left|right|center"  //default alignment: left
         }
       }
     },
