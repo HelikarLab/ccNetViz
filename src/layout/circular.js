@@ -12,7 +12,7 @@ import ccNetViz_utils from '../utils';
 function fromTo(node1, node2) {
   let children = node1.children;
   for (let i = 0; i < children.length; ++i) {
-    if (children[i].uniqid == node2.uniqid) return true;
+    if (children[i].uniqid === node2.uniqid) return true;
   }
   return false;
 }
@@ -22,24 +22,25 @@ function topological(nd, nodes) {
   for (let i = 1; i < nd.nodes.length; ++i) {
     nodes[i].degree = nd.degrees[i];
   }
-
+  let t = 0;
   for (let i = 1; i < nodes.length; ++i) {
     let degree = nodes[i].degree;
     if (
-      (i == nodes.length - 1 ||
-        degree != nodes[i + 1].degree ||
-        fromTo(nodes_[i - 1], nodes[i])) &&
+      (i === nodes.length - 1 ||
+        degree !== nodes[i + 1].degree ||
+        fromTo(nodes_[t], nodes[i])) &&
       nodes[i].picked != true
     ) {
       nodes_.push(nodes[i]);
       nodes[i].picked = true;
+      t++;
     } else {
       // get all children of last node and see if one of them has degree == degree
       // if true, pick the node, else pick any node with degree == degree
-      let children = nodes_[i - 1].children;
+      let children = nodes_[t].children;
       let found_child = false;
       for (let j = 0; j < children.length; ++j) {
-        if (children[j].degree == degree && children[j].picked != true) {
+        if (children[j].degree === degree && children[j].picked !== true) {
           nodes_.push(children[j]);
           children[j].picked = true;
           found_child = true;
@@ -47,13 +48,14 @@ function topological(nd, nodes) {
         }
       }
       let ii = 0;
-      while (found_child != true) {
-        if (nodes[ii].picked != true) {
+      while (found_child !== true) {
+        if (nodes[ii].picked !== true) {
           nodes_.push(nodes[ii]);
           nodes[ii].picked = true;
           found_child = true;
         }
         ii++;
+        if (ii === nodes.length) break;
       }
     }
   }
@@ -115,6 +117,7 @@ export default class {
           angle0 +
           Math.floor(i / divisions) * astep +
           ((2 * Math.PI) / divisions) * (i % divisions);
+        if (typeof nodes_[i] === 'undefined') continue;
         nodes_[i].x = center[0] + Math.cos(angle) * radius;
         nodes_[i].y = center[1] + Math.sin(angle) * radius;
         nodes_[i].weight = nodes_[i].degree;
