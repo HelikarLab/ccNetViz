@@ -347,7 +347,7 @@ export default function(
           );
         texts.bind();
       }
-      if (nodeStyle.label.backgroundColor) {
+      if (nodeStyle.label && nodeStyle.label.backgroundColor) {
         isDirty =
           isDirty ||
           scene.labelsBackground.set(
@@ -615,7 +615,7 @@ export default function(
   const nodeColored = new NodeColored(gl, nodeStyle, getNodeSize);
   scene.add('nodesColored', nodeColored.getPrimitive());
 
-  if (nodeStyle.label.backgroundColor) {
+  if (nodeStyle.label && nodeStyle.label.backgroundColor) {
     const labelsBackground = new LabelsBackground(
       gl,
       nodeStyle,
