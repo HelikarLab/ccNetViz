@@ -15,6 +15,7 @@ import { Label, LabelOutline, LabelManager } from './shapes/labels';
 import {
   LabelsBackground,
   LabelsBackgroundManager,
+  LabelsBorder,
 } from './shapes/labelsBackground';
 import { normalize } from './util';
 
@@ -356,7 +357,20 @@ export default function(
             labelAdder,
             nodes,
             nodesParts,
-            labelsBackgroundFiller.backgroundColor
+            labelsBackgroundFiller.background
+          );
+      }
+
+      if (nodeStyle.label && nodeStyle.label.borderColor) {
+        isDirty =
+          isDirty ||
+          scene.labelsBorder.set(
+            gl,
+            options.styles,
+            labelAdder,
+            nodes,
+            nodesParts,
+            labelsBackgroundFiller.border
           );
       }
 
@@ -621,11 +635,20 @@ export default function(
       nodeStyle,
       getLabelSize,
       texts,
-      backgroundColor,
       context
     );
-    nodeStyle.label.backgroundColor &&
-      scene.add('labelsBackground', labelsBackground.getPrimitive());
+    scene.add('labelsBackground', labelsBackground.getPrimitive());
+  }
+
+  if (nodeStyle.label && nodeStyle.label.borderColor) {
+    const labelsBorder = new LabelsBorder(
+      gl,
+      nodeStyle,
+      getLabelSize,
+      texts,
+      context
+    );
+    scene.add('labelsBorder', labelsBorder.getPrimitive());
   }
 
   const labelOutline = new LabelOutline(

@@ -28,7 +28,6 @@
     </header>
     <script>
       var data = {};
-
       function init() {
         // $.ajax({ url: 'data/graph-10-2.json', dataType: 'json' }).done(dataLoaded);
         // $.ajax({ url: 'data/line-1000.json', dataType: 'json' }).done(dataLoaded);
@@ -42,15 +41,12 @@
         // $.ajax({ url: 'data/CD4.json', dataType: 'json' }).done(dataLoaded);
         // $.ajax({ url: 'data/circle-100.json', dataType: 'json' }).done(dataLoaded);
       }
-
       function dataLoaded(d) {
         data = d;
         showGraph();
       }
-
       function showGraph() {
         var startTime = new Date();
-
         var conf = {
           styles: {
             background: {
@@ -63,8 +59,6 @@
               texture: 'images/circle.png',
               label: {
                 color: 'rgb(120, 120, 120)',
-                backgroundColor: 'rgb(255,255,0)',
-                size: 14,
                 font: {
                   type: 'sdf',
                 },
@@ -83,22 +77,17 @@
             },
           },
         };
-
         var el = document.getElementById('canvas');
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force');
         graph.draw();
-
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);
         $('#renderedIn').text(
           Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10
         );
       }
-
       $(init);
-
-      var t = 1;
     </script>
   </body>
 </html>
