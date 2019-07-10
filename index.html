@@ -22,14 +22,16 @@
 
   <script type="text/javascript">
     window.addEventListener('load', function () {
-      window.timer = {
-        start: new Date(),
-        end: undefined
-      };
 
       function drawLogo(c, settings, t) {
         const nodes = [];
         const edges = [];
+
+        window.timer = {
+        start: new Date(),
+        end: undefined
+        };
+
 
         const x1 = settings.nodeFrequency / settings.width;
         const y1 = settings.nodeFrequency / settings.height;
@@ -677,590 +679,624 @@
       </div>
     </div>
   </div>
-  <div class="o-container">
-    <div style="padding-top: 100px;" class="container">
-      <div id="description" class="row">
-        <h5 id="about" class="row">ccNetViz</h5>
-        <article class="row">
-          <p>ccNetViz is a lightweight, high-performance javascript library for large network graphs (see <a
-              href="https://en.wikipedia.org/wiki/Graph_theory" rel="nofollow">graph theory</a>) visualization using
-            WebGL.
-            It enables custom styling of nodes and edges in CSS like way, curve edges, dynamic changes of the network,
-            force-directed layout and basic graph interactivity.
-            Used for example by <a href="http://cellcollective.org" rel="nofollow">Cell Collective</a> project.
-            ccNetViz is open source library available
-            under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.</p>
-        </article>
+  <div style="z-index: 5;background: #fff">
+    <div class="o-container">
+      <div style="padding-top: 100px;" class="container">
+        <div id="description" class="row">
+          <h5 id="about" class="row">ccNetViz</h5>
+          <article class="row">
+            <p>ccNetViz is a lightweight, high-performance javascript library for large network graphs (see <a
+                href="https://en.wikipedia.org/wiki/Graph_theory" rel="nofollow">graph theory</a>) visualization using
+              WebGL.
+              It enables custom styling of nodes and edges in CSS like way, curve edges, dynamic changes of the network,
+              force-directed layout and basic graph interactivity.
+              Used for example by <a href="http://cellcollective.org" rel="nofollow">Cell Collective</a> project.
+              ccNetViz is open source library available
+              under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.</p>
+          </article>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="o-container">
-    <div class="container">
-      <div id="usage" class="row">
-        <h5 class="row">Basic Example</h5>
-        <article class="usage-description">
-          <script src="https://gist.github.com/canerakdas/fff1af5b24b9dc62829e36807d0ccbe8.js"></script>
-          <h6>In-built support for the multiple layouts</h6>
-          <div id="layout-information">
-            Recommended layout is <b>Force</b> based.<br>
-            Inbuilt support for multiple layouts such as the <b> Force</b>, <b>Hierarchical</b>, <b>Circular</b>,
-            <b>Spectral</b>, <b>Hive</b>, <b>Grid</b>, <b>Versinus</b>.<br>
-            Inbuilt support for two modifications of <b>Tree</b> layout.
-            <ul>
-              <li>Graph layouts</li>
-              <li>Tree-specific layouts</li>
-            </ul>
-            <div class="inform">
-              See the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/src/layout" target="_blank">link</a>
-              for list of all available layouts.
+    <div class="o-container">
+      <div class="container">
+        <div id="usage" class="row">
+          <h5 class="row">Basic Example</h5>
+          <article class="usage-description">
+            <script src="https://gist.github.com/canerakdas/fff1af5b24b9dc62829e36807d0ccbe8.js"></script>
+            <h6>In-built support for the multiple layouts</h6>
+            <div id="layout-information">
+              Recommended layout is <b>Force</b> based.<br>
+              Inbuilt support for multiple layouts such as the <b> Force</b>, <b>Hierarchical</b>, <b>Circular</b>,
+              <b>Spectral</b>, <b>Hive</b>, <b>Grid</b>, <b>Versinus</b>.<br>
+              Inbuilt support for two modifications of <b>Tree</b> layout.
+              <ul>
+                <li>Graph layouts</li>
+                <li>Tree-specific layouts</li>
+              </ul>
+              <div class="inform">
+                See the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/src/layout" target="_blank">link</a>
+                for list of all available layouts.
+              </div>
+              <p>If you want to use one of our in-built layout, pass it as second parameter into the set function such as:
+              </p>
+              <script src="https://gist.github.com/canerakdas/2ea1a305da82dc1182f859ab79c4d4d4.js"></script>
             </div>
-            <p>If you want to use one of our in-built layout, pass it as second parameter into the set function such as:
-            </p>
-            <script src="https://gist.github.com/canerakdas/2ea1a305da82dc1182f859ab79c4d4d4.js"></script>
+          </article>
+        </div>
+        <div id="demos" class="row">
+          <h5 class="row">Advanced Examples</h5>
+          <div id="demos-container">
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/styles.html">
+                  <div class="image-container">
+                    <img src="./static/img/styles.png" alt="Advanced styling" />
+                  </div>
+                  <span>Advanced styling<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/styles.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/complex.html">
+                  <div class="image-container">
+                    <img src="./static/img/complex.png" alt="Complex graphs" />
+                  </div>
+                  <span>Complex graphs<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/complex.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/interactivity_hover.html">
+                  <div class="image-container">
+                    <img src="./static/img/hover.png" alt="Mouse event on hover" />
+                  </div>
+                  <span>Mouse event on hover<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/interactivity_hover.html">GitHub</a></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/interactivity_move.html">
+                  <div class="image-container">
+                    <img src="./static/img/move.png" alt="Mouse events on move" />
+                  </div>
+                  <span>Mouse events on move<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/interactivity_move.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/multi_level.html">
+                  <div class="image-container">
+                    <img src="./static/img/multi.png" alt="Multi level" />
+                  </div>
+                  <span>Multi level<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/multi_level.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/save_graph.html">
+                  <div class="image-container">
+                    <img src="./static/img/save.png" alt="Save graphs" />
+                  </div>
+                  <span>Save graphs<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/save_graph.html">GitHub</a></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/sdf.html">
+                  <div class="image-container">
+                    <img src="./static/img/sdf.png" alt="Using SDF fonts" />
+                  </div>
+                  <span>Using SDF fonts<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/sdf.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/userdef_layout.html">
+                  <div class="image-container">
+                    <img src="./static/img/layout.png" alt="User definied layout" />
+                  </div>
+                  <span>User definied layout<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/userdef_layout.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/edges_to_edges.html">
+                  <div class="image-container">
+                    <img src="./static/img/edges.png" alt="Edges-to-edges support" />
+                  </div>
+                  <span>Edges-to-edges support<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/edges_to_edges.html">GitHub</a></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/line_animate.html">
+                  <div class="image-container">
+                    <img src="./static/img/line_animate.png" style="height: 146px; width: auto;" alt="Line Animation" />
+                  </div>
+                  <span>Edge Animation<a class="github"
+                      href=".examples/line_animate.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/line_animate_complex.html">
+                  <div class="image-container">
+                    <img src="./static/img/animation-complex.png" style="height: 146px; width: auto;" alt="Line Animation Complex" />
+                  </div>
+                  <span>Edge Animation Complex<a class="github"
+                      href=".examples/line_animate.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/line_animation_benchmark.html">
+                  <div class="image-container">
+                    <img src="./static/img/animate-benchmark.png" style="height: 146px; width: auto;" alt="Line Animation Benchmark" />
+                  </div>
+                  <span>Edge Animation Benchmark<a class="github"
+                      href=".examples/line_animation_benchmark.html">GitHub</a></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/layouts.html">
+                  <div class="image-container">
+                    <img src="./static/img/layouts.png" alt="Layouts" />
+                  </div>
+                  <span>Layouts<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/layouts.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four add-new-demo">
+                <a href="https://github.com/HelikarLab/ccNetViz" target="_blank">
+                  <div class="image-container">
+                    <img src="./static/img/graph.png" alt="Using SDF fonts">
+                  </div>
+                  <div class="add-new-demo-title">Do you want to share your idea?<br /> Send pull
+                    request on <b>GitHub</b></div>
+                </a>
+              </div>
+            </div>
           </div>
-        </article>
-      </div>
-      <div id="demos" class="row">
-        <h5 class="row">Advanced Examples</h5>
-        <div id="demos-container">
-          <div class="row">
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/styles.html">
-                <div class="image-container">
-                  <img src="./static/img/styles.png" alt="Advanced styling" />
-                </div>
-                <span>Advanced styling<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/styles.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/complex.html">
-                <div class="image-container">
-                  <img src="./static/img/complex.png" alt="Complex graphs" />
-                </div>
-                <span>Complex graphs<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/complex.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/interactivity_hover.html">
-                <div class="image-container">
-                  <img src="./static/img/hover.png" alt="Mouse event on hover" />
-                </div>
-                <span>Mouse event on hover<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/interactivity_hover.html">GitHub</a></span>
-              </a>
-            </div>
-          </div>
-          <div class="row">
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/interactivity_move.html">
-                <div class="image-container">
-                  <img src="./static/img/move.png" alt="Mouse events on move" />
-                </div>
-                <span>Mouse events on move<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/interactivity_move.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/multi_level.html">
-                <div class="image-container">
-                  <img src="./static/img/multi.png" alt="Multi level" />
-                </div>
-                <span>Multi level<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/multi_level.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/save_graph.html">
-                <div class="image-container">
-                  <img src="./static/img/save.png" alt="Save graphs" />
-                </div>
-                <span>Save graphs<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/save_graph.html">GitHub</a></span>
-              </a>
-            </div>
-          </div>
-          <div class="row">
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/sdf.html">
-                <div class="image-container">
-                  <img src="./static/img/sdf.png" alt="Using SDF fonts" />
-                </div>
-                <span>Using SDF fonts<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/sdf.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/userdef_layout.html">
-                <div class="image-container">
-                  <img src="./static/img/layout.png" alt="User definied layout" />
-                </div>
-                <span>User definied layout<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/userdef_layout.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/edges_to_edges.html">
-                <div class="image-container">
-                  <img src="./static/img/edges.png" alt="Edges-to-edges support" />
-                </div>
-                <span>Edges-to-edges support<a class="github"
-                    href="https://github.com/HelikarLab/ccNetViz/blob/master./examples/edges_to_edges.html">GitHub</a></span>
-              </a>
-            </div>
-          </div>
-          <div class="row">
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/line_animate.html">
-                <div class="image-container">
-                  <img src="./static/img/line_animate.png" style="height: 146px; width: auto;" alt="Line Animation" />
-                </div>
-                <span>Edge Animation<a class="github"
-                    href=".examples/line_animate.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/line_animate_complex.html">
-                <div class="image-container">
-                  <img src="./static/img/animation-complex.png" style="height: 146px; width: auto;" alt="Line Animation Complex" />
-                </div>
-                <span>Edge Animation Complex<a class="github"
-                    href=".examples/line_animate.html">GitHub</a></span>
-              </a>
-            </div>
-            <div class="demo columns four">
-              <a target ="_blank" href="./examples/line_animation_benchmark.html">
-                <div class="image-container">
-                  <img src="./static/img/animate-benchmark.png" style="height: 146px; width: auto;" alt="Line Animation Benchmark" />
-                </div>
-                <span>Edge Animation Benchmark<a class="github"
-                    href=".examples/line_animation_benchmark.html">GitHub</a></span>
-              </a>
-            </div>
-          </div>
-          <div class="row">
-            <div class="demo columns four add-new-demo">
-              <a href="https://github.com/HelikarLab/ccNetViz" target="_blank">
-                <div class="image-container">
-                  <img src="./static/img/graph.png" alt="Using SDF fonts">
-                </div>
-                <div class="add-new-demo-title">Do you want to share your idea?<br /> Send pull
-                  request on <b>GitHub</b></div>
-              </a>
+          <h5 class="row">ccNetViz Plugins</h5>
+          <div id="plugins-container">
+            <div class="row">
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/node_plugin.html">
+                  <div class="image-container">
+                    <img src="./static/img/node_plugin.png" alt="Advanced Node Plugin" />
+                  </div>
+                  <span>Advanced Node<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/node_plugin.html">GitHub</a></span>
+                </a>
+              </div>
+              <div class="demo columns four">
+                <a target ="_blank" href="./examples/arrow_plugin.html">
+                  <div class="image-container">
+                    <img src="./static/img/arrow_plugin.png" alt="Advanced Arrow Plugin" />
+                  </div>
+                  <span>Advanced Arrow<a class="github"
+                      href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/arrow_plugin.html">GitHub</a></span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row" id="doc">
-        <h5 class="row">Documentation</h5>
-        <h6>ccNetViz(element, options)</h6>
-        <article>
-          Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles
-          defined in styles property of options parameter.
-        </article>
-        <h6>Options</h6>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th style="width: 120px;">Values</th>
-              <tr>
-                <td>styles</td>
-                <td>Object</td>
-                <td>Contains all of edge and node styles.</td>
-                <td><a href="#node">Node</a> <a href="#edge">Edge</a> </td>
-              </tr>
-              <tr>
-                <td>onChangeViewport</td>
-                <td>Function</td>
-                <td>Called every time viewport changes.</td>
-                <td>viewport</td>
-              </tr>
-              <tr>
-                <td>onLoad</td>
-                <td>Function</td>
-                <td>Called when graph loaded</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>getNodesCount</td>
-                <td>Function</td>
-                <td>Callback to use if you want to force nodes count into this library (used to calculate curve
-                  excentricity and other built in options), expecting number as return value</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>getEdgesCount</td>
-                <td>Function</td>
-                <td>Callback to use if you want to force edges count into this library (used to calculate curve
-                  excentricity and other built in options), expecting number as return value</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>onDrag</td>
-                <td>Function</td>
-                <td>Drag event, disable original event in case of return false</td>
-                <td>viewport</td>
-              </tr>
-              <tr>
-                <td>onZoom</td>
-                <td>Function</td>
-                <td>Zoom event, disable original event in case of return false</td>
-                <td>viewport</td>
-              </tr>
-              <tr>
-                <td>onClick</td>
-                <td>Function</td>
-                <td>Called on click on graph</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>onDblClick</td>
-                <td>Function</td>
-                <td>Called on double click on graph</td>
-              </tr>
-              <tr>
-                <td>passiveEvts</td>
-                <td>Boolean</td>
-                <td>Make mouse events passive for performance reasons ( default false )</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6>Edge and Node styles</h6>
-        <article>
-          There are three predefined styles:
-          <ul>
-            <li><b>node</b> Default style used for all nodes</li>
-            <li><b>edge</b> Default style used for all edges</li>
-            <li><b>background</b> Default style used for canvas background</li>
-          </ul>
-          Besides overriding default styles (used for all nodes/edges) it is possible to define custom styles and then
-          use this style just for specified subsets of nodes/edges. Property values specified for given custom style
-          override default style values.
-        </article>
-        <h6 id="node">Node</h6>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th style="width: 120px;">Default</th>
-              <tr>
-                <td>minSize</td>
-                <td>Integer</td>
-                <td>Minimum size of node representation in pixels.</td>
-                <td>6</td>
-              </tr>
-              <tr>
-                <td>maxSize</td>
-                <td>Integer</td>
-                <td>Maximum size of node representation in pixels.</td>
-                <td>16</td>
-              </tr>
-              <tr>
-                <td>color</td>
-                <td>String</td>
-                <td>Node color (combined with node image).</td>
-                <td>rgb(255, 255, 255)</td>
-              </tr>
-              <tr>
-                <td>texture</td>
-                <td>String</td>
-                <td>Node image.</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td><a href="#label">label</a></td>
-                <td>Object</td>
-                <td>Node label.</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6 id="label">Node label</h6>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th style="width: 120px;">Default</th>
-              <tr>
-                <td>hideSize</td>
-                <td>Integer</td>
-                <td>Minimum size (height) for the label to be displayed.</td>
-                <td>16</td>
-              </tr>
-              <tr>
-                <td>color</td>
-                <td>String</td>
-                <td>Label color.</td>
-                <td>rgb(120, 120, 120)</td>
-              </tr>
-              <tr>
-                <td>font</td>
-                <td>Object</td>
-                <td>Label font.</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6 id="edge">Edge</h6>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th style="width: 120px;">Default</th>
-              <tr>
-                <td>width</td>
-                <td>Integer</td>
-                <td>Edge width in pixels.</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>color</td>
-                <td>String</td>
-                <td>Edge color.</td>
-                <td>rgb(204, 204, 204)</td>
-              </tr>
-              <tr>
-                <td>type</td>
-                <td>String</td>
-                <td>Type of edge (Supported types - "line", "dashed", "dotted", "chain-dotted").</td>
-                <td>line</td>
-              </tr>
-              <tr>
-                <td><a href="#arrow">arrow</a></td>
-                <td>Object</td>
-                <td>Edge arrow style.</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6 id="arrow">Edge Arrow</h6>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th style="width: 120px;">Default</th>
-              <tr>
-                <td>minSize</td>
-                <td>Integer</td>
-                <td>Minimum size of arrow in pixels.</td>
-                <td>6</td>
-              </tr>
-              <tr>
-                <td>maxSize</td>
-                <td>Integer</td>
-                <td>Maximum size of arrow.</td>
-                <td>12</td>
-              </tr>
-              <tr>
-                <td>aspect</td>
-                <td>Integer</td>
-                <td>Aspect of arrow image.</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>texture</td>
-                <td>String</td>
-                <td>Arrow image.</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>hideSize</td>
-                <td>Integer</td>
-                <td>Minimum size of arrow to be displayed.</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6>Set <span class="usage-container">set(Nodes, Edges, Layout)</span> </h6>
-        <article>
-          Sets the data to be displayed by given ccNetViz instance.
-          <br>
-          <br>
-          <h6>Nodes</h6>
-          Nodes argument is an array of objects describing graph nodes.
+        <div class="row" id="doc">
+          <h5 class="row">Documentation</h5>
+          <h6>ccNetViz(element, options)</h6>
+          <article>
+            Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles
+            defined in styles property of options parameter.
+          </article>
+          <h6>Options</h6>
           <div class="documentation">
             <table>
               <tbody>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Description</th>
-                <th style="width: 110px;">Requirement</th>
+                <th style="width: 120px;">Values</th>
                 <tr>
-                  <td>label</td>
-                  <td>Text label for given node (displayed if node labels are enabled by node label style).</td>
-                  <td>Optional</td>
+                  <td>styles</td>
+                  <td>Object</td>
+                  <td>Contains all of edge and node styles.</td>
+                  <td><a href="#node">Node</a> <a href="#edge">Edge</a> </td>
                 </tr>
                 <tr>
-                  <td>x,y</td>
-                  <td>Predefined position for given node (if "layout" argument is not specified
-                    these positions will be used for graph layout).</td>
-                  <td>Optional</td>
+                  <td>onChangeViewport</td>
+                  <td>Function</td>
+                  <td>Called every time viewport changes.</td>
+                  <td>viewport</td>
+                </tr>
+                <tr>
+                  <td>onLoad</td>
+                  <td>Function</td>
+                  <td>Called when graph loaded</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>getNodesCount</td>
+                  <td>Function</td>
+                  <td>Callback to use if you want to force nodes count into this library (used to calculate curve
+                    excentricity and other built in options), expecting number as return value</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>getEdgesCount</td>
+                  <td>Function</td>
+                  <td>Callback to use if you want to force edges count into this library (used to calculate curve
+                    excentricity and other built in options), expecting number as return value</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>onDrag</td>
+                  <td>Function</td>
+                  <td>Drag event, disable original event in case of return false</td>
+                  <td>viewport</td>
+                </tr>
+                <tr>
+                  <td>onZoom</td>
+                  <td>Function</td>
+                  <td>Zoom event, disable original event in case of return false</td>
+                  <td>viewport</td>
+                </tr>
+                <tr>
+                  <td>onClick</td>
+                  <td>Function</td>
+                  <td>Called on click on graph</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>onDblClick</td>
+                  <td>Function</td>
+                  <td>Called on double click on graph</td>
+                </tr>
+                <tr>
+                  <td>passiveEvts</td>
+                  <td>Boolean</td>
+                  <td>Make mouse events passive for performance reasons ( default false )</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h6>Edge and Node styles</h6>
+          <article>
+            There are three predefined styles:
+            <ul>
+              <li><b>node</b> Default style used for all nodes</li>
+              <li><b>edge</b> Default style used for all edges</li>
+              <li><b>background</b> Default style used for canvas background</li>
+            </ul>
+            Besides overriding default styles (used for all nodes/edges) it is possible to define custom styles and then
+            use this style just for specified subsets of nodes/edges. Property values specified for given custom style
+            override default style values.
+          </article>
+          <h6 id="node">Node</h6>
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th style="width: 120px;">Default</th>
+                <tr>
+                  <td>minSize</td>
+                  <td>Integer</td>
+                  <td>Minimum size of node representation in pixels.</td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td>maxSize</td>
+                  <td>Integer</td>
+                  <td>Maximum size of node representation in pixels.</td>
+                  <td>16</td>
                 </tr>
                 <tr>
                   <td>color</td>
-                  <td>ccNetViz.color object defining color for this given node (use this in case of coloring each node
-                    separately, for coloring groups of nodes use color property of node style).
-                  </td>
-                  <td>Optional</td>
+                  <td>String</td>
+                  <td>Node color (combined with node image).</td>
+                  <td>rgb(255, 255, 255)</td>
                 </tr>
                 <tr>
-                  <td>style</td>
-                  <td>Name of custom style class used for this node (for example: "nodeBlue" see
-                    above section for how to define custom styles).</td>
-                  <td>Optional</td>
+                  <td>texture</td>
+                  <td>String</td>
+                  <td>Node image.</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><a href="#label">label</a></td>
+                  <td>Object</td>
+                  <td>Node label.</td>
+                  <td></td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <h6>Edges</h6>
-          Edges argument is an array of objects describing directed graph edges.
+          <h6 id="label">Node label</h6>
           <div class="documentation">
             <table>
               <tbody>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Description</th>
+                <th style="width: 120px;">Default</th>
+                <tr>
+                  <td>hideSize</td>
+                  <td>Integer</td>
+                  <td>Minimum size (height) for the label to be displayed.</td>
+                  <td>16</td>
+                </tr>
+                <tr>
+                  <td>color</td>
+                  <td>String</td>
+                  <td>Label color.</td>
+                  <td>rgb(120, 120, 120)</td>
+                </tr>
+                <tr>
+                  <td>font</td>
+                  <td>Object</td>
+                  <td>Label font.</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h6 id="edge">Edge</h6>
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th style="width: 120px;">Default</th>
+                <tr>
+                  <td>width</td>
+                  <td>Integer</td>
+                  <td>Edge width in pixels.</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>color</td>
+                  <td>String</td>
+                  <td>Edge color.</td>
+                  <td>rgb(204, 204, 204)</td>
+                </tr>
+                <tr>
+                  <td>type</td>
+                  <td>String</td>
+                  <td>Type of edge (Supported types - "line", "dashed", "dotted", "chain-dotted").</td>
+                  <td>line</td>
+                </tr>
+                <tr>
+                  <td><a href="#arrow">arrow</a></td>
+                  <td>Object</td>
+                  <td>Edge arrow style.</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h6 id="arrow">Edge Arrow</h6>
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th style="width: 120px;">Default</th>
+                <tr>
+                  <td>minSize</td>
+                  <td>Integer</td>
+                  <td>Minimum size of arrow in pixels.</td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td>maxSize</td>
+                  <td>Integer</td>
+                  <td>Maximum size of arrow.</td>
+                  <td>12</td>
+                </tr>
+                <tr>
+                  <td>aspect</td>
+                  <td>Integer</td>
+                  <td>Aspect of arrow image.</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>texture</td>
+                  <td>String</td>
+                  <td>Arrow image.</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>hideSize</td>
+                  <td>Integer</td>
+                  <td>Minimum size of arrow to be displayed.</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h6>Set <span class="usage-container">set(Nodes, Edges, Layout)</span> </h6>
+          <article>
+            Sets the data to be displayed by given ccNetViz instance.
+            <br>
+            <br>
+            <h6>Nodes</h6>
+            Nodes argument is an array of objects describing graph nodes.
+            <div class="documentation">
+              <table>
+                <tbody>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th style="width: 110px;">Requirement</th>
+                  <tr>
+                    <td>label</td>
+                    <td>Text label for given node (displayed if node labels are enabled by node label style).</td>
+                    <td>Optional</td>
+                  </tr>
+                  <tr>
+                    <td>x,y</td>
+                    <td>Predefined position for given node (if "layout" argument is not specified
+                      these positions will be used for graph layout).</td>
+                    <td>Optional</td>
+                  </tr>
+                  <tr>
+                    <td>color</td>
+                    <td>ccNetViz.color object defining color for this given node (use this in case of coloring each node
+                      separately, for coloring groups of nodes use color property of node style).
+                    </td>
+                    <td>Optional</td>
+                  </tr>
+                  <tr>
+                    <td>style</td>
+                    <td>Name of custom style class used for this node (for example: "nodeBlue" see
+                      above section for how to define custom styles).</td>
+                    <td>Optional</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h6>Edges</h6>
+            Edges argument is an array of objects describing directed graph edges.
+            <div class="documentation">
+              <table>
+                <tbody>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th style="width: 110px;">Requirement</th>
+                  <tr>
+                    <td>source</td>
+                    <td>Pointer to given source node object.</td>
+                    <td>Required</td>
+                  </tr>
+                  <tr>
+                    <td>target</td>
+                    <td>Pointer to given target node object.</td>
+                    <td>Required</td>
+                  </tr>
+                  <tr>
+                    <td>style</td>
+                    <td>Name of custom style class used for this edge.</td>
+                    <td>Optional</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random",
+            "circular", "tree". If not specified, positions are taken from each node x, y properties.
+          </article>
+          <h6>Find <span class="usage-container">find(x, y, radius, nodes, edges)</span> </h6>
+          <article>Find the nodes and edges within the specified radius.</article>
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Type</th>
                 <th style="width: 110px;">Requirement</th>
                 <tr>
-                  <td>source</td>
-                  <td>Pointer to given source node object.</td>
+                  <td>x</td>
+                  <td>Float in range 0-1</td>
                   <td>Required</td>
                 </tr>
                 <tr>
-                  <td>target</td>
-                  <td>Pointer to given target node object.</td>
+                  <td>y</td>
+                  <td>Float in range 0-1</td>
                   <td>Required</td>
                 </tr>
                 <tr>
-                  <td>style</td>
-                  <td>Name of custom style class used for this edge.</td>
+                  <td>radius</td>
+                  <td>Float in range 0-1</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>nodes</td>
+                  <td>Boolean</td>
+                  <td>Optional</td>
+                </tr>
+                <tr>
+                  <td>edges</td>
+                  <td>Boolean</td>
                   <td>Optional</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random",
-          "circular", "tree". If not specified, positions are taken from each node x, y properties.
-        </article>
-        <h6>Find <span class="usage-container">find(x, y, radius, nodes, edges)</span> </h6>
-        <article>Find the nodes and edges within the specified radius.</article>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th style="width: 110px;">Requirement</th>
-              <tr>
-                <td>x</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>y</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>radius</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>nodes</td>
-                <td>Boolean</td>
-                <td>Optional</td>
-              </tr>
-              <tr>
-                <td>edges</td>
-                <td>Boolean</td>
-                <td>Optional</td>
-              </tr>
-            </tbody>
-          </table>
+          <h6>Find Area<span class="usage-container">findArea(x1, y1, x2, y2, nodes, edges)</span> </h6>
+          <article>Find the nodes and edges within the specified area.</article>
+          <div class="documentation">
+            <table>
+              <tbody>
+                <th>Name</th>
+                <th>Type</th>
+                <th style="width: 110px;">Requirement</th>
+                <tr>
+                  <td>x1</td>
+                  <td>Float in range 0-1</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>y1</td>
+                  <td>Float in range 0-1</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>x2</td>
+                  <td>Float in range 0-1</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>y2</td>
+                  <td>Float in range 0-1</td>
+                  <td>Required</td>
+                </tr>
+                <tr>
+                  <td>nodes</td>
+                  <td>Boolean</td>
+                  <td>Optional</td>
+                </tr>
+                <tr>
+                  <td>edges</td>
+                  <td>Boolean</td>
+                  <td>Optional</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h6>Draw<span class="usage-container">draw()</span> </h6>
+          <article>Renders current data.</article>
+          <h6>Resize<span class="usage-container">resize()</span> </h6>
+          <article>Adjust graph for current canvas size.</article>
+          <h6>Reset View<span class="usage-container">resetView()</span> </h6>
+          <article>Reset zoom and panning.</article>
+          <h6>Set Viewport<span class="usage-container">setViewport(viewport)</span> </h6>
+          <article>
+            Set graph viewport.
+            <br>
+            <br>
+            "viewport" argument is an object with keys to modify (all of keys are optional)
+            <script src="https://gist.github.com/canerakdas/e8ba2538373e14d357c16036d9eee280.js"></script>
+          </article>
+          <h6>Shown node count<span class="usage-container">cntShownNodes()</span> </h6>
+          <article>Get number of nodes.</article>
+          <h6>Shown edge count<span class="usage-container">cntShownEdges()</span> </h6>
+          <article>Get number of edges.</article>
+          <h6>Remove<span class="usage-container">remove()</span> </h6>
+          <article>Clear graph and remove internal events from DOM.</article>
+          <h6>Nodes<span class="usage-container">nodes()</span> </h6>
+          <article>Property to access nodes data of given graph. Use this just to read current values, for modification
+            use "set" method instead.</article>
+          <h6>Edges<span class="usage-container">edges()</span> </h6>
+          <article>Property to access edges data of given graph. Use this just to read current values, for modification
+            use "set" method instead.</article>
         </div>
-        <h6>Find Area<span class="usage-container">findArea(x1, y1, x2, y2, nodes, edges)</span> </h6>
-        <article>Find the nodes and edges within the specified area.</article>
-        <div class="documentation">
-          <table>
-            <tbody>
-              <th>Name</th>
-              <th>Type</th>
-              <th style="width: 110px;">Requirement</th>
-              <tr>
-                <td>x1</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>y1</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>x2</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>y2</td>
-                <td>Float in range 0-1</td>
-                <td>Required</td>
-              </tr>
-              <tr>
-                <td>nodes</td>
-                <td>Boolean</td>
-                <td>Optional</td>
-              </tr>
-              <tr>
-                <td>edges</td>
-                <td>Boolean</td>
-                <td>Optional</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <h6>Draw<span class="usage-container">draw()</span> </h6>
-        <article>Renders current data.</article>
-        <h6>Resize<span class="usage-container">resize()</span> </h6>
-        <article>Adjust graph for current canvas size.</article>
-        <h6>Reset View<span class="usage-container">resetView()</span> </h6>
-        <article>Reset zoom and panning.</article>
-        <h6>Set Viewport<span class="usage-container">setViewport(viewport)</span> </h6>
-        <article>
-          Set graph viewport.
-          <br>
-          <br>
-          "viewport" argument is an object with keys to modify (all of keys are optional)
-          <script src="https://gist.github.com/canerakdas/e8ba2538373e14d357c16036d9eee280.js"></script>
-        </article>
-        <h6>Shown node count<span class="usage-container">cntShownNodes()</span> </h6>
-        <article>Get number of nodes.</article>
-        <h6>Shown edge count<span class="usage-container">cntShownEdges()</span> </h6>
-        <article>Get number of edges.</article>
-        <h6>Remove<span class="usage-container">remove()</span> </h6>
-        <article>Clear graph and remove internal events from DOM.</article>
-        <h6>Nodes<span class="usage-container">nodes()</span> </h6>
-        <article>Property to access nodes data of given graph. Use this just to read current values, for modification
-          use "set" method instead.</article>
-        <h6>Edges<span class="usage-container">edges()</span> </h6>
-        <article>Property to access edges data of given graph. Use this just to read current values, for modification
-          use "set" method instead.</article>
       </div>
     </div>
   </div>

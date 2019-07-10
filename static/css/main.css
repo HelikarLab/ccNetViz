@@ -412,3 +412,7 @@ table a {
 table a:hover {
     color: rgba(255,255,255,1);
 }
+
+#plugins-container{
+  margin-bottom: 20px;
+}

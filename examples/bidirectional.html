@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ccNetViz User Defined Layout Example</title>
+    <title>Bidirectional graphs example</title>
     <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
   </head>
 
   <body>
     <div class="canvas-container">
-      <h3 class="title">User Defined Layout</h3>
+      <h3 class="title">Bidirectional graphs example</h3>
       <canvas id="canvas"></canvas>
       <div class="description">
-        n this example, all nodes are manually positioned with x and y
-        attributes.
+        To enter to deeper node, click on node "Hello" or "World". Then use
+        right button on mouse for going back.
         <br />
         More detailed information please visit the
-        <a href="https://helikarlab.github.io/ccNetViz/#doc"
-          >documentation page</a
-        >.
+        <a href="https://helikarlab.github.io/ccNetViz/#doc">documentation</a>.
       </div>
     </div>
     <header id="logo">
@@ -27,27 +25,24 @@
     </header>
     <script>
       var canvas = document.getElementById('canvas');
+
       var graph = new ccNetViz(canvas, {
+        bidirectional: 'overlap',
         styles: {
           node: { texture: 'images/node.png', label: { hideSize: 16 } },
           edge: { arrow: { texture: 'images/arrow.png' } },
         },
       });
-      var nodes = [
-        { label: 'Hello', x: 0, y: 1 },
-        { label: 'World', x: 1, y: 1 },
-        { label: '!', x: 0.5, y: 0 },
-        { label: 'I am in center', x: 0.5, y: 0.5 },
-        { label: 'Right bottom corner', x: 1, y: 0 },
-      ];
+
+      var nodes = [{ label: 'Hello' }, { label: 'World' }, { label: '!' }];
       var edges = [
         { source: nodes[0], target: nodes[1] },
         { source: nodes[1], target: nodes[0] },
         { source: nodes[0], target: nodes[0] },
         { source: nodes[1], target: nodes[2] },
-        { source: nodes[2], target: nodes[4] },
       ];
-      graph.set(nodes, edges);
+
+      graph.set(nodes, edges, 'force');
       graph.draw();
     </script>
   </body>

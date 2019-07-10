@@ -1,128 +1,130 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>ccNetViz example for downloading image</title>
-    <link rel="stylesheet" type="text/css" href="css/spectrum.css">
-    <style type="text/css">
-    #container {
-        width: 500px;
-        height: 500px;
-        border: 1px solid black;
-    }
-
-    a, a:visited{
-        text-decoration: none;
-        color: black;
-    }
-
-    #down_img {
-      background: #ccc;
-      padding: 5px;
-      margin: 10px 0;
-      display: inline-block;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-    </style>
+  <head>
+    <title>ccNetViz example for downloading graph image</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <script src="../dist/ccNetViz.js"></script>
-</head>
+    <script src="../lib/ccNetViz.js"></script>
+  </head>
 
-<body>
-    <h1>Downloading image example</h1>
-    <div>Press the button below the graph if you want to dowload it as an image.</div>
-    <br />
-    <div id='body'>
-        <canvas id="container"></canvas>
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Downloading Graph Image</h3>
+      <canvas id="container"></canvas>
+      <div class="toolbox">
+        <div class="item">
+          <a id="down_img"> Download </a>
+        </div>
+      </div>
+      <div class="description">
+        Press the button below the graph if you want to dowload it as an image.
         <br />
-        <a id="down_img">Save image</a>
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
     </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
+      function init() {
+        $('#showGraph').click(showGraph);
 
-    function init() {
-        $("#showGraph").click(showGraph);
+        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(
+          dataLoaded
+        );
+      }
 
-        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(dataLoaded);
-    }
-
-    function dataLoaded(d) {
+      function dataLoaded(d) {
         data = d;
         showGraph();
-    }
+      }
 
-    function showGraph() {
+      function showGraph() {
         var startTime = new Date();
 
         var styles = {
-            background: {
-                color: 'rgb(255, 255, 255)'
+          background: {
+            color: 'rgb(255, 255, 255)',
+          },
+          node: {
+            minSize: 8, //minimum size of node representation in pixels, default: 6
+            maxSize: 16, //maximum size of node representation in pixels, default: 16
+            color: 'rgb(255, 0, 0)', //node color (combined with node image), default: "rgb(255, 255, 255)"
+            texture: 'images/circle.png', //node image
+            label: {
+              hideSize: 16,
+              color: 'rgb(120, 0, 0)', //label color, default: "rgb(120, 120, 120)"
             },
-            node: {
-                minSize: 8, //minimum size of node representation in pixels, default: 6
-                maxSize: 16, //maximum size of node representation in pixels, default: 16
-                color: "rgb(255, 0, 0)", //node color (combined with node image), default: "rgb(255, 255, 255)"
-                texture: "images/circle.png", //node image
-                label: {
-                    hideSize: 16,
-                    color: "rgb(120, 0, 0)" //label color, default: "rgb(120, 120, 120)"
-                }
+          },
+          edge: {
+            width: 2, //edge width in pixels, default: 1
+            color: 'rgb(204, 204, 204)',
+            arrow: {
+              minSize: 6, //minimum size of arrow in pixels, default: 6
+              maxSize: 12, //maximum size of arrow, default: 12
+              aspect: 2, //aspect of arrow image, default: 1
+              texture: 'images/arrow.png', //arrow image
+              hideSize: 2, //minimum size of arrow to be displayed
             },
-            edge: {
-                width: 2, //edge width in pixels, default: 1
-                color: "rgb(204, 204, 204)",
-                arrow: {
-                    minSize: 6, //minimum size of arrow in pixels, default: 6
-                    maxSize: 12, //maximum size of arrow, default: 12
-                    aspect: 2, //aspect of arrow image, default: 1
-                    texture: "images/arrow.png", //arrow image
-                    hideSize: 2 //minimum size of arrow to be displayed
-                },
-                type: 'line'
-            },
+            type: 'line',
+          },
         };
 
         var conf = {
-            styles: styles
+          styles: styles,
         };
 
-        $("#confel").empty().append($("<pre />").html(library.json.prettyPrint(conf)));
+        $('#confel')
+          .empty()
+          .append($('<pre />').html(library.json.prettyPrint(conf)));
 
         var el = document.getElementById('container');
 
         // After drawing keep save to the changes.
-        el.getContext("webgl", { preserveDrawingBuffer: true });
+        el.getContext('webgl', { preserveDrawingBuffer: true });
 
         var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, "force");
+        graph.set(data.nodes, data.edges, 'force');
         graph.draw();
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);
-        $('#renderedIn').text(Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10);
-    }
+        $('#renderedIn').text(
+          Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10
+        );
+      }
 
-    /** 
-     * The event handler for the link's onclick event.
-     */
-    document.getElementById('down_img').addEventListener('click', function() {
-            downloadCanvasToImage(this, 'container', 'graph.png');
-        }
+      /**
+       * The event handler for the link's onclick event.
+       */
+      document.getElementById('down_img').addEventListener(
+        'click',
+        function() {
+          downloadCanvasToImage(this, 'container', 'graph.png');
+        },
 
-        , false);
+        false
+      );
 
-    /** 
-     * Function that is called from the event handler for downloading the graph as an image
-     */
-    function downloadCanvasToImage(link, canvasId, filename) {
+      /**
+       * Function that is called from the event handler for downloading the graph as an image
+       */
+      function downloadCanvasToImage(link, canvasId, filename) {
         link.href = document.getElementById(canvasId).toDataURL('image/png');
         link.download = filename;
-    }
+        window.location = document
+          .getElementById(canvasId)
+          .toDataURL('image/png');
+      }
 
-    $(init);
+      $(init);
     </script>
-</body>
-
+  </body>
 </html>
