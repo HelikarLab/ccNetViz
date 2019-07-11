@@ -74,7 +74,7 @@ const getLabelVertices = (texts, font, label, x, y) => {
     x <= 0.5
       ? Math.abs(parts[c].dx) + parts[c].advance
       : -Math.abs(parts[c].dx);
-  let startPosX = x <= 0.5 ? -5 : 0;
+  let startPosX = x <= 0.5 ? -5 : +5;
   height = y <= 0.5 ? height + parts[c].height / 3 : -height;
   return { startPosX: startPosX, endPosX: endPosX, height: height };
 };
