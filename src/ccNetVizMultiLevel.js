@@ -13,6 +13,7 @@
 var ccNetVizMultiLevel = function(canvas, options) {
   var vizScreen = new ccNetViz(canvas, options);
   var vizLayout;
+  var vizLayoutOptions;
 
   var history = [];
   var curlevel = {};
@@ -86,7 +87,7 @@ var ccNetVizMultiLevel = function(canvas, options) {
     vizScreen.remove();
   };
 
-  this.set = function(nodes, edges, layout) {
+  this.set = function(nodes, edges, layout, layout_options) {
     curlevel = { nodes: nodes, edges: edges };
     history = [];
 
