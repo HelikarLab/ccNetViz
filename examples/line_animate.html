@@ -66,6 +66,7 @@
       }
 
       function showGraph(options) {
+        jQuery('canvas').remove();
         const el = document.querySelector('.canvas-container .title');
         canvas = document.createElement('canvas');
         el.after(canvas);
