@@ -1,5 +1,7 @@
 ﻿import ccNetViz from './ccNetViz';
 
+import '@babel/register';
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -23,13 +25,14 @@ var ccNetVizMultiLevel = function(canvas, options) {
   //right click >> go back
   canvas.addEventListener(
     'contextmenu',
-    (onContextMenu = function(e) {
+    (onContextMenu = async function(e) {
+      console.log('ON CONTEXT MENU');
       if (history.length > 0) {
         var histel = history.pop();
         //currently shown level
         curlevel = histel;
 
-        vizScreen.set(curlevel.nodes, curlevel.edges);
+        await vizScreen.set(curlevel.nodes, curlevel.edges);
         vizScreen.draw();
       }
 
@@ -39,7 +42,7 @@ var ccNetVizMultiLevel = function(canvas, options) {
 
   canvas.addEventListener(
     'click',
-    (onClick = function(e) {
+    (onClick = async function(e) {
       var bb = canvas.getBoundingClientRect();
       var x = e.clientX - bb.left;
       var y = e.clientY - bb.top;
@@ -56,6 +59,7 @@ var ccNetVizMultiLevel = function(canvas, options) {
       if (result.nodes.length > 0) {
         var node = result.nodes[0].node;
 
+        const layout_options = vizLayoutOptions;
         var layout = node.layout || vizLayout;
         if (node.__computedLayout) {
           //it is not nessesary to recompute layout if it was yet computed on this subgraph
@@ -72,7 +76,12 @@ var ccNetVizMultiLevel = function(canvas, options) {
           history.push(curlevel);
           curlevel = { nodes: insidenodes, edges: insideedges };
 
-          vizScreen.set(curlevel.nodes, curlevel.edges, layout);
+          await vizScreen.set(
+            curlevel.nodes,
+            curlevel.edges,
+            layout,
+            layout_options
+          );
           vizScreen.draw();
         }
       }
@@ -87,12 +96,13 @@ var ccNetVizMultiLevel = function(canvas, options) {
     vizScreen.remove();
   };
 
-  this.set = function(nodes, edges, layout, layout_options) {
+  this.set = async function(nodes, edges, layout, layout_options) {
     curlevel = { nodes: nodes, edges: edges };
     history = [];
 
     vizLayout = layout;
-    vizScreen.set.apply(vizScreen, arguments);
+    vizLayoutOptions = layout_options;
+    await vizScreen.set.apply(vizScreen, arguments);
   };
   // apply the functions to the layer
   var exposeMethods = [

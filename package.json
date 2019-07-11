@@ -51,6 +51,8 @@
     "WebGL"
   ],
   "dependencies": {
+    "@babel/register": "^7.4.4",
+    "babel-polyfill": "^6.26.0",
     "jsdoc": "^3.6.2",
     "ml-matrix": "^5.0.0",
     "pbf": "^3.0.5",

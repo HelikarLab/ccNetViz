@@ -180,7 +180,7 @@ var ccNetViz = function(canvas, options) {
     return batch;
   }
 
-  this.set = (n, e, layout, layout_options = {}) => {
+  this.set = async (n, e, layout, layout_options = {}) => {
     if (checkRemoved()) return this;
 
     nodes = n || [];
@@ -199,7 +199,7 @@ var ccNetViz = function(canvas, options) {
         );
     }
 
-    Promise.all(promises.map(item => item.config)).then(c => {
+    await Promise.all(promises.map(item => item.config)).then(c => {
       c.map((item, index) => {
         if (item.plugin === 'arrow') {
           options.styles[promises[index].name].arrow = item;
