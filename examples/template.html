@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Template Title</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="../lib/ccNetViz.js"></script>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Template Title</h3>
+      <canvas id="canvas"></canvas>
+      <div class="toolbox">
+        <div class="item">
+          <input type="text" placeholder="Label name" />
+        </div>
+        <div class="item">
+          <input value="Download" type="button" />
+        </div>
+        <div class="item">
+          <span>Slider</span>
+          <input type="range" min="1" max="100" value="50" />
+        </div>
+        <div class="item">
+          <select>
+            <option value="Bronchiseptica.json">Bronchiseptica.json</option>
+          </select>
+        </div>
+        <div class="item">
+          <span>Radio</span>
+          <input type="radio" name="radio" />
+          <input type="radio" name="radio" />
+          <input type="radio" name="radio" />
+        </div>
+        <div class="item">
+          <span>Checkbox</span>
+          <input type="checkbox" name="checkbox" />
+          <input type="checkbox" name="checkbox" />
+          <input type="checkbox" name="checkbox" />
+        </div>
+      </div>
+      <div class="description">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam
+        pellentesque tellus odio, eget semper ligula sagittis dapibus.
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      var canvas = document.getElementById('canvas');
+      //
+
+      //
+      graph.set(nodes, edges, 'force');
+      graph.draw();
+    </script>
+  </body>
+</html>

@@ -1,24 +1,16 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>ccNetViz example for downloading image</title>
-    <link rel="stylesheet" type="text/css" href="css/spectrum.css">
+  <head>
+    <title>Context menu example</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="./libs/jquery.min.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+    <script
+      src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js"
+      type="text/javascript"
+    ></script>
     <style type="text/css">
-    #container {
-        width: 500px;
-        height: 500px;
-        border: 1px solid black;
-    }
-
-    a,
-    a:visited {
-        text-decoration: none;
-        color: black;
-    }
-    /* context menu */
-
-    .context-menu {
+      .context-menu {
         display: none;
         position: absolute;
         z-index: 10;
@@ -27,81 +19,87 @@
         background-color: #fff;
         border: solid 1px #dfdfdf;
         box-shadow: 1px 1px 2px #cfcfcf;
-    }
+      }
 
-    .context-menu--active {
+      .context-menu--active {
         display: block;
-    }
+      }
 
-    .context-menu__items {
+      .context-menu__items {
         list-style: none;
         margin: 0;
         padding: 0;
-    }
+      }
 
-    .context-menu__item {
+      .context-menu__item {
         display: block;
         margin-bottom: 4px;
-    }
+      }
 
-    .context-menu__item:last-child {
+      .context-menu__item:last-child {
         margin-bottom: 0;
-    }
+      }
 
-    .context-menu__link {
+      .context-menu__link {
         display: block;
         padding: 4px 12px;
         color: #0066aa;
         text-decoration: none;
-    }
+      }
 
-    .context-menu__link:hover {
+      .context-menu__link:hover {
         color: #fff;
         background-color: #0066aa;
-    }
+      }
     </style>
-    <script src="./libs/jquery.min.js"></script>
-    <script src="../dist/ccNetViz.js"></script>
-    <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
-</head>
+  </head>
 
-<body>
-    <h1>Context menu example</h1>
-    <div>Right click on the node to get a context menu</div>
-    <br />
-    <div id='body'>
-        <canvas id="container"></canvas>
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Context menu example</h3>
+      <canvas id="canvas"></canvas>
+      <div class="description">
+        Right click on the node to get a context menu
         <br />
-        <div id="context-menu" class="context-menu">
-            <ul id="context-menu__items" class="context-menu__items ">
-            </ul>
-        </div>
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+      <div id="context-menu" class="context-menu">
+        <ul id="context-menu__items" class="context-menu__items "></ul>
+      </div>
     </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
     <script>
-    var canvas = document.getElementById('container');
-    var graph = new ccNetViz(canvas, {
+      var canvas = document.getElementById('canvas');
+      var graph = new ccNetViz(canvas, {
         styles: {
-            node: { texture: "images/node.png", label: { hideSize: 16 } },
-            edge: { arrow: { texture: "images/arrow.png" } }
-        }
-    });
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
 
-    var nodes = [
-        { label: "Hello", contextMenu: ["Details", "More"] },
-        { label: "World" },
-        { label: "!" }
-    ];
-    var edges = [
+      var nodes = [
+        { label: 'Hello', contextMenu: ['Details', 'More'] },
+        { label: 'World' },
+        { label: '!' },
+      ];
+      var edges = [
         { source: nodes[0], target: nodes[1] },
         { source: nodes[1], target: nodes[0] },
         { source: nodes[0], target: nodes[0] },
         { source: nodes[1], target: nodes[2] },
-    ];
+      ];
 
-    graph.set(nodes, edges, "force");
-    graph.draw();
+      graph.set(nodes, edges, 'force');
+      graph.draw();
 
-    canvas.addEventListener('contextmenu', function(e) {
+      canvas.addEventListener('contextmenu', function(e) {
         var bb = canvas.getBoundingClientRect();
 
         var x = e.clientX - bb.left;
@@ -109,46 +107,52 @@
         var radius = 10;
 
         var lCoords = graph.getLayerCoords({ radius: radius, x: x, y: y });
-        var result = graph.find(lCoords.x, lCoords.y, lCoords.radius, true, false);
+        var result = graph.find(
+          lCoords.x,
+          lCoords.y,
+          lCoords.radius,
+          true,
+          false
+        );
 
-        if (result.nodes.length > 0 && result.nodes[0].node.contextMenu != null) {
-            var d = document.getElementById('context-menu');
-            var items = document.getElementById('context-menu__items');
-            var node = result.nodes[0].node;
-            var menu_lenght = node.contextMenu.length;
-            var contMenu = node.contextMenu;
-            while (items.firstChild) {
-                items.removeChild(items.firstChild);
-            }
-            for (var i = 0; i < menu_lenght; i++) {
-                let option = contMenu[i];
-                var li = document.createElement("li");
-                var node = document.createTextNode(option);
-                li.appendChild(node);
-                items.appendChild(li);
-                li.classList.add("context-menu__link");
-                li.setAttribute("id", option);
-                $("#" + option).click(function() {
-                    alert(option);
-                });
-            }
+        if (
+          result.nodes.length > 0 &&
+          result.nodes[0].node.contextMenu != null
+        ) {
+          var d = document.getElementById('context-menu');
+          var items = document.getElementById('context-menu__items');
+          var node = result.nodes[0].node;
+          var menu_lenght = node.contextMenu.length;
+          var contMenu = node.contextMenu;
+          while (items.firstChild) {
+            items.removeChild(items.firstChild);
+          }
+          for (var i = 0; i < menu_lenght; i++) {
+            let option = contMenu[i];
+            var li = document.createElement('li');
+            var node = document.createTextNode(option);
+            li.appendChild(node);
+            items.appendChild(li);
+            li.classList.add('context-menu__link');
+            li.setAttribute('id', option);
+            $('#' + option).click(function() {
+              alert(option);
+            });
+          }
 
-            d.style.position = "absolute";
-            d.style.display = "block"
-            d.style.left = e.clientX + 'px';
-            d.style.top = e.clientY + 'px';
-
+          d.style.position = 'absolute';
+          d.style.display = 'block';
+          d.style.left = e.clientX + 'px';
+          d.style.top = e.clientY + 'px';
         }
 
         e.preventDefault();
+      });
 
-    });
-
-    canvas.addEventListener('click', function(e) {
+      canvas.addEventListener('click', function(e) {
         var d = document.getElementById('context-menu');
-        d.style.display = "none"
-    });
+        d.style.display = 'none';
+      });
     </script>
-</body>
-
+  </body>
 </html>
