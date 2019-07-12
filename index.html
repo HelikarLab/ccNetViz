@@ -291,8 +291,9 @@
         animation.frame.count = animation.fps * animation.time;
         animation.circle.size.raise = (animation.circle.size.maximum - animation.circle.size.minimum) / animation.frame.count;
 
-        graph.set(nodeList, edges);
-        graph.draw();
+        graph.set(nodeList, edges).then(() => {
+          graph.draw();
+        });
 
         let animationInstances = [];
         let r = [];
@@ -401,8 +402,9 @@
           }
 
 
-          graph.set(nodeList, edges);
-          graph.draw();
+          graph.set(nodeList, edges).then(() => {
+            graph.draw();
+          });
         }
         window.timer.end = new Date();
         settings.information ? document.getElementById("stats").innerText = `${nodes.length} Nodes, ${edges.length} Edges ( Rendered in ${window.timer.end - window.timer.start}ms )` : false;
@@ -1280,7 +1282,7 @@
             </table>
           </div>
           <h6>Draw<span class="usage-container">draw()</span> </h6>
-          <article>Renders current data.</article>
+          <article>Renders current data. Must wait for the set method complete.</article>
           <h6>Resize<span class="usage-container">resize()</span> </h6>
           <article>Adjust graph for current canvas size.</article>
           <h6>Reset View<span class="usage-container">resetView()</span> </h6>
