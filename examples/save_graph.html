@@ -91,8 +91,9 @@
         el.getContext('webgl', { preserveDrawingBuffer: true });
 
         var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force');
-        graph.draw();
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

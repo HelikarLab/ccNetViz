@@ -72,8 +72,9 @@
         el.after(canvas);
 
         const graph = new ccNetViz(canvas, options);
-        graph.set(data.nodes, data.edges, 'force');
-        graph.draw();
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
       }
 
       showGraph(options);

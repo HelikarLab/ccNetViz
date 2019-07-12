@@ -62,8 +62,9 @@
           { source: e4, target: e4 },
         ];
 
-        graph.set(nodes, edges, 'force');
-        graph.draw();
+        graph.set(nodes, edges, 'force').then(() => {
+          graph.draw();
+        });
 
         el.addEventListener('mouseup', function(e) {
           var bb = el.getBoundingClientRect();

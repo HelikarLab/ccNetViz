@@ -82,10 +82,13 @@
             },
           },
         });
-        graph.set(data.nodes, data.edges, 'circular', {
-          starting_angle: Math.PI / 4,
-        });
-        graph.draw();
+        graph
+          .set(data.nodes, data.edges, 'circular', {
+            starting_angle: Math.PI / 4,
+          })
+          .then(() => {
+            graph.draw();
+          });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);
