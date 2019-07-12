@@ -167,8 +167,9 @@
         };
         var el = document.getElementById('canvas');
         var graph = new ccNetViz(el, conf);
-        graph.set(nodes, edges);
-        graph.draw();
+        graph.set(nodes, edges).then(() => {
+          graph.draw();
+        });
       }
       var nodes = [
         { label: 'label one', x: 0, y: 0.12 },

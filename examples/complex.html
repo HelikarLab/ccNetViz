@@ -82,8 +82,11 @@
           margin: 0.05,
           nlines: 3,
         };
-        graph.set(data.nodes, data.edges, 'versinus', layout_options);
-        graph.draw();
+        graph
+          .set(data.nodes, data.edges, 'versinus', layout_options)
+          .then(() => {
+            graph.draw();
+          });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

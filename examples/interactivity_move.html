@@ -64,8 +64,9 @@
 
         nodes = d.nodes;
         edges = d.edges;
-        graph.set(d.nodes, d.edges, 'force');
-        graph.draw();
+        graph.set(d.nodes, d.edges, 'force').then(() => {
+          graph.draw();
+        });
       }
 
       var current_moving_node = undefined;
