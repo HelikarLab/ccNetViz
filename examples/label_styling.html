@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz example of different styling</title>
+    <script src="./libs/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <link rel="stylesheet" type="text/css" href="css/spectrum.css" />
+    <script type="text/javascript" src="js/spectrum.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/json_prettyprint.js"></script>
+    <style>
+      .canvas-container {
+        width: 90%;
+      }
+
+      .canvas-container select {
+        background: #f8f8f8;
+        color: #444;
+      }
+
+      #canvas {
+        width: 450px;
+        height: 450px;
+      }
+
+      .customDiv {
+        width: 100% !important;
+        vertical-align: 20%;
+      }
+
+      .item {
+        width: 20% !important;
+        display: inline-block;
+      }
+      .item label {
+        display: inline-block !important;
+        float: left !important;
+      }
+      .form label {
+        display: inline-block;
+        text-align: left;
+      }
+      .form input {
+        display: inline-block;
+        text-align: left;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Custom Label Styling</h3>
+      <br />
+      <canvas id="canvas"></canvas>
+      <div class="customDiv">
+        <form class="form">
+          <div class="item">
+            <label>Font-Family</label>
+            <select id="fontFamily">
+              <option value="sans-serif">sans-serif</option>
+              <option value="arial">arial</option>
+              <option selected value="vedana">vedana</option>
+            </select>
+          </div>
+          <div class="item">
+            <label>Font-Weight</label>
+            <select id="fontWeight">
+              <option value="bold">bold</option>
+              <option value="italic">italic</option>
+              <option selected value="normal">normal</option>
+            </select>
+          </div>
+          <div class="item">
+            <label>Alignment</label>
+            <select id="alignment">
+              <option value="left">left</option>
+              <option value="right">right</option>
+              <option selected value="center">center</option>
+            </select>
+          </div>
+          <div class="item">
+            <label>StrokeText</label>
+            <select id="strokeText">
+              <option value="false">enabled</option>
+              <option selected value="">disabled</option>
+            </select>
+          </div>
+          <div class="item">
+            <label>Border-Color</label>
+            <input
+              type="text"
+              name="name"
+              id="borderColor"
+              placeholder="rgb(0,0,0)"
+            />
+          </div>
+          <div class="item">
+            <label>Background-color</label>
+            <input
+              type="text"
+              name="name"
+              id="backgroundColor"
+              value=""
+              placeholder="rgb(0,0,0)"
+            />
+          </div>
+          <div class="item">
+            <label>Font-Size</label>
+            <input type="text" name="name" id="fontSize" placeholder="23" />
+          </div>
+          <button class="button" type="submit">Show graph</button>
+        </form>
+
+        <div class="description">
+          Custom label styling based on SDF fonts
+          <br />
+          <b> Note: </b>Please clear the cache if graph isn't displayed properly
+          <br />
+          More detailed information please visit the
+          <a href="https://helikarlab.github.io/ccNetViz/#doc"
+            >documentation page</a
+          >.
+        </div>
+      </div>
+    </div>
+    <br />
+
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+
+    <script>
+      let config = {
+        backgroundColor: '',
+        borderColor: '',
+        fontSize: '',
+        fontFamily: 'vedana',
+        fontWeight: 'normal',
+        strokeText: false,
+        alignment: 'center',
+      };
+      function initialseConfig() {
+        var conf = {
+          styles: {
+            node: {
+              minSize: 6,
+              maxSize: 16,
+              color: 'rgb(255, 0, 0)',
+              texture: 'images/circle.png',
+              label: {
+                color: 'rgb(120, 120, 120)',
+                backgroundColor: config.backgroundColor,
+                borderColor: config.borderColor,
+                font: {
+                  size: config.fontSize,
+                  family: config.fontFamily,
+                  weight: config.fontWeight,
+                  strokeText: config.strokeText,
+                  alignment: config.alignment,
+                  type: 'sdf',
+                },
+              },
+            },
+          },
+        };
+        var el = document.getElementById('canvas');
+        var graph = new ccNetViz(el, conf);
+        graph.set(nodes, edges).then(() => {
+          graph.draw();
+        });
+      }
+      var nodes = [
+        { label: 'label one', x: 0, y: 0.12 },
+        { label: 'label two', x: 0.32, y: 0.63 },
+        { label: 'label three', x: 0.55, y: 0 },
+        { label: 'label four', x: 1, y: 0.37 },
+        { label: 'label five', x: 0.76, y: 1 },
+      ];
+      var edges = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[0] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[3], target: nodes[2] },
+        { source: nodes[4], target: nodes[1] },
+      ];
+
+      $(function() {
+        $('.button').click(function(e) {
+          e.preventDefault();
+          Object.keys(config).forEach(function(key, index) {
+            config[key] = document.getElementById([key]).value;
+          });
+          initialseConfig();
+        });
+      });
+      initialseConfig();
+    </script>
+  </body>
+</html>

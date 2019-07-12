@@ -106,8 +106,10 @@
       for (let i = 0; i < nodes.length - 1; i++) {
         edges.push({ source: nodes[i], target: nodes[i + 1] });
       }
-      //
-      graph.set(nodes, edges, 'circular');
+
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
       graph.draw();
 
       // Statistical nodes
@@ -173,8 +175,9 @@
       for (let i = 0; i < nodes.length - 1; i++) {
         edges.push({ source: nodes[i], target: nodes[i + 1] });
       }
-      graph.set(nodes, edges, 'circular');
-      graph.draw();
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
 
       // Animation
       canvas = document.getElementById('canvas-3');
@@ -231,8 +234,9 @@
       for (let i = 0; i < nodes.length - 1; i++) {
         edges.push({ source: nodes[i], target: nodes[i + 1] });
       }
-      graph.set(nodes, edges, 'circular');
-      graph.draw();
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
     </script>
   </body>
 </html>

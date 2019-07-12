@@ -153,8 +153,9 @@
         el.appendChild(canvas);
 
         const graph = new ccNetViz(canvas, options);
-        graph.set(data.nodes, data.edges, 'circular');
-        graph.draw();
+        graph.set(data.nodes, data.edges, 'circular').then(() => {
+          graph.draw();
+        });
       }
 
       showGraph(options);
