@@ -26,7 +26,6 @@ var ccNetVizMultiLevel = function(canvas, options) {
   canvas.addEventListener(
     'contextmenu',
     (onContextMenu = async function(e) {
-      console.log('ON CONTEXT MENU');
       if (history.length > 0) {
         var histel = history.pop();
         //currently shown level
