@@ -35,7 +35,6 @@
     </header>
     <script>
       var canvas = document.getElementById('canvas');
-      //
       var graph = new ccNetViz(canvas, {
         styles: {
           node: { texture: 'images/node.png', label: { hideSize: 16 } },
@@ -89,9 +88,9 @@
         { source: nodes[9], style: 'custom arrow', target: nodes[0] },
       ];
 
-      //
-      graph.set(nodes, edges, 'circular');
-      graph.draw();
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
 
       canvas = document.getElementById('canvas-2');
       graph = new ccNetViz(canvas, {
@@ -131,8 +130,9 @@
         { source: nodes[3], style: 'color arrow', target: nodes[0] },
       ];
 
-      graph.set(nodes, edges, 'circular');
-      graph.draw();
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
     </script>
   </body>
 </html>

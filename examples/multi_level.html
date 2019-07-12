@@ -70,8 +70,10 @@
         { source: nodes[1], target: nodes[2] },
       ];
 
-      graph.set(nodes, edges, 'force');
-      graph.draw();
+      graph.set(nodes, edges, 'force').then(() => {
+        graph.draw();
+      });
+      console.log('ON CONTEXT MENU');
     </script>
   </body>
 </html>

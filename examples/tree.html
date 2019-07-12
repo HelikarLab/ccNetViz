@@ -96,10 +96,9 @@
           // "direction": "right-left",
           // "direction": "banana",
         };
-        graph.set(data.nodes, data.edges, layout, layout_options);
-        console.log('antes do draw');
-        graph.draw();
-        console.log('depois do draw');
+        graph.set(data.nodes, data.edges, layout, layout_options).then(() => {
+          graph.draw();
+        });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

@@ -82,8 +82,11 @@
           // "direction": "right-left",
           // "direction": "banana",
         };
-        graph.set(data.nodes, data.edges, 'hierarchical2', layout_options);
-        graph.draw();
+        graph
+          .set(data.nodes, data.edges, 'hierarchical2', layout_options)
+          .then(() => {
+            graph.draw();
+          });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

@@ -46,8 +46,9 @@ This plugin allows you to add different arrow styles to your ccNetViz library.
         { source: nodes[1], style: 'diamond', target: nodes[2] },
         { source: nodes[2], style: 'T', target: nodes[1] },
       ];
-      graph.set(nodes, edges, 'force');
-      graph.draw();
+      graph.set(nodes, edges, 'force').then(() => {
+        graph.draw();
+      });
     </script>
   </body>
 </html>

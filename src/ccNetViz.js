@@ -218,10 +218,10 @@ var ccNetViz = function(canvas, options) {
   };
 
   //make all dynamic changes static
-  this.reflow = () => {
+  this.reflow = async () => {
     if (checkRemoved()) return;
 
-    getBatch().applyChanges();
+    await getBatch().applyChanges();
 
     //nodes and edges in dynamic chart are actual
     let n = layers.main.getVisibleNodes();
@@ -230,7 +230,7 @@ var ccNetViz = function(canvas, options) {
     let e = layers.main.getVisibleEdges();
     if (layers.temp) e = e.concat(layers.temp.getVisibleEdges());
 
-    this.set(n, e);
+    await this.set(n, e);
     this.draw();
   };
 
@@ -274,11 +274,11 @@ var ccNetViz = function(canvas, options) {
     }
     return this.removeEdge(e).addEdge(e);
   };
-  this.applyChanges = () => {
+  this.applyChanges = async () => {
     if (checkRemoved()) {
       return this;
     }
-    getBatch().applyChanges();
+    await getBatch().applyChanges();
     return this;
   };
 

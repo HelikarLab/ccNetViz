@@ -45,7 +45,11 @@
           },
         },
       });
-      var nodes = [{ label: 'Hello' }, { label: 'World' }, { label: '!' }];
+      var nodes = [
+        { label: 'Hello', x: 0.1, y: 0.9 },
+        { label: 'World', x: 0.5, y: 0.1 },
+        { label: '!', x: 0.9, y: 0.7 },
+      ];
       var edges = [
         { source: nodes[0], target: nodes[1] },
         { source: nodes[1], target: nodes[0] },
@@ -53,29 +57,28 @@
         { source: nodes[1], target: nodes[2] },
       ];
 
-      graph.set(nodes, edges, 'force');
-      graph.draw();
+      graph.set(nodes, edges).then(() => {
+        graph.draw();
+      });
 
       function onEdgeIn(e) {
         e.style = 'edgeHover';
-        graph.updateEdge(e).applyChanges();
+        graph.reflow();
       }
 
       function onEdgeOut(e) {
         if (e.style !== undefined) delete e.style;
-
-        graph.updateEdge(e).applyChanges();
+        graph.reflow();
       }
 
       function onNodeIn(n) {
         n.style = 'nodeHover';
-        graph.updateNode(n).applyChanges();
+        graph.reflow();
       }
 
       function onNodeOut(n) {
         if (n.style !== undefined) delete n.style;
-
-        graph.updateNode(n).applyChanges();
+        graph.reflow();
       }
 
       class ccNetVizElementsEvents {

@@ -45,8 +45,9 @@ Used for example by [Cell Collective](http://cellcollective.org) project.
         { source: nodes[1], target: nodes[2] },
         { source: nodes[2], target: nodes[1] },
       ];
-      graph.set(nodes, edges, 'force');
-      graph.draw();
+      graph.set(nodes, edges, 'force').then(() => {
+        graph.draw();
+      });
     </script>
   </body>
 </html>

@@ -66,13 +66,15 @@
       }
 
       function showGraph(options) {
+        jQuery('canvas').remove();
         const el = document.querySelector('.canvas-container .title');
         canvas = document.createElement('canvas');
         el.after(canvas);
 
         const graph = new ccNetViz(canvas, options);
-        graph.set(data.nodes, data.edges, 'force');
-        graph.draw();
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
       }
 
       showGraph(options);
