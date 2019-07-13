@@ -17,9 +17,9 @@
           <select id="animate-select" onchange="onAnimationChange()">
             <option value="none">None</option>
             <option value="basic">Basic</option>
-            <option selected value="gradient">Gradient</option>
+            <option value="gradient">Gradient</option>
             <option value="double-gradient">Double Gradient</option>
-            <option value="shape-bubble">Bubble</option>
+            <option selected value="shape-bubble">Bubble</option>
           </select>
         </div>
         <div class="item">
@@ -111,14 +111,15 @@
             texture: 'images/node.png',
           },
           edge: {
-            width: 5,
-            type: 'dotted',
+            width: 3,
+            type: 'line',
             color: 'rgb(200, 200, 200)',
 
-            animateType: 'gradient', // "basic", "gradient", "double-gradient", "none"
+            animateType: 'shape-bubble', // "basic", "gradient", "double-gradient", "none"
             animateSpeed: 2,
             animateEase: 'sin-out', // default is "linear"
             animateColor: 'rgb(240, 80, 100)',
+            animateMaxWidth: 8,
           },
         },
       };

@@ -47,3 +47,8 @@ float isAnimateCoveredDoubleGradient() {
                    (1. - fract(smoothstep(r, r + gradLen, len)));
   return draw;
 }
+
+float isAnimateBubble() {
+  // TODO: implement bubble shape
+  return 1.;
+}
