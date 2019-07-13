@@ -320,6 +320,12 @@ export default function(
     );
   };
 
+  const updateSingleSourceEl = (key, n, i) => {
+    scene.elements.forEach(el => {
+      el.updateEl(key, n, i);
+    });
+  };
+
   this.updateNode = (n, i) => {
     this.nodes[i] = n;
 
@@ -328,15 +334,7 @@ export default function(
     if (!gl) return;
 
     /**** TODO: UPDATE NODES FILLER *****/
-
-    (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(
-      gl,
-      n,
-      i,
-      nodesFiller
-    );
-    scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
-    scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
+    updateSingleSourceEl('nodes', n, i);
   };
 
   this.updateEdge = (e, i) => {
@@ -349,9 +347,8 @@ export default function(
 
     if (!gl) return;
 
-    scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
-    if (edgeStyle.arrow)
-      scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
+    /**** TODO: UPDATE NODES FILLER *****/
+    updateSingleSourceEl('edges', e, pos);
   };
 
   let removedNodes = 0;

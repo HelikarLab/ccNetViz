@@ -69,7 +69,7 @@ export default class LabelPlugin extends BasePlugin {
         backgroundColor
       );
   }
-  set({ gl, styles, drawEntities: { nodes, nodesParts } }) {
+  runRegistrations({}) {
     let isDirty = false;
 
     const nodeStyle = this.options.nodeStyle;
@@ -81,55 +81,35 @@ export default class LabelPlugin extends BasePlugin {
     };
 
     if (nodeStyle.label) {
-      this.options.texts.clear();
+      this.register(() => {
+        this.options.texts.clear();
+      });
       if (!nodeStyle.label.backgroundColor) {
-        isDirty =
-          isDirty ||
-          this.scene.labelsOutline.set(
-            gl,
-            styles,
-            labelAdder,
-            nodes,
-            nodesParts,
-            this._labelsFiller
-          );
+        this.register('labelsOutline', 'nodes', labelAdder, this._labelsFiller);
       }
-      isDirty =
-        isDirty ||
-        this.scene.labels.set(
-          gl,
-          styles,
-          labelAdder,
-          nodes,
-          nodesParts,
-          this._labelsFiller
-        );
-      this.options.texts.bind();
+
+      this.register('labels', 'nodes', labelAdder, this._labelsFiller);
+
+      this.register(() => {
+        this.options.texts.bind();
+      });
     }
     if (nodeStyle.label && nodeStyle.label.backgroundColor) {
-      isDirty =
-        isDirty ||
-        this.scene.labelsBackground.set(
-          gl,
-          styles,
-          labelAdder,
-          nodes,
-          nodesParts,
-          this._labelsBackgroundFiller.background
-        );
+      this.register(
+        'labelsBackground',
+        'nodes',
+        labelAdder,
+        this._labelsBackgroundFiller.background
+      );
     }
 
     if (nodeStyle.label && nodeStyle.label.borderColor) {
-      isDirty =
-        isDirty ||
-        this.scene.labelsBorder.set(
-          gl,
-          styles,
-          labelAdder,
-          nodes,
-          nodesParts,
-          this._labelsBackgroundFiller.border
-        );
+      this.register(
+        'labelsBorder',
+        'nodes',
+        labelAdder,
+        this._labelsBackgroundFiller.border
+      );
     }
 
     return isDirty;

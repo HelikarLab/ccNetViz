@@ -39,21 +39,7 @@ export default class EdgePlugin extends BasePlugin {
       }
     }
   }
-  set({
-    gl,
-    styles,
-    textures,
-    drawEntities: {
-      lines,
-      linesParts,
-      curves,
-      curvesParts,
-      circles,
-      circlesParts,
-    },
-  }) {
-    let isDirty = false;
-
+  runRegistrations({ gl, textures }) {
     const { extensions, edgeStyle } = this.options;
 
     let defaultAdder = (section, addSection) => {
@@ -66,47 +52,20 @@ export default class EdgePlugin extends BasePlugin {
       else addSection();
     };
 
-    isDirty =
-      isDirty ||
-      this.scene.lines.set(gl, styles, defaultAdder, lines, linesParts);
+    this.register('lines', 'lines', defaultAdder);
 
     if (extensions.OES_standard_derivatives) {
-      isDirty =
-        isDirty ||
-        this.scene.curves.set(gl, styles, defaultAdder, curves, curvesParts);
-      isDirty =
-        isDirty ||
-        this.scene.circles.set(gl, styles, defaultAdder, circles, circlesParts);
+      this.register('curves', 'curves', defaultAdder);
+      this.register('circles', 'circles', defaultAdder);
     }
 
     if (edgeStyle.arrow) {
-      isDirty =
-        isDirty ||
-        this.scene.lineArrows.set(gl, styles, defaultAdder, lines, linesParts);
+      this.register('lineArrows', 'circles', defaultAdder);
 
       if (extensions.OES_standard_derivatives) {
-        isDirty =
-          isDirty ||
-          this.scene.curveArrows.set(
-            gl,
-            styles,
-            defaultAdder,
-            curves,
-            curvesParts
-          );
-
-        isDirty =
-          isDirty ||
-          this.scene.circleArrows.set(
-            gl,
-            styles,
-            defaultAdder,
-            circles,
-            circlesParts
-          );
+        this.register('curveArrows', 'curves', defaultAdder);
+        this.register('circleArrows', 'circles', defaultAdder);
       }
     }
-
-    return isDirty;
   }
 }

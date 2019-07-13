@@ -11,7 +11,7 @@ export default class NodePlugin extends BasePlugin {
     this.scene.add('nodes', new Node(gl, nodeStyle, getNodeSize));
     this.scene.add('nodesColored', new NodeColored(gl, nodeStyle, getNodeSize));
   }
-  set({ gl, styles, textures, drawEntities: { nodes, nodesParts } }) {
+  runRegistrations({ gl, textures, drawEntities: { nodes } }) {
     let isDirty = false;
 
     let defaultAdder = (section, addSection) => {
@@ -24,27 +24,9 @@ export default class NodePlugin extends BasePlugin {
       else addSection();
     };
 
-    let is;
-    is = nodes.length && !nodes[0].color;
-    isDirty =
-      isDirty ||
-      this.scene.nodes.set(
-        gl,
-        styles,
-        defaultAdder,
-        is ? nodes : [],
-        is ? nodesParts : {}
-      );
-    is = nodes.length && nodes[0].color;
-    isDirty =
-      isDirty ||
-      this.scene.nodesColored.set(
-        gl,
-        styles,
-        defaultAdder,
-        is ? nodes : [],
-        is ? nodesParts : {}
-      );
+    if (nodes.length && !nodes[0].color)
+      this.register('nodes', 'nodes', defaultAdder);
+    else this.register('nodes', 'nodes', defaultAdder);
 
     return isDirty;
   }
