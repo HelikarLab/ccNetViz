@@ -1,11 +1,15 @@
 import BasePlugin from './basePlugin';
 import { Line, Curve, Circle, EdgeManager } from '../shapes/edge';
-import {
-  LineArrow,
-  CurveArrow,
-  CircleArrow,
-  EdgeArrowManager,
-} from '../shapes/edgeArrow';
+import { LineArrow, CurveArrow, CircleArrow } from '../shapes/edgeArrow';
+
+/**
+ *  Copyright (c) 2019, Helikar Lab.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the GPLv3 License.
+ *  Authors:
+ *    Aleš Saska - http://alessaska.cz/
+ */
 
 export default class EdgePlugin extends BasePlugin {
   constructor(options) {

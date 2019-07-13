@@ -1,3 +1,12 @@
+/**
+ *  Copyright (c) 2019, Helikar Lab.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the GPLv3 License.
+ *  Authors:
+ *    Aleš Saska - http://alessaska.cz/
+ */
+
 class BasePlugin {
   constructor(options) {
     this.options = options;

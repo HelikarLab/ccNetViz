@@ -2,6 +2,15 @@ import BasePlugin from './basePlugin';
 
 import { Node, NodeColored } from '../shapes/node';
 
+/**
+ *  Copyright (c) 2019, Helikar Lab.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the GPLv3 License.
+ *  Authors:
+ *    Aleš Saska - http://alessaska.cz/
+ */
+
 export default class NodePlugin extends BasePlugin {
   constructor(options) {
     super(options);
