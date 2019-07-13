@@ -53,6 +53,9 @@ const getEdgeAnimateType = t => {
 class Line extends BaseShape {
   constructor(gl, edgeStyle) {
     super();
+
+    this.filler = shapeFillers.lines;
+
     const hasAnimation =
       !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
     this._primitive = new ccNetViz_primitive(
@@ -99,6 +102,9 @@ class Line extends BaseShape {
 class Curve extends BaseShape {
   constructor(gl, edgeStyle) {
     super();
+
+    this.filler = shapeFillers.curves;
+
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -127,6 +133,9 @@ class Curve extends BaseShape {
 class Circle extends BaseShape {
   constructor(gl, edgeStyle) {
     super();
+
+    this.filler = shapeFillers.circles;
+
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -196,186 +205,170 @@ const setVerticeCurveShift = (v, iV, s, t) => {
     );
 };
 
-class EdgeManager extends BaseShapeManager {
-  constructor() {
-    super();
-    this._filler = {
-      lines: style => ({
-        set: (v, e, iV, iI) => {
-          let s = ccNetViz_geomutils.edgeSource(e);
-          let t = ccNetViz_geomutils.edgeTarget(e);
-          let dx = s.x - t.x;
-          let dy = s.y - t.y;
-          let d = normalize(s, t);
+const shapeFillers = {
+  lines: style => ({
+    set: (v, e, iV, iI) => {
+      let s = ccNetViz_geomutils.edgeSource(e);
+      let t = ccNetViz_geomutils.edgeTarget(e);
+      let dx = s.x - t.x;
+      let dy = s.y - t.y;
+      let d = normalize(s, t);
 
-          setVerticeCurveShift(v, iV, s, t);
+      setVerticeCurveShift(v, iV, s, t);
 
-          ccNetViz_primitive.vertices(
-            v.position,
-            iV,
-            s.x,
-            s.y,
-            s.x,
-            s.y,
-            t.x,
-            t.y,
-            t.x,
-            t.y
-          );
-          ccNetViz_primitive.vertices(
-            v.lengthSoFar,
-            iV,
-            0,
-            0,
-            0,
-            0,
-            dx,
-            dy,
-            dx,
-            dy
-          );
-          ccNetViz_primitive.vertices(
-            v.normal,
-            iV,
-            -d.y,
-            d.x,
-            d.y,
-            -d.x,
-            d.y,
-            -d.x,
-            -d.y,
-            d.x
-          );
+      ccNetViz_primitive.vertices(
+        v.position,
+        iV,
+        s.x,
+        s.y,
+        s.x,
+        s.y,
+        t.x,
+        t.y,
+        t.x,
+        t.y
+      );
+      ccNetViz_primitive.vertices(
+        v.lengthSoFar,
+        iV,
+        0,
+        0,
+        0,
+        0,
+        dx,
+        dy,
+        dx,
+        dy
+      );
+      ccNetViz_primitive.vertices(
+        v.normal,
+        iV,
+        -d.y,
+        d.x,
+        d.y,
+        -d.x,
+        d.y,
+        -d.x,
+        -d.y,
+        d.x
+      );
 
-          // NOTE: edge animation set from style
-          const hasEdgeAnimation =
-            !!style.animateType && style.animateType !== 'none';
-          if (hasEdgeAnimation) {
-            // when do edge animation, shader need to know the startPos and endPos
-            ccNetViz_primitive.vertices(
-              v.startPos,
-              iV,
-              s.x,
-              s.y,
-              s.x,
-              s.y,
-              s.x,
-              s.y,
-              s.x,
-              s.y
-            );
-            ccNetViz_primitive.vertices(
-              v.endPos,
-              iV,
-              t.x,
-              t.y,
-              t.x,
-              t.y,
-              t.x,
-              t.y,
-              t.x,
-              t.y
-            );
-          }
+      // NOTE: edge animation set from style
+      const hasEdgeAnimation =
+        !!style.animateType && style.animateType !== 'none';
+      if (hasEdgeAnimation) {
+        // when do edge animation, shader need to know the startPos and endPos
+        ccNetViz_primitive.vertices(
+          v.startPos,
+          iV,
+          s.x,
+          s.y,
+          s.x,
+          s.y,
+          s.x,
+          s.y,
+          s.x,
+          s.y
+        );
+        ccNetViz_primitive.vertices(
+          v.endPos,
+          iV,
+          t.x,
+          t.y,
+          t.x,
+          t.y,
+          t.x,
+          t.y,
+          t.x,
+          t.y
+        );
+      }
 
-          ccNetViz_primitive.quad(v.indices, iV, iI);
-        },
-      }),
-      curves: style => ({
-        numVertices: 3,
-        numIndices: 3,
-        set: (v, e, iV, iI) => {
-          let s = ccNetViz_geomutils.edgeSource(e);
-          let t = ccNetViz_geomutils.edgeTarget(e);
-          let dx = s.x - t.x;
-          let dy = s.y - t.y;
-          let d = normalize(s, t);
+      ccNetViz_primitive.quad(v.indices, iV, iI);
+    },
+  }),
+  curves: style => ({
+    numVertices: 3,
+    numIndices: 3,
+    set: (v, e, iV, iI) => {
+      let s = ccNetViz_geomutils.edgeSource(e);
+      let t = ccNetViz_geomutils.edgeTarget(e);
+      let dx = s.x - t.x;
+      let dy = s.y - t.y;
+      let d = normalize(s, t);
 
-          setVerticeCurveShift(v, iV, s, t);
+      setVerticeCurveShift(v, iV, s, t);
 
-          ccNetViz_primitive.vertices(
-            v.position,
-            iV,
-            s.x,
-            s.y,
-            0.5 * (t.x + s.x),
-            0.5 * (t.y + s.y),
-            t.x,
-            t.y
-          );
-          ccNetViz_primitive.vertices(
-            v.lengthSoFar,
-            iV,
-            0,
-            0,
-            dx / 2,
-            dy / 2,
-            dx,
-            dy
-          );
-          ccNetViz_primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
-          ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
-          ccNetViz_primitive.indices(v.indices, iV, iI, 0, 1, 2);
-        },
-      }),
-      circles: style => ({
-        set: (v, e, iV, iI) => {
-          let s = ccNetViz_geomutils.edgeSource(e);
-          let d = s.y < 0.5 ? 1 : -1;
+      ccNetViz_primitive.vertices(
+        v.position,
+        iV,
+        s.x,
+        s.y,
+        0.5 * (t.x + s.x),
+        0.5 * (t.y + s.y),
+        t.x,
+        t.y
+      );
+      ccNetViz_primitive.vertices(
+        v.lengthSoFar,
+        iV,
+        0,
+        0,
+        dx / 2,
+        dy / 2,
+        dx,
+        dy
+      );
+      ccNetViz_primitive.vertices(v.normal, iV, 0, 0, d.y, -d.x, 0, 0);
+      ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0.0, 0, 0);
+      ccNetViz_primitive.indices(v.indices, iV, iI, 0, 1, 2);
+    },
+  }),
+  circles: style => ({
+    set: (v, e, iV, iI) => {
+      let s = ccNetViz_geomutils.edgeSource(e);
+      let d = s.y < 0.5 ? 1 : -1;
 
-          let xdiff1 = 0;
-          let ydiff1 = 0;
-          let xdiff2 = 1;
-          let ydiff2 = d;
-          let xdiff3 = 2;
-          let ydiff3 = 1.25 * d;
-          let xdiff4 = 3;
-          let ydiff4 = 1.5 * d;
+      let xdiff1 = 0;
+      let ydiff1 = 0;
+      let xdiff2 = 1;
+      let ydiff2 = d;
+      let xdiff3 = 2;
+      let ydiff3 = 1.25 * d;
+      let xdiff4 = 3;
+      let ydiff4 = 1.5 * d;
 
-          setVerticeCurveShift(v, iV, s, s);
+      setVerticeCurveShift(v, iV, s, s);
 
-          ccNetViz_primitive.vertices(
-            v.position,
-            iV,
-            s.x,
-            s.y,
-            s.x,
-            s.y,
-            s.x,
-            s.y,
-            s.x,
-            s.y
-          );
-          ccNetViz_primitive.vertices(
-            v.lengthSoFar,
-            iV,
-            xdiff1,
-            ydiff1,
-            xdiff2,
-            ydiff2,
-            xdiff3,
-            ydiff3,
-            xdiff4,
-            ydiff4
-          );
-          ccNetViz_primitive.vertices(
-            v.normal,
-            iV,
-            0,
-            0,
-            1,
-            d,
-            0,
-            1.25 * d,
-            -1,
-            d
-          );
-          ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
-          ccNetViz_primitive.quad(v.indices, iV, iI);
-        },
-      }),
-    };
-  }
-}
+      ccNetViz_primitive.vertices(
+        v.position,
+        iV,
+        s.x,
+        s.y,
+        s.x,
+        s.y,
+        s.x,
+        s.y,
+        s.x,
+        s.y
+      );
+      ccNetViz_primitive.vertices(
+        v.lengthSoFar,
+        iV,
+        xdiff1,
+        ydiff1,
+        xdiff2,
+        ydiff2,
+        xdiff3,
+        ydiff3,
+        xdiff4,
+        ydiff4
+      );
+      ccNetViz_primitive.vertices(v.normal, iV, 0, 0, 1, d, 0, 1.25 * d, -1, d);
+      ccNetViz_primitive.vertices(v.curve, iV, 1, 1, 0.5, 0, 0, 0, 0.5, 0);
+      ccNetViz_primitive.quad(v.indices, iV, iI);
+    },
+  }),
+};
 
-export { Line, Curve, Circle, EdgeManager };
+export { Line, Curve, Circle };
