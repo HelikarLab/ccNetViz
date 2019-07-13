@@ -49,6 +49,28 @@ float isAnimateCoveredDoubleGradient() {
 }
 
 float isAnimateBubble() {
-  // TODO: implement bubble shape
+  vec2 pos = gl_FragCoord.xy;
+  vec2 viewport = 2. * v_screen;
+  float maxLen = length(viewport);
+  vec2 startPos = viewport * v_startPos;
+  // startPos += n * v_animateMaxWidth;
+  vec2 endPos = viewport * v_endPos;
+  // endPos += n * v_animateMaxWidth;
+  float totalLen = distance(startPos, endPos);
+  float len = distance(pos, startPos);
+  float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+
+  vec2 vec = endPos - startPos;
+  vec2 norm = normalize(vec2(-vec.y, vec.x));
+  float currWidth = length(dot(pos - startPos, norm));
+
+  vec2 center = startPos + normalize(vec) * r;
+  if (currWidth > v_lineWidth && length(pos - center) > 0.5 * v_animateMaxWidth) {
+    return 0.;
+  }
+
   return 1.;
+
+  // float draw = 1. - step(r, len);
+  // return draw;
 }

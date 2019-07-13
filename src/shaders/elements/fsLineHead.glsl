@@ -10,4 +10,7 @@ varying vec2 v_startPos;
 varying vec2 v_endPos;
 varying vec2 v_screen;
 varying vec2 v_lengthSoFar;
+varying float v_lineWidth;
+varying float v_animateMaxWidth;
+
 uniform float lineSize;

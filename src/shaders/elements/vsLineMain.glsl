@@ -9,6 +9,8 @@ void main(void) {
   v_startPos = startPos;
   v_endPos = endPos;
   v_screen = screen;
+  v_lineWidth = width;
+  v_animateMaxWidth = animateMaxWidth;
 
   n = normal;
 }
