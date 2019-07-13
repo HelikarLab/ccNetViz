@@ -21,3 +21,4 @@ varying vec2 n;
 varying vec2 v_lengthSoFar;
 varying float v_lineWidth;
 varying float v_animateMaxWidth;
+varying vec2 v_size;

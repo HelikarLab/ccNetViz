@@ -108,18 +108,19 @@
       options = {
         styles: {
           node: {
+            size: 20,
             texture: 'images/node.png',
           },
           edge: {
-            width: 3,
+            width: 5,
             type: 'line',
             color: 'rgb(200, 200, 200)',
 
             animateType: 'shape-bubble', // "basic", "gradient", "double-gradient", "none"
-            animateSpeed: 2,
+            animateSpeed: 1,
             animateEase: 'sin-out', // default is "linear"
             animateColor: 'rgb(240, 80, 100)',
-            animateMaxWidth: 20,
+            animateMaxWidth: 15,
           },
         },
       };
@@ -128,8 +129,8 @@
         const el = document.querySelector('#animate-select');
         const val = el.options[el.selectedIndex].value;
         if (val === 'shape-bubble') {
-          window.options.styles.edge.width = 3;
-          window.options.styles.edge.animateMaxWidth = 8;
+          window.options.styles.edge.width = 5;
+          window.options.styles.edge.animateMaxWidth = 15;
           window.options.styles.edge.type = 'line';
         } else {
           window.options.styles.edge.width = 5;
