@@ -19,6 +19,7 @@
             <option value="basic">Basic</option>
             <option selected value="gradient">Gradient</option>
             <option value="double-gradient">Double Gradient</option>
+            <option value="shape-bubble">Bubble</option>
           </select>
         </div>
         <div class="item">
@@ -125,6 +126,14 @@
       function onAnimationChange() {
         const el = document.querySelector('#animate-select');
         const val = el.options[el.selectedIndex].value;
+        if (val === 'shape-bubble') {
+          window.options.styles.edge.width = 3;
+          window.options.styles.edge.animateMaxWidth = 8;
+          window.options.styles.edge.type = 'line';
+        } else {
+          window.options.styles.edge.width = 5;
+          window.options.styles.edge.type = 'dotted';
+        }
         window.options.styles.edge.animateType = val;
         showGraph(window.options);
       }
