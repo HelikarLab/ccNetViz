@@ -58,17 +58,26 @@ float isAnimateBubble() {
 
   vec2 vec = endPos - startPos;
   vec2 norm = normalize(vec2(-vec.y, vec.x));
+  // vec2 norm = normalize(n);
+  mat2 rotateMat = mat2(norm.y, norm.x, -norm.x, norm.y); // rotate to horizental
 
   startPos += norm * 5.; // TODO: magic number?? don't know why I need to add this offset
   endPos += norm * 5.;
+
   float totalLen = distance(startPos, endPos);
-  float len = distance(pos, startPos);
   float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+  // float r = 0.5 * totalLen;
 
   float currWidth = length(dot(pos - startPos, norm));
 
   vec2 center = startPos + normalize(vec) * r;
-  if (currWidth > v_lineWidth && length(pos - center) > v_animateMaxWidth) {
+
+  vec2 newPos = center + (rotateMat * (pos - center));
+
+  // if (currWidth > v_lineWidth && length(pos - center) > v_animateMaxWidth) {
+    // return 0.;
+  // }
+  if (currWidth > v_lineWidth && length(newPos.x - center.x) > v_animateMaxWidth) {
     return 0.;
   }
 
