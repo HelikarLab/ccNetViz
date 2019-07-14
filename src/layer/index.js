@@ -90,8 +90,7 @@ export default function(
   let set_end = (layout, layout_options) => {
     let enableLazyRedraw = false;
     let reset = p => {
-      if (enableLazyRedraw)
-        this.set(this.nodes, this.edges, layout, layout_options);
+      if (enableLazyRedraw) this.set(this.nodes, this.edges);
     };
     files.onLoad(reset);
     textures.onLoad(reset);
