@@ -49,6 +49,7 @@ float isAnimateCoveredDoubleGradient() {
 }
 
 float isAnimateBubble() {
+  float PI = 3.14159265359;
   vec2 pos = gl_FragCoord.xy;
   vec2 viewport = 2. * v_screen;
   float maxLen = length(viewport);
@@ -71,17 +72,26 @@ float isAnimateBubble() {
   float currWidth = length(dot(pos - startPos, norm));
 
   vec2 center = startPos + normalize(vec) * r;
-
   vec2 newPos = center + (rotateMat * (pos - center));
+  vec2 relativePos = newPos - center;
 
   // if (currWidth > v_lineWidth && length(pos - center) > v_animateMaxWidth) {
     // return 0.;
   // }
-  if (currWidth > v_lineWidth && length(newPos.x - center.x) > v_animateMaxWidth) {
-    return 0.;
+
+  float shapeLen = 4. * v_animateMaxWidth; // TODO: may be configurable
+  float A = (v_animateMaxWidth - v_lineWidth) / 2.;
+  float K = 2. * PI / shapeLen;
+  float B = v_lineWidth + (v_animateMaxWidth - v_lineWidth) / 2.;
+  float draw = 1.;
+  if (currWidth > v_lineWidth) {
+    draw = 0.;
+  }
+  if (length(relativePos.x) < shapeLen / 2. && abs(A * cos(K * relativePos.x) + B) > abs(relativePos.y)) {
+    draw = 1.;
   }
 
-  return 1.;
+  return draw;
 
   // float draw = 1. - step(r, len);
   // return draw;
