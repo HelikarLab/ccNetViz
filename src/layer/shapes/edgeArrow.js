@@ -102,7 +102,7 @@ class LineArrow extends BaseShape {
         let s = ccNetViz_geomutils.edgeSource(e);
         let t = ccNetViz_geomutils.edgeTarget(e);
         let d = normalize(s, t);
-        set(v, e, s, t, iV, iI, d.x, d.y);
+        return set(v, e, s, t, iV, iI, d.x, d.y);
       },
     });
 
