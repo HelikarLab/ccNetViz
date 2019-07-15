@@ -135,14 +135,14 @@ float isAnimateWave() {
   vec2 newPos = center + (rotateMat * (pos - center));
   vec2 relativePos = newPos - center;
 
-  float shapeLen = 4. * v_animateMaxWidth; // TODO: may be configurable
+  float shapeLen = 2. * v_animateMaxWidth; // TODO: may be configurable
   float draw = 1.;
   if (length(relativePos.x) < shapeLen / 2. || currWidth > v_lineWidth) {
     draw = 0.;
   }
   float A = v_animateMaxWidth - v_lineWidth;
   float B = shapeLen / 2.;
-  if (length(relativePos.x) < shapeLen / 2. && abs(waveCurve(A, B, relativePos.x) - relativePos.y) < v_lineWidth * sqrt(1. + pow(waveCurveGrad(A, B, relativePos.x), 2.))) {
+  if (length(relativePos.x) < shapeLen / 2. && abs(waveCurve(A, B, relativePos.x) - relativePos.y) < v_lineWidth * sqrt(1. + abs(pow(waveCurveGrad(A, B, relativePos.x), 1.)))) {
     draw = 1.;
   }
 
