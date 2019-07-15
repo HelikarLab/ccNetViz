@@ -78,8 +78,11 @@
           starting_angle: Math.PI / 2,
           ordering: 'topological',
         };
-        graph.set(data.nodes, data.edges, 'circular', layout_options);
-        graph.draw();
+        graph
+          .set(data.nodes, data.edges, 'circular', layout_options)
+          .then(() => {
+            graph.draw();
+          });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

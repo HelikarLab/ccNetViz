@@ -129,15 +129,17 @@
 
         var el = document.getElementById('container');
         var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force');
-        graph.draw();
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
 
         for (var i = 2; ; i++) {
           var el2 = document.getElementById('container' + i);
           if (!el2) return;
           var graph2 = new ccNetViz(el2, conf);
-          graph2.set(data.nodes, data.edges);
-          graph2.draw();
+          graph2.set(data.nodes, data.edges, 'force').then(() => {
+            graph2.draw();
+          });
         }
 
         $('#nodesCnt').text(data.nodes.length);

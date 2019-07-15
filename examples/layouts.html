@@ -109,8 +109,9 @@
         if (layout == null) {
           layout = 'tree';
         }
-        graph.set(data.nodes, data.edges, layout);
-        graph.draw();
+        graph.set(data.nodes, data.edges, layout).then(() => {
+          graph.draw();
+        });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

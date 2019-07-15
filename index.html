@@ -28,8 +28,8 @@
         const edges = [];
 
         window.timer = {
-        start: new Date(),
-        end: undefined
+          start: new Date(),
+          end: undefined
         };
 
 
@@ -291,8 +291,9 @@
         animation.frame.count = animation.fps * animation.time;
         animation.circle.size.raise = (animation.circle.size.maximum - animation.circle.size.minimum) / animation.frame.count;
 
-        graph.set(nodeList, edges);
-        graph.draw();
+        graph.set(nodeList, edges).then(() => {
+          graph.draw();
+        });
 
         let animationInstances = [];
         let r = [];
@@ -401,8 +402,9 @@
           }
 
 
-          graph.set(nodeList, edges);
-          graph.draw();
+          graph.set(nodeList, edges).then(() => {
+            graph.draw();
+          });
         }
         window.timer.end = new Date();
         settings.information ? document.getElementById("stats").innerText = `${nodes.length} Nodes, ${edges.length} Edges ( Rendered in ${window.timer.end - window.timer.start}ms )` : false;
@@ -717,7 +719,8 @@
                 See the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/src/layout" target="_blank">link</a>
                 for list of all available layouts.
               </div>
-              <p>If you want to use one of our in-built layout, pass it as second parameter into the set function such as:
+              <p>If you want to use one of our in-built layout, pass it as second parameter into the set function such
+                as:
               </p>
               <script src="https://gist.github.com/canerakdas/2ea1a305da82dc1182f859ab79c4d4d4.js"></script>
             </div>
@@ -728,7 +731,7 @@
           <div id="demos-container">
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/styles.html">
+                <a target="_blank" href="./examples/styles.html">
                   <div class="image-container">
                     <img src="./static/img/styles.png" alt="Advanced styling" />
                   </div>
@@ -737,7 +740,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/complex.html">
+                <a target="_blank" href="./examples/complex.html">
                   <div class="image-container">
                     <img src="./static/img/complex.png" alt="Complex graphs" />
                   </div>
@@ -746,7 +749,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/interactivity_hover.html">
+                <a target="_blank" href="./examples/interactivity_hover.html">
                   <div class="image-container">
                     <img src="./static/img/hover.png" alt="Mouse event on hover" />
                   </div>
@@ -757,7 +760,7 @@
             </div>
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/interactivity_move.html">
+                <a target="_blank" href="./examples/interactivity_move.html">
                   <div class="image-container">
                     <img src="./static/img/move.png" alt="Mouse events on move" />
                   </div>
@@ -766,7 +769,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/multi_level.html">
+                <a target="_blank" href="./examples/multi_level.html">
                   <div class="image-container">
                     <img src="./static/img/multi.png" alt="Multi level" />
                   </div>
@@ -775,7 +778,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/save_graph.html">
+                <a target="_blank" href="./examples/save_graph.html">
                   <div class="image-container">
                     <img src="./static/img/save.png" alt="Save graphs" />
                   </div>
@@ -786,7 +789,7 @@
             </div>
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/sdf.html">
+                <a target="_blank" href="./examples/sdf.html">
                   <div class="image-container">
                     <img src="./static/img/sdf.png" alt="Using SDF fonts" />
                   </div>
@@ -795,7 +798,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/userdef_layout.html">
+                <a target="_blank" href="./examples/userdef_layout.html">
                   <div class="image-container">
                     <img src="./static/img/layout.png" alt="User definied layout" />
                   </div>
@@ -804,7 +807,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/edges_to_edges.html">
+                <a target="_blank" href="./examples/edges_to_edges.html">
                   <div class="image-container">
                     <img src="./static/img/edges.png" alt="Edges-to-edges support" />
                   </div>
@@ -815,7 +818,7 @@
             </div>
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/line_animate.html">
+                <a target ="_blank" href="./examples/line_animate.html">
                   <div class="image-container">
                     <img src="./static/img/line_animate.png" style="height: 146px; width: auto;" alt="Line Animation" />
                   </div>
@@ -824,18 +827,20 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/line_animate_complex.html">
+                <a target ="_blank" href="./examples/line_animate_complex.html">
                   <div class="image-container">
-                    <img src="./static/img/animation-complex.png" style="height: 146px; width: auto;" alt="Line Animation Complex" />
+                    <img src="./static/img/animation-complex.png" style="height: 146px; width: auto;"
+                      alt="Line Animation Complex" />
                   </div>
                   <span>Edge Animation Complex<a class="github"
                       href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/line_animate_complex.html">GitHub</a></span>
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/line_animation_benchmark.html">
+                <a target ="_blank" href="./examples/line_animation_benchmark.html">
                   <div class="image-container">
-                    <img src="./static/img/animate-benchmark.png" style="height: 146px; width: auto;" alt="Line Animation Benchmark" />
+                    <img src="./static/img/animate-benchmark.png" style="height: 146px; width: auto;"
+                      alt="Line Animation Benchmark" />
                   </div>
                   <span>Edge Animation Benchmark<a class="github"
                       href="https://github.com/HelikarLab/ccNetViz/blob/master/examples/line_animation_benchmark.html">GitHub</a></span>
@@ -844,7 +849,7 @@
             </div>
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/layouts.html">
+                <a target="_blank" href="./examples/layouts.html">
                   <div class="image-container">
                     <img src="./static/img/layouts.png" alt="Layouts" />
                   </div>
@@ -867,7 +872,7 @@
           <div id="plugins-container">
             <div class="row">
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/node_plugin.html">
+                <a target="_blank" href="./examples/node_plugin.html">
                   <div class="image-container">
                     <img src="./static/img/node_plugin.png" alt="Advanced Node Plugin" />
                   </div>
@@ -876,7 +881,7 @@
                 </a>
               </div>
               <div class="demo columns four">
-                <a target ="_blank" href="./examples/arrow_plugin.html">
+                <a target="_blank" href="./examples/arrow_plugin.html">
                   <div class="image-container">
                     <img src="./static/img/arrow_plugin.png" alt="Advanced Arrow Plugin" />
                   </div>
@@ -891,7 +896,8 @@
           <h5 class="row">Documentation</h5>
           <h6>ccNetViz(element, options)</h6>
           <article>
-            Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with styles
+            Creates new ccNetViz graph renderer attached to canvas element specified as first argument, styled with
+            styles
             defined in styles property of options parameter.
           </article>
           <h6>Options</h6>
@@ -1124,7 +1130,7 @@
               </tbody>
             </table>
           </div>
-          <h6>Set <span class="usage-container">set(Nodes, Edges, Layout)</span> </h6>
+          <h6>Set <span class="usage-container">set(Nodes, Edges, Layout, Layout Options)</span> </h6>
           <article>
             Sets the data to be displayed by given ccNetViz instance.
             <br>
@@ -1190,8 +1196,15 @@
                 </tbody>
               </table>
             </div>
+            <h6>Layout</h6>
             Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random",
             "circular", "tree". If not specified, positions are taken from each node x, y properties.
+            <h6>Layout Options</h6>
+            <div class="documentation">
+              Special layout options object, such as margin and flip, are routed through the layout_options argument.
+              See <a href="https://helikarlab.github.io/ccNetViz/examples/circular" target="_blank">Advanced circular
+                layout</a> for an example of further layout options.
+            </div>
           </article>
           <h6>Find <span class="usage-container">find(x, y, radius, nodes, edges)</span> </h6>
           <article>Find the nodes and edges within the specified radius.</article>
@@ -1271,7 +1284,7 @@
             </table>
           </div>
           <h6>Draw<span class="usage-container">draw()</span> </h6>
-          <article>Renders current data.</article>
+          <article>Renders current data. Must wait for the set method complete.</article>
           <h6>Resize<span class="usage-container">resize()</span> </h6>
           <article>Adjust graph for current canvas size.</article>
           <h6>Reset View<span class="usage-container">resetView()</span> </h6>
@@ -1577,7 +1590,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-141346411-1"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'UA-141346411-1');

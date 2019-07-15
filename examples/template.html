@@ -59,8 +59,9 @@
       //
 
       //
-      graph.set(nodes, edges, 'force');
-      graph.draw();
+      graph.set(nodes, edges, 'force').then(() => {
+        graph.draw();
+      });
     </script>
   </body>
 </html>
