@@ -64,7 +64,7 @@ export default class EdgePlugin extends BasePlugin {
     }
 
     if (edgeStyle.arrow) {
-      this.register('lineArrows', 'circles', defaultAdder);
+      this.register('lineArrows', 'lines', defaultAdder);
 
       if (extensions.OES_standard_derivatives) {
         this.register('curveArrows', 'curves', defaultAdder);
