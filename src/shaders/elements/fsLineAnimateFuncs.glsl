@@ -104,6 +104,11 @@ float waveCurve(float A, float B, float x) {
   return A * (sin(PI * (x / B + 1.) * (x / B + 1.)) * (1. - step(0., x)) + -sin(PI * (-x / B + 1.) * (-x / B + 1.)) * step(0., x));
 }
 
+float waveCurveGrad(float A, float B, float x) {
+  return A * (cos(PI * (x / B + 1.) * (x / B + 1.)) * 2. * PI / B * (x / B + 1.) * (1. - step(0., x)) +
+          -cos(PI * (-x / B + 1.) * (-x / B + 1.)) * 2. * PI / (-B) * (-x / B + 1.) * step(0., x));
+}
+
 float isAnimateWave() {
   vec2 pos = gl_FragCoord.xy;
   vec2 viewport = 2. * v_screen;
@@ -137,7 +142,7 @@ float isAnimateWave() {
   }
   float A = v_animateMaxWidth - v_lineWidth;
   float B = shapeLen / 2.;
-  if (length(relativePos.x) < shapeLen / 2. && abs(waveCurve(A, B, relativePos.x) - relativePos.y) < v_lineWidth) {
+  if (length(relativePos.x) < shapeLen / 2. && abs(waveCurve(A, B, relativePos.x) - relativePos.y) < v_lineWidth * sqrt(1. + pow(waveCurveGrad(A, B, relativePos.x), 2.))) {
     draw = 1.;
   }
 
