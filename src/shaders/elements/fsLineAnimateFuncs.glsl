@@ -1,3 +1,7 @@
+#ifndef PI
+#define PI 3.141592653589793
+#endif
+
 float isAnimateCovered() {
   vec2 pos = gl_FragCoord.xy;
   vec2 viewport = 2. * v_screen;
@@ -49,7 +53,6 @@ float isAnimateCoveredDoubleGradient() {
 }
 
 float isAnimateBubble() {
-  float PI = 3.14159265359;
   vec2 pos = gl_FragCoord.xy;
   vec2 viewport = 2. * v_screen;
   float maxLen = length(viewport);
