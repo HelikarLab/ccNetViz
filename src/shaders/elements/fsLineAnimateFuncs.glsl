@@ -69,7 +69,7 @@ float isAnimateBubble() {
   mat2 rotateMat = mat2(norm.y, norm.x, -norm.x, norm.y); // rotate to horizental
 
   float totalLen = distance(startPos, endPos);
-  float r = ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen + v_animateMaxWidth * 2.);
+  float r = v_animateMaxWidth * 2. + ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * (totalLen - v_animateMaxWidth * 4.);
   // float r = 0.5 * totalLen;
 
   float currWidth = length(dot(pos - startPos, norm));
