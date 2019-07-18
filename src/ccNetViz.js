@@ -90,6 +90,7 @@ var ccNetViz = function(canvas, options) {
   edgeStyle.color = edgeStyle.color || 'rgb(204, 204, 204)';
   edgeStyle.animateColor = edgeStyle.animateColor || 'rgb(240, 80, 120)';
   edgeStyle.animateSpeed = edgeStyle.animateSpeed || 1.0;
+  edgeStyle.animateMaxWidth = edgeStyle.animateMaxWidth || edgeStyle.width;
 
   let onLoad = () => {
     if (!options.onLoad || options.onLoad()) {
@@ -412,7 +413,7 @@ var ccNetViz = function(canvas, options) {
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const startTime = Date.now();
+    context.startTime = Date.now();
     let drawNums = 0;
 
     const drawOnce = () => {
@@ -422,7 +423,7 @@ var ccNetViz = function(canvas, options) {
       }
     };
     const drawLoop = () => {
-      context.renderTime = (Date.now() - startTime) / 1000.0;
+      context.renderTime = (Date.now() - context.startTime) / 1000.0;
       drawOnce();
       drawNums++;
       this.fps = drawNums / context.renderTime; // TODO: number overflow
