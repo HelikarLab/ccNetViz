@@ -235,6 +235,16 @@ var ccNetViz = function(canvas, options) {
     this.draw();
   };
 
+  this.animateTexture = () => {
+    if (checkRemoved()) return;
+
+    let n = layers.main.getVisibleNodes();
+    let e = layers.main.getVisibleEdges();
+
+    this.set(n, e);
+    this.draw();
+  };
+
   this.removeNode = n => {
     if (checkRemoved()) {
       return this;
