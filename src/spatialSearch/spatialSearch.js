@@ -88,6 +88,75 @@ class Label {
   get isLabel() {
     return true;
   }
+
+  // function to return the char
+  searchChar(x, y, size, context) {
+    let nodePosX = this.e.x;
+    let nodePosY = this.e.y;
+    let x1, y1, x2, y2;
+    let wantedSize = this.isSDF
+      ? this.getLabelSize(context, this.style.label || {})
+      : this.fontSize;
+    let fontScale = wantedSize / this.fontSize;
+    if (wantedSize === 0) {
+      fontScale = 0;
+    }
+    const label = this.e.label.replace(/\s+/g, '');
+    const offset = 0.5 * context.nodeSize;
+    let step = (edge, x) => (x < edge ? 0 : 1);
+
+    //iterating through positions to check out which char fits
+
+    for (let i = 0; i < this.pos.length; i++) {
+      let c = this.pos[i];
+      // -8 in c.dx because +3 added while position setting in sdf and 5 for background calculation
+      const offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
+      x1 = nodePosX + (size * ((c.dx - 8) * fontScale)) / context.width / 2;
+      y1 =
+        nodePosY + (size * (c.dy * fontScale + offsety)) / context.height / 2;
+      x2 =
+        nodePosX +
+        (size * ((c.dx - 8 + c.width / 3) * fontScale)) / context.width / 2;
+      y2 =
+        nodePosY +
+        (size * ((c.dy + c.height / 2) * fontScale + offsety)) /
+          context.height /
+          2;
+
+      let charPosX1 = Math.min(x1, x2);
+      let charPosX2 = Math.max(x1, x2);
+      let charPosY1 = Math.min(y1, y2);
+      let charPosY2 = Math.max(y1, y2);
+
+      // check if point clicked on canvas is in rectangle of char
+      if (pointInRect(x, y, charPosX1, charPosY1, charPosX2, charPosY2)) {
+        console.log('here is the char');
+        console.log(label[i]);
+
+        return { charPos: i, char: label[i] };
+      }
+    }
+    return 0;
+  }
+  // function to return the word
+  getCharAndWord(x, y, size, context) {
+    //
+    let charObj = this.searchChar(x, y, size, context);
+    console.log(charObj);
+    if (!charObj) {
+      return { char: false, word: false };
+    }
+
+    let charPos = charObj.charPos;
+    const textArray = this.e.label.split(' ');
+    let sumOfString = textArray[0].length - 1;
+    let c = 0;
+    while (sumOfString < charPos) {
+      sumOfString += textArray[c].length;
+      c += 1;
+    }
+    return { char: charObj.char, word: textArray[c] };
+  }
   getTextPos(context, size) {
     let x = this.e.x;
     let y = this.e.y;
@@ -118,27 +187,14 @@ class Label {
       x,
       y
     );
-    console.log(rect);
+    // first char
     let char = this.pos[0];
-    boxMinusX = 0;
-    boxMinusY = 0;
 
     const offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
-    x1 =
-      x +
-      (size * ((rect.startPosX - boxMinusX) * fontScale)) / context.width / 2;
-    y1 =
-      y +
-      (size * ((char.dy - boxMinusY) * fontScale + offsety)) /
-        context.height /
-        2;
-    x2 =
-      x + (size * ((rect.endPosX - boxMinusX) * fontScale)) / context.width / 2;
-    y2 =
-      y +
-      (size * ((rect.height - boxMinusY) * fontScale + offsety)) /
-        context.height /
-        2;
+    x1 = x + (size * (rect.startPosX * fontScale)) / context.width / 2;
+    y1 = y + (size * (0 * fontScale + offsety)) / context.height / 2;
+    x2 = x + (size * (rect.endPosX * fontScale)) / context.width / 2;
+    y2 = y + (size * (rect.height * fontScale + offsety)) / context.height / 2;
 
     bbox[0] = Math.min(x1, x2);
     bbox[1] = Math.min(y1, y2);
@@ -157,11 +213,15 @@ class Label {
   }
   intersectsRect(x1, y1, x2, y2, context, size) {
     let t = this.getTextPos(context, size);
+    let a = rectIntersectsRect(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
+    console.log('true or false');
+    console.log(a);
     return rectIntersectsRect(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
   }
   dist2(x, y, context, size) {
+    // getting up position of labels
     let t = this.getTextPos(context, size);
-
+    // see if point which was clicked on canvas is in label area
     if (pointInRect(x, y, t[0], t[1], t[2], t[3])) return 0;
 
     //minimum from distance from corners or distance from borders
@@ -522,6 +582,11 @@ export default class spatialIndex {
       console.log('textsaget');
       console.log(this.texts);
       let dist2 = e.dist2(x, y, context, size, this.normalize);
+      if (e.isLabel) {
+        let Obj = e.getCharAndWord(x, y, size, context);
+        console.log(Obj.char);
+        console.log(Obj.word);
+      }
       if (!e.intersectsRect(x1, y1, x2, y2, context, size, this.normalize))
         continue;
 
@@ -531,7 +596,7 @@ export default class spatialIndex {
     for (let k in ret) {
       ret[k].sort(sortByDistances);
     }
-
+    console.log(ret);
     return ret;
   }
   find(context, x, y, radius, size, nodes, edges, labels) {
@@ -567,6 +632,7 @@ export default class spatialIndex {
     for (let i = 0; i < data.length; i++) {
       let e = data[i][4];
       let dist2 = e.dist2(x, y, context, size, this.normalize, this.texts);
+
       if (dist2 > radius2) continue;
 
       this._tryAddEl(ret, e, dist2, nodes, edges, labels);
