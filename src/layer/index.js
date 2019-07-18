@@ -3,21 +3,10 @@ import ccNetViz_primitive from '../primitive';
 import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
-import { Line, Curve, Circle, EdgeManager } from './shapes/edge';
-import { Node, NodeColored, NodeManager } from './shapes/node';
-import {
-  LineArrow,
-  CurveArrow,
-  CircleArrow,
-  EdgeArrowManager,
-} from './shapes/edgeArrow';
-import { Label, LabelOutline, LabelManager } from './shapes/labels';
-import {
-  LabelsBackground,
-  LabelsBackgroundManager,
-  LabelsBorder,
-} from './shapes/labelsBackground';
 import { normalize } from './util';
+import NodePlugin from './plugins/node';
+import LabelPlugin from './plugins/label';
+import EdgePlugin from './plugins/edge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -66,21 +55,6 @@ export default function(
 
   options = options || {};
   options.styles = options.styles || {};
-
-  const labelManager = new LabelManager(texts);
-  const labelsFiller = labelManager.getFiller();
-
-  const labelsBackgroundManager = new LabelsBackgroundManager(texts);
-  const labelsBackgroundFiller = labelsBackgroundManager.getFiller();
-
-  const edgeArrowManager = new EdgeArrowManager();
-  const arrowFiller = edgeArrowManager.getFiller();
-
-  const edgeManager = new EdgeManager();
-  const edgesFiller = edgeManager.getFiller();
-
-  const nodeManager = new NodeManager();
-  const nodesFiller = nodeManager.getFiller();
 
   this.getCurrentSpatialSearch = context => {
     if (spatialSearch === undefined) {
@@ -234,6 +208,17 @@ export default function(
     let linesParts = partitionByStyle(lines);
     let curvesParts = partitionByStyle(curves);
 
+    const drawEntities = {
+      nodes,
+      nodesParts,
+      circles,
+      circlesParts,
+      lines,
+      linesParts,
+      curves,
+      curvesParts,
+    };
+
     this.getCurrentSpatialSearch = context => {
       if (spatialSearch === undefined) {
         spatialSearch = new ccNetViz_spatialSearch(
@@ -257,14 +242,15 @@ export default function(
       return spatialSearch;
     };
 
+    let options_;
     if (typeof layout === 'string') {
-      var options_ = new ccNetViz_layout[layout](
+      options_ = new ccNetViz_layout[layout](
         nodes,
         edges,
         layout_options
       ).apply();
     } else if (typeof layout === 'function') {
-      var options_ = new layout(nodes, edges, layout_options).apply();
+      options_ = new layout(nodes, edges, layout_options).apply();
     } else if (typeof layout === 'number') {
       throw new Error(
         'The layout can only be a string or a function or a class'
@@ -273,177 +259,21 @@ export default function(
 
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 
-    /*
-    layout &&
-      new ccNetViz_layout[layout](nodes, edges, layout_options).apply() &&
-      ccNetViz_layout.normalize(nodes);
-      */
-
     if (!gl) return;
 
     let tryInitPrimitives = () => {
       var isDirty = false;
 
-      let defaultAdder = (section, addSection) => {
-        if (typeof section.style.texture === 'string')
-          section.style.texture = textures.get(
-            gl,
-            section.style.texture,
-            addSection
-          );
-        else addSection();
-      };
-      let labelAdder = (section, addSection) => {
-        var slf = (section.style.label || {}).font || {};
-        let textEngine = texts.getEngine(slf);
-        section.style.texture = textEngine.getTexture(slf, addSection);
+      const sceneConf = {
+        gl,
+        styles: options.styles,
+        textures,
+        drawEntities,
       };
 
-      let is;
-      is = nodes.length && !nodes[0].color;
-      isDirty =
-        isDirty ||
-        scene.nodes.set(
-          gl,
-          options.styles,
-          defaultAdder,
-          is ? nodes : [],
-          is ? nodesParts : {},
-          nodesFiller
-        );
-      is = nodes.length && nodes[0].color;
-      isDirty =
-        isDirty ||
-        scene.nodesColored.set(
-          gl,
-          options.styles,
-          defaultAdder,
-          is ? nodes : [],
-          is ? nodesParts : {},
-          nodesFiller
-        );
-      if (nodeStyle.label) {
-        texts.clear();
-        if (!nodeStyle.label.backgroundColor) {
-          isDirty =
-            isDirty ||
-            scene.labelsOutline.set(
-              gl,
-              options.styles,
-              labelAdder,
-              nodes,
-              nodesParts,
-              labelsFiller
-            );
-        }
-        isDirty =
-          isDirty ||
-          scene.labels.set(
-            gl,
-            options.styles,
-            labelAdder,
-            nodes,
-            nodesParts,
-            labelsFiller
-          );
-        texts.bind();
-      }
-      if (nodeStyle.label && nodeStyle.label.backgroundColor) {
-        isDirty =
-          isDirty ||
-          scene.labelsBackground.set(
-            gl,
-            options.styles,
-            labelAdder,
-            nodes,
-            nodesParts,
-            labelsBackgroundFiller.background
-          );
-      }
-
-      if (nodeStyle.label && nodeStyle.label.borderColor) {
-        isDirty =
-          isDirty ||
-          scene.labelsBorder.set(
-            gl,
-            options.styles,
-            labelAdder,
-            nodes,
-            nodesParts,
-            labelsBackgroundFiller.border
-          );
-      }
-
-      isDirty =
-        isDirty ||
-        scene.lines.set(
-          gl,
-          options.styles,
-          defaultAdder,
-          lines,
-          linesParts,
-          edgesFiller.lines
-        );
-
-      if (extensions.OES_standard_derivatives) {
-        isDirty =
-          isDirty ||
-          scene.curves.set(
-            gl,
-            options.styles,
-            defaultAdder,
-            curves,
-            curvesParts,
-            edgesFiller.curves
-          );
-        isDirty =
-          isDirty ||
-          scene.circles.set(
-            gl,
-            options.styles,
-            defaultAdder,
-            circles,
-            circlesParts,
-            edgesFiller.circles
-          );
-      }
-
-      if (edgeStyle.arrow) {
-        isDirty =
-          isDirty ||
-          scene.lineArrows.set(
-            gl,
-            options.styles,
-            defaultAdder,
-            lines,
-            linesParts,
-            arrowFiller.lineArrows
-          );
-
-        if (extensions.OES_standard_derivatives) {
-          isDirty =
-            isDirty ||
-            scene.curveArrows.set(
-              gl,
-              options.styles,
-              defaultAdder,
-              curves,
-              curvesParts,
-              arrowFiller.curveArrows
-            );
-
-          isDirty =
-            isDirty ||
-            scene.circleArrows.set(
-              gl,
-              options.styles,
-              defaultAdder,
-              circles,
-              circlesParts,
-              arrowFiller.circleArrows
-            );
-        }
-      }
+      scene.elements.forEach(el => {
+        isDirty = isDirty || el.set(sceneConf);
+      });
 
       return isDirty;
     };
@@ -490,6 +320,12 @@ export default function(
     );
   };
 
+  const updateSingleSourceEl = (key, n, i) => {
+    scene.elements.forEach(el => {
+      el.updateEl(key, n, i);
+    });
+  };
+
   this.updateNode = (n, i) => {
     this.nodes[i] = n;
 
@@ -497,14 +333,8 @@ export default function(
 
     if (!gl) return;
 
-    (this.nodes[0].color ? scene.nodesColored : scene.nodes).updateEl(
-      gl,
-      n,
-      i,
-      nodesFiller
-    );
-    scene.labels && scene.labels.updateEl(gl, n, i, labelsFiller);
-    scene.labelsOutline && scene.labelsOutline.updateEl(gl, n, i, labelsFiller);
+    /**** TODO: UPDATE NODES FILLER *****/
+    updateSingleSourceEl('nodes', n, i);
   };
 
   this.updateEdge = (e, i) => {
@@ -517,9 +347,8 @@ export default function(
 
     if (!gl) return;
 
-    scene[t.k].updateEl(gl, e, pos, edgesFiller[t.k]);
-    if (edgeStyle.arrow)
-      scene[t.kArrow].updateEl(gl, e, pos, arrowFiller[t.kArrow]);
+    /**** TODO: UPDATE NODES FILLER *****/
+    updateSingleSourceEl('edges', e, pos);
   };
 
   let removedNodes = 0;
@@ -588,90 +417,26 @@ export default function(
     return this;
   }
 
-  // NOTE: split to different file and use getPrimitive to get webgl element
-  const lineEdge = new Line(gl, edgeStyle);
-  scene.add('lines', lineEdge.getPrimitive());
-
-  if (extensions.OES_standard_derivatives) {
-    const curveEdge = new Curve(gl, edgeStyle);
-    scene.add('curves', curveEdge.getPrimitive());
-
-    const circleEdge = new Circle(gl, edgeStyle);
-    scene.add('circles', circleEdge.getPrimitive());
-  }
-
-  if (edgeStyle.arrow) {
-    const lineArrow = new LineArrow(gl, view, edgeStyle, getSize, getEdgesCnt);
-    scene.add('lineArrows', lineArrow.getPrimitive());
-
-    if (extensions.OES_standard_derivatives) {
-      const curveArrow = new CurveArrow(
-        gl,
-        view,
-        edgeStyle,
-        getSize,
-        getEdgesCnt
-      );
-      scene.add('curveArrows', curveArrow.getPrimitive());
-      const circleArrow = new CircleArrow(
-        gl,
-        view,
-        edgeStyle,
-        getSize,
-        getEdgesCnt
-      );
-      scene.add('circleArrows', circleArrow.getPrimitive());
-    }
-  }
-
-  const node = new Node(gl, nodeStyle, getNodeSize);
-  scene.add('nodes', node.getPrimitive());
-  const nodeColored = new NodeColored(gl, nodeStyle, getNodeSize);
-  scene.add('nodesColored', nodeColored.getPrimitive());
-
-  if (nodeStyle.label && nodeStyle.label.backgroundColor) {
-    const labelsBackground = new LabelsBackground(
-      gl,
-      nodeStyle,
-      getLabelSize,
-      texts,
-      context
-    );
-    scene.add('labelsBackground', labelsBackground.getPrimitive());
-  }
-
-  if (nodeStyle.label && nodeStyle.label.borderColor) {
-    const labelsBorder = new LabelsBorder(
-      gl,
-      nodeStyle,
-      getLabelSize,
-      texts,
-      context
-    );
-    scene.add('labelsBorder', labelsBorder.getPrimitive());
-  }
-
-  const labelOutline = new LabelOutline(
+  const pluginConf = {
     gl,
+    view,
     nodeStyle,
     getNodeSize,
-    getLabelSize,
+    edgeStyle,
+    getEdgesCnt,
+    getSize,
     texts,
+    context,
     backgroundColor,
-    context
-  );
-  nodeStyle.label && scene.add('labelsOutline', labelOutline.getPrimitive());
+    getLabelSize,
+    getLabelHideSize,
+    extensions,
+  };
 
-  const label = new Label(
-    gl,
-    nodeStyle,
-    getNodeSize,
-    getLabelSize,
-    texts,
-    backgroundColor,
-    context
-  );
-  nodeStyle.label && scene.add('labels', label.getPrimitive(), backgroundColor);
+  ///NOTE: for performance the nodes should be the first
+  scene.add('edges', new EdgePlugin(pluginConf));
+  scene.add('nodes', new NodePlugin(pluginConf));
+  scene.add('labels', new LabelPlugin(pluginConf));
 
   if (options.onLoad) {
     let styles = options.styles;
