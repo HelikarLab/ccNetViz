@@ -18,8 +18,8 @@
             <option value="none">None</option>
             <option value="basic">Basic</option>
             <option value="gradient">Gradient</option>
-            <option value="double-gradient">Double Gradient</option>
-            <option selected value="shape-bubble">Bubble</option>
+            <option selected value="double-gradient">Double Gradient</option>
+            <option value="shape-bubble">Bubble</option>
           </select>
         </div>
         <div class="item">
@@ -39,7 +39,7 @@
           <select id="animate-ease" onchange="onAnimationEaseChange()">
             <option value="linear">linear</option>
             <option value="sin-in">sin-in</option>
-            <option selected value="sin-out">sin-out</option>
+            <option value="sin-out">sin-out</option>
             <option value="sin-inout">sin-inout</option>
             <option value="bounce-in">bounce-in</option>
             <option value="bounce-out">bounce-out</option>
@@ -57,7 +57,7 @@
             <option value="cubic-out">cubic-out</option>
             <option value="cubic-inout">cubic-inout</option>
             <option value="quart-in">quart-in</option>
-            <option value="quart-out">quart-out</option>
+            <option selected value="quart-out">quart-out</option>
             <option value="quart-inout">quart-inout</option>
             <option value="quint-in">quint-in</option>
             <option value="quint-out">quint-out</option>
@@ -113,12 +113,12 @@
           },
           edge: {
             width: 5,
-            type: 'line',
+            type: 'dotted',
             color: 'rgb(200, 200, 200)',
 
-            animateType: 'shape-bubble', // "basic", "gradient", "double-gradient", "none"
-            animateSpeed: 1,
-            animateEase: 'sin-out', // default is "linear"
+            animateType: 'double-gradient', // "basic", "gradient", "double-gradient", "none", "shape-bubble"
+            animateSpeed: 0.8,
+            animateEase: 'exp-out', // default is "linear"
             animateColor: 'rgb(240, 80, 100)',
             animateMaxWidth: 15,
           },
