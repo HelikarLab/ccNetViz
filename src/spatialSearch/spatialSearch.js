@@ -130,52 +130,46 @@ class Label {
 
       // check if point clicked on canvas is in rectangle of char
       if (pointInRect(x, y, charPosX1, charPosY1, charPosX2, charPosY2)) {
-        console.log('here is the char');
-        console.log(label[i]);
-
         return { charPos: i, char: label[i] };
       }
     }
     return 0;
   }
+
   // function to return the word
   getCharAndWord(x, y, size, context) {
-    //
     let charObj = this.searchChar(x, y, size, context);
-    console.log(charObj);
+
     if (!charObj) {
       return { char: false, word: false };
     }
 
     let charPos = charObj.charPos;
     const textArray = this.e.label.split(' ');
-    let sumOfString = textArray[0].length - 1;
+    let sumOfString = -1;
     let c = 0;
-    while (sumOfString < charPos) {
+    while (sumOfString + textArray[c].length < charPos) {
       sumOfString += textArray[c].length;
       c += 1;
     }
     return { char: charObj.char, word: textArray[c] };
   }
+
   getTextPos(context, size) {
     let x = this.e.x;
     let y = this.e.y;
-
-    let x1, y1, x2, y2, boxMinusX, boxMinusY;
+    let x1, y1, x2, y2;
     x1 = x2 = x;
     y1 = y2 = y;
-
     let wantedSize = this.isSDF
       ? this.getLabelSize(context, this.style.label || {})
       : this.fontSize;
-
     let fontScale = wantedSize / this.fontSize;
     if (wantedSize === 0) {
       fontScale = 0;
     }
 
     let step = (edge, x) => (x < edge ? 0 : 1);
-
     const offset = 0.5 * context.nodeSize;
     const MAX = 10;
     const MIN = -10;
@@ -187,8 +181,6 @@ class Label {
       x,
       y
     );
-    // first char
-    let char = this.pos[0];
 
     const offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
     x1 = x + (size * (rect.startPosX * fontScale)) / context.width / 2;
@@ -203,6 +195,7 @@ class Label {
 
     return bbox;
   }
+
   getBBox(context) {
     let bb = this.getTextPos(context, 1);
     bb[0] = Math.min(bb[0], this.e.x);
@@ -211,13 +204,12 @@ class Label {
     bb[3] = Math.max(bb[3], this.e.y);
     return bb;
   }
+
   intersectsRect(x1, y1, x2, y2, context, size) {
     let t = this.getTextPos(context, size);
-    let a = rectIntersectsRect(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
-    console.log('true or false');
-    console.log(a);
     return rectIntersectsRect(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
   }
+
   dist2(x, y, context, size) {
     // getting up position of labels
     let t = this.getTextPos(context, size);
@@ -541,7 +533,12 @@ export default class spatialIndex {
       ret.edges.push({ edge: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
     }
     if (labels && e.isLabel) {
-      ret.labels.push({ label: e.e, dist: Math.sqrt(dist2), dist2: dist2 });
+      ret.labels.push({
+        label: e.e,
+        dist: Math.sqrt(dist2),
+        dist2: dist2,
+        hoverObj: e.hoverObj,
+      });
     }
   }
   findArea(context, x1, y1, x2, y2, size, nodes, edges, labels) {
@@ -563,14 +560,9 @@ export default class spatialIndex {
 
     let x = (x1 + x2) / 2;
     let y = (y1 + y2) / 2;
-    console.log(EPS);
     let data = this.rbushtree.search([x1 - EPS, y1 - EPS, x2 + EPS, y2 + EPS]);
-    console.log(data);
     if (labels) {
-      console.log(this.rbushtree_s);
       for (let s in this.rbushtree_s) {
-        console.log('rbush_tree[s]');
-        console.log(this.rbushtree_s[s]);
         data = data.concat(
           this.rbushtree_s[s].search([x1 - EPS, y1 - EPS, x2 + EPS, y2 + EPS])
         );
@@ -579,14 +571,13 @@ export default class spatialIndex {
 
     for (let i = 0; i < data.length; i++) {
       let e = data[i][4];
-      console.log('textsaget');
-      console.log(this.texts);
       let dist2 = e.dist2(x, y, context, size, this.normalize);
-      if (e.isLabel) {
+
+      if (e.isLabel && e.isSDF) {
         let Obj = e.getCharAndWord(x, y, size, context);
-        console.log(Obj.char);
-        console.log(Obj.word);
+        e.hoverObj = Obj;
       }
+
       if (!e.intersectsRect(x1, y1, x2, y2, context, size, this.normalize))
         continue;
 
@@ -596,7 +587,6 @@ export default class spatialIndex {
     for (let k in ret) {
       ret[k].sort(sortByDistances);
     }
-    console.log(ret);
     return ret;
   }
   find(context, x, y, radius, size, nodes, edges, labels) {
@@ -632,6 +622,11 @@ export default class spatialIndex {
     for (let i = 0; i < data.length; i++) {
       let e = data[i][4];
       let dist2 = e.dist2(x, y, context, size, this.normalize, this.texts);
+
+      if (e.isLabel && e.isSDF) {
+        let Obj = e.getCharAndWord(x, y, size, context);
+        e.hoverObj = Obj;
+      }
 
       if (dist2 > radius2) continue;
 
