@@ -37,6 +37,7 @@ const animateStylesTransl = {
   basic: 1,
   gradient: 2,
   'double-gradient': 3,
+  'shape-bubble': 4,
 };
 const getEdgeAnimateType = t => {
   if (t !== undefined) {
@@ -58,6 +59,9 @@ class Line extends BaseShape {
 
     const hasAnimation =
       !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
+    // TODO: check has shape animation is not best way
+    const hasShapeAnimation =
+      hasAnimation && getEdgeAnimateType(edgeStyle.animateType) > 3.5;
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -74,11 +78,7 @@ class Line extends BaseShape {
         gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
         gl.uniform1f(uniforms.aspect2, c.aspect2);
         gl.uniform1f(uniforms.aspect, c.aspect);
-        gl.uniform2f(
-          uniforms.width,
-          c.style.width / c.width,
-          c.style.width / c.height
-        );
+        gl.uniform1f(uniforms.width, c.style.width);
         gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
         ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
 
@@ -93,6 +93,9 @@ class Line extends BaseShape {
             uniforms.animateColor,
             c.style.animateColor
           );
+
+          hasShapeAnimation &&
+            gl.uniform1f(uniforms.animateMaxWidth, c.style.animateMaxWidth);
         }
       }
     );
