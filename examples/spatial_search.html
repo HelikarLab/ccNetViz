@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz Spatial Search Example</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
+    <style>
+      .toolbox {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Spatial Search</h3>
+      <canvas id="container"></canvas>
+      <div class="description">
+        <div id="searchReport" class="toolbox"></div>
+        <br />
+        <b>Note:</b>Label Positioning works only for SDF type fonts
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      $(function() {
+        var el = document.getElementById('container');
+        var graph = new ccNetViz(el, {
+          styles: {
+            node: {
+              texture: 'images/node_bw.png',
+              label: {
+                hideSize: 16,
+                font: { type: 'sdf', size: 15, alignment: 'center' },
+              },
+            },
+            edge: { arrow: { texture: 'images/arrow.png' } },
+            edgeHover: {
+              color: 'rgb(0, 0, 255)',
+            },
+            nodeHover: {
+              texture: 'images/node.png',
+              label: { hideSize: 16 },
+            },
+          },
+        });
+        var nodes = [
+          { label: 'Node three' },
+          { label: 'Node two' },
+          { label: 'Node one' },
+        ];
+
+        var edges = [
+          { source: nodes[0], target: nodes[1] },
+          { source: nodes[1], target: nodes[0] },
+          { source: nodes[1], target: nodes[2] },
+        ];
+
+        graph.set(nodes, edges, 'force').then(() => {
+          graph.draw();
+        });
+
+        el.addEventListener('mouseup', function(e) {
+          $('.toolbox').css('visibility', 'visible');
+          var bb = el.getBoundingClientRect();
+
+          var x = e.clientX - bb.left;
+          var y = e.clientY - bb.top;
+          var radius = 5;
+
+          var x1 = x - radius;
+          var y1 = y - radius;
+          var x2 = x + radius;
+          var y2 = y + radius;
+
+          var lCoords = graph.getLayerCoords({
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2,
+          });
+          var result = graph.findArea(
+            lCoords.x1,
+            lCoords.y1,
+            lCoords.x2,
+            lCoords.y2,
+            true,
+            true,
+            true
+          );
+
+          var reportel = document.getElementById('searchReport');
+          reportel.style.display = 'block';
+          var html = '<div>Node(s): ' + result.nodes.length + '</div>';
+          html += '<div>Edge(s): ' + result.edges.length + '</div>';
+          html += '<div>Label(s): ' + result.labels.length + '</div>';
+          for (let i = 0; i < result.labels.length; i++) {
+            if (result.labels[i].hoverObj.char) {
+              html +=
+                '<div>Character: ' + result.labels[i].hoverObj.char + '</div>';
+            }
+            if (result.labels[i].hoverObj.word) {
+              html += '<div>Word: ' + result.labels[i].hoverObj.word + '</div>';
+            }
+          }
+          reportel.innerHTML = html;
+        });
+      });
+    </script>
+  </body>
+</html>
