@@ -235,6 +235,16 @@ var ccNetViz = function(canvas, options) {
     this.draw();
   };
 
+  this.animateTexture = () => {
+    if (checkRemoved()) return;
+
+    let n = layers.main.getVisibleNodes();
+    let e = layers.main.getVisibleEdges();
+
+    this.set(n, e);
+    this.draw();
+  };
+
   this.removeNode = n => {
     if (checkRemoved()) {
       return this;
@@ -413,7 +423,7 @@ var ccNetViz = function(canvas, options) {
 
     gl && gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const startTime = Date.now();
+    context.startTime = Date.now();
     let drawNums = 0;
 
     const drawOnce = () => {
@@ -423,7 +433,7 @@ var ccNetViz = function(canvas, options) {
       }
     };
     const drawLoop = () => {
-      context.renderTime = (Date.now() - startTime) / 1000.0;
+      context.renderTime = (Date.now() - context.startTime) / 1000.0;
       drawOnce();
       drawNums++;
       this.fps = drawNums / context.renderTime; // TODO: number overflow

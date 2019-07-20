@@ -96,6 +96,16 @@ const set = (v, e, s, t, iV, iI, dx, dy) => {
 class LineArrow extends BaseShape {
   constructor(gl, view, edgeStyle, getSize, getEdgesCnt) {
     super();
+
+    this.filler = style => ({
+      set: (v, e, iV, iI) => {
+        let s = ccNetViz_geomutils.edgeSource(e);
+        let t = ccNetViz_geomutils.edgeTarget(e);
+        let d = normalize(s, t);
+        return set(v, e, s, t, iV, iI, d.x, d.y);
+      },
+    });
+
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -111,6 +121,15 @@ class LineArrow extends BaseShape {
 class CurveArrow extends BaseShape {
   constructor(gl, view, edgeStyle, getSize, getEdgesCnt) {
     super();
+
+    this.filler = style => ({
+      set: (v, e, iV, iI) => {
+        let s = ccNetViz_geomutils.edgeSource(e);
+        let t = ccNetViz_geomutils.edgeTarget(e);
+        return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
+      },
+    });
+
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -126,6 +145,24 @@ class CurveArrow extends BaseShape {
 class CircleArrow extends BaseShape {
   constructor(gl, view, edgeStyle, getSize, getEdgesCnt) {
     super();
+
+    this.filler = style => ({
+      set: (v, e, iV, iI) => {
+        let t = ccNetViz_geomutils.edgeTarget(e);
+        let s = t;
+        return set(
+          v,
+          e,
+          s,
+          t,
+          iV,
+          iI,
+          t.x < 0.5 ? dx : -dx,
+          t.y < 0.5 ? -dy : dy
+        );
+      },
+    });
+
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
@@ -138,43 +175,4 @@ class CircleArrow extends BaseShape {
   }
 }
 
-class EdgeArrowManager extends BaseShapeManager {
-  constructor() {
-    super();
-    this._filler = {
-      lineArrows: style => ({
-        set: (v, e, iV, iI) => {
-          let s = ccNetViz_geomutils.edgeSource(e);
-          let t = ccNetViz_geomutils.edgeTarget(e);
-          let d = normalize(s, t);
-          set(v, e, s, t, iV, iI, d.x, d.y);
-        },
-      }),
-      curveArrows: style => ({
-        set: (v, e, iV, iI) => {
-          let s = ccNetViz_geomutils.edgeSource(e);
-          let t = ccNetViz_geomutils.edgeTarget(e);
-          return set(v, e, s, t, iV, iI, 0.5 * (t.x - s.x), 0.5 * (t.y - s.y));
-        },
-      }),
-      circleArrows: style => ({
-        set: (v, e, iV, iI) => {
-          let t = ccNetViz_geomutils.edgeTarget(e);
-          let s = t;
-          return set(
-            v,
-            e,
-            s,
-            t,
-            iV,
-            iI,
-            t.x < 0.5 ? dx : -dx,
-            t.y < 0.5 ? -dy : dy
-          );
-        },
-      }),
-    };
-  }
-}
-
-export { LineArrow, CurveArrow, CircleArrow, EdgeArrowManager };
+export { LineArrow, CurveArrow, CircleArrow };

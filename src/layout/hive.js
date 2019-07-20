@@ -29,7 +29,7 @@ export default class {
   apply() {
     let nd = degrees(this._nodes, this._edges);
     const nodes_segment = Math.ceil(this._nodes.length / this._options.nlines);
-    const segment = 0.05 - this._options.radius;
+    const segment = 0.5 - this._options.radius;
     const step = segment / nodes_segment;
     const angle = (2 * Math.PI) / this._options.nlines;
     const sangle = this._options.starting_angle;

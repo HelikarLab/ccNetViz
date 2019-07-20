@@ -30,7 +30,7 @@ class Animation {
           if (typeof ccNetVizPlugins.animationHandler === 'undefined')
             ccNetVizPlugins.animationHandler = 'arrow';
           if (ccNetVizPlugins.animationHandler === 'arrow')
-            this.instance.reflow();
+            this.instance.animateTexture();
         }
         if (frame > this.config.frameCount) {
           this.status = false;
