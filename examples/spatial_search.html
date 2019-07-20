@@ -105,12 +105,12 @@
           html += '<div>Edge(s): ' + result.edges.length + '</div>';
           html += '<div>Label(s): ' + result.labels.length + '</div>';
           for (let i = 0; i < result.labels.length; i++) {
-            if (result.labels[i].hoverObj.char) {
+            if (result.labels[i].detail.char) {
               html +=
-                '<div>Character: ' + result.labels[i].hoverObj.char + '</div>';
+                '<div>Character: ' + result.labels[i].detail.char + '</div>';
             }
-            if (result.labels[i].hoverObj.word) {
-              html += '<div>Word: ' + result.labels[i].hoverObj.word + '</div>';
+            if (result.labels[i].detail.word) {
+              html += '<div>Word: ' + result.labels[i].detail.word + '</div>';
             }
           }
           reportel.innerHTML = html;
