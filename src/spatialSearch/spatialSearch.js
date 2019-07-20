@@ -141,7 +141,7 @@ class Label {
     let charObj = this.searchChar(x, y, size, context);
 
     if (!charObj) {
-      return { char: false, word: false };
+      return { char: false, charPos: false, word: false, wordPos: false };
     }
 
     let charPos = charObj.charPos;
@@ -152,7 +152,13 @@ class Label {
       sumOfString += textArray[c].length;
       c += 1;
     }
-    return { char: charObj.char, word: textArray[c] };
+    // wordPos ===  first position of word considering only one whitespace in between words
+    return {
+      char: charObj.char,
+      charPos: charObj.charPos + c,
+      word: textArray[c],
+      wordPos: sumOfString + (c + 1),
+    };
   }
 
   getTextPos(context, size) {
@@ -537,7 +543,7 @@ export default class spatialIndex {
         label: e.e,
         dist: Math.sqrt(dist2),
         dist2: dist2,
-        hoverObj: e.hoverObj,
+        detail: e.detail,
       });
     }
   }
@@ -575,7 +581,7 @@ export default class spatialIndex {
 
       if (e.isLabel && e.isSDF) {
         let Obj = e.getCharAndWord(x, y, size, context);
-        e.hoverObj = Obj;
+        e.detail = Obj;
       }
 
       if (!e.intersectsRect(x1, y1, x2, y2, context, size, this.normalize))
@@ -625,7 +631,7 @@ export default class spatialIndex {
 
       if (e.isLabel && e.isSDF) {
         let Obj = e.getCharAndWord(x, y, size, context);
-        e.hoverObj = Obj;
+        e.detail = Obj;
       }
 
       if (dist2 > radius2) continue;
