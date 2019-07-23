@@ -17,7 +17,9 @@ void main(void) {
   }
 
   // line animate types
-  if (animateType >= 3.5) {
+  if (animateType >= 4.5) {
+    gl_FragColor = isAnimateWave() * color;
+  } else if (animateType >= 3.5) {
     gl_FragColor = isAnimateBubble() * color;
   } else if (animateType >= 2.5) {
     gl_FragColor = isAnimateCoveredDoubleGradient() * animateColor +
