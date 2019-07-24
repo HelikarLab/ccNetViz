@@ -49,6 +49,10 @@
           <input id="style-color" type="color" value="#333333" />
         </div>
         <div class="item">
+          <label>Texture Size</label>
+          <input id="node-size" type="range" min="16" max="50" value="30" />
+        </div>
+        <div class="item">
           <label>Stroke Color</label>
           <input id="stroke-color" type="color" value="#333333" />
         </div>
@@ -96,6 +100,7 @@
           color: '',
           round: true,
         },
+        size: 0,
       };
       let history = [];
       let exp = [];
@@ -107,6 +112,7 @@
 
       let setStyle = () => {
         options.textureColor = document.getElementById('style-color').value;
+        options.size = parseInt(document.getElementById('node-size').value);
         options.stroke.color = document.getElementById('stroke-color').value;
         options.stroke.size = parseInt(
           document.getElementById('stroke-size').value
