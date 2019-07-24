@@ -86,7 +86,7 @@ This plugin allows you to add different arrow styles to your ccNetViz library.
 }
 ```
 
-Custom shapes can create all of the coordinate-based shapes.
+Custom shapes can create all of the coordinate-based shapes. Can create your own textures easily with [Texture creator](https://helikarlab.github.io/ccNetViz/examples/texture_creator)
 
 ### Animations
 
