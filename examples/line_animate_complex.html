@@ -20,6 +20,7 @@
             <option value="gradient">Gradient</option>
             <option selected value="double-gradient">Double Gradient</option>
             <option value="shape-bubble">Bubble</option>
+            <option value="shape-wave">Wave</option>
           </select>
         </div>
         <div class="item">
@@ -116,11 +117,11 @@
             type: 'dotted',
             color: 'rgb(200, 200, 200)',
 
-            animateType: 'double-gradient', // "basic", "gradient", "double-gradient", "none", "shape-bubble"
-            animateSpeed: 0.8,
-            animateEase: 'exp-out', // default is "linear"
+            animateType: 'double-gradient', // "basic", "gradient", "double-gradient", "shape-wave", "shape-bubble", "none"
+            animateSpeed: 1,
+            animateEase: 'quart-out', // default is "linear"
             animateColor: 'rgb(240, 80, 100)',
-            animateMaxWidth: 15,
+            animateMaxWidth: 25,
           },
         },
       };
@@ -131,6 +132,10 @@
         if (val === 'shape-bubble') {
           window.options.styles.edge.width = 5;
           window.options.styles.edge.animateMaxWidth = 15;
+          window.options.styles.edge.type = 'line';
+        } else if (val === 'shape-wave') {
+          window.options.styles.edge.width = 3;
+          window.options.styles.edge.animateMaxWidth = 20;
           window.options.styles.edge.type = 'line';
         } else {
           window.options.styles.edge.width = 5;
