@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Node-Arrow Plugin Texture Creator</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <style>
+      #result {
+        height: 340px;
+        width: 500px;
+        box-shadow: 0 0 1px 2px #bebebe;
+        border-radius: 2px;
+        color: #333;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .toolbox {
+        position: fixed;
+        left: 0;
+        top: 84px;
+        width: 200px !important;
+      }
+
+      .toolbox .item {
+        width: 90%;
+      }
+
+      .canvas-container input[type='color'] {
+        background: #f8f8f8;
+        padding: 3px 2%;
+        border-radius: 2px;
+        display: inline-block;
+        margin: 0 2%;
+        width: 92%;
+        margin: 0;
+        color: #444;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Node-Arrow Plugin Texture Creator</h3>
+      <canvas id="canvas"></canvas>
+      <textarea id="result" rows="4" cols="50"> </textarea>
+      <div class="toolbox">
+        <div class="item">
+          <label>Texture Color</label>
+          <input id="style-color" type="color" value="#333333" />
+        </div>
+        <div class="item">
+          <label>Texture Size</label>
+          <input id="node-size" type="range" min="16" max="50" value="30" />
+        </div>
+        <div class="item">
+          <label>Stroke Color</label>
+          <input id="stroke-color" type="color" value="#333333" />
+        </div>
+        <div class="item">
+          <label>Stroke Size</label>
+          <input id="stroke-size" type="range" min="0" max="10" value="0" />
+        </div>
+        <div class="item" style="text-align:center">
+          <label>Rounded Stroke</label>
+          <input id="stroke-round" type="checkbox" name="checkbox" />
+        </div>
+        <div class="item">
+          <input id="apply" type="button" value="Apply" />
+        </div>
+      </div>
+      <div class="description">
+        Node-Edge plugin Texture Creator able to create your own textures
+        easily.
+        <div><b>Left click</b>: Draw line</div>
+        <div><b>Ctrl + Z</b>: Undo</div>
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      let canvas = document.getElementById('canvas');
+      let offset = {
+        top: canvas.offsetTop,
+        left: canvas.offsetLeft,
+      };
+
+      let spec = {
+        width: canvas.scrollWidth,
+        height: canvas.scrollHeight,
+        scroll: document.documentElement.scrollTop,
+      };
+
+      let options = {
+        textureColor: '',
+        stroke: {
+          size: 0,
+          color: '',
+          round: true,
+        },
+        size: 0,
+      };
+      let history = [];
+      let exp = [];
+
+      let result = {
+        type: 'Custom',
+        lines: exp,
+      };
+
+      let setStyle = () => {
+        options.textureColor = document.getElementById('style-color').value;
+        options.size = parseInt(document.getElementById('node-size').value);
+        options.stroke.color = document.getElementById('stroke-color').value;
+        options.stroke.size = parseInt(
+          document.getElementById('stroke-size').value
+        );
+        options.stroke.round = document.getElementById('stroke-round').checked;
+        draw(canvas, history, options);
+        document.getElementById('result').value = JSON.stringify(
+          Object.assign(result, options),
+          null,
+          4
+        );
+      };
+
+      document.getElementById('apply').addEventListener('click', () => {
+        document
+          .getElementById('result')
+          .setAttribute('style', 'display:block');
+        setStyle();
+      });
+
+      let draw = (canvas, history, options) => {
+        canvas.width = spec.width;
+        canvas.height = spec.height;
+        let context = canvas.getContext('2d');
+        context.clearRect(0, 0, spec.width, spec.height);
+        context.fillStyle = '#ccc';
+        context.beginPath();
+        for (let i = 25; i < spec.width; i = i + 25) {
+          context.fillRect(i, 0, 1, spec.height);
+        }
+        for (let i = 25; i < spec.height; i = i + 25) {
+          context.fillRect(0, i, spec.width, 1);
+        }
+        context.closePath();
+        context.fill();
+
+        context.fillStyle = options.textureColor;
+        context.strokeStyle = options.stroke.color;
+        context.lineWidth = options.stroke.size;
+        options.stroke.round ? (context.lineJoin = 'round') : false;
+
+        context.beginPath();
+        history.map(line => {
+          context.lineTo(line.x, line.y);
+        });
+        context.closePath();
+        context.stroke();
+        context.fill();
+      };
+      setStyle();
+      draw(canvas, history, options);
+      canvas.addEventListener('click', event => {
+        spec.scroll = document.documentElement.scrollTop;
+        history.push({
+          x: event.clientX - offset.left,
+          y: event.clientY - offset.top + spec.scroll,
+        });
+        exp.push({
+          x: (event.clientX - offset.left) / spec.width,
+          y: (event.clientY - offset.top + spec.scroll) / spec.height,
+        });
+        draw(canvas, history, options);
+      });
+
+      document.addEventListener('keydown', event => {
+        if (event.ctrlKey && event.key === 'z') {
+          if (history.length) {
+            history.pop();
+            exp.pop();
+            draw(canvas, history, options);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
