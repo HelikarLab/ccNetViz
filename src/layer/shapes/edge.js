@@ -38,6 +38,7 @@ const animateStylesTransl = {
   gradient: 2,
   'double-gradient': 3,
   'shape-bubble': 4,
+  'shape-wave': 5,
 };
 const getEdgeAnimateType = t => {
   if (t !== undefined) {
