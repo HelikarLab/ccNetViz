@@ -157,7 +157,9 @@ float isAnimateDot() {
 
   float totalLen = distance(startPos, endPos);
   float len = distance(pos, startPos);
-  // float r = 300.;
+
+  vec2 vec = endPos - startPos;
+
   const int dotNum = 5; // TODO: configurable
   float timeOffset = 0.5; // TODO: configurable
   float dotLen = v_lineWidth;
@@ -165,7 +167,9 @@ float isAnimateDot() {
   float draw = 0.;
   for (int i = 0; i < dotNum; i++) {
       float r = ease(fract((v_time - 0.2 * currOffset / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
-      float drawCurr = (1. - step(r, len)) * (step(r - 10., len));
+      // float drawCurr = (1. - step(r, len)) * (step(r - 10., len));
+      vec2 center = startPos + normalize(vec) * r;
+      float drawCurr = step(length(pos - center), v_lineWidth);
       draw = min(1., draw + drawCurr);
       currOffset += timeOffset;
   }
