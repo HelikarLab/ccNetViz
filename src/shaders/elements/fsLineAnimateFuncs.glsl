@@ -161,6 +161,6 @@ float isAnimateDot() {
   float r =
       ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
   // float r = 0.5 * totalLen;
-  float draw = 1. - step(r, len);
+  float draw = (1. - step(r, len)) * (step(r - 10., len));
   return draw;
 }
