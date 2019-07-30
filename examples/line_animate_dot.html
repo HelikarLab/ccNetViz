@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz line dotted animation example</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="../lib/ccNetViz.js"></script>
+    <script src="./libs/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Line dotted animation example</h3>
+      <div id="canvas-list"></div>
+      <div class="toolbox">
+        <div class="item">
+          <label>Animation type:</label>
+          <select id="animate-select" onchange="onAnimationChange()">
+            <option value="none">None</option>
+            <option value="basic">Basic</option>
+            <option value="gradient">Gradient</option>
+            <option value="double-gradient">Double Gradient</option>
+            <option value="shape-bubble">Bubble</option>
+            <option value="shape-wave">Wave</option>
+            <option selected value="shape-dot">Dotted</option>
+          </select>
+        </div>
+        <div class="item">
+          <label>Animation speed: <b id="speed-text">1.</b></label>
+          <input
+            id="animate-speed"
+            type="range"
+            min="0.1"
+            max="5"
+            value="1.0"
+            step="0.1"
+            onchange="onAnimationSpeedChange()"
+          />
+        </div>
+        <div class="item">
+          <label>Animation ease effects:</label>
+          <select id="animate-ease" onchange="onAnimationEaseChange()">
+            <option value="linear">linear</option>
+            <option value="sin-in">sin-in</option>
+            <option value="sin-out">sin-out</option>
+            <option value="sin-inout">sin-inout</option>
+            <option value="bounce-in">bounce-in</option>
+            <option value="bounce-out">bounce-out</option>
+            <option value="bounce-inout">bounce-inout</option>
+            <option value="exp-in">exp-in</option>
+            <option value="exp-out">exp-out</option>
+            <option value="exp-inout">exp-inout</option>
+            <option value="circular-in">circular-in</option>
+            <option value="circular-out">circular-out</option>
+            <option value="circular-inout">circular-inout</option>
+            <option value="quad-in">quad-in</option>
+            <option value="quad-out">quad-out</option>
+            <option value="quad-inout">quad-inout</option>
+            <option value="cubic-in">cubic-in</option>
+            <option value="cubic-out">cubic-out</option>
+            <option value="cubic-inout">cubic-inout</option>
+            <option value="quart-in">quart-in</option>
+            <option value="quart-out">quart-out</option>
+            <option selected value="quart-inout">quart-inout</option>
+            <option value="quint-in">quint-in</option>
+            <option value="quint-out">quint-out</option>
+            <option value="quint-inout">quint-inout</option>
+          </select>
+        </div>
+      </div>
+      <div class="description">
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      const data = {
+        nodes: [
+          { label: '1' },
+          { label: '2' },
+          { label: '3' },
+          { label: '4' },
+          // { label: "5" },
+          // { label: "6" },
+          // { label: "7" },
+          // { label: "8" },
+          // { label: "9" },
+          // { label: "10" },
+        ],
+        edges: [
+          { source: 0, target: 1 },
+          { source: 1, target: 2 },
+          { source: 2, target: 3 },
+          { source: 3, target: 0 },
+          // { source: 4, target: 5 },
+          // { source: 5, target: 6 },
+          // { source: 6, target: 7 },
+          // { source: 7, target: 8 },
+          // { source: 8, target: 9 },
+          // { source: 9, target: 0 },
+        ],
+      };
+
+      options = {
+        styles: {
+          node: {
+            size: 20,
+            texture: 'images/node.png',
+          },
+          edge: {
+            width: 5,
+            type: 'line',
+            color: 'rgb(200, 200, 200)',
+
+            animateType: 'shape-dot', // "basic", "gradient", "double-gradient", "shape-wave", "shape-bubble", "none"
+            animateSpeed: 1,
+            animateEase: 'quart-inout', // default is "linear"
+            animateColor: 'rgb(240, 80, 100)',
+            // animateMaxWidth: 25,
+          },
+        },
+      };
+
+      function onAnimationChange() {
+        const el = document.querySelector('#animate-select');
+        const val = el.options[el.selectedIndex].value;
+        if (val === 'shape-bubble') {
+          window.options.styles.edge.width = 5;
+          window.options.styles.edge.animateMaxWidth = 15;
+          window.options.styles.edge.type = 'line';
+        } else if (val === 'shape-wave') {
+          window.options.styles.edge.width = 3;
+          window.options.styles.edge.animateMaxWidth = 20;
+          window.options.styles.edge.type = 'line';
+        } else {
+          window.options.styles.edge.width = 5;
+          window.options.styles.edge.type = 'dotted';
+        }
+        window.options.styles.edge.animateType = val;
+        showGraph(window.options);
+      }
+
+      function onAnimationSpeedChange() {
+        const el = document.querySelector('#animate-speed');
+        const el2 = document.querySelector('#speed-text');
+        const val = el.value;
+        el.innerHTML = el.value;
+        el2.innerHTML = el.value;
+        window.options.styles.edge.animateSpeed = Number(val);
+        showGraph(window.options);
+      }
+
+      function onAnimationEaseChange() {
+        const el = document.querySelector('#animate-ease');
+        const val = el.options[el.selectedIndex].value;
+        window.options.styles.edge.animateEase = val;
+        showGraph(window.options);
+      }
+
+      function showGraph(options) {
+        const el = document.querySelector('.canvas-container #canvas-list');
+        el.innerHTML = '';
+        canvas = document.createElement('canvas');
+        el.appendChild(canvas);
+
+        const graph = new ccNetViz(canvas, options);
+        graph.set(data.nodes, data.edges, 'circular').then(() => {
+          graph.draw();
+        });
+      }
+
+      showGraph(options);
+    </script>
+  </body>
+</html>

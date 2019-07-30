@@ -147,3 +147,44 @@ float isAnimateWave() {
 
   return draw;
 }
+
+float isAnimateDot() {
+  vec2 pos = gl_FragCoord.xy;
+  vec2 viewport = 2. * v_screen;
+  float maxLen = length(viewport);
+  vec2 startPos = viewport * (v_startPos + vec2(1., 1.)) / 2.;
+  vec2 endPos = viewport * (v_endPos + vec2(1., 1.)) / 2.;
+
+  float totalLen = distance(startPos, endPos);
+  float len = distance(pos, startPos);
+
+  vec2 vec = endPos - startPos;
+
+  const int dotNum = 5; // TODO: configurable
+  float timeOffset = 0.5; // TODO: configurable
+  float dotLen = v_lineWidth;
+  float currOffset = 0.;
+  float draw = 0.;
+  for (int i = 0; i < dotNum; i++) {
+      float r = ease(fract((v_time - 0.2 * currOffset / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+      // float drawCurr = (1. - step(r, len)) * (step(r - 10., len));
+      vec2 center = startPos + normalize(vec) * r;
+      float drawCurr = step(length(pos - center), v_lineWidth);
+      draw = min(1., draw + drawCurr);
+      currOffset += timeOffset;
+  }
+  /*
+  float r1 =
+      ease(fract(v_time * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+  float r2 =
+      ease(fract((v_time - 0.2 * 1. / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+  float r3 =
+      ease(fract((v_time - 0.2 * 2. / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+  // float r = 0.5 * totalLen;
+  float draw1 = (1. - step(r1, len)) * (step(r1 - 10., len));
+  float draw2 = (1. - step(r2, len)) * (step(r2 - 10., len));
+  float draw3 = (1. - step(r3, len)) * (step(r3 - 10., len));
+  float draw = min(1., draw1 + draw2 + draw3);
+  */
+  return draw;
+}
