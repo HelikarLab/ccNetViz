@@ -9,7 +9,7 @@ let PieChart = (config, instance, t) => {
     _draw() {
       let charts = this.config.chart;
       let radius = this.config.size / 2;
-      let center = radius + +this.config.stroke.size;
+      let center = radius + this.config.stroke.size;
       let cursor = { end: 0, start: 0 };
 
       this.context.beginPath();
