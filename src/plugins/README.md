@@ -25,10 +25,10 @@ It must be plugins own development environment.
 #### Creating files
 
 The plugin needs its own folder inside the plugins folder.
-
+```bash
 mkdir src/plugins/new-plugin  
 cd src/plugins/new-plugin
-
+```
 #### Initializing the Node Package Manager
 
 ```bash
