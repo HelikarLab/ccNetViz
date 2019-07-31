@@ -1,0 +1,4 @@
+{
+  "screenShotsFolder": "cypress/snapshots/actual",
+  "trashAssetsBeforeRuns": true
+}

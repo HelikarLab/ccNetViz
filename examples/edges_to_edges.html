@@ -28,6 +28,7 @@
     <script>
       $(function() {
         var el = document.getElementById('container');
+        el.getContext('webgl', { preserveDrawingBuffer: true });
         var graph = new ccNetViz(el, {
           styles: {
             node: { texture: 'images/node_bw.png', label: { hideSize: 16 } },
@@ -96,11 +97,26 @@
           var reportel = document.getElementById('searchReport');
           reportel.style.display = 'block';
           var html = '<div>Search for [' + x + ',' + y + '] px:</div>';
-          html += '<div>Nodes: ' + result.nodes.length + '</div>';
-          html += '<div>Edges: ' + result.edges.length + '</div>';
+          html += '<div id = "nodes">Nodes: ' + result.nodes.length + '</div>';
+          html += '<div id = "edges">Edges: ' + result.edges.length + '</div>';
           reportel.innerHTML = html;
         });
       });
+      if (window.Cypress) {
+        console.log('hello');
+        var btn = document.createElement('button');
+        btn.setAttribute('id', 'test');
+        btn.addEventListener('click', function() {
+          console.log('clicks');
+          let link = document
+            .getElementById('container')
+            .toDataURL('image/png')
+            .split('base64,')[1];
+          console.log(link);
+          btn.setAttribute('href', link);
+        });
+        document.body.appendChild(btn);
+      }
     </script>
   </body>
 </html>

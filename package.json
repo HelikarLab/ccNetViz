@@ -11,6 +11,7 @@
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
     "concurrently": "^4.1.0",
+    "cypress": "^3.4.1",
     "eslint": "^6.0.0",
     "eslint-config-prettier": "^5.0.0",
     "husky": "^2.4.1",
@@ -81,6 +82,7 @@
     "build": "webpack --mode production",
     "commit": "npx git-cz",
     "release": "npx standard-version",
+    "test": "npx cypress open",
     "postrelease": "git push --follow-tags origin master"
   },
   "standard-version": {

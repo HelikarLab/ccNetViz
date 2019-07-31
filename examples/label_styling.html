@@ -166,6 +166,7 @@
           },
         };
         var el = document.getElementById('canvas');
+        el.getContext('webgl', { preserveDrawingBuffer: true });
         var graph = new ccNetViz(el, conf);
         graph.set(nodes, edges).then(() => {
           graph.draw();
@@ -196,6 +197,22 @@
         });
       });
       initialseConfig();
+
+      if (window.Cypress) {
+        console.log('hello');
+        var btn = document.createElement('button');
+        btn.setAttribute('id', 'test');
+        btn.addEventListener('click', function() {
+          console.log('clicks');
+          let link = document
+            .getElementById('canvas')
+            .toDataURL('image/png')
+            .split('base64,')[1];
+          console.log(link);
+          btn.setAttribute('href', link);
+        });
+        document.body.appendChild(btn);
+      }
     </script>
   </body>
 </html>

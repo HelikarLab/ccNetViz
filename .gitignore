@@ -92,3 +92,7 @@ dist/
 *.swp
 
 .vscode
+
+#cypress
+cypress/screenshots
+cypress/videos
