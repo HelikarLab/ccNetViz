@@ -98,6 +98,9 @@ class Line extends BaseShape {
 
           hasShapeAnimation &&
             gl.uniform1f(uniforms.animateMaxWidth, c.style.animateMaxWidth);
+          c.style.animateType === 'shape-dot' &&
+            gl.uniform1i(uniforms.animateDotNum, c.style.animateDotNum);
+          gl.uniform1f(uniforms.animateDotInterval, c.style.animateDotInterval);
         }
       }
     );

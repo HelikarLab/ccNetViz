@@ -160,18 +160,20 @@ float isAnimateDot() {
 
   vec2 vec = endPos - startPos;
 
-  const int dotNum = 5; // TODO: configurable
-  float timeOffset = 0.5; // TODO: configurable
+  const int maxDotNum = 15; // NOTE: currently support 15 as max, it must be fixed
+  float timeOffset = animateDotInterval;
   float dotLen = v_lineWidth;
   float currOffset = 0.;
   float draw = 0.;
-  for (int i = 0; i < dotNum; i++) {
-      float r = ease(fract((v_time - 0.2 * currOffset / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
-      // float drawCurr = (1. - step(r, len)) * (step(r - 10., len));
-      vec2 center = startPos + normalize(vec) * r;
-      float drawCurr = step(length(pos - center), v_lineWidth);
-      draw = min(1., draw + drawCurr);
-      currOffset += timeOffset;
+  for (int i = 0; i < maxDotNum; i++) {
+      if (i < animateDotNum) {
+        float r = ease(fract((v_time - 0.2 * currOffset / animateSpeed) * animateSpeed * 0.2 * maxLen / totalLen)) * totalLen;
+        // float drawCurr = (1. - step(r, len)) * (step(r - 10., len));
+        vec2 center = startPos + normalize(vec) * r;
+        float drawCurr = step(length(pos - center), v_lineWidth);
+        draw = min(1., draw + drawCurr);
+        currOffset += timeOffset;
+      }
   }
   /*
   float r1 =
