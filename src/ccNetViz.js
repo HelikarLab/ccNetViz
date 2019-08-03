@@ -90,6 +90,8 @@ var ccNetViz = function(canvas, options) {
   edgeStyle.color = edgeStyle.color || 'rgb(204, 204, 204)';
   edgeStyle.animateColor = edgeStyle.animateColor || 'rgb(240, 80, 120)';
   edgeStyle.animateSpeed = edgeStyle.animateSpeed || 1.0;
+  edgeStyle.animateDotNum = edgeStyle.animateDotNum || 7;
+  edgeStyle.animateDotInterval = edgeStyle.animateDotInterval || 0.5;
   edgeStyle.animateMaxWidth = edgeStyle.animateMaxWidth || edgeStyle.width;
 
   let onLoad = () => {
