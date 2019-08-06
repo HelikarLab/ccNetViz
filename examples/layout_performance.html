@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" type="text/css" href="./css/performance.css" />
     <title>Layouts perfomance tests</title>
     <script src="./libs/jquery.min.js"></script>
@@ -11,222 +13,133 @@
     <script src="./libs/sigma.js"></script>
     <script src="./libs/sigma.parsers.json.min.js"></script>
     <script src="./js/performance.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="titleViz">
-        Performance measurement comparison for ccNetViz, Cytoscape and SigmaJS libraries
-        <br>
-        <br>
+      Performance measurement comparison for ccNetViz, Cytoscape and SigmaJS
+      libraries
+      <br />
+      <br />
     </div>
-    <span style="margin-left: 30px; margin-bottom: 10px;">Choose graph:<br><br> </span>
+    <span style="margin-left: 30px; margin-bottom: 10px;"
+      >Choose graph:<br /><br />
+    </span>
     <div class="custom-select" style="width:200px;">
-        <select id="selectID">
-            <option value="0">graph-100-3</option>
-            <option value="1">graph-100-1</option>
-            <option value="2">graph-100-2</option>
-            <option value="3">Bronchiseptica</option>
-            <option value="4">CD4</option>
-            <option value="5">EGFR</option>
-            <option value="6">ErbB</option>
-            <option value="7">FA-BRCA</option>
-            <option value="8">Glucose</option>
-            <option value="9">HGF</option>
-            <option value="10">IL-1</option>
-            <option value="11">IL6</option>
-            <option value="12">Influenza</option>
-            <option value="13">T-Cell-Receptor</option>
-            <option value="14">T-Cell</option>
-            <option value="15">T-LGL-2011</option>
-            <option value="16">T-LGL</option>
-            <option value="17">Yeast-Apoptosis</option>
-            <option value="18">circle-10</option>
-            <option value="19">circle-100</option>
-            <option value="20">circle-1000</option>
-            <option value="21">drosophila</option>
-            <option value="22">fibroblast</option>
-            <option value="23">graph-10-1</option>
-            <option value="24">graph-10-2</option>
-            <option value="25">graph-10-3</option>
-            <option value="23">graph-1000-1</option>
-            <option value="24">graph-1000-2</option>
-            <option value="25">graph-1000-3</option>
-            <option value="20">line-10</option>
-            <option value="21">line-100</option>
-            <option value="22">line-1000</option>
-            <option value="23">macrophage</option>
-            <option value="24">star-10</option>
-            <option value="25">star-100</option>
-            <option value="23">star-1000</option>
-            <option value="24">tree1</option>
-            <option value="25">tree2</option>
-        </select>
+      <select id="selectID">
+        <option value="0">graph-100-3</option>
+        <option value="1">graph-100-1</option>
+        <option value="2">graph-100-2</option>
+        <option value="3">Bronchiseptica</option>
+        <option value="4">CD4</option>
+        <option value="5">EGFR</option>
+        <option value="6">ErbB</option>
+        <option value="7">FA-BRCA</option>
+        <option value="8">Glucose</option>
+        <option value="9">HGF</option>
+        <option value="10">IL-1</option>
+        <option value="11">IL6</option>
+        <option value="12">Influenza</option>
+        <option value="13">T-Cell-Receptor</option>
+        <option value="14">T-Cell</option>
+        <option value="15">T-LGL-2011</option>
+        <option value="16">T-LGL</option>
+        <option value="17">Yeast-Apoptosis</option>
+        <option value="18">circle-10</option>
+        <option value="19">circle-100</option>
+        <option value="20">circle-1000</option>
+        <option value="21">drosophila</option>
+        <option value="22">fibroblast</option>
+        <option value="23">graph-10-1</option>
+        <option value="24">graph-10-2</option>
+        <option value="25">graph-10-3</option>
+        <option value="23">graph-1000-1</option>
+        <option value="24">graph-1000-2</option>
+        <option value="25">graph-1000-3</option>
+        <option value="20">line-10</option>
+        <option value="21">line-100</option>
+        <option value="22">line-1000</option>
+        <option value="23">macrophage</option>
+        <option value="24">star-10</option>
+        <option value="25">star-100</option>
+        <option value="23">star-1000</option>
+        <option value="24">tree1</option>
+        <option value="25">tree2</option>
+      </select>
     </div>
-    <br>
-    <br>
+    <br />
+    <br />
     <div id="divMainViz">
-        <div id="divTableViz" class="divTable">
-            <table id="perfTableViz" class="perfTable">
-                <col>
-                <colgroup span="2"></colgroup>
-                <colgroup span="2"></colgroup>
-                <colgroup span="2"></colgroup>
-                <tr>
-                    <th rowspan="2" class="th_viz">Layout</td>
-                        <th colspan="2" scope="colgroup" class="th_viz">ccNetViz</th>
-                        <th colspan="2" scope="colgroup" class="th_viz">Cytoscape</th>
-                        <th colspan="2" scope="colgroup" class="th_viz">SigmaJS</th>
-                </tr>
-                <tr>
-                    <th scope="col" class="th_viz_bottom">Layout computation time [ms]</th>
-                    <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-                    <th scope="col" class="th_viz_bottom">Layout computation time [ms]</th>
-                    <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-                    <th scope="col" class="th_viz_bottom">Layout computation time [ms]*</th>
-                    <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-                </tr>
-            </table>
-            <br>
-            <span style="font-size: 14px;  margin-left: 30px;">*There are no predifined layouts for SigmaJS, ccNetViz functions were used to calculate the positions of nodes/edges</span>
-        </div>
+      <div id="divTableViz" class="divTable">
+        <table id="perfTableViz" class="perfTable">
+          <tr>
+            <th rowspan="2" class="th_viz">Layout</th>
+            <th colspan="2" scope="colgroup" class="th_viz">ccNetViz</th>
+            <th colspan="2" scope="colgroup" class="th_viz">Cytoscape</th>
+            <th colspan="2" scope="colgroup" class="th_viz">SigmaJS</th>
+          </tr>
+          <tr>
+            <th scope="col" class="th_viz_bottom">
+              Layout computation time [ms]
+            </th>
+            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
+            <th scope="col" class="th_viz_bottom">
+              Layout computation time [ms]
+            </th>
+            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
+            <th scope="col" class="th_viz_bottom">
+              Layout computation time [ms]*
+            </th>
+            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
+          </tr>
+          <tr class="force"></tr>
+          <tr class="hierarchical"></tr>
+          <tr class="hierarchical2"></tr>
+          <tr class="hive"></tr>
+          <tr class="spectral"></tr>
+          <tr class="spectral2"></tr>
+          <tr class="versinus"></tr>
+          <tr class="grid"></tr>
+          <tr class="circular circle"></tr>
+          <tr class="breadthfirst"></tr>
+          <tr class="concentric"></tr>
+          <tr class="cose"></tr>
+        </table>
+
+        <br />
+        <span style="font-size: 14px;  margin-left: 30px;"
+          >*There are no predifined layouts for SigmaJS, ccNetViz functions were
+          used to calculate the positions of nodes/edges</span
+        >
+      </div>
     </div>
-            <div id="divGraphViz" class="divGraph">
-            <canvas id="containerViz" style="display: inline-block;"></canvas>
-            <div id="containerCyto" style="display: inline-block;"></div>
-            <div id="containerSigma" style="display: inline-block;"></div>
-        </div>
+    <div id="divGraphViz" class="divGraph">
+      <canvas id="containerViz" style="display: inline-block;"></canvas>
+      <div id="containerCyto" style="display: inline-block;"></div>
+      <div id="containerSigma" style="display: inline-block;"></div>
+    </div>
     <div id="titleFeature">
-        Feature comparisons:
+      Feature comparisons:
     </div>
-    <br>
+    <br />
     <table id="tableFeature">
-        <tr>
-            <th></th>
-            <th>ccNetViz</th>
-            <th>Cytoscape</th>
-            <th>Sigma</th>
-            <th>jsNetworxs</th>
-        </tr>
-        <tr>
-            <td>Layouts</td>
-            <td>circular, force, grid, hierarchical, hierarchical2, hive, spectral, spectral2, versinus</td>
-            <td>circle, breadthfirst, concentric, cose, grid</td>
-            <td>No predefined layouts</td>
-            <td>No predefined layouts</td>
-        </tr>
+      <tr>
+        <th></th>
+        <th>ccNetViz</th>
+        <th>Cytoscape</th>
+        <th>Sigma</th>
+        <th>jsNetworxs</th>
+      </tr>
+      <tr>
+        <td>Layouts</td>
+        <td>
+          circular, force, grid, hierarchical, hierarchical2, hive, spectral,
+          spectral2, versinus
+        </td>
+        <td>circle, breadthfirst, concentric, cose, grid</td>
+        <td>No predefined layouts</td>
+        <td>No predefined layouts</td>
+      </tr>
     </table>
-    <script type="text/javascript">
-    //dropdown
-    var x, i, j, a, b, c;
-    var selElmnt = "graph-100-3";
-
-    var layoutsAll = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus', 'breadthfirst', 'concentric', 'cose']
-
-
-    var elViz = document.getElementById('containerViz');
-    var data;
-    var layouts = ['circular', 'force', 'grid', 'hierarchical', 'hierarchical2', 'hive', 'spectral', 'spectral2', 'versinus'];
-    var datafiles = ['graph-100-3'];
-    var tableViz = document.getElementById('perfTableViz');
-    var d; //data from the graph
-    var graph = new ccNetViz(elViz, {
-        styles: {
-            node: { texture: "images/node.png", label: { hideSize: 16 } },
-            edge: { arrow: { texture: "images/arrow.png" } }
-        }
-    });
-
-
-    createTable(tableViz, "th_viz");
-    initViz();
-
-    var layoutsCyto = ['circle', 'breadthfirst', 'concentric', 'cose', 'grid'];
-    var dataCyto, d_parsed;
-    var containerCyto;
-
-    initCyto();
-
-    var dataCCNetViz;
-
-    initSigma();
-
-    //dropdown
-
-    /*look for any elements with the class "custom-select":*/
-    x = document.getElementsByClassName("custom-select");
-    for (i = 0; i < x.length; i++) {
-        selElmnt = x[i].getElementsByTagName("select")[0];
-        /*for each element, create a new DIV that will act as the selected item:*/
-        a = document.createElement("DIV");
-        a.setAttribute("class", "select-selected");
-        a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-        x[i].appendChild(a);
-        /*for each element, create a new DIV that will contain the option list:*/
-        b = document.createElement("DIV");
-        b.setAttribute("class", "select-items select-hide");
-        for (j = 0; j < selElmnt.length; j++) {
-            /*for each option in the original select element,
-            create a new DIV that will act as an option item:*/
-            c = document.createElement("DIV");
-            c.innerHTML = selElmnt.options[j].innerHTML;
-            c.addEventListener("click", function(e) {
-                /*when an item is clicked, update the original select box,
-                and the selected item:*/
-                var y, i, k, s, h;
-                s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-                h = this.parentNode.previousSibling;
-                for (i = 0; i < s.length; i++) {
-                    if (s.options[i].innerHTML == this.innerHTML) {
-                        s.selectedIndex = i;
-                        h.innerHTML = this.innerHTML;
-                        y = this.parentNode.getElementsByClassName("same-as-selected");
-                        for (k = 0; k < y.length; k++) {
-                            y[k].removeAttribute("class");
-                        }
-                        this.setAttribute("class", "same-as-selected");
-                        break;
-                    }
-                }
-                h.click();
-            });
-            b.appendChild(c);
-        }
-        x[i].appendChild(b);
-        a.addEventListener("click", function(e) {
-            /*when the select box is clicked, close any other select boxes,
-            and open/close the current select box:*/
-            selElmnt = a.innerHTML;
-            initViz();
-            e.stopPropagation();
-            closeAllSelect(this);
-            this.nextSibling.classList.toggle("select-hide");
-            this.classList.toggle("select-arrow-active");
-        });
-    }
-
-    function closeAllSelect(elmnt) {
-        /*a function that will close all select boxes in the document,
-        except the current select box:*/
-        var x, y, i, arrNo = [];
-        x = document.getElementsByClassName("select-items");
-        y = document.getElementsByClassName("select-selected");
-        for (i = 0; i < y.length; i++) {
-            if (elmnt == y[i]) {
-                arrNo.push(i)
-            } else {
-                y[i].classList.remove("select-arrow-active");
-            }
-        }
-        for (i = 0; i < x.length; i++) {
-            if (arrNo.indexOf(i)) {
-                x[i].classList.add("select-hide");
-            }
-        }
-    }
-    /*if the user clicks anywhere outside the select box,
-    then close all select boxes:*/
-    document.addEventListener("click", closeAllSelect);
-    </script>
-</body>
-
+  </body>
 </html>

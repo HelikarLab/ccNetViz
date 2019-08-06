@@ -76,7 +76,11 @@ let layout = (nodes, edges, layout) => {
       .nodes()
       .map((item, index) => {
         let el = nodes[index];
-
+        if (typeof item._private.style !== 'undefined') {
+          if (typeof item._private.style.width !== 'undefined')
+            if (typeof el.style === 'undefined')
+              el.style = `node-${item._private.style.width.value}`;
+        }
         if (c.xMin < 0)
           el.x =
             (item._private.position.x + Math.abs(c.xMin)) /

@@ -39,6 +39,7 @@ const animateStylesTransl = {
   'double-gradient': 3,
   'shape-bubble': 4,
   'shape-wave': 5,
+  'shape-dot': 6,
 };
 const getEdgeAnimateType = t => {
   if (t !== undefined) {
@@ -97,6 +98,9 @@ class Line extends BaseShape {
 
           hasShapeAnimation &&
             gl.uniform1f(uniforms.animateMaxWidth, c.style.animateMaxWidth);
+          c.style.animateType === 'shape-dot' &&
+            gl.uniform1i(uniforms.animateDotNum, c.style.animateDotNum);
+          gl.uniform1f(uniforms.animateDotInterval, c.style.animateDotInterval);
         }
       }
     );

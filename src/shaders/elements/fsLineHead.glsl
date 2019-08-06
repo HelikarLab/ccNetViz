@@ -4,6 +4,8 @@ uniform float animateType;
 uniform vec4 color;
 uniform vec4 animateColor;
 uniform float animateSpeed;
+uniform int animateDotNum;
+uniform float animateDotInterval;
 varying vec2 n;
 varying float v_time;
 varying vec2 v_startPos;

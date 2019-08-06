@@ -111,7 +111,7 @@ All of the polygons were created with the edge count. For the detailed configura
 }
 ```
 
-Custom shapes can create all of the coordinate-based shapes.
+Custom shapes can create all of the coordinate-based shapes. Can create your own textures easily with [Texture creator](https://helikarlab.github.io/ccNetViz/examples/texture_creator)
 
 ### Animations
 
