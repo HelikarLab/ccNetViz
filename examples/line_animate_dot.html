@@ -13,16 +13,28 @@
       <div id="canvas-list"></div>
       <div class="toolbox">
         <div class="item">
-          <label>Animation type:</label>
-          <select id="animate-select" onchange="onAnimationChange()">
-            <option value="none">None</option>
-            <option value="basic">Basic</option>
-            <option value="gradient">Gradient</option>
-            <option value="double-gradient">Double Gradient</option>
-            <option value="shape-bubble">Bubble</option>
-            <option value="shape-wave">Wave</option>
-            <option selected value="shape-dot">Dotted</option>
-          </select>
+          <label>Dot numbers: <b id="dot-text">5</b></label>
+          <input
+            id="animate-dot"
+            type="range"
+            min="1"
+            max="10"
+            value="5"
+            step="1"
+            onchange="onDotNumChange()"
+          />
+        </div>
+        <div class="item">
+          <label>Dot interval: <b id="dot-interval-text">0.5</b></label>
+          <input
+            id="animate-dot-interval"
+            type="range"
+            min="0.2"
+            max="1.0"
+            value="0.5"
+            step="0.1"
+            onchange="onDotIntervalChange()"
+          />
         </div>
         <div class="item">
           <label>Animation speed: <b id="speed-text">1.</b></label>
@@ -43,6 +55,7 @@
             <option value="sin-in">sin-in</option>
             <option value="sin-out">sin-out</option>
             <option value="sin-inout">sin-inout</option>
+            <option value="sin-inout-inv">sin-inout-inv</option>
             <option value="bounce-in">bounce-in</option>
             <option value="bounce-out">bounce-out</option>
             <option value="bounce-inout">bounce-inout</option>
@@ -61,6 +74,7 @@
             <option value="quart-in">quart-in</option>
             <option value="quart-out">quart-out</option>
             <option selected value="quart-inout">quart-inout</option>
+            <option value="quart-inout-inv">quart-inout-inv</option>
             <option value="quint-in">quint-in</option>
             <option value="quint-out">quint-out</option>
             <option value="quint-inout">quint-inout</option>
@@ -120,7 +134,7 @@
 
             animateType: 'shape-dot', // "basic", "gradient", "double-gradient", "shape-wave", "shape-bubble", "none"
             animateSpeed: 1,
-            animateDotNum: 7,
+            animateDotNum: 5,
             animateDotInterval: 0.5,
             animateEase: 'quart-inout', // default is "linear"
             animateColor: 'rgb(240, 80, 100)',
@@ -129,25 +143,6 @@
         },
       };
 
-      function onAnimationChange() {
-        const el = document.querySelector('#animate-select');
-        const val = el.options[el.selectedIndex].value;
-        if (val === 'shape-bubble') {
-          window.options.styles.edge.width = 5;
-          window.options.styles.edge.animateMaxWidth = 15;
-          window.options.styles.edge.type = 'line';
-        } else if (val === 'shape-wave') {
-          window.options.styles.edge.width = 3;
-          window.options.styles.edge.animateMaxWidth = 20;
-          window.options.styles.edge.type = 'line';
-        } else {
-          window.options.styles.edge.width = 5;
-          window.options.styles.edge.type = 'dotted';
-        }
-        window.options.styles.edge.animateType = val;
-        showGraph(window.options);
-      }
-
       function onAnimationSpeedChange() {
         const el = document.querySelector('#animate-speed');
         const el2 = document.querySelector('#speed-text');
@@ -155,6 +150,26 @@
         el.innerHTML = el.value;
         el2.innerHTML = el.value;
         window.options.styles.edge.animateSpeed = Number(val);
+        showGraph(window.options);
+      }
+
+      function onDotIntervalChange() {
+        const el = document.querySelector('#animate-dot-interval');
+        const el2 = document.querySelector('#dot-interval-text');
+        const val = el.value;
+        el.innerHTML = el.value;
+        el2.innerHTML = el.value;
+        window.options.styles.edge.animateDotInterval = Number(val);
+        showGraph(window.options);
+      }
+
+      function onDotNumChange() {
+        const el = document.querySelector('#animate-dot');
+        const el2 = document.querySelector('#dot-text');
+        const val = el.value;
+        el.innerHTML = el.value;
+        el2.innerHTML = el.value;
+        window.options.styles.edge.animateDotNum = Number(val);
         showGraph(window.options);
       }
 
