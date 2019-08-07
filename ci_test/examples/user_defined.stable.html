@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../lib/ccNetViz.js"></script>
+    <style>
+      canvas,
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      var nodes = [
+        { x: 0, y: 1 },
+        { x: 1, y: 1 },
+        { x: 0.5, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 0 },
+      ];
+
+      var edges = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[0] },
+        { source: nodes[0], target: nodes[0] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[4] },
+      ];
+
+      var settings = {
+        styles: {
+          node: {
+            texture: '../../examples/images/node.png',
+            label: { hideSize: 16 },
+          },
+          edge: { arrow: { texture: '../../examples/images/arrow.png' } },
+          nodeSize: {
+            texture: '../../examples/images/node.png',
+            label: { hideSize: 16 },
+            size: 30,
+          },
+        },
+      };
+
+      {
+        let canvas = document.createElement('canvas');
+        let layout = 'user';
+        canvas.width = 250;
+        canvas.height = 250;
+        canvas.id = `${layout}-canvas`;
+        document.body.appendChild(canvas);
+        let graph = new ccNetViz(canvas, settings);
+        graph.set(nodes, edges, undefined).then(() => {
+          graph.draw();
+        });
+      }
+    </script>
+  </body>
+</html>

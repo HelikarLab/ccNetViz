@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../../lib/ccNetViz.js"></script>
+    <style>
+      canvas,
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      var conf = {
+        styles: {
+          node: {
+            minSize: 6,
+            maxSize: 16,
+            color: 'rgb(255, 0, 0)',
+            texture: '../../examples/images/node.png',
+            label: {
+              color: 'rgb(120, 120, 120)',
+              backgroundColor: 'rgb(200, 200, 200)',
+              borderColor: 'rgb(180, 180, 180)',
+              font: {
+                family: 'vedana',
+                weight: 'normal',
+                strokeText: false,
+                alignment: 'center',
+                type: 'sdf',
+              },
+            },
+          },
+          edge: { arrow: { texture: '../../examples/images/arrow.png' } },
+        },
+      };
+      var nodes = [
+        { label: 'Hello' },
+        { label: 'World' },
+        { label: '!' },
+        { label: 'I am in center' },
+        { label: 'Right bottom corner' },
+      ];
+      var edges = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[3] },
+        { source: nodes[3], target: nodes[4] },
+      ];
+
+      var canvas = document.createElement('canvas');
+      canvas.width = 250;
+      canvas.height = 250;
+      document.body.appendChild(canvas);
+      var graph = new ccNetViz(canvas, conf);
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
+    </script>
+  </body>
+</html>
