@@ -25,10 +25,12 @@ It must be plugins own development environment.
 #### Creating files
 
 The plugin needs its own folder inside the plugins folder.
+
 ```bash
-mkdir src/plugins/new-plugin  
+mkdir src/plugins/new-plugin
 cd src/plugins/new-plugin
 ```
+
 #### Initializing the Node Package Manager
 
 ```bash
@@ -38,7 +40,7 @@ npm init
 #### Installing Babel
 
 ```bash
-npm install --save-dev @babel-core @babel/preset-env
+npm install --save-dev babel-core @babel/preset-env
 ```
 
 #### Installing Webpack
@@ -58,7 +60,7 @@ module.exports = {
   entry: './main.js',
   output: {
     path: path.join(__dirname, '..', '..', '..', 'lib', 'plugins'),
-    filename: 'new-plugin',
+    filename: 'example.js',
   },
   mode: 'development',
   module: {
@@ -75,13 +77,15 @@ module.exports = {
   },
 };
 ```
+
 Example of `./main.js` for the node plugins;
+
 ```js
 let Integration = (o, i) => {
   let shapes = [];
   let options = o;
 
-  let delta = options.styles['delta'] = { type: 'delta' };
+  let delta = (options.styles['delta'] = { type: 'delta' });
 
   // Generating styles
   let shape = new Node(delta);
@@ -122,8 +126,15 @@ class Node {
       }, 'image/png');
     });
   }
-};
+}
+
+if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
+ccNetVizPlugins.example = { Integration };
+
+export default { Integration };
 ```
+
+Also, you can reach example plugin codes inside the `/src/plugins/example` folder.
 
 #### Documentations
 
