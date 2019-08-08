@@ -85,9 +85,10 @@ let Integration = (o, i) => {
   let shapes = [];
   let options = o;
 
+  // Style definition.
   let delta = (options.styles['delta'] = { type: 'delta' });
 
-  // Generating styles
+  // Generating styles.
   let shape = new Node(delta);
   shapes.push({ config: shape.toConfig(), name: 'delta' });
 
@@ -100,12 +101,14 @@ class Node {
   }
 
   _draw() {
+    // Creating a canvas and drawing to 2d context.
     this.canvas = document.createElement('canvas');
     this.canvas.width = 16;
     this.canvas.height = 16;
 
     this.context = this.canvas.getContext('2d');
     this.context.fillStyle = '#333333';
+
     this.context.beginPath();
     this.context.lineTo(8, 0);
     this.context.lineTo(16, 8);
@@ -117,6 +120,7 @@ class Node {
   }
 
   toConfig() {
+    // Converting canvas to an image.
     return new Promise((resolve, reject) => {
       this.ready = true;
       this.canvas.toBlob(blob => {
@@ -127,7 +131,7 @@ class Node {
     });
   }
 }
-
+// Declaring plugin variables.
 if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
 ccNetVizPlugins.example = { Integration };
 
