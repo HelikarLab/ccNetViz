@@ -7,6 +7,7 @@ import { normalize } from './util';
 import NodePlugin from './plugins/node';
 import LabelPlugin from './plugins/label';
 import EdgePlugin from './plugins/edge';
+import AnimateEdgePlugin from './plugins/animateEdge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -434,7 +435,7 @@ export default function(
   };
 
   ///NOTE: for performance the nodes should be the first
-  scene.add('edges', new EdgePlugin(pluginConf));
+  scene.add('edges', new AnimateEdgePlugin(pluginConf));
   scene.add('nodes', new NodePlugin(pluginConf));
   scene.add('labels', new LabelPlugin(pluginConf));
 

@@ -107,6 +107,60 @@ class Line extends BaseShape {
   }
 }
 
+class AnimateLine extends BaseShape {
+  constructor(gl, edgeStyle) {
+    super();
+
+    this.filler = shapeFillers.lines;
+
+    const hasAnimation =
+      !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
+    // TODO: check has shape animation is not best way
+    const hasShapeAnimation =
+      hasAnimation && getEdgeAnimateType(edgeStyle.animateType) > 3.5;
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      edgeStyle,
+      null,
+      elementShaders.vsLine,
+      elementShaders.fsLineAnimate(edgeStyle.animateEase),
+      c => {
+        let uniforms = c.shader.uniforms;
+        uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
+        gl.uniform2f(uniforms.screen, c.width, c.height);
+        let size = 2.5 * c.nodeSize;
+        uniforms.size &&
+          gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+        gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
+        gl.uniform1f(uniforms.aspect2, c.aspect2);
+        gl.uniform1f(uniforms.aspect, c.aspect);
+        gl.uniform1f(uniforms.width, c.style.width);
+        gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
+        ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
+
+        if (hasAnimation) {
+          gl.uniform1f(
+            uniforms.animateType,
+            getEdgeAnimateType(c.style.animateType)
+          );
+          gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
+          ccNetViz_gl.uniformColor(
+            gl,
+            uniforms.animateColor,
+            c.style.animateColor
+          );
+
+          hasShapeAnimation &&
+            gl.uniform1f(uniforms.animateMaxWidth, c.style.animateMaxWidth);
+          c.style.animateType === 'shape-dot' &&
+            gl.uniform1i(uniforms.animateDotNum, c.style.animateDotNum);
+          gl.uniform1f(uniforms.animateDotInterval, c.style.animateDotInterval);
+        }
+      }
+    );
+  }
+}
+
 class Curve extends BaseShape {
   constructor(gl, edgeStyle) {
     super();
@@ -379,4 +433,4 @@ const shapeFillers = {
   }),
 };
 
-export { Line, Curve, Circle };
+export { Line, AnimateLine, Curve, Circle };
