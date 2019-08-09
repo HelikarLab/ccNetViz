@@ -435,7 +435,8 @@ export default function(
   };
 
   ///NOTE: for performance the nodes should be the first
-  scene.add('edges', new AnimateEdgePlugin(pluginConf));
+  // scene.add('edges', new AnimateEdgePlugin(pluginConf));
+  scene.add('edges', new EdgePlugin(pluginConf));
   scene.add('nodes', new NodePlugin(pluginConf));
   scene.add('labels', new LabelPlugin(pluginConf));
 

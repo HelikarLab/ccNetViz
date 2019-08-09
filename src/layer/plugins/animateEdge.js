@@ -9,7 +9,6 @@ export default class AnimateEdgePlugin extends BasePlugin {
 
     const { gl, extensions, edgeStyle, getSize, getEdgesCnt, view } = options;
 
-    // NOTE: split to different file and use getPrimitive to get webgl element
     this.scene.add('lines', new AnimateLine(gl, edgeStyle));
 
     if (extensions.OES_standard_derivatives) {
