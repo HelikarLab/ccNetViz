@@ -22,13 +22,13 @@ mkdir ~/slimerfox
 Extracting files the created new directory
 
 ```bash
-tar -C ~/slimerfox xvjf firefox-58.0.tar.bz2
+tar -C ~/slimerfox -xvjf firefox-58.0.tar.bz2
 ```
 
 Configuring .bashrc, append the end of the bash profile.
 
 ```bash
-export SLIMERJSLAUNCHER=~/slimmerfox/firefox/firefox
+export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
 ```
 
 Installing Xvfb (Virtual framebuffer X server for X Version 11)
