@@ -8,7 +8,7 @@ addons:
 services:
   - xvfb
 before_script:
-  - sh -e node ./ci_test/slimer/server.js
+  - node ./ci_test/slimer/server.js &
 install:
   - 'npm install'
 script:
