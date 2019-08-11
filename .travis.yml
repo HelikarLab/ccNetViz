@@ -10,7 +10,6 @@ services:
 before_script:
   - node ./ci_test/slimer/server.js &
 install:
-  - npm install -g slimerjs
   - npm install
 script:
   - npm run build
