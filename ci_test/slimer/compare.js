@@ -58,10 +58,12 @@ fs.readdir(images, (err, files) => {
             }
           } else {
             console.log(err);
+            process.exit(1);
           }
         });
       } else {
         console.log(err);
+        process.exit(1);
       }
     });
   }
@@ -69,28 +71,8 @@ fs.readdir(images, (err, files) => {
 
 let result = isFailed => {
   if (isFailed) {
-    rl.question(
-      'The test was failed, accept the changes and sync the current build? [y/n]: ',
-      a => {
-        if (a.toLowerCase() === 'y') {
-          console.log(
-            '\x1b[32m',
-            '[ccNetViz]',
-            '\x1b[0m',
-            'test/lib/ccNetViz.js updated.'
-          );
-          fs.copyFileSync(source, target);
-        } else {
-          console.log(
-            '\x1b[34m',
-            '[ccNetViz]',
-            '\x1b[0m',
-            'Test was terminated.'
-          );
-        }
-        rl.close();
-      }
-    );
+    console.log('\x1b[31m', '[ccNetViz]', '\x1b[0m', 'Tests failed!');
+    process.exit(1);
   } else {
     console.log(
       '\x1b[32m',
@@ -105,6 +87,6 @@ let result = isFailed => {
       'test/lib/ccNetViz.js updated.'
     );
     fs.copyFileSync(source, target);
-    rl.close();
+    process.exit(0);
   }
 };
