@@ -5,12 +5,10 @@ env:
   - SLIMERJSLAUNCHER=$(which firefox) DISPLAY=:99.0 PATH=$TRAVIS_BUILD_DIR/slimerjs:$PATH
 addons:
   firefox: '58.0'
-before_install:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+services:
+  - xvfb
 install:
-  - 'sh -e /etc/init.d/xvfb start'
   - 'npm install'
 script:
-  - './node_modules/slimerjs/src/slimerjs-node ./ci_test/slimer/index.js'
+  - 'xvfb-run ./node_modules/slimerjs/src/slimerjs-node ./ci_test/slimer/index.js'
   - 'node ./ci_test/slimer/compare.js'
