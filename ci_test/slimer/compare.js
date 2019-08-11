@@ -3,8 +3,6 @@ const path = require('path');
 const readline = require('readline');
 
 const images = path.join(__dirname, '../images');
-const source = path.join(__dirname, '../../lib/ccNetViz.js');
-const target = path.join(__dirname, '../lib/ccNetViz.js');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -80,13 +78,6 @@ let result = isFailed => {
       '\x1b[0m',
       'Tests completed successfully!'
     );
-    console.log(
-      '\x1b[32m',
-      '[ccNetViz]',
-      '\x1b[0m',
-      'test/lib/ccNetViz.js updated.'
-    );
-    fs.copyFileSync(source, target);
     process.exit(0);
   }
 };
