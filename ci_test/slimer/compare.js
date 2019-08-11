@@ -28,7 +28,6 @@ fs.readdir(images, (err, files) => {
       if (!err) {
         fs.readFile(test, encoding, (err, testData) => {
           if (!err) {
-            console.log(stableData, testData);
             if (stableData !== testData) {
               console.log(
                 '\x1b[31m',
