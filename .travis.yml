@@ -10,8 +10,9 @@ services:
 before_script:
   - node ./ci_test/slimer/server.js &
 install:
-  - 'npm install -g slimerjs'
-  - 'npm install'
+  - npm install -g slimerjs
+  - npm install
 script:
+  - npm run build
   - xvfb-run -a ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js
   - node ./ci_test/slimer/compare.js
