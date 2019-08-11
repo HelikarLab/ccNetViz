@@ -1,5 +1,5 @@
 import BasePlugin from './basePlugin';
-import { AnimateLine } from '../shapes/edge';
+import { AnimateLine } from '../shapes/animateLine';
 import { Curve, Circle } from '../shapes/edge';
 import { LineArrow, CurveArrow, CircleArrow } from '../shapes/edgeArrow';
 
