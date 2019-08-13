@@ -213,4 +213,9 @@ class LabelsBackgroundManager extends BaseShapeManager {
   }
 }
 
-export { LabelsBackground, LabelsBorder, LabelsBackgroundManager };
+export {
+  LabelsBackground,
+  LabelsBorder,
+  LabelsBackgroundManager,
+  getLabelVertices,
+};
