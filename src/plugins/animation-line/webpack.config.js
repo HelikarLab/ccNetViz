@@ -8,12 +8,18 @@ module.exports = {
     libraryTarget: 'umd',
   },
   mode: 'production', // development
+  devtool: 'source-map',
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
+      },
+      // GLSL Loader
+      {
+        test: /\.glsl$/,
+        use: { loader: 'raw-loader' },
       },
     ],
   },
