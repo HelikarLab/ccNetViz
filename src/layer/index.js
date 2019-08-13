@@ -7,7 +7,7 @@ import { normalize } from './util';
 import NodePlugin from './plugins/node';
 import LabelPlugin from './plugins/label';
 import EdgePlugin from './plugins/edge';
-import AnimateEdgePlugin from './plugins/animateEdge';
+// import AnimateEdgePlugin from './plugins/animateEdge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -437,6 +437,7 @@ export default function(
   ///NOTE: for performance the nodes should be the first
   // TODO: temp check animation and use different plugin
   if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
+    // eslint-ignore-next-line
     scene.add('edges', new AnimateEdgePlugin(pluginConf));
   } else {
     scene.add('edges', new EdgePlugin(pluginConf));
