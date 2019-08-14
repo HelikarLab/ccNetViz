@@ -84,11 +84,10 @@ export default function(
   let spatialSearch = undefined;
 
   //make sure everything (files and textures) are load, if not, redraw the whole graph after they became
-  let set_end = (layout, layout_options) => {
+  let set_end = () => {
     let enableLazyRedraw = false;
     let reset = p => {
-      if (enableLazyRedraw)
-        this.set(this.nodes, this.edges, layout, layout_options);
+      if (enableLazyRedraw) this.set(this.nodes, this.edges);
     };
     files.onLoad(reset);
     textures.onLoad(reset);
@@ -276,7 +275,7 @@ export default function(
     };
 
     while (tryInitPrimitives()); //loop until they are not dirty
-    set_end(layout, layout_options);
+    set_end();
   };
 
   this.update = function(element, attribute, data) {

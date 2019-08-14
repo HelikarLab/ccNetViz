@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../../lib/ccNetViz.js"></script>
+    <script src="../../lib/plugins/ccNetViz-arrow-plugin.js"></script>
+
+    <style>
+      canvas,
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      var nodes = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+
+      var settings = {
+        styles: {
+          node: {
+            texture: '../../examples/images/node.png',
+            label: { hideSize: 16 },
+          },
+        },
+      };
+
+      var edges = [
+        { source: nodes[0], style: 'arrow', target: nodes[1] },
+        { source: nodes[1], style: 'arrow short', target: nodes[2] },
+        { source: nodes[2], style: 'diamond', target: nodes[3] },
+        { source: nodes[3], style: 'diamond short', target: nodes[4] },
+        { source: nodes[4], style: 'T', target: nodes[5] },
+        { source: nodes[5], style: 'harpoon up', target: nodes[6] },
+        { source: nodes[6], style: 'harpoon down', target: nodes[7] },
+        { source: nodes[7], style: 'thin arrow', target: nodes[8] },
+      ];
+
+      var canvas = document.createElement('canvas');
+      canvas.width = 250;
+      canvas.height = 250;
+      document.body.appendChild(canvas);
+      var graph = new ccNetViz(canvas, settings);
+      graph.set(nodes, edges, 'circular').then(() => {
+        graph.draw();
+      });
+    </script>
+  </body>
+</html>
