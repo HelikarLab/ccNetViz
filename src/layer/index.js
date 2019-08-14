@@ -430,13 +430,6 @@ export default function(
   };
 
   ///NOTE: for performance the nodes should be the first
-  // TODO: temp check animation and use different plugin
-  // if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
-  // eslint-ignore-next-line
-  // scene.add('edges', new AnimateEdgePlugin(pluginConf));
-  // } else {
-  // scene.add('edges', new EdgePlugin(pluginConf));
-  // }
   scene.add('edges', new ccNetViz.Shaders.edge(pluginConf));
   scene.add('nodes', new ccNetViz.Shaders.node(pluginConf));
   scene.add('labels', new ccNetViz.Shaders.label(pluginConf));
