@@ -1,215 +1,198 @@
 body {
-    font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 table {
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-    font-family: 'Roboto', sans-serif;
-    overflow-x: auto;
-    font-size: 16px;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+  font-family: 'Roboto', sans-serif;
+  overflow-x: auto;
+  font-size: 16px;
 }
 
 #tableFeature td,
 th,
 td {
-    text-align: center;
-    padding: 8px;
-    border: 1px solid #ddd;
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #ddd;
 }
 
 td {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-td:nth-child(7n+1) {
-    text-align: left;
+td:nth-child(7n + 1) {
+  text-align: left;
 }
 
 .th_viz,
 .th_cyto,
 .th_sigma {
-    border: 5;
-    color: white;
+  border: 5;
+  color: white;
 }
 
 .th_viz_bottom {
-    border: 5;
-    color: white;
-    background-color: #6495ED;
+  border: 5;
+  color: white;
+  background-color: #6495ed;
 }
 
 .th_viz {
-    background-color: #6495ED;
+  background-color: #6495ed;
 }
 
 .th_cyto {
-    background-color: #FFA500;
+  background-color: #ffa500;
 }
 
 .th_sigma {
-    background-color: red;
+  background-color: red;
 }
 
 .onClickStyle {
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 .divTable,
 .divGraph {
-    display: inline-block;
+  display: inline-block;
 }
 
 .perfTable {
-    width: 90%;
-    margin-left: 30px;
+  width: 90%;
+  margin-left: 30px;
 }
 
 .divGraph {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 #divGraphCyto {
-    float: right;
-    margin-top: -40px;
-    margin-right: 100px;
+  float: right;
+  margin-top: -40px;
+  margin-right: 100px;
 }
 
 #containerSigma,
 #containerViz,
 #containerCyto {
-    width: 300px;
-    height: 300px;
-    margin-right: 60px;
-    display: inline-block;
+  width: 300px;
+  height: 300px;
+  margin-right: 60px;
+  display: inline-block;
 }
 
 #containerSigma {
-    margin-left: 50px;
+  margin-left: 50px;
 }
-
 
 #titleViz,
 #titleSigma,
 #titleCyto,
 #titleFeature {
-    margin-top: 30px;
-    margin-left: 30px;
-    font-size: 32px;
+  margin-top: 30px;
+  margin-left: 30px;
+  font-size: 32px;
 }
 
-
 #titleSigma {
-    color: red;
+  color: red;
 }
 
 #titleCyto {
-    color: #FFA500;
+  color: #ffa500;
 }
 
 #titleFeature {
-    color: #202020;
-    display: inline-block;
+  color: #202020;
+  display: block;
 }
 
 #tableFeature {
-    margin-left: 30px;
-    margin-right: 30px;
-    width: auto;
+  margin-left: 30px;
+  margin-right: 30px;
+  width: auto;
 }
 
 #tableFeature th {
-    color: white;
-    background-color: #202020;
+  color: white;
+  background-color: #202020;
 }
-
 
 /*the container must be positioned relative:*/
 
 .custom-select {
-    position: relative;
-    font-family: Arial;
-    margin-left: 30px;
-}
-
-.custom-select select {
-    display: none;
-    /*hide original SELECT element:*/
-}
-
-.selectID {
-    display: none;
-    /*hide original SELECT element:*/
+  position: relative;
+  font-family: Arial;
+  margin-left: 30px;
 }
 
 .select-selected {
-    background-color: #6495ED;
+  background-color: #6495ed;
 }
 
 #divGraphViz {
-    margin-left: 200px;
-}  
+  margin-left: 200px;
+}
 
 /*style the arrow inside the select element:*/
 
 .select-selected:after {
-    position: absolute;
-    content: "";
-    top: 14px;
-    right: 10px;
-    width: 0;
-    height: 0;
-    border: 6px solid transparent;
-    border-color: #fff transparent transparent transparent;
+  position: absolute;
+  content: '';
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
 }
-
 
 /*point the arrow upwards when the select box is open (active):*/
 
 .select-selected.select-arrow-active:after {
-    border-color: transparent transparent #fff transparent;
-    top: 7px;
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
 }
-
 
 /*style the items (options), including the selected item:*/
 
 .select-items div,
 .select-selected {
-    color: #ffffff;
-    padding: 8px 16px;
-    border: 1px solid transparent;
-    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
-    cursor: pointer;
-    user-select: none;
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+  user-select: none;
 }
-
 
 /*style items (options):*/
 
 .select-items {
-    position: absolute;
-    background-color: #6495ED;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 99;
-    overflow: scroll;
-    max-height: 300px;
+  position: absolute;
+  background-color: #6495ed;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  overflow: scroll;
+  max-height: 300px;
 }
-
 
 /*hide the items when the select box is closed:*/
 
 .select-hide {
-    display: none;
+  display: none;
 }
 
 .select-items div:hover,
 .same-as-selected {
-    background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 #divMainViz {
-    display: flex;
+  display: flex;
 }
