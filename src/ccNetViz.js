@@ -12,6 +12,10 @@ import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import { getPartitionStyle } from './primitiveTools';
 
 import BasePlugin from './layer/plugins/basePlugin';
+import EdgePlugin from './layer/plugins/edge';
+import LabelPlugin from './layer/plugins/label';
+import NodePlugin from './layer/plugins/node';
+
 import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
@@ -949,6 +953,12 @@ ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
+
+ccNetViz.Shaders = {
+  node: NodePlugin,
+  edge: EdgePlugin,
+  label: LabelPlugin,
+};
 
 ccNetViz.BasePlugin = BasePlugin;
 ccNetViz.BaseShape = BaseShape;

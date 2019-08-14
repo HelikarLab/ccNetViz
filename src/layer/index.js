@@ -4,10 +4,6 @@ import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { normalize } from './util';
-import NodePlugin from './plugins/node';
-import LabelPlugin from './plugins/label';
-import EdgePlugin from './plugins/edge';
-// import AnimateEdgePlugin from './plugins/animateEdge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -436,14 +432,15 @@ export default function(
 
   ///NOTE: for performance the nodes should be the first
   // TODO: temp check animation and use different plugin
-  if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
-    // eslint-ignore-next-line
-    scene.add('edges', new AnimateEdgePlugin(pluginConf));
-  } else {
-    scene.add('edges', new EdgePlugin(pluginConf));
-  }
-  scene.add('nodes', new NodePlugin(pluginConf));
-  scene.add('labels', new LabelPlugin(pluginConf));
+  // if (edgeStyle.animateType && edgeStyle.animateType !== 'none') {
+  // eslint-ignore-next-line
+  // scene.add('edges', new AnimateEdgePlugin(pluginConf));
+  // } else {
+  // scene.add('edges', new EdgePlugin(pluginConf));
+  // }
+  scene.add('edges', new ccNetViz.Shaders.edge(pluginConf));
+  scene.add('nodes', new ccNetViz.Shaders.node(pluginConf));
+  scene.add('labels', new ccNetViz.Shaders.label(pluginConf));
 
   if (options.onLoad) {
     let styles = options.styles;

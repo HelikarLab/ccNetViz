@@ -8,7 +8,7 @@ if (!ccNetViz) {
 
 const BasePlugin = ccNetViz.BasePlugin;
 
-export class AnimateEdgePlugin extends BasePlugin {
+class AnimateEdgePlugin extends BasePlugin {
   constructor(options) {
     super(options);
 
@@ -30,3 +30,5 @@ export class AnimateEdgePlugin extends BasePlugin {
     this.register('lines', 'lines', defaultAdder);
   }
 }
+
+ccNetViz.Shaders.edge = AnimateEdgePlugin;
