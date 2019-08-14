@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../lib/ccNetViz.js"></script>
+    <style>
+      canvas,
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      var settings = {
+        styles: {
+          node: {
+            texture: '../../examples/images/node.png',
+            label: { hideSize: 16 },
+          },
+          edge: { arrow: { texture: '../../examples/images/arrow.png' } },
+        },
+      };
+
+      var nodes_ee = [{}, {}, {}];
+
+      var e = { source: nodes_ee[0], target: nodes_ee[1] };
+      var e2 = { source: nodes_ee[1], target: nodes_ee[0] };
+      var e3 = { source: nodes_ee[1], target: nodes_ee[2] };
+      var e4 = { source: nodes_ee[0], target: nodes_ee[0] };
+
+      var edges_ee = [
+        e,
+        e2,
+        e3,
+        e4,
+        { source: nodes_ee[2], target: e2 },
+        { source: nodes_ee[0], target: e3 },
+        { source: e2, target: nodes_ee[2] },
+        { source: nodes_ee[2], target: e4 },
+        { source: e2, target: e2 },
+        { source: e3, target: e3 },
+        { source: e4, target: e4 },
+      ];
+
+      var canvas = document.createElement('canvas');
+      canvas.width = 250;
+      canvas.height = 250;
+      document.body.appendChild(canvas);
+      var graph = new ccNetViz(canvas, settings);
+      graph.set(nodes_ee, edges_ee, 'circular').then(() => {
+        graph.draw();
+      });
+    </script>
+  </body>
+</html>
