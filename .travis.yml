@@ -14,4 +14,5 @@ install:
 script:
   - npm run build
   - xvfb-run --server-args="-screen 0 1024x768x24" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js
+  - xvfb-run --server-args="-screen 0 1024x768x24" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/animations.js
   - node ./ci_test/slimer/compare.js
