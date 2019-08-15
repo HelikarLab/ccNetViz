@@ -11,6 +11,16 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import { getPartitionStyle } from './primitiveTools';
 
+import BasePlugin from './layer/plugins/basePlugin';
+import EdgePlugin from './layer/plugins/edge';
+import LabelPlugin from './layer/plugins/label';
+import NodePlugin from './layer/plugins/node';
+
+import ccNetViz_primitive from './primitive';
+import ccNetViz_geomutils from './geomutils';
+import { normalize } from './layer/util';
+import { BaseShape } from './layer/shapes/baseShape';
+
 /**
  *  Copyright (c) 2016, Helikar Lab.
  *  All rights reserved.
@@ -943,6 +953,21 @@ ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
 ccNetViz.layout = ccNetViz_layout;
 ccNetViz.color = ccNetViz_color;
+
+ccNetViz.Shaders = {
+  node: NodePlugin,
+  edge: EdgePlugin,
+  label: LabelPlugin,
+};
+
+ccNetViz.BasePlugin = BasePlugin;
+ccNetViz.BaseShape = BaseShape;
+ccNetViz.tools = {
+  gl: ccNetViz_gl,
+  primitive: ccNetViz_primitive,
+  geomutils: ccNetViz_geomutils,
+  normalize: normalize,
+};
 
 window.ccNetViz = ccNetViz;
 export default ccNetViz;

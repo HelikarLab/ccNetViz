@@ -4,9 +4,6 @@ import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { normalize } from './util';
-import NodePlugin from './plugins/node';
-import LabelPlugin from './plugins/label';
-import EdgePlugin from './plugins/edge';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -433,9 +430,9 @@ export default function(
   };
 
   ///NOTE: for performance the nodes should be the first
-  scene.add('edges', new EdgePlugin(pluginConf));
-  scene.add('nodes', new NodePlugin(pluginConf));
-  scene.add('labels', new LabelPlugin(pluginConf));
+  scene.add('edges', new ccNetViz.Shaders.edge(pluginConf));
+  scene.add('nodes', new ccNetViz.Shaders.node(pluginConf));
+  scene.add('labels', new ccNetViz.Shaders.label(pluginConf));
 
   if (options.onLoad) {
     let styles = options.styles;

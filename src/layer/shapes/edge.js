@@ -3,7 +3,7 @@ import ccNetViz_gl from '../../gl';
 import ccNetViz_geomutils from '../../geomutils';
 import { normalize } from '../util';
 import { elementShaders } from '../../shaders';
-import { BaseShape, BaseShapeManager } from './baseShape';
+import { BaseShape } from './baseShape';
 
 const getEdgeStyleSize = c => {
   return c.width / 120;
@@ -32,44 +32,18 @@ const getEdgeType = t => {
   return t;
 };
 
-const animateStylesTransl = {
-  none: 0,
-  basic: 1,
-  gradient: 2,
-  'double-gradient': 3,
-  'shape-bubble': 4,
-  'shape-wave': 5,
-  'shape-dot': 6,
-};
-const getEdgeAnimateType = t => {
-  if (t !== undefined) {
-    t = animateStylesTransl[t];
-  }
-
-  if (t === undefined || typeof t !== 'number') {
-    t = 0;
-  }
-
-  return t;
-};
-
 class Line extends BaseShape {
   constructor(gl, edgeStyle) {
     super();
 
     this.filler = shapeFillers.lines;
 
-    const hasAnimation =
-      !!edgeStyle.animateType && edgeStyle.animateType !== 'none';
-    // TODO: check has shape animation is not best way
-    const hasShapeAnimation =
-      hasAnimation && getEdgeAnimateType(edgeStyle.animateType) > 3.5;
     this._primitive = new ccNetViz_primitive(
       gl,
       edgeStyle,
       null,
       elementShaders.vsLine,
-      elementShaders.fsLineAnimate(edgeStyle.animateEase),
+      elementShaders.fsLineBasic,
       c => {
         let uniforms = c.shader.uniforms;
         uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -83,25 +57,6 @@ class Line extends BaseShape {
         gl.uniform1f(uniforms.width, c.style.width);
         gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
         ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
-
-        if (hasAnimation) {
-          gl.uniform1f(
-            uniforms.animateType,
-            getEdgeAnimateType(c.style.animateType)
-          );
-          gl.uniform1f(uniforms.animateSpeed, c.style.animateSpeed);
-          ccNetViz_gl.uniformColor(
-            gl,
-            uniforms.animateColor,
-            c.style.animateColor
-          );
-
-          hasShapeAnimation &&
-            gl.uniform1f(uniforms.animateMaxWidth, c.style.animateMaxWidth);
-          c.style.animateType === 'shape-dot' &&
-            gl.uniform1i(uniforms.animateDotNum, c.style.animateDotNum);
-          gl.uniform1f(uniforms.animateDotInterval, c.style.animateDotInterval);
-        }
       }
     );
   }

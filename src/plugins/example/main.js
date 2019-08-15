@@ -1,9 +1,8 @@
-
 let Integration = (o, i) => {
   let shapes = [];
   let options = o;
 
-  let delta = options.styles['delta'] = { type: 'delta' };
+  let delta = (options.styles['delta'] = { type: 'delta' });
 
   // Generating styles
   let shape = new Node(delta);
@@ -44,7 +43,7 @@ class Node {
       }, 'image/png');
     });
   }
-};
+}
 
 if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
 ccNetVizPlugins.example = { Integration };

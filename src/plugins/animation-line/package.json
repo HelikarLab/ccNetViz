@@ -1,0 +1,20 @@
+{
+  "name": "animation-line",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.5.5",
+    "raw-loader": "^3.1.0"
+  }
+}
