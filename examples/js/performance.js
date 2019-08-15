@@ -1,8 +1,8 @@
 function transformEdges(nodes, edges) {
-  nodes.forEach(function(node, i) {
+  nodes.forEach(function (node, i) {
     node.index = i;
   });
-  edges.forEach(function(edge) {
+  edges.forEach(function (edge) {
     //non equal to object >> numeric index >> transform to object
     if (edge.source !== Object(edge.source)) {
       edge.source = nodes[edge.source];
@@ -32,17 +32,15 @@ function ccNetVizBenchmark() {
     url: `data/${options}.json`,
     async: false,
     dataType: 'text',
-  }).done(function(d) {
+  }).done(function (d) {
     data = d;
   });
 
   d = JSON.parse(data);
 
   transformEdges(d.nodes, d.edges);
-
-  for (let i = 0; i < layouts.length; i++) {
+  function sequentialLayout(layout, i) {
     //layout computation
-    let layout = layouts[i];
 
     async function layout_computation() {
       let s = new Date().getTime();
@@ -57,9 +55,7 @@ function ccNetVizBenchmark() {
       await instances.ccNetViz.set(nodes, edges).then(() => {
         instances.ccNetViz.draw();
       });
-
       let e = new Date().getTime();
-      e - s;
       return { layout: layout, layout_time: layout_time, draw_time: e - s };
     }
 
@@ -84,9 +80,12 @@ function ccNetVizBenchmark() {
           }
           CytoscapeBenchmark();
         }
+        if (i + 1 !== layouts.length)
+          sequentialLayout(layouts[i + 1], i + 1);
       });
     });
   }
+  sequentialLayout(layouts[0], 0);
 }
 
 function CytoscapeBenchmark() {
@@ -100,10 +99,8 @@ function CytoscapeBenchmark() {
     url: `data/${options}.json`,
     async: false,
     dataType: 'text',
-  }).done(function(d) {
-    for (let i = 0; i < layouts.length; i++) {
-      let layout = layouts[i];
-
+  }).done(function (d) {
+    function sequentialLayout(layout, i) {
       async function layout_computation() {
         let s = new Date().getTime();
         instances.cytoscape = await cytoscape({
@@ -175,9 +172,13 @@ function CytoscapeBenchmark() {
             }
             SigmaBenchmark();
           }
+
+          if (i + 1 !== layouts.length)
+            sequentialLayout(layouts[i + 1], i + 1);
         });
       });
-    }
+    };
+    sequentialLayout(layouts[0], 0)
   });
 }
 
@@ -234,13 +235,12 @@ function SigmaBenchmark() {
     url: `data/${options}.json`,
     async: false,
     dataType: 'text',
-  }).done(function(d) {
+  }).done(function (d) {
     let data = JSON.parse(d);
 
     transformEdges(data.nodes, data.edges);
 
-    for (let i = 0; i < layouts.length; i++) {
-      let layout = layouts[i];
+    function sequentialLayout(layout, i) {
       let graph = {
         nodes: [],
         edges: [],
@@ -277,8 +277,11 @@ function SigmaBenchmark() {
             appendTable(element.layout, element.layout_time, element.draw_time);
           }
         }
+        if (i + 1 !== layouts.length)
+          sequentialLayout(layouts[i + 1], i + 1);
       });
     }
+    sequentialLayout(layouts[0], 0)
   });
 }
 
@@ -299,7 +302,7 @@ window.addEventListener('DOMContentLoaded', event => {
   document.getElementById('selectID').onchange = () => {
     window.location = `${window.location.pathname}#${
       document.getElementById('selectID').selectedIndex
-    }`;
+      }`;
     window.location.reload();
   };
   ccNetVizBenchmark();
