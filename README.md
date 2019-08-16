@@ -263,6 +263,10 @@ Property to access nodes data of given graph. Use this just to read current valu
 
 Property to access edges data of given graph. Use this just to read current values, for modification use "set" method instead.
 
+## Plugin's Documentation
+
+- [line animation plugin](./src/plugins/animation-line/README.md)
+
 ## Development in ccNetViz
 
 Please follow the below instructions to get started with development in ccNetViz:
