@@ -39,10 +39,8 @@ function ccNetVizBenchmark() {
   d = JSON.parse(data);
 
   transformEdges(d.nodes, d.edges);
-
-  for (let i = 0; i < layouts.length; i++) {
+  function sequentialLayout(layout, i) {
     //layout computation
-    let layout = layouts[i];
 
     async function layout_computation() {
       let s = new Date().getTime();
@@ -57,9 +55,7 @@ function ccNetVizBenchmark() {
       await instances.ccNetViz.set(nodes, edges).then(() => {
         instances.ccNetViz.draw();
       });
-
       let e = new Date().getTime();
-      e - s;
       return { layout: layout, layout_time: layout_time, draw_time: e - s };
     }
 
@@ -84,9 +80,11 @@ function ccNetVizBenchmark() {
           }
           CytoscapeBenchmark();
         }
+        if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
       });
     });
   }
+  sequentialLayout(layouts[0], 0);
 }
 
 function CytoscapeBenchmark() {
@@ -101,9 +99,7 @@ function CytoscapeBenchmark() {
     async: false,
     dataType: 'text',
   }).done(function(d) {
-    for (let i = 0; i < layouts.length; i++) {
-      let layout = layouts[i];
-
+    function sequentialLayout(layout, i) {
       async function layout_computation() {
         let s = new Date().getTime();
         instances.cytoscape = await cytoscape({
@@ -175,9 +171,12 @@ function CytoscapeBenchmark() {
             }
             SigmaBenchmark();
           }
+
+          if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
         });
       });
     }
+    sequentialLayout(layouts[0], 0);
   });
 }
 
@@ -239,8 +238,7 @@ function SigmaBenchmark() {
 
     transformEdges(data.nodes, data.edges);
 
-    for (let i = 0; i < layouts.length; i++) {
-      let layout = layouts[i];
+    function sequentialLayout(layout, i) {
       let graph = {
         nodes: [],
         edges: [],
@@ -277,8 +275,10 @@ function SigmaBenchmark() {
             appendTable(element.layout, element.layout_time, element.draw_time);
           }
         }
+        if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
       });
     }
+    sequentialLayout(layouts[0], 0);
   });
 }
 

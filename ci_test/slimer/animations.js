@@ -35,23 +35,33 @@ function pageHandler(p, e) {
           height: 250,
         };
 
-        let path = `ci_test/images/${p}.png`;
-        let path2 = `ci_test/images/animation_${p}.png`;
-        await setTimeout(function() {
+        let j = 0;
+
+        let recursiveLoad = function() {
+          setTimeout(function() {
+            let path = `ci_test/animation_frames/${j}.${p}.png`;
+            page.render(path);
+            console.log(
+              '\x1b[34m',
+              '[ccNetViz]',
+              '\x1b[0m',
+              `${j}.${p} graph image created.`
+            );
+            if ((j === 5) & exit) {
+              slimer.exit();
+            } else if (j < 5) {
+              j++;
+              recursiveLoad();
+            }
+          }, 250);
+        };
+
+        setTimeout(function() {
+          let path = `ci_test/animation_frames/${j}.${p}.png`;
           page.render(path);
+          j++;
+          recursiveLoad(recursiveLoad);
         }, 500);
-        await setTimeout(function() {
-          page.render(path2);
-          if (exit) {
-            slimer.exit();
-          }
-        }, 2000);
-        console.log(
-          '\x1b[34m',
-          '[ccNetViz]',
-          '\x1b[0m',
-          `${p} graph image created.`
-        );
 
         await setTimeout(() => {}, 3000);
       })();
