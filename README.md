@@ -265,7 +265,7 @@ Property to access edges data of given graph. Use this just to read current valu
 
 ## Plugin's Documentation
 
-- line animation plugin: https://github.com/HelikarLab/ccNetViz/blob/master/src/plugins/animation-line/README.md
+- line animation plugin: [](./src/plugins/animation-line/README.md)
 
 ## Development in ccNetViz
 
