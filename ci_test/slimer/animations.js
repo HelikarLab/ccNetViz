@@ -5,6 +5,12 @@ webpage
   .open(`http://127.0.0.1:${port}/ci_test/animations`)
   .then(function(status) {
     if (status) {
+      console.log(
+        '\x1b[34m',
+        '[ccNetViz]',
+        '\x1b[0m',
+        'Animation tests started with the :::8125 port.'
+      );
       webpage.viewportSize = {
         width: 250,
         height: 250,

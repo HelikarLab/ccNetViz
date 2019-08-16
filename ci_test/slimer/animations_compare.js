@@ -37,6 +37,7 @@ fs.readdir(images, (err, files) => {
                     pathList[i - 1]
                   } \n ${pathList[i]}`
                 );
+                isFailed = true;
               } else {
                 console.log(
                   '\x1b[32m',
@@ -44,7 +45,17 @@ fs.readdir(images, (err, files) => {
                   '\x1b[0m',
                   `${i}${name} test was successfully completed.`
                 );
-                isFailed = true;
+              }
+
+              t++;
+              if (Object.keys(fileList).length * (frameCount - 1) === t) {
+                console.log(
+                  '\x1b[32m',
+                  '[ccNetViz]',
+                  '\x1b[0m',
+                  `======================================================`
+                );
+                result(isFailed);
               }
             } else {
               console.log(err);
@@ -69,7 +80,7 @@ let result = isFailed => {
       '\x1b[32m',
       '[ccNetViz]',
       '\x1b[0m',
-      'Tests completed successfully!'
+      'Animation tests completed successfully!'
     );
     process.exit(0);
   }
