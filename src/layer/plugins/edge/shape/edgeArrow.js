@@ -2,7 +2,7 @@ import ccNetViz_primitive from '../../../../primitive';
 import ccNetViz_gl from '../../../../gl';
 import ccNetViz_geomutils from '../../../../geomutils';
 import { normalize } from '../../../util';
-import { elementShaders } from '../../../../shaders';
+import { shaders } from '../shaders';
 import { BaseShape } from '../../baseShape';
 
 const shaderparams = { attribute: { offsetMul: 1 } };
@@ -110,8 +110,8 @@ class LineArrow extends BaseShape {
       gl,
       edgeStyle,
       'arrow',
-      elementShaders.vsLineArrow,
-      elementShaders.fsColorTexture,
+      shaders.vsLineArrow,
+      shaders.fsColorTexture,
       bindEdgeArrows(gl, view, getSize, getEdgesCnt),
       shaderparams
     );
@@ -134,8 +134,8 @@ class CurveArrow extends BaseShape {
       gl,
       edgeStyle,
       'arrow',
-      elementShaders.vsCurveArrow,
-      elementShaders.fsColorTexture,
+      shaders.vsCurveArrow,
+      shaders.fsColorTexture,
       bindEdgeArrows(gl, view, getSize, getEdgesCnt),
       shaderparams
     );
@@ -167,8 +167,8 @@ class CircleArrow extends BaseShape {
       gl,
       edgeStyle,
       'arrow',
-      elementShaders.vsCircleArrow,
-      elementShaders.fsColorTexture,
+      shaders.vsCircleArrow,
+      shaders.fsColorTexture,
       bindEdgeArrows(gl, view, getSize, getEdgesCnt),
       shaderparams
     );

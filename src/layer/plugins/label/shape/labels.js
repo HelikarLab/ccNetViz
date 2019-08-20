@@ -1,7 +1,7 @@
 import ccNetViz_primitive from '../../../../primitive';
 import ccNetViz_gl from '../../../../gl';
 import ccNetViz_color from '../../../../color';
-import { elementShaders } from '../../../../shaders';
+import { shaders } from '../shaders';
 import { BaseShape, BaseShapeManager } from '../../baseShape';
 
 let getLabelType = (f, texts) => {
@@ -79,8 +79,8 @@ class Label extends BaseShape {
       gl,
       nodeStyle,
       'label',
-      elementShaders.vsLabelsShader,
-      elementShaders.fsLabelTexture,
+      shaders.vsLabelsShader,
+      shaders.fsLabelTexture,
       bindLabels(
         false,
         gl,
@@ -109,8 +109,8 @@ class LabelOutline extends BaseShape {
       gl,
       nodeStyle,
       'label',
-      elementShaders.vsLabelsShader,
-      elementShaders.fsLabelTexture,
+      shaders.vsLabelsShader,
+      shaders.fsLabelTexture,
       bindLabels(
         true,
         gl,

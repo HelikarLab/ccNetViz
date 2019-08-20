@@ -1,9 +1,3 @@
-import vsLabelsShader from './vsLabelsShader.glsl';
-import vsLabelsBackgroundShader from './vsLabelsBackgroundShader.glsl';
-import vsLabelsBorder from './vsLabelsBorder.glsl';
-import fsLabelsBackgroundShader from './fsLabelsBackgroundShader.glsl';
-import fsLabelsBorder from './fsLabelsBorder.glsl';
-
 import vsLineHead from './vsLineHead.glsl';
 import vsLineMain from './vsLineMain.glsl';
 import getShiftFuncs from './getShiftFuncs.glsl';
@@ -11,8 +5,6 @@ import getShiftFuncs from './getShiftFuncs.glsl';
 import fsLineBasic from './fsLineBasic.glsl';
 
 import fsColorTexture from './fsColorTexture.glsl';
-import fsVarColorTexture from './fsVarColorTexture.glsl';
-import fsLabelTexture from './fsLabelTexture.glsl';
 
 import fsCurve from './fsCurve.glsl';
 
@@ -20,9 +12,6 @@ import vsCurveHead from './vsCurveHead.glsl';
 import vsCurveMain from './vsCurveMain.glsl';
 import vsCircleHead from './vsCircleHead.glsl';
 import vsCircleMain from './vsCircleMain.glsl';
-
-import vsNode from './vsNode.glsl';
-import vsNodeColored from './vsNodeColored.glsl';
 
 import vsLineArrowHead from './vsLineArrowHead.glsl';
 import vsLineArrowMain from './vsLineArrowMain.glsl';
@@ -47,26 +36,17 @@ const vsCircleArrow = [
   vsCircleArrowMain,
 ].join('\n');
 
-const elementShaders = {
+const shaders = {
   vsLine,
   fsLineBasic,
-  fsColorTexture,
-  fsVarColorTexture,
-  vsLabelsShader,
-  fsLabelTexture,
-  vsLabelsBackgroundShader,
-  vsLabelsBorder,
-  fsLabelsBackgroundShader,
-  fsLabelsBorder,
-  fsCurve,
   vsCurve,
-  fsCircle: fsCurve,
+  fsCurve,
   vsCircle,
-  vsNode,
-  vsNodeColored,
+  fsCircle: fsCurve,
   vsLineArrow,
+  fsColorTexture,
   vsCurveArrow,
   vsCircleArrow,
 };
 
-export { elementShaders };
+export { shaders };

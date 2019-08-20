@@ -1,7 +1,7 @@
 import ccNetViz_primitive from '../../../../primitive';
 import ccNetViz_gl from '../../../../gl';
 import ccNetViz_color from '../../../../color';
-import { elementShaders } from '../../../../shaders';
+import { shaders } from '../shaders';
 import { BaseShape, BaseShapeManager } from '../../baseShape';
 import { normalize } from '../../../util';
 
@@ -94,8 +94,8 @@ class LabelsBackground extends BaseShape {
       gl,
       nodeStyle,
       'label',
-      elementShaders.vsLabelsBackgroundShader,
-      elementShaders.fsLabelsBackgroundShader,
+      shaders.vsLabelsBackgroundShader,
+      shaders.fsLabelsBackgroundShader,
       bindLabelParams(gl, texts, getLabelSize, context, true, false)
     );
   }
@@ -116,8 +116,8 @@ class LabelsBorder extends BaseShape {
       gl,
       nodeStyle,
       'label',
-      elementShaders.vsLabelsBorder,
-      elementShaders.fsLabelsBorder,
+      shaders.vsLabelsBorder,
+      shaders.fsLabelsBorder,
       bindLabelParams(gl, texts, getLabelSize, context, false, true)
     );
   }
