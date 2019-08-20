@@ -1,9 +1,9 @@
-import ccNetViz_primitive from '../../primitive';
-import ccNetViz_gl from '../../gl';
-import ccNetViz_geomutils from '../../geomutils';
-import { normalize } from '../util';
-import { elementShaders } from '../../shaders';
-import { BaseShape } from './baseShape';
+import ccNetViz_primitive from '../../../../primitive';
+import ccNetViz_gl from '../../../../gl';
+import ccNetViz_geomutils from '../../../../geomutils';
+import { normalize } from '../../../util';
+import { elementShaders } from '../../../../shaders';
+import { BaseShape } from '../../baseShape';
 
 const getEdgeStyleSize = c => {
   return c.width / 120;

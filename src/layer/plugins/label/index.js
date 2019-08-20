@@ -1,10 +1,10 @@
-import BasePlugin from './basePlugin';
-import { Label, LabelOutline, LabelManager } from '../shapes/labels';
+import BasePlugin from '../basePlugin';
+import { Label, LabelOutline, LabelManager } from './shape/labels';
 import {
   LabelsBackground,
   LabelsBackgroundManager,
   LabelsBorder,
-} from '../shapes/labelsBackground';
+} from './shape/labelsBackground';
 
 /**
  *  Copyright (c) 2019, Helikar Lab.

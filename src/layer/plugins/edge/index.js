@@ -1,6 +1,6 @@
-import BasePlugin from './basePlugin';
-import { Line, Curve, Circle, EdgeManager } from '../shapes/edge';
-import { LineArrow, CurveArrow, CircleArrow } from '../shapes/edgeArrow';
+import BasePlugin from '../basePlugin';
+import { Line, Curve, Circle } from './shape/edge';
+import { LineArrow, CurveArrow, CircleArrow } from './shape/edgeArrow';
 
 /**
  *  Copyright (c) 2019, Helikar Lab.

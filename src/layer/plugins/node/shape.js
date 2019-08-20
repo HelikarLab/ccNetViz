@@ -1,7 +1,7 @@
-import { BaseShape, BaseShapeManager } from './baseShape';
-import ccNetViz_primitive from '../../primitive';
-import { elementShaders } from '../../shaders';
-import ccNetViz_gl from '../../gl';
+import { BaseShape } from '../baseShape';
+import ccNetViz_primitive from '../../../primitive';
+import { elementShaders } from '../../../shaders';
+import ccNetViz_gl from '../../../gl';
 
 const nodesFiller = style => ({
   set: (v, e, iV, iI) => {

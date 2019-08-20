@@ -1,8 +1,8 @@
-import ccNetViz_primitive from '../../primitive';
-import ccNetViz_gl from '../../gl';
-import ccNetViz_color from '../../color';
-import { elementShaders } from '../../shaders';
-import { BaseShape, BaseShapeManager } from './baseShape';
+import ccNetViz_primitive from '../../../../primitive';
+import ccNetViz_gl from '../../../../gl';
+import ccNetViz_color from '../../../../color';
+import { elementShaders } from '../../../../shaders';
+import { BaseShape, BaseShapeManager } from '../../baseShape';
 
 let getLabelType = (f, texts) => {
   if (texts.isSDF(f)) return 1;

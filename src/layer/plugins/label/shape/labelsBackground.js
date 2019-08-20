@@ -1,9 +1,9 @@
-import ccNetViz_primitive from '../../primitive';
-import ccNetViz_gl from '../../gl';
-import ccNetViz_color from '../../color';
-import { elementShaders } from '../../shaders';
-import { BaseShape, BaseShapeManager } from './baseShape';
-import { normalize } from '../util';
+import ccNetViz_primitive from '../../../../primitive';
+import ccNetViz_gl from '../../../../gl';
+import ccNetViz_color from '../../../../color';
+import { elementShaders } from '../../../../shaders';
+import { BaseShape, BaseShapeManager } from '../../baseShape';
+import { normalize } from '../../../util';
 
 const bindLabelParams = (
   gl,

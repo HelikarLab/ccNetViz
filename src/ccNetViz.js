@@ -19,7 +19,7 @@ import NodePlugin from './layer/plugins/node';
 import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
-import { BaseShape } from './layer/shapes/baseShape';
+import { BaseShape } from './layer/plugins/baseShape';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
