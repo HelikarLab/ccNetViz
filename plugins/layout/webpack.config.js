@@ -4,10 +4,10 @@ var path = require('path');
 module.exports = {
   entry: './main.js',
   output: {
-    path: path.join(__dirname, '..', '..', '..', 'lib', 'plugins'),
-    filename: 'example.js',
+    path: path.join(__dirname, '..', '..', 'lib', 'plugins'),
+    filename: 'ccNetViz-layout-plugin.js',
   },
-  mode: 'development',
+  mode: 'production', // development
   module: {
     rules: [
       {
