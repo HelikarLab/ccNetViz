@@ -10,7 +10,7 @@
 
   <body>
     <div class="canvas-container">
-      <h3 class="title">Layout Plugin</h3>
+      <h3 class="title">Cytoscape.js Layout Plugin</h3>
       <div class="toolbox">
         <div class="item">
           <select id="listExamples"></select>
@@ -27,7 +27,7 @@
         </div>
         <br />
         More detailed information please visit the
-        <a href="https://github.com/helikarlab/ccNetViz/tree/master/plugins/cytoscape-layout-plugin"
+        <a href="https://github.com/HelikarLab/ccNetViz/tree/master/src/plugins/layout"
           >documentation page</a
         >.
       </div>
@@ -65,7 +65,7 @@
         //fill in layout names
         var select2 = $('#listLayouts');
         $.each(
-          ['cose', 'random', 'grid', 'circle', 'breadthfirst', 'concentric'],
+          ['grid', 'random', 'cose', 'circle', 'breadthfirst', 'concentric'],
           function(index, val) {
             select2.append($('<option />', { value: val }).text(val));
           }
@@ -97,7 +97,7 @@
           },
         });
         if (typeof layout === 'undefined') {
-          layout = 'cose';
+          layout = 'grid';
         }
 
         let p = ccNetVizPlugins.layout(data.nodes, data.edges, {
