@@ -1,6 +1,6 @@
 import rbush from './rbush';
 import ccNetViz_geomutils from '../geomutils';
-import { getLabelVertices } from '../layer/shapes/labelsBackground';
+import { getLabelVertices } from '../layer/plugins/label/shape/labelsBackground';
 import { partitionByStyle, getPartitionStyle } from '../primitiveTools';
 import {
   EPS,

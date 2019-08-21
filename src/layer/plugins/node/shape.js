@@ -1,7 +1,7 @@
-import { BaseShape, BaseShapeManager } from './baseShape';
-import ccNetViz_primitive from '../../primitive';
-import { elementShaders } from '../../shaders';
-import ccNetViz_gl from '../../gl';
+import { BaseShape } from '../baseShape';
+import ccNetViz_primitive from '../../../primitive';
+import { shaders } from './shaders';
+import ccNetViz_gl from '../../../gl';
 
 const nodesFiller = style => ({
   set: (v, e, iV, iI) => {
@@ -27,8 +27,8 @@ class Node extends BaseShape {
       gl,
       nodeStyle,
       null,
-      elementShaders.vsNode,
-      elementShaders.fsColorTexture,
+      shaders.vsNode,
+      shaders.fsColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;
@@ -49,8 +49,8 @@ class NodeColored extends BaseShape {
       gl,
       nodeStyle,
       null,
-      elementShaders.vsNodeColored,
-      elementShaders.fsVarColorTexture,
+      shaders.vsNodeColored,
+      shaders.fsVarColorTexture,
       c => {
         let size = getNodeSize(c);
         let uniforms = c.shader.uniforms;

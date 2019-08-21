@@ -1,9 +1,9 @@
-import ccNetViz_primitive from '../../primitive';
-import ccNetViz_gl from '../../gl';
-import ccNetViz_geomutils from '../../geomutils';
-import { normalize } from '../util';
-import { elementShaders } from '../../shaders';
-import { BaseShape } from './baseShape';
+import ccNetViz_primitive from '../../../../primitive';
+import ccNetViz_gl from '../../../../gl';
+import ccNetViz_geomutils from '../../../../geomutils';
+import { normalize } from '../../../util';
+import { shaders } from '../shaders';
+import { BaseShape } from '../../baseShape';
 
 const getEdgeStyleSize = c => {
   return c.width / 120;
@@ -42,8 +42,8 @@ class Line extends BaseShape {
       gl,
       edgeStyle,
       null,
-      elementShaders.vsLine,
-      elementShaders.fsLineBasic,
+      shaders.vsLine,
+      shaders.fsLineBasic,
       c => {
         let uniforms = c.shader.uniforms;
         uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);
@@ -72,8 +72,8 @@ class Curve extends BaseShape {
       gl,
       edgeStyle,
       null,
-      elementShaders.vsCurve,
-      elementShaders.fsCurve,
+      shaders.vsCurve,
+      shaders.fsCurve,
       c => {
         let uniforms = c.shader.uniforms;
         gl.uniform1f(uniforms.width, c.style.width);
@@ -103,8 +103,8 @@ class Circle extends BaseShape {
       gl,
       edgeStyle,
       null,
-      elementShaders.vsCircle,
-      elementShaders.fsCircle,
+      shaders.vsCircle,
+      shaders.fsCircle,
       c => {
         let uniforms = c.shader.uniforms;
         uniforms.exc && gl.uniform1f(uniforms.exc, c.curveExc);

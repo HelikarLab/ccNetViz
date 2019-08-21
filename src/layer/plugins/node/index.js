@@ -1,6 +1,6 @@
-import BasePlugin from './basePlugin';
+import BasePlugin from '../basePlugin';
 
-import { Node, NodeColored } from '../shapes/node';
+import { Node, NodeColored } from './shape';
 
 /**
  *  Copyright (c) 2019, Helikar Lab.
