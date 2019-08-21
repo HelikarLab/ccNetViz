@@ -1,5 +1,18 @@
+div,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+span,
+canvas {
+  margin: 0px;
+  padding: 0px;
+}
 body {
   font-family: 'Roboto', sans-serif;
+  margin-bottom: 150px;
 }
 
 table {
@@ -18,12 +31,9 @@ td {
   border: 1px solid #ddd;
 }
 
-td {
-  cursor: pointer;
-}
-
 td:nth-child(7n + 1) {
   text-align: left;
+  width: 140px;
 }
 
 .th_viz,
@@ -61,8 +71,7 @@ td:nth-child(7n + 1) {
 }
 
 .perfTable {
-  width: 90%;
-  margin-left: 30px;
+  width: 100%;
 }
 
 .divGraph {
@@ -78,23 +87,17 @@ td:nth-child(7n + 1) {
 #containerSigma,
 #containerViz,
 #containerCyto {
-  width: 300px;
-  height: 300px;
-  margin-right: 60px;
+  width: 320px;
+  height: 320px;
   display: inline-block;
-}
-
-#containerSigma {
-  margin-left: 50px;
 }
 
 #titleViz,
 #titleSigma,
 #titleCyto,
 #titleFeature {
-  margin-top: 30px;
-  margin-left: 30px;
-  font-size: 32px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 #titleSigma {
@@ -111,9 +114,7 @@ td:nth-child(7n + 1) {
 }
 
 #tableFeature {
-  margin-left: 30px;
-  margin-right: 30px;
-  width: auto;
+  width: 100%;
 }
 
 #tableFeature th {
@@ -123,76 +124,119 @@ td:nth-child(7n + 1) {
 
 /*the container must be positioned relative:*/
 
-.custom-select {
-  position: relative;
-  font-family: Arial;
-  margin-left: 30px;
-}
-
-.select-selected {
-  background-color: #6495ed;
-}
-
-#divGraphViz {
-  margin-left: 200px;
-}
-
-/*style the arrow inside the select element:*/
-
-.select-selected:after {
-  position: absolute;
-  content: '';
-  top: 14px;
-  right: 10px;
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-color: #fff transparent transparent transparent;
-}
-
-/*point the arrow upwards when the select box is open (active):*/
-
-.select-selected.select-arrow-active:after {
-  border-color: transparent transparent #fff transparent;
-  top: 7px;
-}
-
-/*style the items (options), including the selected item:*/
-
-.select-items div,
-.select-selected {
-  color: #ffffff;
-  padding: 8px 16px;
-  border: 1px solid transparent;
-  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
-  cursor: pointer;
-  user-select: none;
-}
-
-/*style items (options):*/
-
-.select-items {
-  position: absolute;
-  background-color: #6495ed;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 99;
-  overflow: scroll;
-  max-height: 300px;
-}
-
-/*hide the items when the select box is closed:*/
-
-.select-hide {
-  display: none;
-}
-
-.select-items div:hover,
-.same-as-selected {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
 #divMainViz {
   display: flex;
+}
+
+.container {
+  width: 980px;
+  margin: auto;
+}
+
+select#selectID {
+  background: #6495ed;
+  border: none;
+  padding: 5px 10px;
+  color: #fff;
+  display: inline-block;
+  border-radius: 3px;
+}
+
+.custom-select {
+  display: inline-block;
+}
+
+.select-container {
+  margin-bottom: 20px;
+}
+
+td input[type='checkbox'] {
+  margin: 0 10px;
+}
+
+.table-button {
+  background: cornflowerblue;
+  text-align: center !important;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+div#fps {
+  position: fixed;
+  bottom: 0;
+  width: 980px;
+  height: 100px;
+  background: #383838;
+  overflow: auto;
+  border-top: 1px solid #1a1a1a;
+  left: calc(50% - 490px);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  box-shadow: 0 0 3px 1px #333;
+}
+
+div#fps-start {
+  width: 30px;
+  height: 30px;
+  background: #d01010;
+  border-radius: 50%;
+  position: absolute;
+  top: calc(50% - 18px);
+  left: 20px;
+  border: 3px solid #9a0f0f;
+  box-shadow: 0 0 5px 2px #d01010;
+  cursor: pointer;
+  z-index: 2;
+  display: inline-block;
+}
+
+div#fps-start.active {
+  background: #37c537;
+  border: 3px solid #136713;
+  box-shadow: 0 0 5px 2px #37c537;
+}
+
+canvas#fps-canvas {
+  height: 100px;
+}
+
+.canvas-slider {
+  width: calc(100% - 90px);
+  height: 100px;
+  display: block;
+  position: absolute;
+  left: 90px;
+  overflow: hidden;
+  z-index: 1;
+  direction: rtl;
+}
+
+div#fps-counter {
+  z-index: 55;
+  font-weight: bold;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 0 0 2px #b9b9b9;
+  position: absolute;
+  left: 90px;
+  top: 5px;
+  background: #252525;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+a#fps-download {
+  z-index: 55;
+  font-weight: bold;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 0 0 2px #b9b9b9;
+  position: absolute;
+  left: 90px;
+  top: 75px;
+  background: #252525;
+  padding: 3px 5px;
+  border-radius: 3px;
+  cursor: pointer;
 }

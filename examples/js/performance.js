@@ -11,21 +11,28 @@ function transformEdges(nodes, edges) {
   });
 }
 
-function ccNetVizBenchmark() {
+let layout_list = [
+  'circle',
+  'circular',
+  'force',
+  'grid',
+  'hierarchical',
+  'hierarchical2',
+  'hive',
+  'spectral',
+  'spectral2',
+  'versinus',
+  'breadthfirst',
+  'concentric',
+  'cose',
+];
+
+function ccNetVizBenchmark(callback, layouts) {
+  if (!layouts) return false;
   let elem = document.getElementById('selectID');
   let options = elem.options[elem.selectedIndex].innerText.trim();
-  let layouts = [
-    'circular',
-    'force',
-    'grid',
-    'hierarchical',
-    'hierarchical2',
-    'hive',
-    'spectral',
-    'spectral2',
-    'versinus',
-  ];
   let benchmark = [];
+  benchmark.push({ type: 'CC' });
 
   $.ajax({
     method: 'get',
@@ -63,22 +70,19 @@ function ccNetVizBenchmark() {
       draw(d.nodes, d.edges, layout, layout_time).then(val => {
         benchmark.push(val);
         if (i + 1 === layouts.length) {
-          benchmark.push({
-            layout: 'breadthfirst',
-            layout_time: '-',
-            draw_time: '-',
-          });
-          benchmark.push({
-            layout: 'concentric',
-            layout_time: '-',
-            draw_time: '-',
-          });
-          benchmark.push({ layout: 'cose', layout_time: '-', draw_time: '-' });
-          for (let index = 0; index < benchmark.length; index++) {
-            const element = benchmark[index];
-            appendTable(element.layout, element.layout_time, element.draw_time);
+          for (let p = 0; p < layout_list.length; p++) {
+            if (layouts.indexOf(layout_list[p]) < 0) {
+              benchmark.push({
+                layout: layout_list[p],
+                layout_time: '-',
+                draw_time: '-',
+              });
+            }
           }
-          CytoscapeBenchmark();
+          appendTable(benchmark);
+          setTimeout(() => {
+            if (callback) callback();
+          }, 1000);
         }
         if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
       });
@@ -87,11 +91,12 @@ function ccNetVizBenchmark() {
   sequentialLayout(layouts[0], 0);
 }
 
-function CytoscapeBenchmark() {
+function CytoscapeBenchmark(callback, layouts) {
+  if (!layouts) return false;
   let elem = document.getElementById('selectID');
   let options = elem.options[elem.selectedIndex].innerText.trim();
-  let layouts = ['circle', 'breadthfirst', 'concentric', 'cose', 'grid'];
   let benchmark = [];
+  benchmark.push({ type: 'CS' });
 
   $.ajax({
     method: 'get',
@@ -112,7 +117,7 @@ function CytoscapeBenchmark() {
 
       async function draw(layout, layout_time) {
         let s = new Date().getTime();
-        instances.cytoscape
+        await instances.cytoscape
           .layout({
             name: layout,
           })
@@ -125,51 +130,20 @@ function CytoscapeBenchmark() {
         draw(layout, layout_time).then(d => {
           benchmark.push(d);
           if (i + 1 === layouts.length) {
-            benchmark.push({
-              layout: 'force',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'hierarchical',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'hierarchical2',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'hive',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'spectral',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'spectral2',
-              layout_time: '-',
-              draw_time: '-',
-            });
-            benchmark.push({
-              layout: 'versinus',
-              layout_time: '-',
-              draw_time: '-',
-            });
-
-            for (let index = 0; index < benchmark.length; index++) {
-              const element = benchmark[index];
-              appendTable(
-                element.layout,
-                element.layout_time,
-                element.draw_time
-              );
+            for (let p = 0; p < layout_list.length; p++) {
+              if (layouts.indexOf(layout_list[p]) < 0) {
+                benchmark.push({
+                  layout: layout_list[p],
+                  layout_time: '-',
+                  draw_time: '-',
+                });
+              }
             }
-            SigmaBenchmark();
+
+            appendTable(benchmark);
+            setTimeout(() => {
+              if (callback) callback();
+            }, 1000);
           }
 
           if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
@@ -178,6 +152,356 @@ function CytoscapeBenchmark() {
     }
     sequentialLayout(layouts[0], 0);
   });
+}
+
+function SigmaBenchmark(callback, layouts) {
+  if (!layouts) return false;
+  let elem = document.getElementById('selectID');
+  let options = elem.options[elem.selectedIndex].innerText.trim();
+
+  let benchmark = [];
+  benchmark.push({ type: 'SI' });
+
+  $.ajax({
+    method: 'get',
+    url: `data/${options}.json`,
+    async: false,
+    dataType: 'text',
+  }).done(function(d) {
+    let data = JSON.parse(d);
+
+    transformEdges(data.nodes, data.edges);
+
+    function sequentialLayout(layout, i) {
+      let graph = {
+        nodes: [],
+        edges: [],
+      };
+      let x = new ccNetViz.layout[layout](data.nodes, data.edges, {}).apply();
+      refreshSigmaGraph();
+
+      parseSigmaData(graph, data.nodes, data.edges);
+      async function draw() {
+        let s = new Date().getTime();
+        instances.sigma = await new sigma({
+          graph: graph,
+          container: 'containerSigma',
+        });
+        let e = new Date().getTime();
+        return { layout: layout, layout_time: '-', draw_time: e - s };
+      }
+      draw().then(d => {
+        benchmark.push(d);
+        if (i + 1 === layouts.length) {
+          for (let p = 0; p < layout_list.length; p++) {
+            if (layouts.indexOf(layout_list[p]) < 0) {
+              benchmark.push({
+                layout: layout_list[p],
+                layout_time: '-',
+                draw_time: '-',
+              });
+            }
+          }
+          appendTable(benchmark);
+          setTimeout(() => {
+            if (callback) callback();
+          }, 1000);
+        }
+        if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
+      });
+    }
+    sequentialLayout(layouts[0], 0);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', event => {
+  if (window.location.hash !== '') {
+    jQuery('#selectID')
+      .find('option')
+      .eq(parseInt(window.location.hash.replace(/#/g, '')))
+      .attr('selected', 'selected');
+  }
+  window.instances = {};
+  instances.ccNetViz = new ccNetViz(document.getElementById('containerViz'), {
+    styles: {
+      node: { texture: 'images/node.png', label: { hideSize: 16 } },
+      edge: { arrow: { texture: 'images/arrow.png' } },
+    },
+  });
+  let sigma_layouts = [
+    'circular',
+    'force',
+    'grid',
+    'hierarchical',
+    'hierarchical2',
+    'hive',
+    'spectral',
+    'spectral2',
+    'versinus',
+  ];
+  let ccnetviz_layouts = [
+    'circular',
+    'force',
+    'grid',
+    'hierarchical',
+    'hierarchical2',
+    'hive',
+    'spectral',
+    'spectral2',
+    'versinus',
+  ];
+  let cytoscape_layouts = [
+    'circle',
+    'breadthfirst',
+    'concentric',
+    'cose',
+    'grid',
+  ];
+
+  document.getElementById('select-button').addEventListener('click', event => {
+    let checkbox = document.querySelectorAll(
+      '#perfTableViz td input[type=checkbox]'
+    );
+    for (let i = 0; i < checkbox.length; i++) {
+      const e = checkbox[i];
+      e.checked = true;
+    }
+  });
+
+  document
+    .getElementById('unselect-button')
+    .addEventListener('click', event => {
+      let checkbox = document.querySelectorAll(
+        '#perfTableViz td input[type=checkbox]'
+      );
+      for (let i = 0; i < checkbox.length; i++) {
+        const e = checkbox[i];
+        e.checked = false;
+      }
+    });
+
+  document.getElementById('draw-cc-button').addEventListener('click', event => {
+    let checkbox = document.querySelectorAll(
+      '#perfTableViz td input[type=checkbox]'
+    );
+    let activeLayouts = [];
+    for (let i = 0; i < checkbox.length; i++) {
+      const e = checkbox[i];
+      if (e.checked) {
+        activeLayouts.push(e.getAttribute('data-layout'));
+      }
+    }
+
+    let avaibleLayouts = [];
+    // Eliminate layouts
+    for (let i = 0; i < activeLayouts.length; i++) {
+      const e = activeLayouts[i];
+      if (ccnetviz_layouts.indexOf(e) >= 0) {
+        avaibleLayouts.push(e);
+      }
+    }
+    if (avaibleLayouts.length) ccNetVizBenchmark(undefined, avaibleLayouts);
+  });
+
+  document.getElementById('draw-cy-button').addEventListener('click', event => {
+    let checkbox = document.querySelectorAll(
+      '#perfTableViz td input[type=checkbox]'
+    );
+    let activeLayouts = [];
+    for (let i = 0; i < checkbox.length; i++) {
+      const e = checkbox[i];
+      if (e.checked) {
+        activeLayouts.push(e.getAttribute('data-layout'));
+      }
+    }
+
+    let avaibleLayouts = [];
+    // Eliminate layouts
+    for (let i = 0; i < activeLayouts.length; i++) {
+      const e = activeLayouts[i];
+      if (cytoscape_layouts.indexOf(e) >= 0) {
+        avaibleLayouts.push(e);
+      }
+    }
+    if (avaibleLayouts.length) CytoscapeBenchmark(undefined, avaibleLayouts);
+  });
+
+  document.getElementById('draw-si-button').addEventListener('click', event => {
+    let checkbox = document.querySelectorAll(
+      '#perfTableViz td input[type=checkbox]'
+    );
+    let activeLayouts = [];
+    for (let i = 0; i < checkbox.length; i++) {
+      const e = checkbox[i];
+      if (e.checked) {
+        activeLayouts.push(e.getAttribute('data-layout'));
+      }
+    }
+
+    let avaibleLayouts = [];
+    // Eliminate layouts
+    for (let i = 0; i < activeLayouts.length; i++) {
+      const e = activeLayouts[i];
+      if (sigma_layouts.indexOf(e) >= 0) {
+        avaibleLayouts.push(e);
+      }
+    }
+    if (avaibleLayouts.length) SigmaBenchmark(undefined, avaibleLayouts);
+  });
+
+  document
+    .getElementById('draw-all-button')
+    .addEventListener('click', event => {
+      let checkbox = document.querySelectorAll(
+        '#perfTableViz td input[type=checkbox]'
+      );
+      let activeLayouts = [];
+      for (let i = 0; i < checkbox.length; i++) {
+        const e = checkbox[i];
+        if (e.checked) {
+          activeLayouts.push(e.getAttribute('data-layout'));
+        }
+      }
+
+      let avaibleSigmaLayouts = [];
+      let avaibleCCLayouts = [];
+      let avaibleCYLayouts = [];
+
+      // Eliminate layouts
+      for (let i = 0; i < activeLayouts.length; i++) {
+        const e = activeLayouts[i];
+        if (sigma_layouts.indexOf(e) >= 0) {
+          avaibleSigmaLayouts.push(e);
+        }
+        if (ccnetviz_layouts.indexOf(e) >= 0) {
+          avaibleCCLayouts.push(e);
+        }
+        if (cytoscape_layouts.indexOf(e) >= 0) {
+          avaibleCYLayouts.push(e);
+        }
+      }
+      if (
+        avaibleSigmaLayouts.length &&
+        avaibleCCLayouts.length &&
+        avaibleCYLayouts.length
+      ) {
+        ccNetVizBenchmark(
+          CytoscapeBenchmark(
+            SigmaBenchmark(undefined, avaibleSigmaLayouts),
+            avaibleCYLayouts
+          ),
+          avaibleCCLayouts
+        );
+      } else if (avaibleCCLayouts.length && avaibleCYLayouts.length) {
+        ccNetVizBenchmark(
+          CytoscapeBenchmark(undefined, avaibleCYLayouts),
+          avaibleCCLayouts
+        );
+      } else if (avaibleCCLayouts.length && avaibleSigmaLayouts.length) {
+        ccNetVizBenchmark(
+          SigmaBenchmark(undefined, avaibleSigmaLayouts),
+          avaibleCCLayouts
+        );
+      } else if (avaibleSigmaLayouts.length && avaibleCCLayouts.length) {
+        CytoscapeBenchmark(
+          SigmaBenchmark(undefined, avaibleSigmaLayouts),
+          avaibleCYLayouts
+        );
+      } else if (avaibleCCLayouts.length) {
+        ccNetVizBenchmark(undefined, avaibleCCLayouts);
+      } else if (avaibleSigmaLayouts.length) {
+        SigmaBenchmark(undefined, avaibleSigmaLayouts);
+      } else {
+        CytoscapeBenchmark(undefined, avaibleCYLayouts);
+      }
+    });
+
+  let frameList = [];
+  document.getElementById('fps-start').addEventListener('click', event => {
+    if (event.toElement.classList.length) {
+      document.getElementById('fps-start').classList.remove('active');
+      if (typeof window.fps !== 'undefined') {
+        clearInterval(window.fps);
+        frameList.push(window.frames);
+      }
+    } else {
+      document.getElementById('fps-start').classList.add('active');
+      let x = 0;
+      let p = undefined;
+      let step = 0;
+      let frameCount = 0;
+      window.frames = [];
+
+      window.fps = setInterval(() => {
+        window.requestAnimationFrame(function(x) {
+          if (typeof p === 'undefined') {
+            frames.push({ start_date: new Date() });
+            p = x;
+          }
+          if (x >= p + 1000) {
+            document.getElementById(
+              'fps-counter'
+            ).innerHTML = `FPS: ${frameCount}`;
+            frames.push({ frame: step, fps: frameCount });
+            drawFPS(frames);
+            frameCount = 0;
+            p = x;
+            step++;
+          } else {
+            frameCount++;
+          }
+        });
+      });
+    }
+  });
+
+  document.getElementById('fps-download').addEventListener('click', event => {
+    var d =
+      'data:text/json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(frameList, undefined, 4));
+    var anchor = document.getElementById('fps-download');
+    anchor.setAttribute('href', d);
+    anchor.setAttribute('download', 'frameList.json');
+    anchor.click();
+  });
+});
+
+function drawFPS(frames) {
+  let canvas = document.getElementById('fps-canvas');
+  canvas.width = frames.length * 10;
+  let context = canvas.getContext('2d');
+  context.fillStyle = '#8ad28a';
+  let fps = {
+    max: 0,
+    min: 5000,
+  };
+  for (let i = 1; i < frames.length; i++) {
+    const frame = frames[i];
+    if (frame.fps > fps.max) {
+      fps.max = frame.fps;
+    }
+    if (frame.fps < fps.min) {
+      fps.min = frame.fps;
+    }
+  }
+
+  for (let i = 1; i < frames.length; i++) {
+    context.beginPath();
+
+    const frame = frames[i];
+    const x0 = i > 0 ? (i - 1) * 10 : 0;
+    const x1 = i * 10;
+
+    // frame.fps
+    context.lineTo(x0, fps.max - frame.fps + 30);
+    context.lineTo(x1, fps.max - frame.fps + 30);
+    context.lineTo(x1, 200);
+    context.lineTo(x0, 200);
+
+    context.closePath();
+
+    context.fill();
+  }
 }
 
 function CytoscapeConvert(data) {
@@ -211,99 +535,6 @@ function CytoscapeConvert(data) {
 
   return temp;
 }
-
-function SigmaBenchmark() {
-  let elem = document.getElementById('selectID');
-  let options = elem.options[elem.selectedIndex].innerText.trim();
-  let layouts = [
-    'circular',
-    'force',
-    'grid',
-    'hierarchical',
-    'hierarchical2',
-    'hive',
-    'spectral',
-    'spectral2',
-    'versinus',
-  ];
-  let benchmark = [];
-
-  $.ajax({
-    method: 'get',
-    url: `data/${options}.json`,
-    async: false,
-    dataType: 'text',
-  }).done(function(d) {
-    let data = JSON.parse(d);
-
-    transformEdges(data.nodes, data.edges);
-
-    function sequentialLayout(layout, i) {
-      let graph = {
-        nodes: [],
-        edges: [],
-      };
-      let x = new ccNetViz.layout[layout](data.nodes, data.edges, {}).apply();
-      refreshSigmaGraph();
-
-      parseSigmaData(graph, data.nodes, data.edges);
-      async function draw() {
-        let s = new Date().getTime();
-        instances.sigma = await new sigma({
-          graph: graph,
-          container: 'containerSigma',
-        });
-        let e = new Date().getTime();
-        return { layout: layout, layout_time: '-', draw_time: e - s };
-      }
-      draw().then(d => {
-        benchmark.push(d);
-        if (i + 1 === layouts.length) {
-          benchmark.push({
-            layout: 'breadthfirst',
-            layout_time: '-',
-            draw_time: '-',
-          });
-          benchmark.push({
-            layout: 'concentric',
-            layout_time: '-',
-            draw_time: '-',
-          });
-          benchmark.push({ layout: 'cose', layout_time: '-', draw_time: '-' });
-          for (let index = 0; index < benchmark.length; index++) {
-            const element = benchmark[index];
-            appendTable(element.layout, element.layout_time, element.draw_time);
-          }
-        }
-        if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
-      });
-    }
-    sequentialLayout(layouts[0], 0);
-  });
-}
-
-window.addEventListener('DOMContentLoaded', event => {
-  if (window.location.hash !== '') {
-    jQuery('#selectID')
-      .find('option')
-      .eq(parseInt(window.location.hash.replace(/#/g, '')))
-      .attr('selected', 'selected');
-  }
-  window.instances = {};
-  instances.ccNetViz = new ccNetViz(document.getElementById('containerViz'), {
-    styles: {
-      node: { texture: 'images/node.png', label: { hideSize: 16 } },
-      edge: { arrow: { texture: 'images/arrow.png' } },
-    },
-  });
-  document.getElementById('selectID').onchange = () => {
-    window.location = `${window.location.pathname}#${
-      document.getElementById('selectID').selectedIndex
-    }`;
-    window.location.reload();
-  };
-  ccNetVizBenchmark();
-});
 
 function refreshSigmaGraph() {
   // to delete & refresh the graph
@@ -350,19 +581,23 @@ function parseSigmaData(sigmaGraph, nodes, edges) {
   }
 }
 
-function appendTable(layout, layout_time, draw_time) {
-  let container = document.querySelector(`.${layout}`);
-  if (container.innerHTML === '') {
-    let elem_name = document.createElement('td');
-    elem_name.innerHTML = layout;
-    container.appendChild(elem_name);
+function appendTable(benchmark) {
+  let index = [];
+  for (let i = 0; i < benchmark.length; i++) {
+    const elem = benchmark[i];
+    if (typeof elem.type !== 'undefined') {
+      if (elem.type === 'CC') {
+        index = [1, 2];
+      } else if (elem.type === 'CS') {
+        index = [3, 4];
+      } else {
+        index = [5, 6];
+      }
+    } else {
+      document.querySelectorAll(`.${elem.layout} td`)[index[0]].innerHTML =
+        elem.layout_time;
+      document.querySelectorAll(`.${elem.layout} td`)[index[1]].innerHTML =
+        elem.draw_time;
+    }
   }
-
-  let elem_layout = document.createElement('td');
-  elem_layout.innerHTML = layout_time;
-  container.appendChild(elem_layout);
-
-  let elem_draw = document.createElement('td');
-  elem_draw.innerHTML = draw_time;
-  container.appendChild(elem_draw);
 }
