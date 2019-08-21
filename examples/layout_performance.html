@@ -16,130 +16,298 @@
   </head>
 
   <body>
-    <div id="titleViz">
-      Performance measurement comparison for ccNetViz, Cytoscape and SigmaJS
-      libraries
-      <br />
-      <br />
-    </div>
-    <span style="margin-left: 30px; margin-bottom: 10px;"
-      >Choose graph:<br /><br />
-    </span>
-    <div class="custom-select" style="width:200px;">
-      <select id="selectID">
-        <option value="0">graph-100-3</option>
-        <option value="1">graph-100-1</option>
-        <option value="2">graph-100-2</option>
-        <option value="3">Bronchiseptica</option>
-        <option value="4">CD4</option>
-        <option value="5">EGFR</option>
-        <option value="6">ErbB</option>
-        <option value="7">FA-BRCA</option>
-        <option value="8">Glucose</option>
-        <option value="9">HGF</option>
-        <option value="10">IL-1</option>
-        <option value="11">IL6</option>
-        <option value="12">Influenza</option>
-        <option value="13">T-Cell-Receptor</option>
-        <option value="14">T-Cell</option>
-        <option value="15">T-LGL-2011</option>
-        <option value="16">T-LGL</option>
-        <option value="17">Yeast-Apoptosis</option>
-        <option value="18">circle-10</option>
-        <option value="19">circle-100</option>
-        <option value="20">circle-1000</option>
-        <option value="21">drosophila</option>
-        <option value="22">fibroblast</option>
-        <option value="23">graph-10-1</option>
-        <option value="24">graph-10-2</option>
-        <option value="25">graph-10-3</option>
-        <option value="23">graph-1000-1</option>
-        <option value="24">graph-1000-2</option>
-        <option value="25">graph-1000-3</option>
-        <option value="20">line-10</option>
-        <option value="21">line-100</option>
-        <option value="22">line-1000</option>
-        <option value="23">macrophage</option>
-        <option value="24">star-10</option>
-        <option value="25">star-100</option>
-        <option value="23">star-1000</option>
-        <option value="24">tree1</option>
-        <option value="25">tree2</option>
-      </select>
-    </div>
-    <br />
-    <br />
-    <div id="divMainViz">
-      <div id="divTableViz" class="divTable">
-        <table id="perfTableViz" class="perfTable">
-          <tr>
-            <th rowspan="2" class="th_viz">Layout</th>
-            <th colspan="2" scope="colgroup" class="th_viz">ccNetViz</th>
-            <th colspan="2" scope="colgroup" class="th_viz">Cytoscape</th>
-            <th colspan="2" scope="colgroup" class="th_viz">SigmaJS</th>
-          </tr>
-          <tr>
-            <th scope="col" class="th_viz_bottom">
-              Layout computation time [ms]
-            </th>
-            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-            <th scope="col" class="th_viz_bottom">
-              Layout computation time [ms]
-            </th>
-            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-            <th scope="col" class="th_viz_bottom">
-              Layout computation time [ms]*
-            </th>
-            <th scope="col" class="th_viz_bottom">Layout drawing time [ms]</th>
-          </tr>
-          <tr class="force"></tr>
-          <tr class="hierarchical"></tr>
-          <tr class="hierarchical2"></tr>
-          <tr class="hive"></tr>
-          <tr class="spectral"></tr>
-          <tr class="spectral2"></tr>
-          <tr class="versinus"></tr>
-          <tr class="grid"></tr>
-          <tr class="circular circle"></tr>
-          <tr class="breadthfirst"></tr>
-          <tr class="concentric"></tr>
-          <tr class="cose"></tr>
-        </table>
-
+    <div class="container">
+      <div id="divGraphViz" class="divGraph">
+        <canvas id="containerViz" style="display: inline-block;"></canvas>
+        <div id="containerCyto" style="display: inline-block;"></div>
+        <div id="containerSigma" style="display: inline-block;"></div>
+      </div>
+      <div id="titleViz">
+        Performance measurement comparison for ccNetViz, Cytoscape and SigmaJS
+        libraries
         <br />
-        <span style="font-size: 14px;  margin-left: 30px;"
-          >*There are no predifined layouts for SigmaJS, ccNetViz functions were
-          used to calculate the positions of nodes/edges</span
-        >
+        <br />
+      </div>
+      <div class="select-container">
+        <span>Choose graph: </span>
+        <div class="custom-select">
+          <select id="selectID">
+            <option value="0">graph-100-3</option>
+            <option value="1">graph-100-1</option>
+            <option value="2">graph-100-2</option>
+            <option value="3">Bronchiseptica</option>
+            <option value="4">CD4</option>
+            <option value="5">EGFR</option>
+            <option value="6">ErbB</option>
+            <option value="7">FA-BRCA</option>
+            <option value="8">Glucose</option>
+            <option value="9">HGF</option>
+            <option value="10">IL-1</option>
+            <option value="11">IL6</option>
+            <option value="12">Influenza</option>
+            <option value="13">T-Cell-Receptor</option>
+            <option value="14">T-Cell</option>
+            <option value="15">T-LGL-2011</option>
+            <option value="16">T-LGL</option>
+            <option value="17">Yeast-Apoptosis</option>
+            <option value="18">circle-10</option>
+            <option value="19">circle-100</option>
+            <option value="20">circle-1000</option>
+            <option value="21">drosophila</option>
+            <option value="22">fibroblast</option>
+            <option value="23">graph-10-1</option>
+            <option value="24">graph-10-2</option>
+            <option value="25">graph-10-3</option>
+            <option value="23">graph-1000-1</option>
+            <option value="24">graph-1000-2</option>
+            <option value="25">graph-1000-3</option>
+            <option value="20">line-10</option>
+            <option value="21">line-100</option>
+            <option value="22">line-1000</option>
+            <option value="23">macrophage</option>
+            <option value="24">star-10</option>
+            <option value="25">star-100</option>
+            <option value="23">star-1000</option>
+            <option value="24">tree1</option>
+            <option value="25">tree2</option>
+          </select>
+        </div>
+      </div>
+      <div id="divMainViz">
+        <div id="divTableViz" class="divTable">
+          <table id="perfTableViz" class="perfTable">
+            <tbody>
+              <tr>
+                <th rowspan="2" class="th_viz">Layout</th>
+                <th colspan="2" scope="colgroup" class="th_viz">ccNetViz</th>
+                <th colspan="2" scope="colgroup" class="th_viz">Cytoscape</th>
+                <th colspan="2" scope="colgroup" class="th_viz">SigmaJS</th>
+              </tr>
+              <tr>
+                <th scope="col" class="th_viz_bottom">
+                  Layout computation time [ms]
+                </th>
+                <th scope="col" class="th_viz_bottom">
+                  Layout drawing time [ms]
+                </th>
+                <th scope="col" class="th_viz_bottom">
+                  Layout computation time [ms]
+                </th>
+                <th scope="col" class="th_viz_bottom">
+                  Layout drawing time [ms]
+                </th>
+                <th scope="col" class="th_viz_bottom">
+                  Layout computation time [ms]*
+                </th>
+                <th scope="col" class="th_viz_bottom">
+                  Layout drawing time [ms]
+                </th>
+              </tr>
+              <tr class="force">
+                <td><input data-layout="force" type="checkbox" />force</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="hierarchical">
+                <td>
+                  <input
+                    data-layout="hierarchical"
+                    type="checkbox"
+                  />hierarchical
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="hierarchical2">
+                <td>
+                  <input
+                    data-layout="hierarchical2"
+                    type="checkbox"
+                  />hierarchical2
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="hive">
+                <td><input data-layout="hive" type="checkbox" />hive</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="spectral">
+                <td>
+                  <input data-layout="spectral" type="checkbox" />spectral
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="spectral2">
+                <td>
+                  <input data-layout="spectral2" type="checkbox" />spectral2
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="versinus">
+                <td>
+                  <input data-layout="versinus" type="checkbox" />versinus
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="grid">
+                <td><input data-layout="grid" type="checkbox" />grid</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="circle">
+                <td><input data-layout="circle" type="checkbox" />circle</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="circular">
+                <td>
+                  <input data-layout="circular" type="checkbox" />circular
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="breadthfirst">
+                <td>
+                  <input
+                    data-layout="breadthfirst"
+                    type="checkbox"
+                  />breadthfirst
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="concentric">
+                <td>
+                  <input data-layout="concentric" type="checkbox" />concentric
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="cose">
+                <td><input data-layout="cose" type="checkbox" />cose</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td id="select-button" class="table-button">
+                  Select All
+                </td>
+                <td id="draw-cc-button" colspan="2" class="table-button">
+                  Draw Selected Layouts
+                </td>
+                <td id="draw-cy-button" colspan="2" class="table-button">
+                  Draw Selected Layouts
+                </td>
+                <td id="draw-si-button" colspan="2" class="table-button">
+                  Draw Selected Layouts
+                </td>
+              </tr>
+              <tr>
+                <td id="unselect-button" class="table-button">
+                  Unselect All
+                </td>
+                <td id="draw-all-button" colspan="6" class="table-button">
+                  Draw All
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <br />
+          <span style="font-size: 14px"
+            >*There are no predifined layouts for SigmaJS, ccNetViz functions
+            were used to calculate the positions of nodes/edges</span
+          >
+        </div>
+      </div>
+      <div id="titleFeature">
+        Feature comparisons:
+      </div>
+      <br />
+      <table id="tableFeature">
+        <tr>
+          <th></th>
+          <th>ccNetViz</th>
+          <th>Cytoscape</th>
+          <th>Sigma</th>
+          <th>jsNetworxs</th>
+        </tr>
+        <tr>
+          <td>Layouts</td>
+          <td>
+            circular, force, grid, hierarchical, hierarchical2, hive, spectral,
+            spectral2, versinus
+          </td>
+          <td>circle, breadthfirst, concentric, cose, grid</td>
+          <td>No predefined layouts</td>
+          <td>No predefined layouts</td>
+        </tr>
+      </table>
+    </div>
+    <div id="fps">
+      <div id="fps-start"></div>
+      <a id="fps-download">Download</a>
+      <div id="fps-counter">FPS: 0</div>
+      <div class="canvas-slider">
+        <canvas width="0" id="fps-canvas"></canvas>
       </div>
     </div>
-    <div id="divGraphViz" class="divGraph">
-      <canvas id="containerViz" style="display: inline-block;"></canvas>
-      <div id="containerCyto" style="display: inline-block;"></div>
-      <div id="containerSigma" style="display: inline-block;"></div>
-    </div>
-    <div id="titleFeature">
-      Feature comparisons:
-    </div>
-    <br />
-    <table id="tableFeature">
-      <tr>
-        <th></th>
-        <th>ccNetViz</th>
-        <th>Cytoscape</th>
-        <th>Sigma</th>
-        <th>jsNetworxs</th>
-      </tr>
-      <tr>
-        <td>Layouts</td>
-        <td>
-          circular, force, grid, hierarchical, hierarchical2, hive, spectral,
-          spectral2, versinus
-        </td>
-        <td>circle, breadthfirst, concentric, cose, grid</td>
-        <td>No predefined layouts</td>
-        <td>No predefined layouts</td>
-      </tr>
-    </table>
   </body>
 </html>
