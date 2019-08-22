@@ -54,7 +54,11 @@ class Line extends BaseShape {
         gl.uniform1f(uniforms.lineSize, getEdgeStyleSize(c));
         gl.uniform1f(uniforms.aspect2, c.aspect2);
         gl.uniform1f(uniforms.aspect, c.aspect);
-        gl.uniform1f(uniforms.width, c.style.width);
+        gl.uniform2f(
+          uniforms.width,
+          c.style.width / c.width,
+          c.style.width / c.height
+        );
         gl.uniform1f(uniforms.type, getEdgeType(c.style.type));
         ccNetViz_gl.uniformColor(gl, uniforms.color, c.style.color);
       }
