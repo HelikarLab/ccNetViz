@@ -4,6 +4,7 @@ import ccNetViz_color from '../../../../color';
 import { shaders } from '../shaders';
 import { BaseShape, BaseShapeManager } from '../../baseShape';
 import { normalize } from '../../../util';
+import { getMidPoint, setLabelAttributes } from './labelsUtil';
 
 const bindLabelParams = (
   gl,
@@ -11,7 +12,8 @@ const bindLabelParams = (
   getLabelSize,
   context,
   is_background,
-  is_border
+  is_border,
+  is_curve
 ) => {
   return c => {
     let uniforms = c.shader.uniforms;
@@ -33,7 +35,15 @@ const bindLabelParams = (
     gl.uniform1f(uniforms.offset, 0.5 * c.nodeSize);
     gl.uniform2f(uniforms.scale, 1 / c.width, 1 / c.height);
     gl.uniform1f(uniforms.fontScale, fontScale);
-
+    if (is_curve) {
+      gl.uniform1f(uniforms.exc, c.curveExc);
+      gl.uniform2f(uniforms.screen, c.width, c.height);
+      let size = 2.5 * c.nodeSize;
+      uniforms.size &&
+        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+      gl.uniform1f(uniforms.aspect2, c.aspect2);
+      gl.uniform1f(uniforms.aspect, c.aspect);
+    }
     //depends whether background or border is being filled
     if (is_background) {
       let backgroundColor = new ccNetViz_color(
@@ -52,6 +62,9 @@ const bindLabelParams = (
 };
 // TODO: make this function simpler to understand
 const getLabelVertices = (texts, font, label, x, y) => {
+  let endPosX,
+    startPosX,
+    height = -1;
   let textEngine = texts.getEngine(font);
   textEngine.setFont(font);
   let ret = false;
@@ -60,7 +73,6 @@ const getLabelVertices = (texts, font, label, x, y) => {
   });
   // c denotes the character having the max dx position, it's basically for finding the highest word length
   let c = 0;
-  let height = 0;
   // finding max dx and dy
 
   for (let i = 0; i < parts.length; i++) {
@@ -70,58 +82,102 @@ const getLabelVertices = (texts, font, label, x, y) => {
 
   // height refers to max dy
   // endPosX and startPosX calculation requires clear understanding of alignText function in sdf.js
-  let endPosX =
-    x <= 0.5
-      ? Math.abs(parts[c].dx) + parts[c].advance
-      : -Math.abs(parts[c].dx);
-  let startPosX = x <= 0.5 ? -5 : +5;
-  height = y <= 0.5 ? height + parts[c].height / 3 : -height;
+  if (parts.length > 0) {
+    endPosX =
+      x <= 0.5
+        ? Math.abs(parts[c].dx) + parts[c].advance
+        : -Math.abs(parts[c].dx);
+
+    startPosX = x <= 0.5 ? -5 : +5;
+    height = y <= 0.5 ? height + parts[c].height / 3 : -height;
+  }
   return { startPosX: startPosX, endPosX: endPosX, height: height };
 };
 
-class LabelsBackground extends BaseShape {
-  constructor(
-    gl,
-    nodeStyle,
-    getLabelSize,
-    texts,
-    context,
-    is_background,
-    is_border
-  ) {
+class DefaultLabelBackground extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
     super();
     this._primitive = new ccNetViz_primitive(
       gl,
       nodeStyle,
       'label',
-      shaders.vsLabelsBackgroundShader,
+      shaders.vsDfLabelBackground,
       shaders.fsLabelsBackgroundShader,
-      bindLabelParams(gl, texts, getLabelSize, context, true, false)
+      bindLabelParams(gl, texts, getLabelSize, context, true, false, false)
     );
   }
 }
 
-class LabelsBorder extends BaseShape {
-  constructor(
-    gl,
-    nodeStyle,
-    getLabelSize,
-    texts,
-    context,
-    is_background,
-    is_border
-  ) {
+class CurveLabelBackground extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
     super();
     this._primitive = new ccNetViz_primitive(
       gl,
       nodeStyle,
       'label',
-      shaders.vsLabelsBorder,
-      shaders.fsLabelsBorder,
-      bindLabelParams(gl, texts, getLabelSize, context, false, true)
+      shaders.vsCurveLabelBackground,
+      shaders.fsLabelsBackgroundShader,
+      bindLabelParams(gl, texts, getLabelSize, context, true, false, true)
     );
   }
 }
+
+class CircleLabelBackground extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      nodeStyle,
+      'label',
+      shaders.vsCircleLabelBackground,
+      shaders.fsLabelsBackgroundShader,
+      bindLabelParams(gl, texts, getLabelSize, context, true, false, true)
+    );
+  }
+}
+
+class DefaultLabelBorder extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      nodeStyle,
+      'label',
+      shaders.vsDfLabelBorder,
+      shaders.fsLabelsBorder,
+      bindLabelParams(gl, texts, getLabelSize, context, false, true, false)
+    );
+  }
+}
+
+class CurveLabelBorder extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      nodeStyle,
+      'label',
+      shaders.vsCurveLabelBorder,
+      shaders.fsLabelsBorder,
+      bindLabelParams(gl, texts, getLabelSize, context, false, true, true)
+    );
+  }
+}
+
+class CircleLabelBorder extends BaseShape {
+  constructor(gl, nodeStyle, getLabelSize, texts, context) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      nodeStyle,
+      'label',
+      shaders.vsCircleLabelBorder,
+      shaders.fsLabelsBorder,
+      bindLabelParams(gl, texts, getLabelSize, context, false, true, true)
+    );
+  }
+}
+
 class LabelsBackgroundManager extends BaseShapeManager {
   constructor(texts) {
     super();
@@ -129,11 +185,15 @@ class LabelsBackgroundManager extends BaseShapeManager {
       // set background
       background: style => ({
         set: (v, e, iV, iI) => {
-          let x = e.x;
-          let y = e.y;
-          let rect = getLabelVertices(texts, style.font, e.label, x, y);
+          var p = getMidPoint(e);
 
-          ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
+          var x = p.x;
+          var y = p.y;
+          var d = p.d;
+          var s = p.s;
+          var t = p.t;
+          let rect = getLabelVertices(texts, style.font, e.label, x, y);
+          setLabelAttributes(v, e, s, t, x, y, d, iV);
           ccNetViz_primitive.vertices(
             v.relative,
             iV,
@@ -153,9 +213,15 @@ class LabelsBackgroundManager extends BaseShapeManager {
       // sets borders
       border: style => ({
         set: (v, e, iV, iI) => {
-          let x = e.x;
-          let y = e.y;
-          let rect = getLabelVertices(texts, style.font, e.label, x, y);
+          var p = getMidPoint(e);
+          // x y from getLabelVertice is the midpoint of the respective element
+          var _x = p.x;
+          var _y = p.y;
+          var _d = p.d;
+          var _s = p.s;
+          var _t = p.t;
+          // relative position of label w.r.t element
+          let rect = getLabelVertices(texts, style.font, e.label, _x, _y);
 
           let labelVertices = [
             // first and last vertices are same
@@ -172,11 +238,11 @@ class LabelsBackgroundManager extends BaseShapeManager {
           ];
           // rectangle vertices plotting
           for (let i = 2; i < labelVertices.length; i += 2, iV += 4, iI += 6) {
+            setLabelAttributes(v, e, _s, _t, _x, _y, _d, iV);
             let s = { x: labelVertices[i], y: labelVertices[i + 1] };
             let t = { x: labelVertices[i - 2], y: labelVertices[i - 1] };
             // normalization same as drawing edges
             let d = normalize(s, t);
-            ccNetViz_primitive.vertices(v.position, iV, x, y, x, y, x, y, x, y);
             ccNetViz_primitive.vertices(
               v.relative,
               iV,
@@ -190,7 +256,7 @@ class LabelsBackgroundManager extends BaseShapeManager {
               t.y
             );
             ccNetViz_primitive.vertices(
-              v.normal,
+              v.normalBorder,
               iV,
               -d.y,
               d.x,
@@ -214,8 +280,12 @@ class LabelsBackgroundManager extends BaseShapeManager {
 }
 
 export {
-  LabelsBackground,
-  LabelsBorder,
+  DefaultLabelBackground,
+  CurveLabelBackground,
+  CircleLabelBackground,
+  DefaultLabelBorder,
+  CurveLabelBorder,
+  CircleLabelBorder,
   LabelsBackgroundManager,
   getLabelVertices,
 };

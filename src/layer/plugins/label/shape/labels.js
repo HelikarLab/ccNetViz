@@ -3,6 +3,7 @@ import ccNetViz_gl from '../../../../gl';
 import ccNetViz_color from '../../../../color';
 import { shaders } from '../shaders';
 import { BaseShape, BaseShapeManager } from '../../baseShape';
+import { setLabelAttributes, getMidPoint } from './labelsUtil';
 
 let getLabelType = (f, texts) => {
   if (texts.isSDF(f)) return 1;
@@ -16,7 +17,8 @@ let bindLabels = (
   getLabelSize,
   texts,
   backgroundColor,
-  context
+  context,
+  is_curve
 ) => {
   return c => {
     if (!getNodeSize(c)) return true;
@@ -49,6 +51,15 @@ let bindLabels = (
       //discardAll
       fontScale = 0;
 
+    if (is_curve) {
+      gl.uniform1f(uniforms.exc, c.curveExc);
+      gl.uniform2f(uniforms.screen, c.width, c.height);
+      let size = 2.5 * c.nodeSize;
+      uniforms.size &&
+        gl.uniform2f(uniforms.size, size / c.width, size / c.height);
+      gl.uniform1f(uniforms.aspect2, c.aspect2);
+      gl.uniform1f(uniforms.aspect, c.aspect);
+    }
     gl.uniform1f(uniforms.buffer, is_outline ? 0.25 : 192.0 / 256.0);
     gl.uniform1f(uniforms.boldness, (f ? f.boldness : undefined) || 1);
     gl.uniform1f(uniforms.fontScale, fontScale);
@@ -64,10 +75,10 @@ let bindLabels = (
   };
 };
 
-class Label extends BaseShape {
+class DefaultLabel extends BaseShape {
   constructor(
     gl,
-    nodeStyle,
+    style,
     getNodeSize,
     getLabelSize,
     texts,
@@ -77,12 +88,104 @@ class Label extends BaseShape {
     super();
     this._primitive = new ccNetViz_primitive(
       gl,
-      nodeStyle,
+      style,
       'label',
-      shaders.vsLabelsShader,
+      shaders.vsDfLabelShader,
       shaders.fsLabelTexture,
       bindLabels(
         false,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context,
+        false
+      )
+    );
+  }
+}
+
+class CurveLabel extends BaseShape {
+  constructor(
+    gl,
+    style,
+    getNodeSize,
+    getLabelSize,
+    texts,
+    backgroundColor,
+    context
+  ) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      style,
+      'label',
+      shaders.vsCurveLabelsShader,
+      shaders.fsLabelTexture,
+      bindLabels(
+        false,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context,
+        true
+      )
+    );
+  }
+}
+class CircleLabel extends BaseShape {
+  constructor(
+    gl,
+    style,
+    getNodeSize,
+    getLabelSize,
+    texts,
+    backgroundColor,
+    context
+  ) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      style,
+      'label',
+      shaders.vsCircleLabelsShader,
+      shaders.fsLabelTexture,
+      bindLabels(
+        false,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context,
+        true
+      )
+    );
+  }
+}
+
+class DefaultLabelOutline extends BaseShape {
+  constructor(
+    gl,
+    style,
+    getNodeSize,
+    getLabelSize,
+    texts,
+    backgroundColor,
+    context
+  ) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      style,
+      'label',
+      shaders.vsDfLabelShader,
+      shaders.fsLabelTexture,
+      bindLabels(
+        true,
         gl,
         getNodeSize,
         getLabelSize,
@@ -94,10 +197,10 @@ class Label extends BaseShape {
   }
 }
 
-class LabelOutline extends BaseShape {
+class CurveLabelOutline extends BaseShape {
   constructor(
     gl,
-    nodeStyle,
+    style,
     getNodeSize,
     getLabelSize,
     texts,
@@ -107,9 +210,39 @@ class LabelOutline extends BaseShape {
     super();
     this._primitive = new ccNetViz_primitive(
       gl,
-      nodeStyle,
+      style,
       'label',
-      shaders.vsLabelsShader,
+      shaders.vsCurveLabelsShader,
+      shaders.fsLabelTexture,
+      bindLabels(
+        true,
+        gl,
+        getNodeSize,
+        getLabelSize,
+        texts,
+        backgroundColor,
+        context
+      )
+    );
+  }
+}
+
+class CircleLabelOutline extends BaseShape {
+  constructor(
+    gl,
+    style,
+    getNodeSize,
+    getLabelSize,
+    texts,
+    backgroundColor,
+    context
+  ) {
+    super();
+    this._primitive = new ccNetViz_primitive(
+      gl,
+      style,
+      'label',
+      shaders.vsCircleLabelsShader,
       shaders.fsLabelTexture,
       bindLabels(
         true,
@@ -135,9 +268,13 @@ class LabelManager extends BaseShapeManager {
 
         return {
           set: (v, e, iV, iI) => {
-            var x = e.x;
-            var y = e.y;
+            var p = getMidPoint(e);
 
+            var x = p.x;
+            var y = p.y;
+            var d = p.d;
+            var s = p.s;
+            var t = p.t;
             var ret = false;
             var parts = textEngine.get(e.label || '', x, y, () => {
               ret = true;
@@ -145,19 +282,9 @@ class LabelManager extends BaseShapeManager {
             for (var i = 0; i < parts.length; i++, iV += 4, iI += 6) {
               // parts is the array of characters, character description and position w.r.t node
               let c = parts[i];
-              //position of the node
-              ccNetViz_primitive.vertices(
-                v.position,
-                iV,
-                x,
-                y,
-                x,
-                y,
-                x,
-                y,
-                x,
-                y
-              );
+              //position of the element
+              // in case of node => node position and bezier curve => mid point
+              setLabelAttributes(v, e, s, t, x, y, d, iV);
               //position of the vertices of box of label to be rendered
               if (i == 0) {
                 // bring the center of box of character to the center of node (incase if you are wondering
@@ -207,4 +334,12 @@ class LabelManager extends BaseShapeManager {
   }
 }
 
-export { Label, LabelOutline, LabelManager };
+export {
+  DefaultLabel,
+  CurveLabel,
+  CircleLabel,
+  DefaultLabelOutline,
+  CurveLabelOutline,
+  CircleLabelOutline,
+  LabelManager,
+};
