@@ -1,3 +1,10 @@
+if (typeof window.requestAnimationFrame === 'undefined')
+  window.requestAnimFrame =
+    window.requestAnimFrame ||
+    function(f) {
+      window.setTimeout(f, 1000 / 60);
+    };
+
 function transformEdges(nodes, edges) {
   nodes.forEach(function(node, i) {
     node.index = i;
@@ -27,13 +34,9 @@ let layout_list = [
   'cose',
 ];
 
-function ccNetVizBenchmark(callback, layouts) {
-  if (!layouts) return false;
+function fetchData() {
   let elem = document.getElementById('selectID');
   let options = elem.options[elem.selectedIndex].innerText.trim();
-  let benchmark = [];
-  benchmark.push({ type: 'CC' });
-
   $.ajax({
     method: 'get',
     url: `data/${options}.json`,
@@ -41,9 +44,21 @@ function ccNetVizBenchmark(callback, layouts) {
     dataType: 'text',
   }).done(function(d) {
     data = d;
+    document.getElementById('node-edge-count').setAttribute('style', '');
+    document.getElementById('node-edge-count').innerHTML = `Nodes: ${
+      JSON.parse(data).nodes.length
+    }, Edges: ${JSON.parse(data).edges.length}`;
   });
 
-  d = JSON.parse(data);
+  return JSON.parse(data);
+}
+
+function ccNetVizBenchmark(callback, layouts) {
+  if (!layouts) return false;
+  let benchmark = [];
+  benchmark.push({ type: 'CC' });
+
+  let d = fetchData();
 
   transformEdges(d.nodes, d.edges);
   function sequentialLayout(layout, i) {
@@ -93,104 +108,34 @@ function ccNetVizBenchmark(callback, layouts) {
 
 function CytoscapeBenchmark(callback, layouts) {
   if (!layouts) return false;
-  let elem = document.getElementById('selectID');
-  let options = elem.options[elem.selectedIndex].innerText.trim();
   let benchmark = [];
   benchmark.push({ type: 'CS' });
+  let d = fetchData();
 
-  $.ajax({
-    method: 'get',
-    url: `data/${options}.json`,
-    async: false,
-    dataType: 'text',
-  }).done(function(d) {
-    function sequentialLayout(layout, i) {
-      async function layout_computation() {
-        let s = new Date().getTime();
-        instances.cytoscape = await cytoscape({
-          container: document.getElementById('containerCyto'),
-          elements: CytoscapeConvert(d),
-        });
-        let e = new Date().getTime();
-        return e - s;
-      }
-
-      async function draw(layout, layout_time) {
-        let s = new Date().getTime();
-        await instances.cytoscape
-          .layout({
-            name: layout,
-          })
-          .run();
-        let e = new Date().getTime();
-        return { layout: layout, layout_time: layout_time, draw_time: e - s };
-      }
-
-      layout_computation().then(layout_time => {
-        draw(layout, layout_time).then(d => {
-          benchmark.push(d);
-          if (i + 1 === layouts.length) {
-            for (let p = 0; p < layout_list.length; p++) {
-              if (layouts.indexOf(layout_list[p]) < 0) {
-                benchmark.push({
-                  layout: layout_list[p],
-                  layout_time: '-',
-                  draw_time: '-',
-                });
-              }
-            }
-
-            appendTable(benchmark);
-            setTimeout(() => {
-              if (callback) callback();
-            }, 1000);
-          }
-
-          if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
-        });
+  function sequentialLayout(layout, i) {
+    async function layout_computation() {
+      let s = new Date().getTime();
+      instances.cytoscape = await cytoscape({
+        container: document.getElementById('containerCyto'),
+        elements: CytoscapeConvert(d),
       });
+      let e = new Date().getTime();
+      return e - s;
     }
-    sequentialLayout(layouts[0], 0);
-  });
-}
 
-function SigmaBenchmark(callback, layouts) {
-  if (!layouts) return false;
-  let elem = document.getElementById('selectID');
-  let options = elem.options[elem.selectedIndex].innerText.trim();
+    async function draw(layout, layout_time) {
+      let s = new Date().getTime();
+      await instances.cytoscape
+        .layout({
+          name: layout,
+        })
+        .run();
+      let e = new Date().getTime();
+      return { layout: layout, layout_time: layout_time, draw_time: e - s };
+    }
 
-  let benchmark = [];
-  benchmark.push({ type: 'SI' });
-
-  $.ajax({
-    method: 'get',
-    url: `data/${options}.json`,
-    async: false,
-    dataType: 'text',
-  }).done(function(d) {
-    let data = JSON.parse(d);
-
-    transformEdges(data.nodes, data.edges);
-
-    function sequentialLayout(layout, i) {
-      let graph = {
-        nodes: [],
-        edges: [],
-      };
-      let x = new ccNetViz.layout[layout](data.nodes, data.edges, {}).apply();
-      refreshSigmaGraph();
-
-      parseSigmaData(graph, data.nodes, data.edges);
-      async function draw() {
-        let s = new Date().getTime();
-        instances.sigma = await new sigma({
-          graph: graph,
-          container: 'containerSigma',
-        });
-        let e = new Date().getTime();
-        return { layout: layout, layout_time: '-', draw_time: e - s };
-      }
-      draw().then(d => {
+    layout_computation().then(layout_time => {
+      draw(layout, layout_time).then(d => {
         benchmark.push(d);
         if (i + 1 === layouts.length) {
           for (let p = 0; p < layout_list.length; p++) {
@@ -202,16 +147,72 @@ function SigmaBenchmark(callback, layouts) {
               });
             }
           }
+
           appendTable(benchmark);
           setTimeout(() => {
             if (callback) callback();
           }, 1000);
         }
+
         if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
       });
+    });
+  }
+
+  sequentialLayout(layouts[0], 0);
+}
+
+function SigmaBenchmark(callback, layouts) {
+  if (!layouts) return false;
+  let elem = document.getElementById('selectID');
+  let options = elem.options[elem.selectedIndex].innerText.trim();
+
+  let benchmark = [];
+  benchmark.push({ type: 'SI' });
+
+  let data = fetchData();
+
+  transformEdges(data.nodes, data.edges);
+
+  function sequentialLayout(layout, i) {
+    let graph = {
+      nodes: [],
+      edges: [],
+    };
+    let x = new ccNetViz.layout[layout](data.nodes, data.edges, {}).apply();
+    refreshSigmaGraph();
+
+    parseSigmaData(graph, data.nodes, data.edges);
+    async function draw() {
+      let s = new Date().getTime();
+      instances.sigma = await new sigma({
+        graph: graph,
+        container: 'containerSigma',
+      });
+      let e = new Date().getTime();
+      return { layout: layout, layout_time: '-', draw_time: e - s };
     }
-    sequentialLayout(layouts[0], 0);
-  });
+    draw().then(d => {
+      benchmark.push(d);
+      if (i + 1 === layouts.length) {
+        for (let p = 0; p < layout_list.length; p++) {
+          if (layouts.indexOf(layout_list[p]) < 0) {
+            benchmark.push({
+              layout: layout_list[p],
+              layout_time: '-',
+              draw_time: '-',
+            });
+          }
+        }
+        appendTable(benchmark);
+        setTimeout(() => {
+          if (callback) callback();
+        }, 1000);
+      }
+      if (i + 1 !== layouts.length) sequentialLayout(layouts[i + 1], i + 1);
+    });
+  }
+  sequentialLayout(layouts[0], 0);
 }
 
 window.addEventListener('DOMContentLoaded', event => {
@@ -418,7 +419,7 @@ window.addEventListener('DOMContentLoaded', event => {
 
   let frameList = [];
   document.getElementById('fps-start').addEventListener('click', event => {
-    if (event.toElement.classList.length) {
+    if (document.getElementById('fps-start').classList.length) {
       document.getElementById('fps-start').classList.remove('active');
       if (typeof window.fps !== 'undefined') {
         clearInterval(window.fps);
@@ -453,16 +454,6 @@ window.addEventListener('DOMContentLoaded', event => {
         });
       });
     }
-  });
-
-  document.getElementById('fps-download').addEventListener('click', event => {
-    var d =
-      'data:text/json;charset=utf-8,' +
-      encodeURIComponent(JSON.stringify(frameList, undefined, 4));
-    var anchor = document.getElementById('fps-download');
-    anchor.setAttribute('href', d);
-    anchor.setAttribute('download', 'frameList.json');
-    anchor.click();
   });
 });
 
@@ -506,7 +497,7 @@ function drawFPS(frames) {
 
 function CytoscapeConvert(data) {
   let temp = [];
-  let d = JSON.parse(data);
+  let d = data;
   d.nodes.map((elem, index) => {
     temp.push({ data: { id: `${index}` } });
   });
