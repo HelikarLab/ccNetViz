@@ -1,0 +1,10 @@
+precision mediump float;
+attribute vec2 relative;
+attribute vec2 position;
+attribute vec2 normalBorder;
+uniform vec2 width;
+uniform mat4 transform;
+uniform float fontScale;
+uniform float offset;
+uniform vec2 scale;
+varying vec2 nB;

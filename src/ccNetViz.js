@@ -104,6 +104,12 @@ var ccNetViz = function(canvas, options) {
   edgeStyle.animateDotInterval = edgeStyle.animateDotInterval || 0.5;
   edgeStyle.animateMaxWidth = edgeStyle.animateMaxWidth || edgeStyle.width;
 
+  if (edgeStyle.label) {
+    let s = edgeStyle.label;
+    s.color = s.color || 'rgb(120, 120, 120)';
+    s.font = s.font || { type: 'Arial, Helvetica, sans-serif', size: 11 };
+  }
+
   let onLoad = () => {
     if (!options.onLoad || options.onLoad()) {
       this.draw(true);

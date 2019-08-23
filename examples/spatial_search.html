@@ -59,30 +59,24 @@
           { label: 'Node two' },
           { label: 'Node one' },
         ];
-
         var edges = [
           { source: nodes[0], target: nodes[1] },
           { source: nodes[1], target: nodes[0] },
           { source: nodes[1], target: nodes[2] },
         ];
-
         graph.set(nodes, edges, 'force').then(() => {
           graph.draw();
         });
-
         el.addEventListener('mouseup', function(e) {
           $('.toolbox').css('visibility', 'visible');
           var bb = el.getBoundingClientRect();
-
           var x = e.clientX - bb.left;
           var y = e.clientY - bb.top;
           var radius = 5;
-
           var x1 = x - radius;
           var y1 = y - radius;
           var x2 = x + radius;
           var y2 = y + radius;
-
           var lCoords = graph.getLayerCoords({
             x1: x1,
             y1: y1,
@@ -98,7 +92,6 @@
             true,
             true
           );
-
           var reportel = document.getElementById('searchReport');
           reportel.style.display = 'block';
           var html = '<div>Node(s): ' + result.nodes.length + '</div>';

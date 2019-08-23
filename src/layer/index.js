@@ -69,6 +69,7 @@ export default function(
         {},
         normalize,
         nodeStyle,
+        edgeStyle,
         getLabelSize,
         getLabelHideSize
       );
@@ -231,6 +232,7 @@ export default function(
           circlesParts,
           normalize,
           nodeStyle,
+          edgeStyle,
           getLabelSize,
           getLabelHideSize
         );

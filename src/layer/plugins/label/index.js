@@ -1,9 +1,21 @@
 import BasePlugin from '../basePlugin';
-import { Label, LabelOutline, LabelManager } from './shape/labels';
 import {
-  LabelsBackground,
+  DefaultLabel,
+  CurveLabel,
+  CircleLabel,
+  DefaultLabelOutline,
+  CurveLabelOutline,
+  CircleLabelOutline,
+  LabelManager,
+} from './shape/labels';
+import {
+  DefaultLabelBackground,
+  CurveLabelBackground,
+  CircleLabelBackground,
+  DefaultLabelBorder,
+  CurveLabelBorder,
+  CircleLabelBorder,
   LabelsBackgroundManager,
-  LabelsBorder,
 } from './shape/labelsBackground';
 
 /**
@@ -22,6 +34,7 @@ export default class LabelPlugin extends BasePlugin {
     const {
       gl,
       nodeStyle,
+      edgeStyle,
       getNodeSize,
       texts,
       context,
@@ -35,24 +48,112 @@ export default class LabelPlugin extends BasePlugin {
     const labelsBackgroundManager = new LabelsBackgroundManager(texts);
     this._labelsBackgroundFiller = labelsBackgroundManager.getFiller();
 
-    if (nodeStyle.label && nodeStyle.label.backgroundColor) {
+    nodeStyle.label &&
+      nodeStyle.label.backgroundColor &&
       this.scene.add(
-        'labelsBackground',
-        new LabelsBackground(gl, nodeStyle, getLabelSize, texts, context)
+        `defaultNodeLabelBackground`,
+        new DefaultLabelBackground(gl, nodeStyle, getLabelSize, texts, context)
       );
-    }
 
-    if (nodeStyle.label && nodeStyle.label.borderColor) {
+    if (edgeStyle.label && edgeStyle.label.backgroundColor) {
       this.scene.add(
-        'labelsBorder',
-        new LabelsBorder(gl, nodeStyle, getLabelSize, texts, context)
+        `defaultEdgeLabelBackground`,
+        new DefaultLabelBackground(gl, edgeStyle, getLabelSize, texts, context)
+      );
+
+      this.scene.add(
+        `curveLabelBackground`,
+        new CurveLabelBackground(gl, edgeStyle, getLabelSize, texts, context)
+      );
+
+      this.scene.add(
+        `circleLabelBackground`,
+        new CircleLabelBackground(gl, edgeStyle, getLabelSize, texts, context)
       );
     }
 
     nodeStyle.label &&
       this.scene.add(
-        'labelsOutline',
-        new LabelOutline(
+        'defaultNodeLabelOutline',
+        new DefaultLabelOutline(
+          gl,
+          nodeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+    if (edgeStyle.label) {
+      this.scene.add(
+        'defaultEdgeLabelOutline',
+        new DefaultLabelOutline(
+          gl,
+          edgeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+
+      this.scene.add(
+        'curveLabelOutline',
+        new CurveLabelOutline(
+          gl,
+          edgeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+
+      this.scene.add(
+        'circleLabelOutline',
+        new CircleLabelOutline(
+          gl,
+          edgeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+    }
+
+    nodeStyle.label &&
+      nodeStyle.label.borderColor &&
+      this.scene.add(
+        `defaultNodeLabelBorder`,
+        new DefaultLabelBorder(gl, nodeStyle, getLabelSize, texts, context)
+      );
+
+    if (edgeStyle.label && edgeStyle.label.borderColor) {
+      this.scene.add(
+        `defaultEdgeLabelBorder`,
+        new DefaultLabelBorder(gl, edgeStyle, getLabelSize, texts, context)
+      );
+
+      this.scene.add(
+        `curveLabelBorder`,
+        new CurveLabelBorder(gl, edgeStyle, getLabelSize, texts, context)
+      );
+
+      this.scene.add(
+        `circleLabelBorder`,
+        new CircleLabelBorder(gl, edgeStyle, getLabelSize, texts, context)
+      );
+    }
+
+    nodeStyle.label &&
+      this.scene.add(
+        'defaultNodeLabel',
+        new DefaultLabel(
           gl,
           nodeStyle,
           getNodeSize,
@@ -63,25 +164,48 @@ export default class LabelPlugin extends BasePlugin {
         )
       );
 
-    nodeStyle.label &&
+    if (edgeStyle.label) {
       this.scene.add(
-        'labels',
-        new Label(
+        'defaultEdgeLabel',
+        new DefaultLabel(
           gl,
-          nodeStyle,
+          edgeStyle,
           getNodeSize,
           getLabelSize,
           texts,
           backgroundColor,
           context
-        ),
-        backgroundColor
+        )
       );
+      this.scene.add(
+        'curveLabel',
+        new CurveLabel(
+          gl,
+          edgeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+
+      this.scene.add(
+        'circleLabel',
+        new CircleLabel(
+          gl,
+          edgeStyle,
+          getNodeSize,
+          getLabelSize,
+          texts,
+          backgroundColor,
+          context
+        )
+      );
+    }
   }
   runRegistrations({}) {
     let isDirty = false;
-
-    const nodeStyle = this.options.nodeStyle;
 
     let labelAdder = (section, addSection) => {
       var slf = (section.style.label || {}).font || {};
@@ -89,37 +213,60 @@ export default class LabelPlugin extends BasePlugin {
       section.style.texture = textEngine.getTexture(slf, addSection);
     };
 
-    if (nodeStyle.label) {
-      this.register(() => {
-        this.options.texts.clear();
-      });
-      if (!nodeStyle.label.backgroundColor) {
-        this.register('labelsOutline', 'nodes', labelAdder, this._labelsFiller);
+    let styleOptions = [
+      ['defaultNode', 'nodes', this.options.nodeStyle],
+      ['defaultEdge', 'lines', this.options.edgeStyle],
+      ['circle', 'circles', this.options.edgeStyle],
+      ['curve', 'curves', this.options.edgeStyle],
+    ];
+
+    this.register(() => {
+      this.options.texts.clear();
+    });
+
+    styleOptions.forEach(element => {
+      var el_identifier = element[0];
+      var el = element[1];
+      var style = element[2];
+
+      if (style.label) {
+        style.label.borderColor &&
+          this.register(
+            `${el_identifier}LabelBorder`,
+            el,
+            labelAdder,
+            this._labelsBackgroundFiller.border
+          );
+
+        style.label.outlineColor &&
+          !style.label.backgroundColor &&
+          this.register(
+            `${el_identifier}LabelOutline`,
+            el,
+            labelAdder,
+            this._labelsFiller
+          );
+
+        style.label.backgroundColor &&
+          this.register(
+            `${el_identifier}LabelBackground`,
+            el,
+            labelAdder,
+            this._labelsBackgroundFiller.background
+          );
+
+        this.register(
+          `${el_identifier}Label`,
+          el,
+          labelAdder,
+          this._labelsFiller
+        );
       }
+    });
 
-      this.register('labels', 'nodes', labelAdder, this._labelsFiller);
-
-      this.register(() => {
-        this.options.texts.bind();
-      });
-    }
-    if (nodeStyle.label && nodeStyle.label.backgroundColor) {
-      this.register(
-        'labelsBackground',
-        'nodes',
-        labelAdder,
-        this._labelsBackgroundFiller.background
-      );
-    }
-
-    if (nodeStyle.label && nodeStyle.label.borderColor) {
-      this.register(
-        'labelsBorder',
-        'nodes',
-        labelAdder,
-        this._labelsBackgroundFiller.border
-      );
-    }
+    this.register(() => {
+      this.options.texts.bind();
+    });
 
     return isDirty;
   }

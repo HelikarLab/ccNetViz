@@ -1,0 +1,9 @@
+attribute vec2 position;
+attribute vec2 relative;
+attribute vec2 textureCoord;
+attribute vec2 curve;
+uniform float offset;
+uniform vec2 scale;
+uniform float fontScale;
+uniform mat4 transform;
+varying vec2 tc;

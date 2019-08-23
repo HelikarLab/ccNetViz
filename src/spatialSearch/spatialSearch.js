@@ -57,6 +57,112 @@ function getEdgeShift(context, screensize, e, ct) {
   ct.y = cty + city;
 }
 
+function getBezierPointsCurve(edge, context, normalize, size) {
+  let x1, x2, y1, y2;
+  let s = ccNetViz_geomutils.edgeSource(edge);
+  let t = ccNetViz_geomutils.edgeTarget(edge);
+
+  x1 = s.x;
+  y1 = s.y;
+  x2 = t.x;
+  y2 = t.y;
+  let d = normalize(s, t);
+
+  let n2 = d.y;
+  let n3 = context.aspect2 * -d.x;
+
+  let x = context.width * n2;
+  let y = context.height * n3;
+  let l = Math.sqrt(x * x + y * y) * 2;
+
+  n2 *= (context.curveExc * size) / (2 * l);
+  n3 *= (context.curveExc * size) / (2 * l);
+
+  getEdgeShift(context, size, s.e, ct);
+  x1 += ct.x;
+  y1 += ct.y;
+  getEdgeShift(context, size, t.e, ct);
+  x2 += ct.x;
+  y2 += ct.y;
+
+  let ret = [x1, y1, (x1 + x2) / 2 + n2, (y1 + y2) / 2 + n3, x2, y2];
+  return ret;
+}
+
+function getBezierPointsCircle(edge, context, screensize) {
+  let ct = {};
+  let x1, y1, s;
+  s = ccNetViz_geomutils.edgeSource(edge);
+  x1 = s.x;
+  y1 = s.y;
+
+  let size = 2.5 * context.nodeSize * screensize;
+  let xsize = size / context.width / 2;
+  let ysize = size / context.height / 2;
+
+  let d = s.y < 0.5 ? 1 : -1;
+
+  getEdgeShift(context, screensize, s.e, ct);
+  x1 += ct.x;
+  y1 += ct.y;
+  var ret = [
+    x1,
+    y1,
+    x1 + xsize * 1,
+    y1 + ysize * d,
+    x1,
+    y1 + ysize * 1.25 * d,
+    x1 - xsize * 1,
+    y1 + ysize * d,
+  ];
+
+  return ret;
+}
+
+function getBezierPointsLine(edge, context, size) {
+  let x1, y1, x2, y2;
+
+  let s = ccNetViz_geomutils.edgeSource(edge);
+  let t = ccNetViz_geomutils.edgeTarget(edge);
+
+  x1 = s.x;
+  y1 = s.y;
+  x2 = t.x;
+  y2 = t.y;
+
+  getEdgeShift(context, size, s.e, ct);
+  x1 += ct.x;
+  y1 += ct.y;
+  getEdgeShift(context, size, t.e, ct);
+  x2 += ct.x;
+  y2 += ct.y;
+
+  return [x1, y1, x2, y2];
+}
+
+function getLabelPos(edge, context, size, normalize) {
+  let p, x, y;
+  //circle
+  if (edge.t == 2) {
+    p = getBezierPointsCircle(edge, context, size);
+    x = p[4];
+    y = p[5];
+  }
+  //curve
+  else if (edge.t == 1) {
+    p = getBezierPointsCurve(edge, context, normalize, size);
+    x = p[2];
+    y = p[3];
+  }
+  //line
+  else if (edge.t == 0) {
+    p = getBezierPointsLine(edge, context, size);
+    x = (p[0] + p[2]) / 2;
+    y = (p[1] + p[3]) / 2;
+  }
+  return { x: x, y: y };
+}
+
 class Node {
   constructor(n) {
     this.e = n;
@@ -90,9 +196,16 @@ class Label {
   }
 
   // function to return the char
-  searchChar(x, y, size, context) {
-    let nodePosX = this.e.x;
-    let nodePosY = this.e.y;
+  searchChar(x, y, size, context, normalize) {
+    let posX, posY;
+    if (this.e.x && this.e.y) {
+      posX = this.e.x;
+      posY = this.e.y;
+    } else {
+      let p = getLabelPos(this.e, context, size, normalize);
+      posX = p.x;
+      posY = p.y;
+    }
     let x1, y1, x2, y2;
     let wantedSize = this.isSDF
       ? this.getLabelSize(context, this.style.label || {})
@@ -111,14 +224,13 @@ class Label {
       let c = this.pos[i];
       // -8 in c.dx because +3 added while position setting in sdf and 5 for background calculation
       const offsety = (2.0 * step(y, 0.5) - 1.0) * offset;
-      x1 = nodePosX + (size * ((c.dx - 8) * fontScale)) / context.width / 2;
-      y1 =
-        nodePosY + (size * (c.dy * fontScale + offsety)) / context.height / 2;
+      x1 = posX + (size * ((c.dx - 8) * fontScale)) / context.width / 2;
+      y1 = posY + (size * (c.dy * fontScale + offsety)) / context.height / 2;
       x2 =
-        nodePosX +
+        posX +
         (size * ((c.dx - 8 + c.width / 3) * fontScale)) / context.width / 2;
       y2 =
-        nodePosY +
+        posY +
         (size * ((c.dy + c.height / 2) * fontScale + offsety)) /
           context.height /
           2;
@@ -137,8 +249,8 @@ class Label {
   }
 
   // function to return the word
-  getCharAndWord(x, y, size, context) {
-    let charObj = this.searchChar(x, y, size, context);
+  getCharAndWord(x, y, size, context, normalize) {
+    let charObj = this.searchChar(x, y, size, context, normalize);
 
     if (!charObj) {
       return { char: false, charPos: false, word: false, wordPos: false };
@@ -161,9 +273,16 @@ class Label {
     };
   }
 
-  getTextPos(context, size) {
-    let x = this.e.x;
-    let y = this.e.y;
+  getTextPos(context, size, normalize) {
+    let x, y;
+    if (this.e.x && this.e.y) {
+      x = this.e.x;
+      y = this.e.y;
+    } else {
+      let p = getLabelPos(this.e, context, size, normalize);
+      x = p.x;
+      y = p.y;
+    }
     let x1, y1, x2, y2;
     x1 = x2 = x;
     y1 = y2 = y;
@@ -202,23 +321,23 @@ class Label {
     return bbox;
   }
 
-  getBBox(context) {
-    let bb = this.getTextPos(context, 1);
-    bb[0] = Math.min(bb[0], this.e.x);
-    bb[1] = Math.min(bb[1], this.e.y);
-    bb[2] = Math.max(bb[2], this.e.x);
-    bb[3] = Math.max(bb[3], this.e.y);
+  getBBox(context, size, normalize) {
+    let bb = this.getTextPos(context, size, normalize);
+    bb[0] = this.e.x ? Math.min(bb[0], this.e.x) : bb[0];
+    bb[1] = this.e.y ? Math.min(bb[1], this.e.y) : bb[1];
+    bb[2] = this.e.x ? Math.max(bb[2], this.e.x) : bb[2];
+    bb[3] = this.e.y ? Math.max(bb[3], this.e.y) : bb[3];
     return bb;
   }
 
-  intersectsRect(x1, y1, x2, y2, context, size) {
-    let t = this.getTextPos(context, size);
+  intersectsRect(x1, y1, x2, y2, context, size, normalize) {
+    let t = this.getTextPos(context, size, normalize);
     return rectIntersectsRect(x1, y1, x2, y2, t[0], t[1], t[2], t[3]);
   }
 
-  dist2(x, y, context, size) {
+  dist2(x, y, context, size, normalize) {
     // getting up position of labels
-    let t = this.getTextPos(context, size);
+    let t = this.getTextPos(context, size, normalize);
     // see if point which was clicked on canvas is in label area
     if (pointInRect(x, y, t[0], t[1], t[2], t[3])) return 0;
 
@@ -244,24 +363,8 @@ class Line {
     return true;
   }
   getPoints(context, size) {
-    let x1, y1, x2, y2;
-
-    let s = ccNetViz_geomutils.edgeSource(this.e);
-    let t = ccNetViz_geomutils.edgeTarget(this.e);
-
-    x1 = s.x;
-    y1 = s.y;
-    x2 = t.x;
-    y2 = t.y;
-
-    getEdgeShift(context, size, s.e, ct);
-    x1 += ct.x;
-    y1 += ct.y;
-    getEdgeShift(context, size, t.e, ct);
-    x2 += ct.x;
-    y2 += ct.y;
-
-    return [x1, y1, x2, y2];
+    let p = getBezierPointsLine(this.e, context, size);
+    return p;
   }
   getBBox(context, size) {
     let p = this.getPoints(context, size);
@@ -293,31 +396,8 @@ class Circle {
     return true;
   }
   getBezierPoints(context, screensize) {
-    let x1, y1, s;
-    s = ccNetViz_geomutils.edgeSource(this.e);
-    x1 = s.x;
-    y1 = s.y;
-
-    let size = 2.5 * context.nodeSize * screensize;
-    let xsize = size / context.width / 2;
-    let ysize = size / context.height / 2;
-
-    let d = s.y < 0.5 ? 1 : -1;
-
-    getEdgeShift(context, screensize, s.e, ct);
-    x1 += ct.x;
-    y1 += ct.y;
-
-    return [
-      x1,
-      y1,
-      x1 + xsize * 1,
-      y1 + ysize * d,
-      x1,
-      y1 + ysize * 1.25 * d,
-      x1 - xsize * 1,
-      y1 + ysize * d,
-    ];
+    let p = getBezierPointsCircle(this.e, context, screensize);
+    return p;
   }
   getBBox(context, size) {
     let v = this.getBezierPoints(context, size);
@@ -361,36 +441,8 @@ class Curve {
     return true;
   }
   getBezierPoints(context, size, normalize) {
-    let x1, x2, y1, y2;
-    let s = ccNetViz_geomutils.edgeSource(this.e);
-    let t = ccNetViz_geomutils.edgeTarget(this.e);
-
-    x1 = s.x;
-    y1 = s.y;
-    x2 = t.x;
-    y2 = t.y;
-
-    let d = normalize(s, t);
-
-    let n2 = d.y;
-    let n3 = context.aspect2 * -d.x;
-
-    let x = context.width * n2;
-    let y = context.height * n3;
-    let l = Math.sqrt(x * x + y * y) * 2;
-
-    n2 *= (context.curveExc * size) / l;
-    n3 *= (context.curveExc * size) / l;
-
-    getEdgeShift(context, size, s.e, ct);
-    x1 += ct.x;
-    y1 += ct.y;
-    getEdgeShift(context, size, t.e, ct);
-    x2 += ct.x;
-    y2 += ct.y;
-
-    let ret = [x1, y1, (x1 + x2) / 2 + n2, (y1 + y2) / 2 + n3, x2, y2];
-    return ret;
+    let p = getBezierPointsCurve(this.e, context, normalize, size);
+    return p;
   }
   intersectsRect(x1, y1, x2, y2, context, size, normalize) {
     let v = this.getBezierPoints(context, size, normalize);
@@ -444,6 +496,7 @@ export default class spatialIndex {
     circlesParts,
     normalize,
     nodeStyle,
+    edgeStyle,
     getLabelSize,
     getLabelHideScreen
   ) {
@@ -490,34 +543,57 @@ export default class spatialIndex {
     let sdi = {};
 
     //labels position could differ by style >> must partition by it
-    for (let style in nodesParts) {
-      let nodes = nodesParts[style];
+    //labels position could differ by style >> must partition by it
+    let styleOptions = [
+      [nodesParts, nodeStyle],
+      [circlesParts, edgeStyle],
+      [curvesParts, edgeStyle],
+      [linesParts, edgeStyle],
+    ];
 
-      let ns = getPartitionStyle(options.styles[style], nodeStyle, 'label');
-      let textEngine = texts.getEngine(ns.font);
-      textEngine.setFont(ns.font);
-      const fontSize = textEngine.fontSize;
-      const isSDF = textEngine.isSDF;
+    styleOptions.forEach(element => {
+      let part = element[0];
+      let styleOp = element[1];
+      if (styleOp) {
+        for (let style in part) {
+          let labelContainer = part[style];
+          let ns = getPartitionStyle(options.styles[style], styleOp, 'label');
+          let textEngine = texts.getEngine(ns.font);
+          textEngine.setFont(ns.font);
+          const fontSize = textEngine.fontSize;
+          const isSDF = textEngine.isSDF;
 
-      let sd_n = sd[style] || (sd[style] = []);
-      let sdi_n = sdi[style] || (sdi[style] = 0);
+          let sd_n = sd[style] || (sd[style] = []);
+          let sdi_n = sdi[style] || (sdi[style] = 0);
 
-      //biggest size in which the text is shown
-      c.size = getLabelHideScreen(c, ns.label || {});
-      nodes.forEach(n => {
-        let textpos = textEngine.get(n.label, n.x, n.y);
-        t.labels.push(
-          addEntity(
-            new Label(n, textpos, ns, fontSize, isSDF, getLabelSize, texts),
-            sd_n,
-            sdi_n++
-          )
-        );
-      });
+          //biggest size in which the text is shown
+          c.size = getLabelHideScreen(c, ns.label || {});
+          labelContainer.forEach(n => {
+            let p = getLabelPos(n, c, size, normalize);
+            let textpos =
+              n.label && textEngine.get(n.label, n.x || p.x, n.y || p.y);
 
-      sdi[style] = sdi_n;
-    }
-
+            n.label &&
+              t.labels.push(
+                addEntity(
+                  new Label(
+                    n,
+                    textpos,
+                    ns,
+                    fontSize,
+                    isSDF,
+                    getLabelSize,
+                    texts
+                  ),
+                  sd_n,
+                  sdi_n++
+                )
+              );
+          });
+          sdi[style] = sdi_n;
+        }
+      }
+    });
     this.rbushtree_s = {};
     for (let style in sd) {
       let rb = (this.rbushtree_s[style] = rbush());
@@ -579,8 +655,8 @@ export default class spatialIndex {
       let e = data[i][4];
       let dist2 = e.dist2(x, y, context, size, this.normalize);
 
-      if (e.isLabel && e.isSDF) {
-        let Obj = e.getCharAndWord(x, y, size, context);
+      if ((e.isLabel && e.isSDF) || e.label) {
+        let Obj = e.getCharAndWord(x, y, size, context, this.normalize);
         e.detail = Obj;
       }
 
@@ -629,8 +705,8 @@ export default class spatialIndex {
       let e = data[i][4];
       let dist2 = e.dist2(x, y, context, size, this.normalize, this.texts);
 
-      if (e.isLabel && e.isSDF) {
-        let Obj = e.getCharAndWord(x, y, size, context);
+      if ((e.isLabel && e.isSDF) || e.label) {
+        let Obj = e.getCharAndWord(x, y, size, context, this.normalize);
         e.detail = Obj;
       }
 
