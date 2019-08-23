@@ -543,7 +543,6 @@ export default class spatialIndex {
     let sdi = {};
 
     //labels position could differ by style >> must partition by it
-    //labels position could differ by style >> must partition by it
     let styleOptions = [
       [nodesParts, nodeStyle],
       [circlesParts, edgeStyle],
@@ -554,6 +553,7 @@ export default class spatialIndex {
     styleOptions.forEach(element => {
       let part = element[0];
       let styleOp = element[1];
+
       if (styleOp) {
         for (let style in part) {
           let labelContainer = part[style];
