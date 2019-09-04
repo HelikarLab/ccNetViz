@@ -2,6 +2,7 @@
 <html>
   <head>
     <script src="../lib/ccNetViz.js"></script>
+    <script src="../../lib/plugins/ccNetViz-multilevel-plugin.js"></script>
     <style>
       canvas,
       html,
@@ -68,6 +69,7 @@
 
       graph.set(nodes, edges, 'force').then(() => {
         graph.draw();
+        ccNetVizPlugins.multiLevel(graph);
       });
     </script>
   </body>
