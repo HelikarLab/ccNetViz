@@ -209,13 +209,26 @@ var ccNetViz = function(canvas, options) {
     edges.forEach(checkUniqId);
 
     let promises = [];
-    if (typeof ccNetVizPlugins !== 'undefined') {
-      if (typeof ccNetVizPlugins.node !== 'undefined')
-        promises = ccNetVizPlugins.node.Integration(options, self).shapes;
-      if (typeof ccNetVizPlugins.arrow !== 'undefined')
+    if (typeof ccNetViz.plugin !== 'undefined') {
+      if (typeof ccNetViz.plugin.node !== 'undefined')
+        promises = ccNetViz.plugin.node.Integration(options, self).shapes;
+      if (typeof ccNetViz.plugin.arrow !== 'undefined')
         promises = promises.concat(
-          ccNetVizPlugins.arrow.Integration(options, self).shapes
+          ccNetViz.plugin.arrow.Integration(options, self).shapes
         );
+      if (typeof ccNetViz.plugin.multilevel !== 'undefined') {
+        if (typeof options.onChangeViewport !== 'undefined') {
+          let temp = options.onChangeViewport;
+          options.onChangeViewport = function(viewport) {
+            temp(viewport);
+            ccNetViz.plugin.multilevel(viewport, self, canvas);
+          };
+        } else {
+          options.onChangeViewport = function(viewport) {
+            ccNetViz.plugin.multilevel(viewport, self, canvas);
+          };
+        }
+      }
     }
 
     await Promise.all(promises.map(item => item.config)).then(c => {
