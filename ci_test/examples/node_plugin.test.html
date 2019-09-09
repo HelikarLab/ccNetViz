@@ -16,99 +16,101 @@
 
   <body>
     <script>
-      var settings = {
-        styles: {
-          node: {
-            texture: '../../examples/images/node.png',
-            label: { hideSize: 16 },
-            size: 25,
+      window.addEventListener('DOMContentLoaded', event => {
+        var settings = {
+          styles: {
+            node: {
+              texture: '../../examples/images/node.png',
+              label: { hideSize: 16 },
+              size: 25,
+            },
+            edge: { arrow: { texture: '../../examples/images/arrow.png' } },
+            'Doughnut Chart': {
+              type: 'DoughnutChart',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 5 },
+                { color: '#ef7762', ratio: 15 },
+                { color: '#d2584a', ratio: 20 },
+                { color: '#e28735', ratio: 25 },
+                { color: '#49b483', ratio: 35 },
+              ],
+              size: 50,
+            },
+            'Pie Chart': {
+              type: 'PieChart',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 5 },
+                { color: '#ef7762', ratio: 15 },
+                { color: '#d2584a', ratio: 20 },
+                { color: '#e28735', ratio: 25 },
+                { color: '#49b483', ratio: 35 },
+              ],
+              size: 50,
+            },
+            'Radial Histogram': {
+              type: 'RadialHistogram',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 10 },
+                { color: '#ef7762', ratio: 30 },
+                { color: '#d2584a', ratio: 60 },
+                { color: '#e28735', ratio: 80 },
+                { color: '#49b483', ratio: 100 },
+              ],
+              size: 50,
+            },
+            'Gauge Chart': {
+              type: 'GaugeChart',
+              textureColor: '#ccc',
+              size: 50,
+              chart: [{ color: '#222', ratio: 33 }],
+            },
           },
-          edge: { arrow: { texture: '../../examples/images/arrow.png' } },
-          'Doughnut Chart': {
-            type: 'DoughnutChart',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 5 },
-              { color: '#ef7762', ratio: 15 },
-              { color: '#d2584a', ratio: 20 },
-              { color: '#e28735', ratio: 25 },
-              { color: '#49b483', ratio: 35 },
-            ],
-            size: 50,
-          },
-          'Pie Chart': {
-            type: 'PieChart',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 5 },
-              { color: '#ef7762', ratio: 15 },
-              { color: '#d2584a', ratio: 20 },
-              { color: '#e28735', ratio: 25 },
-              { color: '#49b483', ratio: 35 },
-            ],
-            size: 50,
-          },
-          'Radial Histogram': {
-            type: 'RadialHistogram',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 10 },
-              { color: '#ef7762', ratio: 30 },
-              { color: '#d2584a', ratio: 60 },
-              { color: '#e28735', ratio: 80 },
-              { color: '#49b483', ratio: 100 },
-            ],
-            size: 50,
-          },
-          'Gauge Chart': {
-            type: 'GaugeChart',
-            textureColor: '#ccc',
-            size: 50,
-            chart: [{ color: '#222', ratio: 33 }],
-          },
-        },
-      };
+        };
 
-      var nodes = [
-        { style: 'triangle' },
-        { style: 'quadrilateral' },
-        { style: 'pentagon' },
-        { style: 'hexagon' },
-        { style: 'heptagon' },
-        { style: 'octagon' },
-        { style: 'nonagon' },
-        { style: 'circle' },
-        { style: 'ellipse' },
-        { style: 'star' },
-        { style: 'star-3' },
-        { style: 'star-4' },
-        { style: 'star-5' },
-        { style: 'star-6' },
-        { style: 'star-7' },
-        { style: 'star-8' },
-        { style: 'star-9' },
-        { style: 'star-10' },
-        { style: 'vee' },
-        { style: 'square' },
-        { style: 'tag' },
-        { style: 'Gauge Chart' },
-        { style: 'Radial Histogram' },
-        { style: 'Pie Chart' },
-        { style: 'Doughnut Chart' },
-      ];
+        var nodes = [
+          { style: 'triangle' },
+          { style: 'quadrilateral' },
+          { style: 'pentagon' },
+          { style: 'hexagon' },
+          { style: 'heptagon' },
+          { style: 'octagon' },
+          { style: 'nonagon' },
+          { style: 'circle' },
+          { style: 'ellipse' },
+          { style: 'star' },
+          { style: 'star-3' },
+          { style: 'star-4' },
+          { style: 'star-5' },
+          { style: 'star-6' },
+          { style: 'star-7' },
+          { style: 'star-8' },
+          { style: 'star-9' },
+          { style: 'star-10' },
+          { style: 'vee' },
+          { style: 'square' },
+          { style: 'tag' },
+          { style: 'Gauge Chart' },
+          { style: 'Radial Histogram' },
+          { style: 'Pie Chart' },
+          { style: 'Doughnut Chart' },
+        ];
 
-      var edges = [];
-      for (let i = 0; i < nodes.length - 1; i++) {
-        edges.push({ source: nodes[i], target: nodes[i + 1] });
-      }
+        var edges = [];
+        for (let i = 0; i < nodes.length - 1; i++) {
+          edges.push({ source: nodes[i], target: nodes[i + 1] });
+        }
 
-      var canvas = document.createElement('canvas');
-      canvas.width = 250;
-      canvas.height = 250;
-      document.body.appendChild(canvas);
-      var graph = new ccNetViz(canvas, settings);
-      graph.set(nodes, edges, 'circular').then(() => {
-        graph.draw();
+        var canvas = document.createElement('canvas');
+        canvas.width = 250;
+        canvas.height = 250;
+        document.body.appendChild(canvas);
+        var graph = new ccNetViz(canvas, settings);
+        graph.set(nodes, edges, 'circular').then(() => {
+          graph.draw();
+        });
       });
     </script>
   </body>
