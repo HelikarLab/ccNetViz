@@ -34,7 +34,7 @@ This plugin allows you to use Cytoscape layouts to your ccNetViz library.
         { source: nodes[2], style: 'T', target: nodes[1] },
       ];
 
-      var layout = ccNetVizPlugins.layout(nodes, edges, {
+      var layout = ccNetViz.plugin.layout(nodes, edges, {
         name: 'cose',
       });
 
@@ -48,7 +48,7 @@ This plugin allows you to use Cytoscape layouts to your ccNetViz library.
 
 ## Documentation
 
-### ccNetVizPlugins.layout(Nodes, Edges, Layout);
+### ccNetViz.plugin.layout(Nodes, Edges, Layout);
 
 #### Nodes
 

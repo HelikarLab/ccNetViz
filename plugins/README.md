@@ -1,6 +1,6 @@
 ### Plugin Structure
 
-All of the plugins must be inside the ccNetVizPlugins object. If the object doesn't exists create one.
+All of the plugins must be inside the ccNetViz.plugin object. If the object doesn't exists create one.
 
 The integration structure differs according to the areas you will influence with the plugin.
 
@@ -132,8 +132,12 @@ class Node {
   }
 }
 // Declaring plugin variables.
-if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.example = { Integration };
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz example plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.example = { Integration };
+}
 
 export default { Integration };
 ```
