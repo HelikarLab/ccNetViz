@@ -5,6 +5,39 @@
     <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="../lib/ccNetViz.js"></script>
     <script src="../lib//plugins/ccNetViz-multilevel-plugin.js"></script>
+    <style>
+      .ccNetViz-multilevel-item {
+        cursor: pointer;
+        padding: 3px;
+      }
+
+      .ccNetViz-multilevel-container {
+        position: absolute;
+        left: 0;
+        bottom: -30px;
+        right: 0;
+        height: 30px;
+        overflow: hidden;
+        text-align: left;
+        background: #e6e6e6;
+        line-height: 30px;
+        font-size: 14px;
+        border-radius: 2px;
+      }
+
+      .ccNetViz-multilevel {
+        position: relative;
+        display: inline-block;
+      }
+
+      .ccNetViz-multilevel-item:after {
+        content: '→';
+      }
+
+      .ccNetViz-multilevel-item:last-child:after {
+        content: '';
+      }
+    </style>
   </head>
 
   <body>
@@ -27,80 +60,80 @@
       </a>
     </header>
     <script>
-      var el = document.getElementById('canvas');
-      var graph = new ccNetViz(el, {
-        styles: {
-          node: { texture: 'images/node.png', label: { hideSize: 16 } },
-          edge: { arrow: { texture: 'images/arrow.png' } },
-        },
-      });
-
-      var nodes1 = [
-        { label: 'Node1 of subgraph1' },
-        { label: 'Node2 of subgraph1' },
-      ];
-      var edges1 = [
-        { source: nodes1[0], target: nodes1[1] },
-        { source: nodes1[0], target: nodes1[0] },
-        { source: nodes1[1], target: nodes1[0] },
-      ];
-
-      var nodes2 = [
-        {
-          label: 'Node1 of subgraph2',
-          nodes: nodes1,
-          edges: edges1,
-          multiLevel: {
-            radius: 0.1,
-            activation: 0.3,
-            layout: 'circular',
+      window.addEventListener('DOMContentLoaded', event => {
+        var el = document.getElementById('canvas');
+        var graph = new ccNetViz(el, {
+          styles: {
+            node: { texture: 'images/node.png', label: { hideSize: 16 } },
+            edge: { arrow: { texture: 'images/arrow.png' } },
           },
-        },
-        { label: 'Node2 of subgraph2' },
-        { label: 'Node3 of subgraph2' },
-        { label: 'Node4 of subgraph2' },
-        { label: 'Node5 of subgraph2' },
-      ];
-      var edges2 = [
-        { source: nodes2[0], target: nodes2[1] },
-        { source: nodes2[0], target: nodes2[0] },
-        { source: nodes2[1], target: nodes2[0] },
-        { source: nodes2[3], target: nodes2[4] },
-      ];
+        });
 
-      var nodes = [
-        {
-          label: 'Hello',
-          nodes: nodes2,
-          edges: edges2,
-          multiLevel: {
-            radius: 0.1,
-            activation: 1,
-            layout: 'circular',
-          },
-        },
-        {
-          label: 'World',
-          nodes: nodes1,
-          edges: edges1,
-          multiLevel: {
-            radius: 0.1,
-            activation: 0.5,
-            layout: 'force',
-          },
-        },
-        { label: '!' },
-      ];
-      var edges = [
-        { source: nodes[0], target: nodes[1] },
-        { source: nodes[1], target: nodes[0] },
-        { source: nodes[0], target: nodes[0] },
-        { source: nodes[1], target: nodes[2] },
-      ];
+        var nodes1 = [
+          { label: 'Node1 of subgraph1' },
+          { label: 'Node2 of subgraph1' },
+        ];
+        var edges1 = [
+          { source: nodes1[0], target: nodes1[1] },
+          { source: nodes1[0], target: nodes1[0] },
+          { source: nodes1[1], target: nodes1[0] },
+        ];
 
-      graph.set(nodes, edges, 'force').then(() => {
-        graph.draw();
-        ccNetVizPlugins.multiLevel(graph);
+        var nodes2 = [
+          {
+            nodes: nodes1,
+            edges: edges1,
+            multiLevel: {
+              radius: 0.1,
+              activation: 0.3,
+              layout: 'circular',
+            },
+          },
+          { label: 'Node2 of subgraph2' },
+          { label: 'Node3 of subgraph2' },
+          { label: 'Node4 of subgraph2' },
+          { label: 'Node5 of subgraph2' },
+        ];
+        var edges2 = [
+          { source: nodes2[0], target: nodes2[1] },
+          { source: nodes2[0], target: nodes2[0] },
+          { source: nodes2[1], target: nodes2[0] },
+          { source: nodes2[3], target: nodes2[4] },
+        ];
+
+        var nodes = [
+          {
+            label: 'Hello',
+            nodes: nodes2,
+            edges: edges2,
+            multiLevel: {
+              radius: 0.1,
+              activation: 1,
+              layout: 'circular',
+            },
+          },
+          {
+            label: 'World',
+            nodes: nodes1,
+            edges: edges1,
+            multiLevel: {
+              radius: 0.1,
+              activation: 0.5,
+              layout: 'force',
+            },
+          },
+          { label: '!' },
+        ];
+        var edges = [
+          { source: nodes[0], target: nodes[1] },
+          { source: nodes[1], target: nodes[0] },
+          { source: nodes[0], target: nodes[0] },
+          { source: nodes[1], target: nodes[2] },
+        ];
+
+        graph.set(nodes, edges, 'force').then(() => {
+          graph.draw();
+        });
       });
     </script>
   </body>
