@@ -26,10 +26,10 @@ class Animation {
     if (this.frameBatch.length >= Object.keys(this.listener).length) {
       await this.fps();
       if (this.frameBatch.length) {
-        if (typeof ccNetVizPlugins !== 'undefined') {
-          if (typeof ccNetVizPlugins.animationHandler === 'undefined')
-            ccNetVizPlugins.animationHandler = 'arrow';
-          if (ccNetVizPlugins.animationHandler === 'arrow')
+        if (typeof ccNetViz.plugin !== 'undefined') {
+          if (typeof ccNetViz.plugin.animationHandler === 'undefined')
+            ccNetViz.plugin.animationHandler = 'arrow';
+          if (ccNetViz.plugin.animationHandler === 'arrow')
             this.instance.animateTexture();
         }
         if (frame > this.config.frameCount) {

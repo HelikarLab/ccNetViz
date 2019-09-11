@@ -98,6 +98,11 @@ let layout = (nodes, edges, layout) => {
   return [nodes, edges];
 };
 
-if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.layout = layout;
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz layout plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.layout = layout;
+}
+
 export default layout;

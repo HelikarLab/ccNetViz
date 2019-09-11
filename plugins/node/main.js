@@ -122,17 +122,21 @@ let Integration = (o, i) => {
   return { options, shapes };
 };
 
-if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.node = {
-  Ellipse,
-  Star,
-  Polygon,
-  Custom,
-  PieChart,
-  GaugeChart,
-  DoughnutChart,
-  Integration,
-};
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz node plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.node = {
+    Ellipse,
+    Star,
+    Polygon,
+    Custom,
+    PieChart,
+    GaugeChart,
+    DoughnutChart,
+    Integration,
+  };
+}
 
 export default {
   Ellipse,

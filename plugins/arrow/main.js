@@ -76,7 +76,11 @@ let Integration = (o, i) => {
   return { options, shapes };
 };
 
-if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.arrow = { Arrow, Integration };
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz example plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.arrow = { Arrow, Integration };
+}
 
 export default { Arrow, Integration };

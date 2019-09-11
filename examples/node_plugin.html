@@ -3,8 +3,8 @@
   <head>
     <title>Advanced Node Plugin</title>
     <link rel="stylesheet" type="text/css" href="css/template.css" />
-    <script src="../lib/plugins/ccNetViz-node-plugin.js"></script>
     <script src="../lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-node-plugin.js"></script>
   </head>
 
   <body>
@@ -41,201 +41,203 @@
       </a>
     </header>
     <script>
-      var canvas = document.getElementById('canvas');
+      window.addEventListener('DOMContentLoaded', event => {
+        var canvas = document.getElementById('canvas');
 
-      var graph = new ccNetViz(canvas, {
-        styles: {
-          node: { texture: 'images/node.png', label: { hideSize: 16 } },
-          edge: { arrow: { texture: 'images/arrow.png' } },
-          triangle: { textureColor: 'red' },
-          pentagon: {
-            textureColor: '#fff',
-            stroke: { size: 5, color: 'blue' },
-          },
-          circle: {
-            textureColor: '#cf0101',
-            stroke: { size: 5, color: '#ccc' },
-          },
-          'star-8': { textureColor: '#fbba02', inset: 1.3, size: 30 },
-          'new polygon': {
-            type: 'Polygon',
-            edges: 5,
-            textureGradient: [
-              { x: 0, color: '#222' },
-              { x: 0.7, color: '#cf0101' },
-            ],
-          },
-          'rounded triangle': {
-            type: 'Polygon',
-            stroke: {
-              round: true,
-              color: '#2257a4',
-              size: 10,
+        var graph = new ccNetViz(canvas, {
+          styles: {
+            node: { texture: 'images/node.png', label: { hideSize: 16 } },
+            edge: { arrow: { texture: 'images/arrow.png' } },
+            triangle: { textureColor: 'red' },
+            pentagon: {
+              textureColor: '#fff',
+              stroke: { size: 5, color: 'blue' },
+            },
+            circle: {
+              textureColor: '#cf0101',
+              stroke: { size: 5, color: '#ccc' },
+            },
+            'star-8': { textureColor: '#fbba02', inset: 1.3, size: 30 },
+            'new polygon': {
+              type: 'Polygon',
+              edges: 5,
+              textureGradient: [
+                { x: 0, color: '#222' },
+                { x: 0.7, color: '#cf0101' },
+              ],
+            },
+            'rounded triangle': {
+              type: 'Polygon',
+              stroke: {
+                round: true,
+                color: '#2257a4',
+                size: 10,
+              },
             },
           },
-        },
-      });
+        });
 
-      var nodes = [
-        { label: 'Triangle', style: 'triangle' },
-        { label: 'Quadrilateral', style: 'quadrilateral' },
-        { label: 'Pentagon', style: 'pentagon' },
-        { label: 'Hexagon', style: 'hexagon' },
-        { label: 'Heptagon', style: 'heptagon' },
-        { label: 'Octagon', style: 'octagon' },
-        { label: 'Nonagon', style: 'nonagon' },
-        { label: 'Circle', style: 'circle' },
-        { label: 'Ellipse', style: 'ellipse' },
-        { label: 'Star', style: 'star' },
-        { label: 'Star 3', style: 'star-3' },
-        { label: 'Star 4', style: 'star-4' },
-        { label: 'Star 5', style: 'star-5' },
-        { label: 'Star 6', style: 'star-6' },
-        { label: 'Star 7', style: 'star-7' },
-        { label: 'Star 8', style: 'star-8' },
-        { label: 'Star 9', style: 'star-9' },
-        { label: 'Star 10', style: 'star-10' },
-        { label: 'Custom polygon', style: 'new polygon' },
-        { label: 'Rounded triangle', style: 'rounded triangle' },
-        { label: 'Vee', style: 'vee' },
-        { label: 'Square', style: 'square' },
-        { label: 'Tag', style: 'tag' },
-      ];
+        var nodes = [
+          { label: 'Triangle', style: 'triangle' },
+          { label: 'Quadrilateral', style: 'quadrilateral' },
+          { label: 'Pentagon', style: 'pentagon' },
+          { label: 'Hexagon', style: 'hexagon' },
+          { label: 'Heptagon', style: 'heptagon' },
+          { label: 'Octagon', style: 'octagon' },
+          { label: 'Nonagon', style: 'nonagon' },
+          { label: 'Circle', style: 'circle' },
+          { label: 'Ellipse', style: 'ellipse' },
+          { label: 'Star', style: 'star' },
+          { label: 'Star 3', style: 'star-3' },
+          { label: 'Star 4', style: 'star-4' },
+          { label: 'Star 5', style: 'star-5' },
+          { label: 'Star 6', style: 'star-6' },
+          { label: 'Star 7', style: 'star-7' },
+          { label: 'Star 8', style: 'star-8' },
+          { label: 'Star 9', style: 'star-9' },
+          { label: 'Star 10', style: 'star-10' },
+          { label: 'Custom polygon', style: 'new polygon' },
+          { label: 'Rounded triangle', style: 'rounded triangle' },
+          { label: 'Vee', style: 'vee' },
+          { label: 'Square', style: 'square' },
+          { label: 'Tag', style: 'tag' },
+        ];
 
-      var edges = [];
-      for (let i = 0; i < nodes.length - 1; i++) {
-        edges.push({ source: nodes[i], target: nodes[i + 1] });
-      }
+        var edges = [];
+        for (let i = 0; i < nodes.length - 1; i++) {
+          edges.push({ source: nodes[i], target: nodes[i + 1] });
+        }
 
-      graph.set(nodes, edges, 'circular').then(() => {
+        graph.set(nodes, edges, 'circular').then(() => {
+          graph.draw();
+        });
         graph.draw();
-      });
-      graph.draw();
 
-      // Statistical nodes
+        // Statistical nodes
 
-      canvas = document.getElementById('canvas-2');
-      graph = new ccNetViz(canvas, {
-        styles: {
-          node: { texture: 'images/node.png', label: { hideSize: 16 } },
-          edge: { arrow: { texture: 'images/arrow.png' } },
-          'Doughnut Chart': {
-            type: 'DoughnutChart',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 5 },
-              { color: '#ef7762', ratio: 15 },
-              { color: '#d2584a', ratio: 20 },
-              { color: '#e28735', ratio: 25 },
-              { color: '#49b483', ratio: 35 },
-            ],
-            size: 50,
-          },
-          'Pie Chart': {
-            type: 'PieChart',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 5 },
-              { color: '#ef7762', ratio: 15 },
-              { color: '#d2584a', ratio: 20 },
-              { color: '#e28735', ratio: 25 },
-              { color: '#49b483', ratio: 35 },
-            ],
-            size: 50,
-          },
-          'Radial Histogram': {
-            type: 'RadialHistogram',
-            textureColor: '#ccc',
-            chart: [
-              { color: '#fcb25c', ratio: 10 },
-              { color: '#ef7762', ratio: 30 },
-              { color: '#d2584a', ratio: 60 },
-              { color: '#e28735', ratio: 80 },
-              { color: '#49b483', ratio: 100 },
-            ],
-            size: 50,
-          },
-          'Gauge Chart': {
-            type: 'GaugeChart',
-            textureColor: '#ccc',
-            size: 50,
-            chart: [{ color: '#222', ratio: 33 }],
-          },
-        },
-      });
-
-      nodes = [
-        { style: 'Doughnut Chart' },
-        { style: 'Pie Chart' },
-        { style: 'Radial Histogram' },
-        { style: 'Gauge Chart' },
-      ];
-
-      edges = [];
-      for (let i = 0; i < nodes.length - 1; i++) {
-        edges.push({ source: nodes[i], target: nodes[i + 1] });
-      }
-      graph.set(nodes, edges, 'circular').then(() => {
-        graph.draw();
-      });
-
-      // Animation
-      canvas = document.getElementById('canvas-3');
-      graph = new ccNetViz(canvas, {
-        styles: {
-          node: { texture: 'images/node.png', label: { hideSize: 16 } },
-          edge: { arrow: { texture: 'images/arrow.png' } },
-          tag: {
-            textureColor: '#0000ff',
-            stroke: {
-              size: 4,
-              color: '#333',
+        canvas = document.getElementById('canvas-2');
+        graph = new ccNetViz(canvas, {
+          styles: {
+            node: { texture: 'images/node.png', label: { hideSize: 16 } },
+            edge: { arrow: { texture: 'images/arrow.png' } },
+            'Doughnut Chart': {
+              type: 'DoughnutChart',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 5 },
+                { color: '#ef7762', ratio: 15 },
+                { color: '#d2584a', ratio: 20 },
+                { color: '#e28735', ratio: 25 },
+                { color: '#49b483', ratio: 35 },
+              ],
+              size: 50,
             },
-            animation: {
-              type: 'color',
-              color: '#00ff00',
+            'Pie Chart': {
+              type: 'PieChart',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 5 },
+                { color: '#ef7762', ratio: 15 },
+                { color: '#d2584a', ratio: 20 },
+                { color: '#e28735', ratio: 25 },
+                { color: '#49b483', ratio: 35 },
+              ],
+              size: 50,
             },
-            size: 34,
-          },
-          triangle: {
-            textureColor: '#ff0000',
-            animation: {
-              type: 'color',
-              color: '#00ff00',
+            'Radial Histogram': {
+              type: 'RadialHistogram',
+              textureColor: '#ccc',
+              chart: [
+                { color: '#fcb25c', ratio: 10 },
+                { color: '#ef7762', ratio: 30 },
+                { color: '#d2584a', ratio: 60 },
+                { color: '#e28735', ratio: 80 },
+                { color: '#49b483', ratio: 100 },
+              ],
+              size: 50,
             },
-            size: 34,
-          },
-          pentagon: {
-            textureColor: '#fff',
-            stroke: { size: 5, color: 'blue' },
-            animation: { type: 'size' },
-            size: 35,
-          },
-          'star-8': {
-            textureColor: '#fbba02',
-            inset: 1.3,
-            size: 48,
-            animation: {
-              type: 'stroke',
-              color: '#cf0101',
+            'Gauge Chart': {
+              type: 'GaugeChart',
+              textureColor: '#ccc',
+              size: 50,
+              chart: [{ color: '#222', ratio: 33 }],
             },
           },
-        },
-      });
+        });
 
-      nodes = [
-        { style: 'triangle' },
-        { style: 'pentagon' },
-        { style: 'star-8' },
-        { style: 'tag' },
-      ];
+        nodes = [
+          { style: 'Doughnut Chart' },
+          { style: 'Pie Chart' },
+          { style: 'Radial Histogram' },
+          { style: 'Gauge Chart' },
+        ];
 
-      edges = [];
-      for (let i = 0; i < nodes.length - 1; i++) {
-        edges.push({ source: nodes[i], target: nodes[i + 1] });
-      }
-      graph.set(nodes, edges, 'circular').then(() => {
-        graph.draw();
+        edges = [];
+        for (let i = 0; i < nodes.length - 1; i++) {
+          edges.push({ source: nodes[i], target: nodes[i + 1] });
+        }
+        graph.set(nodes, edges, 'circular').then(() => {
+          graph.draw();
+        });
+
+        // Animation
+        canvas = document.getElementById('canvas-3');
+        graph = new ccNetViz(canvas, {
+          styles: {
+            node: { texture: 'images/node.png', label: { hideSize: 16 } },
+            edge: { arrow: { texture: 'images/arrow.png' } },
+            tag: {
+              textureColor: '#0000ff',
+              stroke: {
+                size: 4,
+                color: '#333',
+              },
+              animation: {
+                type: 'color',
+                color: '#00ff00',
+              },
+              size: 34,
+            },
+            triangle: {
+              textureColor: '#ff0000',
+              animation: {
+                type: 'color',
+                color: '#00ff00',
+              },
+              size: 34,
+            },
+            pentagon: {
+              textureColor: '#fff',
+              stroke: { size: 5, color: 'blue' },
+              animation: { type: 'size' },
+              size: 35,
+            },
+            'star-8': {
+              textureColor: '#fbba02',
+              inset: 1.3,
+              size: 48,
+              animation: {
+                type: 'stroke',
+                color: '#cf0101',
+              },
+            },
+          },
+        });
+
+        nodes = [
+          { style: 'triangle' },
+          { style: 'pentagon' },
+          { style: 'star-8' },
+          { style: 'tag' },
+        ];
+
+        edges = [];
+        for (let i = 0; i < nodes.length - 1; i++) {
+          edges.push({ source: nodes[i], target: nodes[i + 1] });
+        }
+        graph.set(nodes, edges, 'circular').then(() => {
+          graph.draw();
+        });
       });
     </script>
   </body>

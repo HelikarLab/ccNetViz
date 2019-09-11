@@ -45,7 +45,11 @@ class Node {
   }
 }
 
-if (typeof ccNetVizPlugins === 'undefined') window.ccNetVizPlugins = {};
-ccNetVizPlugins.example = { Integration };
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz example plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.example = { Integration };
+}
 
 export default { Integration };

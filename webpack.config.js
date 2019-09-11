@@ -1,7 +1,7 @@
 var path = require('path');
 
 module.exports = {
-  entry: ['babel-polyfill', './src/ccNetVizMultiLevel.js'],
+  entry: ['babel-polyfill', './src/ccNetViz.js'],
   output: {
     path: path.join(__dirname, 'lib'),
     filename: 'ccNetViz.js',
