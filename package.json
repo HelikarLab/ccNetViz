@@ -1,6 +1,6 @@
 {
   "name": "ccnetviz",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "main": "lib/ccNetViz.js",
   "devDependencies": {
     "@babel/core": "^7.4.5",
