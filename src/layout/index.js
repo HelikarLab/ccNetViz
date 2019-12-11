@@ -57,7 +57,14 @@ export default class {
     return layoutVersinus;
   }
 
-  static normalize(nodes, dim, _options) {
+  static normalize(
+    nodes,
+    dim,
+    _options = {
+      direction: 'left-right',
+      margin: 0.05,
+    }
+  ) {
     let minX,
       minY,
       n = nodes.length;
