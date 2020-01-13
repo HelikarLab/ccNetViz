@@ -277,7 +277,7 @@ Please follow the below instructions to get started with development in ccNetViz
 > You need to have [Node](https://nodejs.org/) and [yarn](https://yarnpkg.com/) .
 
 1. Clone the repository.
-2. Run `yarn install` inside the cloned repository to install dependencies.
+2. Run `brew install yarn` inside the cloned repository to install dependencies.
 3. Run `yarn dev` and go to `http://localhost:8080`. From here go to any of the examples or tests.
 4. Making any changes to the src/ directory will trigger an auto reload and build of the webpage.
 5. Finally when you are done with the changes run `yarn build` to create the final build.
