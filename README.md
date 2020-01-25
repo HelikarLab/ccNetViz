@@ -288,6 +288,20 @@ _Note: if your having any problem with seeing changes, clear the browser cache._
 
 If you are looking to contribute to ccNetViz, fork the ccNetViz repo, follow all the above steps (i.e. Development in ccNetViz), commit the changes(ccNetViz follows the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#specification) specification, please adhere to this format of commits in your Pull Requests) to your fork and make a pull request to ccNetViz.
 
+
+#  how to send a pull request:
+ 
+ Create a new branch with a meaningful name `git checkout -b branch_name`.<br />
+* Develop your feature on Xcode IDE  and run it .<br />
+* Add the files you changed `git add file_name`.<br />
+* Commit your changes `git commit -m "Message briefly explaining the feature"`.<br />
+* Keep one commit per feature. If you forgot to add changes, you can edit the previous commit `git commit --amend`.<br />
+* Push to your repo `git push origin branch-name`.<br />
+* Go into [the Github repo](https://github.com/HelikarLab/ccNetViz/edit/) and create a pull request explaining your changes.<br />
+* If you are requested to make changes, edit your commit using `git commit --amend`, push again and the pull request will edit automatically.<br />
+* If the PR is related to any front end change, please attach relevant screenshots in the pull request description.
+
+
 [heilikarlab]: https://github.com/HelikarLab/ccNetViz
 
 #### Developing new layouts
