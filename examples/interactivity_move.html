@@ -135,10 +135,10 @@
           current_moving_node === undefined ||
           current_moving_edges === undefined
         )
-          return;
-        current_moving_node.x = lCoords.x;
+          //          return;
+          current_moving_node.x = lCoords.x;
         current_moving_node.y = lCoords.y;
-        graph
+        return graph
           .updateNode(current_moving_node)
           .updateEdges(current_moving_edges)
           .applyChanges();
@@ -149,10 +149,12 @@
 
         if (current_moving_node === undefined) return;
 
-        onMove(e);
-        graph.reflow(); //we make all dynamic changes static (performance optimalization)
-        current_moving_node = undefined;
-        current_moving_edges = undefined;
+        onMove(e)
+          .then(() => graph.reflow())
+          .then(() => {
+            current_moving_node = undefined;
+            current_moving_edges = undefined;
+          });
       }
 
       el.addEventListener('mousemove', $.throttle(20, onMove));

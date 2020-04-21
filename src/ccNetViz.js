@@ -217,17 +217,11 @@ var ccNetViz = function(canvas, options) {
           ccNetViz.plugin.arrow.Integration(options, self).shapes
         );
       if (typeof ccNetViz.plugin.multilevel !== 'undefined') {
-        if (typeof options.onChangeViewport !== 'undefined') {
-          let temp = options.onChangeViewport;
-          options.onChangeViewport = function(viewport) {
-            temp(viewport);
-            ccNetViz.plugin.multilevel(viewport, self, canvas);
-          };
-        } else {
-          options.onChangeViewport = function(viewport) {
-            ccNetViz.plugin.multilevel(viewport, self, canvas);
-          };
-        }
+        let temp = options.onChangeViewport || (() => {});
+        options.onChangeViewport = function(viewport) {
+          temp(viewport);
+          ccNetViz.plugin.multilevel(viewport, self, canvas);
+        };
       }
     }
 

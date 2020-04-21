@@ -12,9 +12,9 @@ import GPGPUtility from './gpgputility';
 var settings = {
   autoArea: true,
   area: 1,
-  gravity: 10,
-  speed: 0.1,
-  iterations: 1000,
+  gravity: 1,
+  speed: 0.005,
+  iterations: 100,
 };
 
 var _instance = {};
@@ -36,10 +36,13 @@ function FruchtermanReingoldGL() {
     options = options || {};
 
     // Properties
-    this.sigInst = sigInst;
+    //    this.sigInst = sigInst;
     this.config = { ...settings, ...options };
     this.easing = options.easing;
     this.duration = options.duration;
+
+    this.nodes = nodes;
+    this.edges = edges;
 
     // State
     this.running = false;
@@ -143,13 +146,16 @@ void main()
   float dist = sqrt(dx * dx + dy * dy);
   if (dist > 0.0) {
     float limitedDist = min(` +
-      String(this.maxDisplace * self.config.speed) +
+      String(
+        Number.parseFloat(this.maxDisplace * self.config.speed).toFixed(8)
+      ) +
       `, dist);
     gl_FragColor.r += dx / dist * limitedDist;
     gl_FragColor.g += dy / dist * limitedDist;
   }
 }
 `;
+
     // console.log(sourceCode);
     var program = gpgpUtility.createProgram(null, sourceCode);
     this.positionHandle = gpgpUtility.getAttribLocation(program, 'position');
@@ -168,6 +174,8 @@ void main()
     if (!this.running || this.iterCount < 1) return false;
     this.iterCount--;
     this.running = this.iterCount > 0;
+
+    console.log('ATOMIC GO');
 
     var gl = this.gl;
     var gpgpUtility = this.gpgpUtility;
@@ -200,9 +208,10 @@ void main()
     var dataArray = [];
     var nodeDict = [];
     var mapIdPos = {};
+    console.log('BUILD Texture Data', { nodes, edges });
     for (var i = 0; i < nodesCount; i++) {
       var n = nodes[i];
-      mapIdPos[n.id] = i;
+      mapIdPos[n.uniqid] = i;
       dataArray.push(n.x);
       dataArray.push(n.y);
       dataArray.push(0);
@@ -211,8 +220,8 @@ void main()
     }
     for (var i = 0; i < edgesCount; i++) {
       var e = edges[i];
-      nodeDict[mapIdPos[e.source]].push(mapIdPos[e.target]);
-      nodeDict[mapIdPos[e.target]].push(mapIdPos[e.source]);
+      nodeDict[mapIdPos[e.source.uniqid]].push(mapIdPos[e.target.uniqid]);
+      nodeDict[mapIdPos[e.target.uniqid]].push(mapIdPos[e.source.uniqid]);
     }
 
     this.maxEdgePerVetex = 0;
@@ -248,10 +257,11 @@ void main()
     // gl.readPixels(0, 0, this.textureSize, 1, gl.RGBA, gl.FLOAT, test);
     // console.log(test);
 
+    console.log('OUTPUT ', { nodesCount, nodes, output_arr });
     for (var i = 0; i < nodesCount; ++i) {
       var n = nodes[i];
-      n.x = output_arr[4 * i];
-      n.y = output_arr[4 * i + 1];
+      n.x = output_arr[4 * i + 2];
+      n.y = output_arr[4 * i + 3];
     }
   };
 
@@ -395,20 +405,24 @@ void main()
   };
 }
 
-var settings = {
-  autoArea: true,
-  area: 1,
-  gravity: 10,
-  speed: 0.1,
-  iterations: 1000,
-};
-
 /**
  * Interface
  * ----------
  */
-export default function(nodes, edges, layout_options) {
-  var algorithm = new FruchtermanReingoldGL();
-  algorithm.init(nodes, edges, layout_options);
-  algorithm.start();
+export default function forceGPU(nodes, edges, layout_options = {}) {
+  const margin = layout_options.margin || 0.05,
+    direction = layout_options.direction || 'left-right';
+
+  const _options = {
+    margin: margin,
+    direction: direction,
+  };
+
+  this.apply = function() {
+    var algorithm = new FruchtermanReingoldGL();
+    algorithm.init(nodes, edges, _options);
+    algorithm.start();
+
+    return _options;
+  };
 }

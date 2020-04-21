@@ -1,4 +1,5 @@
 import layoutForce from './force';
+import layoutForceGPU from './forceGPU';
 import layoutRandom from './random';
 import layoutCircular from './circular';
 import layoutTree from './tree';
@@ -22,6 +23,9 @@ import layoutVersinus from './versinus';
 export default class {
   static get force() {
     return layoutForce;
+  }
+  static get forceGPU() {
+    return layoutForceGPU;
   }
   static get random() {
     return layoutRandom;
@@ -65,6 +69,7 @@ export default class {
       margin: 0.05,
     }
   ) {
+    console.log('NORMALIZE ', nodes);
     let minX,
       minY,
       n = nodes.length;
