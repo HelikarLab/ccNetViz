@@ -15,6 +15,7 @@
       <div class="toolbox">
         <div class="item">
           <select id="listExamples"></select>
+          <select id="listEngines"></select>
         </div>
       </div>
       <div class="description">
@@ -36,15 +37,31 @@
       </a>
     </header>
     <script>
-      var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(
+      var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-10000-5.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json'.split(
         ','
       );
 
+      var engines = 'forceGPU,force'.split(',');
+
       function init() {
-        function onChange(e) {
+        const config = {
+          data: { nodes: [], edges: [] },
+          engine: 'forceGPU',
+        };
+
+        function onChangeGraph(e) {
           var v = $(this).val();
 
-          $.ajax({ url: 'data/' + v, dataType: 'json' }).done(showGraph);
+          $.ajax({ url: 'data/' + v, dataType: 'json' }).done(function(data) {
+            config.data = data;
+            showGraph(config);
+          });
+        }
+
+        function onChangeEngine(e) {
+          var engine = $(this).val();
+          config.engine = engine;
+          showGraph(config);
         }
 
         //fill in graph names
@@ -52,7 +69,14 @@
         $.each(examples, function(index, val) {
           select.append($('<option />', { value: val }).text(val));
         });
-        select.change(onChange);
+        select.change(onChangeGraph);
+
+        //fill in graph names
+        var select = $('#listEngines');
+        $.each(engines, function(index, val) {
+          select.append($('<option />', { value: val }).text(val));
+        });
+        select.change(onChangeEngine);
 
         //init graph with currently selected data
         onChange.call(select);
@@ -60,7 +84,9 @@
 
       var graph;
       var el;
-      function showGraph(data) {
+      function showGraph(config) {
+        var data = config.data;
+
         adata = data;
         if (el) el.parentNode.removeChild(el);
         document
@@ -85,7 +111,7 @@
           nlines: 3,
         };
         graph
-          .set(data.nodes, data.edges, 'forceGPU', layout_options)
+          .set(data.nodes, data.edges, config.engine, layout_options)
           .then(() => {
             graph.draw();
           });
