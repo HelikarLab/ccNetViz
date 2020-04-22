@@ -3,7 +3,7 @@ import ccNetViz_primitive from '../primitive';
 import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
-import { normalize } from './util';
+import { normalize, stopWatch } from './util';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -241,19 +241,21 @@ export default function(
     };
 
     let options_;
-    if (typeof layout === 'string') {
-      options_ = new ccNetViz_layout[layout](
-        nodes,
-        edges,
-        layout_options
-      ).apply();
-    } else if (typeof layout === 'function') {
-      options_ = new layout(nodes, edges, layout_options).apply();
-    } else if (typeof layout === 'number') {
-      throw new Error(
-        'The layout can only be a string or a function or a class'
-      );
-    }
+    stopWatch('Calculating layout', () => {
+      if (typeof layout === 'string') {
+        options_ = new ccNetViz_layout[layout](
+          nodes,
+          edges,
+          layout_options
+        ).apply();
+      } else if (typeof layout === 'function') {
+        options_ = new layout(nodes, edges, layout_options).apply();
+      } else if (typeof layout === 'number') {
+        throw new Error(
+          'The layout can only be a string or a function or a class'
+        );
+      }
+    });
 
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 

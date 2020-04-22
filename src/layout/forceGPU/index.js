@@ -12,8 +12,9 @@ import GPGPUtility from './gpgputility';
 var settings = {
   autoArea: true,
   area: 1,
-  gravity: 1,
-  speed: 0.005,
+  gravity: 100,
+  speed: 0.1,
+  checkEvery: 10,
   iterations: 100,
 };
 
@@ -59,6 +60,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
+uniform float decay;
 uniform sampler2D m;
 varying vec2 vTextureCoord;
 void main()
@@ -119,7 +121,7 @@ void main()
       `), 1));
     float xDist = node_i.r - node_j.r;
     float yDist = node_i.g - node_j.g;
-    float dist = sqrt(xDist * xDist + yDist * yDist) + 0.01;
+    float dist = sqrt(xDist * xDist + yDist * yDist) + 0.0001;
     float attractiveF = dist * dist / ` +
       this.k +
       `;
@@ -130,7 +132,7 @@ void main()
   }
   // Gravity
   float d = sqrt(node_i.r * node_i.r + node_i.g * node_i.g);
-  float gf = ` +
+  float gf = decay * ` +
       String(0.01 * this.k * self.config.gravity) +
       ` * d;
   dx -= gf * node_i.r / d;
@@ -145,7 +147,7 @@ void main()
   // Apply computed displacement
   float dist = sqrt(dx * dx + dy * dy);
   if (dist > 0.0) {
-    float limitedDist = min(` +
+    float limitedDist = min(decay * ` +
       String(
         Number.parseFloat(this.maxDisplace * self.config.speed).toFixed(8)
       ) +
@@ -160,6 +162,8 @@ void main()
     var program = gpgpUtility.createProgram(null, sourceCode);
     this.positionHandle = gpgpUtility.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(this.positionHandle);
+    this.decayHandle = gpgpUtility.getUniformLocation(program, 'decay');
+
     this.textureCoordHandle = gpgpUtility.getAttribLocation(
       program,
       'textureCoord'
@@ -170,24 +174,36 @@ void main()
     this.program = program;
   };
 
-  this.atomicGo = function(input, output) {
+  this.checkEquilibrum = function() {
+    this.saveDataToNode();
+  };
+
+  this.atomicGo = function(input, output, decay) {
+    /*    if(this.iterCount%this.config.checkEvery == 0){
+      //perform check
+      this.checkEquilibrum()
+    }
+*/
     if (!this.running || this.iterCount < 1) return false;
     this.iterCount--;
     this.running = this.iterCount > 0;
 
-    console.log('ATOMIC GO');
+    console.log('atomicGo');
 
     var gl = this.gl;
     var gpgpUtility = this.gpgpUtility;
 
-    var outputBuffer = gpgpUtility.attachFrameBuffer(output);
+    //    var outputBuffer = gpgpUtility.attachFrameBuffer(output);
 
     gl.useProgram(this.program);
 
     this.gpgpUtility.getStandardVertices();
 
+    gl.uniform1f(this.decayHandle, decay);
+
     // TODO: what?
     gl.vertexAttribPointer(this.positionHandle, 3, gl.FLOAT, gl.FALSE, 20, 0);
+    gl.vertexAttribPointer(this.alphaHandle, 1, gl.FLOAT, gl.FALSE, 20, 0);
     gl.vertexAttribPointer(
       this.textureCoordHandle,
       2,
@@ -260,8 +276,8 @@ void main()
     console.log('OUTPUT ', { nodesCount, nodes, output_arr });
     for (var i = 0; i < nodesCount; ++i) {
       var n = nodes[i];
-      n.x = output_arr[4 * i + 2];
-      n.y = output_arr[4 * i + 3];
+      n.x = output_arr[4 * i];
+      n.y = output_arr[4 * i + 1];
     }
   };
 
@@ -289,8 +305,7 @@ void main()
     this.gpgpUtility = gpgpUtility;
 
     if (!this.gpgpUtility.isFloatingTexture()) {
-      alert('Floating point textures are not supported.');
-      return false;
+      throw new Error('Floating point textures are not supported.');
     }
 
     this.gl = gpgpUtility.getGLContext();
@@ -311,8 +326,7 @@ void main()
     var framebuffer = this.gpgpUtility.attachFrameBuffer(this.texture_output);
     var bufferStatus = this.gpgpUtility.frameBufferIsComplete();
     if (!bufferStatus.isComplete) {
-      alert(bufferStatus.message);
-      return false;
+      throw new Error(bufferStatus.message);
     }
 
     return true;
@@ -323,12 +337,14 @@ void main()
       return;
     }
 
-    // console.log(this.iterCount);
-    while (this.running) {
+    let decay = 1;
+    while (this.running && decay > 0.5) {
       var tmp = this.texture_input;
       this.texture_input = this.texture_output;
       this.texture_output = tmp;
-      this.atomicGo(this.texture_input, this.texture_output);
+
+      this.atomicGo(this.texture_input, this.texture_output, decay);
+      decay *= 0.99;
     }
     this.saveDataToNode();
     this.stop();
@@ -357,7 +373,6 @@ void main()
     // var nodes = this.sigInst.graph.nodes();
 
     //      _eventEmitter[self.sigInst.id].dispatchEvent('stop');
-
     this.running = false;
     //      self.sigInst.refresh();
     /*if (this.easing) {
@@ -418,7 +433,25 @@ export default function forceGPU(nodes, edges, layout_options = {}) {
     direction: direction,
   };
 
+  function initUniformly(nodes) {
+    let n = nodes.length;
+    let d = Math.sqrt(n);
+    let s = 0.3 / d;
+
+    for (let i = 0; i < n; i++) {
+      let o = nodes[i];
+      //      o.weight = 0;
+      o.x = o.x !== undefined ? o.x : s + (i % d) / d - d / 2;
+      o.y = o.y !== undefined ? o.y : s + Math.floor(i / d) / d - d / 2;
+      //      o.px = o.x;
+      //      o.py = o.y;
+      //      charges[i] = charge;
+    }
+  }
+
   this.apply = function() {
+    initUniformly(nodes);
+
     var algorithm = new FruchtermanReingoldGL();
     algorithm.init(nodes, edges, _options);
     algorithm.start();

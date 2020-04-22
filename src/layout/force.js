@@ -94,6 +94,8 @@ export default function(nodes, edges, layout_options) {
       return true;
     }
 
+    console.log('STEP ' + alpha);
+
     let q, o, s, t, l, k, x, y;
     let n = nodes.length;
     let m = edges.length;
@@ -144,13 +146,13 @@ export default function(nodes, edges, layout_options) {
       } else {
         o.x -= (o.px - (o.px = o.x)) * friction;
         o.y -= (o.py - (o.py = o.y)) * friction;
-        if (typeof options !== 'undefined') {
-          if (typeof options.minX !== 'undefined') {
-            if (o.x < options.minX || o.x > options.maxX) {
-              o.x = rnd(options.minX, options.maxX);
+        if (layout_options) {
+          if (layout_options.minX !== undefined) {
+            if (o.x < layout_options.minX || o.x > layout_options.maxX) {
+              o.x = rnd(layout_options.minX, layout_options.maxX);
             }
-            if (o.y < options.minY || o.y > options.maxY) {
-              o.y = rnd(options.minY, options.maxY);
+            if (o.y < layout_options.minY || o.y > layout_options.maxY) {
+              o.y = rnd(layout_options.minY, layout_options.maxY);
             }
           }
         }

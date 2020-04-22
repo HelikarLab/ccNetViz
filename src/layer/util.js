@@ -5,4 +5,14 @@ const normalize = (a, b) => {
   return { x: sc * x, y: sc * y };
 };
 
-export { normalize };
+const stopWatch = (text = '', action) => {
+  const startDate = new Date();
+  console.log(`Starting ${text}`);
+
+  action();
+
+  const tookMs = new Date().getTime() - startDate.getTime();
+  console.log(`Finishing ${text} (took ${tookMs}ms)`);
+};
+
+export { normalize, stopWatch };

@@ -451,7 +451,7 @@ function GPGPUtility(width_, height_, attributes_) {
 
     attributeLocation = gl.getAttribLocation(program, name);
     if (attributeLocation === -1) {
-      alert('Can not find attribute ' + name + '.');
+      throw new Error('Can not find attribute ' + name + '.');
     }
 
     return attributeLocation;
@@ -471,7 +471,7 @@ function GPGPUtility(width_, height_, attributes_) {
 
     reference = gl.getUniformLocation(program, name);
     if (reference === -1) {
-      alert('Can not find uniform ' + name + '.');
+      throw new Error('Can not find uniform ' + name + '.');
     }
     return reference;
   };
