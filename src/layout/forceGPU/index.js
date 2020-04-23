@@ -1,5 +1,8 @@
 import GPGPUtility from './gpgputility';
 
+//TODO: remove after stop
+import { stopWatch } from '../../layer/util';
+
 /**
  * Sigma ParaGraphL: Fruchterman-Reingold with WebGL
  * ===============================
@@ -12,7 +15,7 @@ import GPGPUtility from './gpgputility';
 var settings = {
   autoArea: true,
   area: 1,
-  gravity: 100,
+  gravity: 10,
   speed: 0.1,
   checkEvery: 10,
   iterations: 100,
@@ -53,8 +56,9 @@ function FruchtermanReingoldGL() {
     var gl = this.gl;
     var gpgpUtility = this.gpgpUtility;
 
-    var sourceCode =
-      `
+    const myFloat = v => Number.parseFloat(v).toFixed(8);
+
+    var sourceCode = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -66,30 +70,22 @@ varying vec2 vTextureCoord;
 void main()
 {
   float dx = 0.0, dy = 0.0;
-  int i = int(floor(vTextureCoord.s * float(` +
-      this.textureSize +
-      `) + 0.5));
+  int i = int(floor(vTextureCoord.s * float(${this.textureSize}) + 0.5));
   vec4 node_i = texture2D(m, vec2(vTextureCoord.s, 1));
   gl_FragColor = node_i;
   //gl_FragColor.r = float(i);
   //return;
-  if (i > ` +
-      this.nodesCount +
-      `) return;
-  for (int j = 0; j < ` +
-      this.nodesCount.toString() +
-      `; j++) {
+  if (i > ${this.nodesCount}) return;
+  for (int j = 0; j < ${this.nodesCount.toString()}; j++) {
     if (i != j + 1) {
-      vec4 node_j = texture2D(m, vec2((float(j) + 0.5) / float(` +
-      this.textureSize +
-      `) , 1));
+      vec4 node_j = texture2D(m, vec2((float(j) + 0.5) / float(${
+        this.textureSize
+      }) , 1));
       float xDist = node_i.r - node_j.r;
       float yDist = node_i.g - node_j.g;
       float dist = sqrt(xDist * xDist + yDist * yDist) + 0.01;
       if (dist > 0.0) {
-        float repulsiveF = ` +
-      this.k_2.toString() +
-      ` / dist;
+        float repulsiveF = ${myFloat(this.k_2)} / dist;
         dx += xDist / dist * repulsiveF;
         dy += yDist / dist * repulsiveF;
       }
@@ -98,33 +94,25 @@ void main()
   int arr_offset = int(floor(node_i.b + 0.5));
   int length = int(floor(node_i.a + 0.5));
   vec4 node_buffer;
-  for (int p = 0; p < ` +
-      String(this.maxEdgePerVetex) +
-      `; p++) {
+  for (int p = 0; p < ${this.maxEdgePerVetex}; p++) {
     if (p >= length) break;
     int arr_idx = arr_offset + p;
     // when arr_idx % 4 == 0 update node_idx_buffer
     int buf_offset = arr_idx - arr_idx / 4 * 4;
     if (p == 0 || buf_offset == 0) {
       node_buffer = texture2D(m, vec2((float(arr_idx / 4) + 0.5) /
-                                          float(` +
-      this.textureSize +
-      `) , 1));
+                                          float(${this.textureSize}) , 1));
     }
     float float_j = buf_offset == 0 ? node_buffer.r :
                     buf_offset == 1 ? node_buffer.g :
                     buf_offset == 2 ? node_buffer.b :
                                       node_buffer.a;
     vec4 node_j = texture2D(m, vec2((float_j + 0.5) /
-                                    float(` +
-      this.textureSize +
-      `), 1));
+                                    float(${this.textureSize}), 1));
     float xDist = node_i.r - node_j.r;
     float yDist = node_i.g - node_j.g;
     float dist = sqrt(xDist * xDist + yDist * yDist) + 0.0001;
-    float attractiveF = dist * dist / ` +
-      this.k +
-      `;
+    float attractiveF = dist * dist / ${this.k};
     if (dist > 0.0) {
       dx -= xDist / dist * attractiveF;
       dy -= yDist / dist * attractiveF;
@@ -132,31 +120,25 @@ void main()
   }
   // Gravity
   float d = sqrt(node_i.r * node_i.r + node_i.g * node_i.g);
-  float gf = decay * ` +
-      String(0.01 * this.k * self.config.gravity) +
-      ` * d;
+  float gf = decay * ${myFloat(0.01 * this.k * self.config.gravity)} * d;
   dx -= gf * node_i.r / d;
   dy -= gf * node_i.g / d;
   // Speed
-  dx *= ` +
-      String(self.config.speed) +
-      `;
-  dy *= ` +
-      String(self.config.speed) +
-      `;
+  dx *= ${myFloat(self.config.speed)};
+  dy *= ${myFloat(self.config.speed)};
   // Apply computed displacement
   float dist = sqrt(dx * dx + dy * dy);
   if (dist > 0.0) {
-    float limitedDist = min(decay * ` +
-      String(
-        Number.parseFloat(this.maxDisplace * self.config.speed).toFixed(8)
-      ) +
-      `, dist);
+    float limitedDist = min(decay * ${myFloat(
+      this.maxDisplace * self.config.speed
+    )}, dist);
     gl_FragColor.r += dx / dist * limitedDist;
     gl_FragColor.g += dy / dist * limitedDist;
   }
 }
 `;
+
+    console.log(sourceCode);
 
     // console.log(sourceCode);
     var program = gpgpUtility.createProgram(null, sourceCode);
@@ -193,17 +175,18 @@ void main()
     var gl = this.gl;
     var gpgpUtility = this.gpgpUtility;
 
-    //    var outputBuffer = gpgpUtility.attachFrameBuffer(output);
+    var outputBuffer = gpgpUtility.attachFrameBuffer(output);
 
     gl.useProgram(this.program);
 
     this.gpgpUtility.getStandardVertices();
 
+    //copy decay to value
     gl.uniform1f(this.decayHandle, decay);
 
     // TODO: what?
     gl.vertexAttribPointer(this.positionHandle, 3, gl.FLOAT, gl.FALSE, 20, 0);
-    gl.vertexAttribPointer(this.alphaHandle, 1, gl.FLOAT, gl.FALSE, 20, 0);
+    //    gl.vertexAttribPointer(this.alphaHandle, 1, gl.FLOAT, gl.FALSE, 20, 0);
     gl.vertexAttribPointer(
       this.textureCoordHandle,
       2,
@@ -257,6 +240,15 @@ void main()
     while (dataArray.length % 4 != 0) dataArray.push(0);
     // console.log(dataArray);
     return new Float32Array(dataArray);
+  };
+
+  this.logProgress = function() {
+    var nodes = this.nodes;
+    var gl = this.gpgpUtility.getGLContext();
+    var nodesCount = nodes.length;
+    var output_arr = new Float32Array(nodesCount * 4);
+    gl.readPixels(0, 0, nodesCount, 1, gl.RGBA, gl.FLOAT, output_arr);
+    console.log(output_arr);
   };
 
   this.saveDataToNode = function() {
@@ -337,16 +329,28 @@ void main()
       return;
     }
 
-    let decay = 1;
-    while (this.running && decay > 0.5) {
-      var tmp = this.texture_input;
-      this.texture_input = this.texture_output;
-      this.texture_output = tmp;
+    //    this.logProgress();
 
-      this.atomicGo(this.texture_input, this.texture_output, decay);
-      decay *= 0.99;
-    }
-    this.saveDataToNode();
+    stopWatch(' .... main loop', () => {
+      let decay = 1;
+      //      let step = 0;
+      while (this.running && decay > 0.5) {
+        var tmp = this.texture_input;
+        this.texture_input = this.texture_output;
+        this.texture_output = tmp;
+
+        this.atomicGo(this.texture_input, this.texture_output, decay);
+
+        //      console.log("step", step++);
+        //      this.logProgress();
+
+        decay *= 0.99;
+      }
+    });
+
+    stopWatch(' .... saveDataToNode', () => {
+      this.saveDataToNode();
+    });
     this.stop();
   };
 
@@ -450,11 +454,15 @@ export default function forceGPU(nodes, edges, layout_options = {}) {
   }
 
   this.apply = function() {
-    initUniformly(nodes);
+    stopWatch('Init uniformly', () => {
+      initUniformly(nodes);
+    });
 
-    var algorithm = new FruchtermanReingoldGL();
-    algorithm.init(nodes, edges, _options);
-    algorithm.start();
+    stopWatch('FruchtermanReingoldGL', () => {
+      var algorithm = new FruchtermanReingoldGL();
+      algorithm.init(nodes, edges, _options);
+      algorithm.start();
+    });
 
     return _options;
   };
