@@ -416,3 +416,13 @@ table a:hover {
 #plugins-container{
   margin-bottom: 20px;
 }
+
+.usage-description > div > a.live-example {
+	float: right;
+	border: solid #ddd 1px;
+	text-align: center;
+}
+
+.usage-description > div > a.live-example > iframe {
+	border-width: 0px;
+}
