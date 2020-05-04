@@ -694,28 +694,65 @@
               force-directed layout and basic graph interactivity.
               Used for example by <a href="http://cellcollective.org" rel="nofollow">Cell Collective</a> project.
               ccNetViz is open source library available
-              under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.</p>
+              under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.
+            </p>
+            <p>
+              Our source code can be found on the github at the <a href="https://github.com/HelikarLab/ccNetViz">https://github.com/HelikarLab/ccNetViz</a>.
+            </p>
           </article>
         </div>
       </div>
     </div>
-<!--    <div class="o-container">
-      <div style="padding-top: 100px;" class="container">
+    <div class="o-container">
+      <div class="container">
         <div id="description" class="row">
-          <h5 id="about" class="row">Installation</h5>
+          <h5 id="about" class="row">How to run the library localy on your computer</h5>
           <article class="row">
-            <p>ccNetViz is a lightweight, high-performance javascript library for large network graphs (see <a
-                href="https://en.wikipedia.org/wiki/Graph_theory" rel="nofollow">graph theory</a>) visualization using
-              WebGL.
-              It enables custom styling of nodes and edges in CSS like way, curve edges, dynamic changes of the network,
-              force-directed layout and basic graph interactivity.
-              Used for example by <a href="http://cellcollective.org" rel="nofollow">Cell Collective</a> project.
-              ccNetViz is open source library available
-              under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html" rel="nofollow">GPLv3</a> License.</p>
+            <div><b>NOTE:</b> this is only for the beginner users explaining howto spin up the simple http server for this directory.</div>
+            <div>
+              <ul>
+                <li>Have nodejs installed (see <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></b></i> for instalation instructions)</li>
+                <li>Have yarn installed (see <a href="https://classic.yarnpkg.com/en/docs/install/">https://classic.yarnpkg.com/en/docs/install/</a></b></i> for instalation instructions)</li>
+                <li>Clone the current git repository: <i><b>git clone https://github.com/HelikarLab/ccNetViz.git</b></i></li>
+                <li>Run <i><b>yarn start</b></i> command (The command should automatically open you the web browser with http://127.0.0.1:8080)</li>
+                <li>Click onto the <b>examples</b> directory and then click on any of the example files you want to see</li>
+              </ul>
+            </div>
           </article>
         </div>
       </div>
-    </div> -->
+    </div>
+    <div class="o-container">
+      <div class="container">
+        <div id="description" class="row">
+          <h5 id="about" class="row">Developing with the ccNetViz</h5>
+          <article class="row">
+            <div><b>NOTE:</b> use this guide if you are web developer and you want to integrate the library into the current webpage or javascript frontend project.</div>
+            <h6>Step 1 : Install ccNetViz binaries</h6>
+            <div>
+              <ul>
+                <li>via <a href="https://www.npmjs.com/package/ccnetviz">NPM</a>: <i><b>npm install ccnetviz</b></i> (alternatively using yarn <i><b>yarn add ccnetviz</b></i>)</li>
+                <li>or download manualy from <i><b><a href="https://github.com/HelikarLab/ccNetViz/tree/master/lib">https://github.com/HelikarLab/ccNetViz/tree/master/lib</a></b></i></li>
+              </ul>
+            </div>
+            <h6>Step 2: Import the library</h6>
+            <div>
+              <ul>
+                <li>The minimal script you have to load is: <code>&lt;script src="./ccnetviz.js"&gt;&lt;/script&gt;</code>.</li>
+              </ul>
+              <div>
+                Personally we do prefer using installation via npm combined with the <a href="https://webpack.js.org/">webpack bundler</a>.<br />
+                If you do that, then you can import the module via <a href="https://webpack.js.org/api/module-methods/">https://webpack.js.org/api/module-methods/</a>.
+              </div>
+            </div>
+            <h6>Step 3: Using the library</h6>
+            <div>
+              We do recommend you to start by using the code from the Hello world example. Once you are confident you can look more into our advanced examples and to their code (follow the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/examples">https://github.com/HelikarLab/ccNetViz/tree/master/examples</a> for details).
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
     <div class="o-container">
       <div class="container">
         <div id="usage" class="row">
@@ -731,8 +768,7 @@
             <h6>In-built support for the multiple layouts</h6>
             <div id="layout-information">
               Recommended layout is <b>Force</b> based.<br>
-              Inbuilt support for multiple layouts such as the <b> Force</b>, <b>Hierarchical</b>, <b>Circular</b>,
-              <b>Spectral</b>, <b>Hive</b>, <b>Grid</b>, <b>Versinus</b>.<br>
+              Inbuilt support for multiple layouts such as the <b>Circular</b>, <b>Force</b>, <b>Grid</b>, <b>Hierarchical</b>, <b>Hierarchical2</b>, <b>Hive</b>, <b>Random</b>, <b>Spectral</b>, <b>Spectral2</b>, <b>Versinus</b>.
               Inbuilt support for two modifications of <b>Tree</b> layout.
               <ul>
                 <li>Graph layouts</li>
@@ -1239,8 +1275,7 @@
               </table>
             </div>
             <h6>Layout</h6>
-            Optional "layout" argument defines layout used to render this graph. Possible values: "force", "random",
-            "circular", "tree". If not specified, positions are taken from each node x, y properties.
+            Optional "layout" argument defines layout used to render this graph. Possible values: "force", "circular", "grid", "hierarchical", "hierarchical2", "hive", "random", "spectral", "spectral2", "tree", "treeT", "versinus". If not specified, positions are taken from each node x, y properties.
             <h6>Layout Options</h6>
             <div class="documentation">
               Special layout options object, such as margin and flip, are routed through the layout_options argument.
