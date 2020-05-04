@@ -14,7 +14,7 @@ NOTE: This page is intended as a documentation for the people maintaining the li
 ## Description
 
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is a lightweight, high performance javascript library for large network graphs (see [graph theory](https://en.wikipedia.org/wiki/Graph_theory)) visualization using WebGL.
-It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, a number of layout settings (including force-directed, spectral, hierarchical, circular, versinus, grid and random) and basic graph interactivity.
+It enables custom styling of nodes and edges in css like way, curve edges, dynamic changes of the network, a number of layout settings (see [the layout directory](https://github.com/HelikarLab/ccNetViz/tree/master/src/layout)) and basic graph interactivity.
 Used for example by [Cell Collective](http://cellcollective.org) project.
 [ccNetViz](http://helikarlab.github.io/ccNetViz) is open source library available under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
