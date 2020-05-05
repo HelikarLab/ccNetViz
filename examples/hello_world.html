@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz example</title>
+    <style type="text/css">
+      #container {
+        width: 250px;
+        height: 250px;
+      }
+    </style>
+    <script src="../lib/ccNetViz.js"></script>
+  </head>
+  <body>
+    <canvas id="container" />
+    <script>
+      var graph = new ccNetViz(document.getElementById('container'), {
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
+      var nodes = [{ label: 'Hello' }, { label: 'World' }, { label: '!' }];
+      var edges = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[1] },
+      ];
+      graph.set(nodes, edges, 'force').then(() => {
+        graph.draw();
+      });
+    </script>
+  </body>
+</html>
