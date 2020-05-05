@@ -705,56 +705,6 @@
     </div>
     <div class="o-container">
       <div class="container">
-        <div id="description" class="row">
-          <h5 id="about" class="row">How to run the library localy on your computer</h5>
-          <article class="row">
-            <div><b>NOTE:</b> this is only for the beginner users explaining howto spin up the simple http server for this directory.</div>
-            <div>
-              <ul>
-                <li>Have nodejs installed (see <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></b></i> for instalation instructions)</li>
-                <li>Have yarn installed (see <a href="https://classic.yarnpkg.com/en/docs/install/">https://classic.yarnpkg.com/en/docs/install/</a></b></i> for instalation instructions)</li>
-                <li>Clone the current git repository: <i><b>git clone https://github.com/HelikarLab/ccNetViz.git</b></i></li>
-                <li>Run <i><b>yarn start</b></i> command (The command should automatically open you the web browser with http://127.0.0.1:8080)</li>
-                <li>Click onto the <b>examples</b> directory and then click on any of the example files you want to see</li>
-              </ul>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-    <div class="o-container">
-      <div class="container">
-        <div id="description" class="row">
-          <h5 id="about" class="row">Developing with the ccNetViz</h5>
-          <article class="row">
-            <div><b>NOTE:</b> use this guide if you are web developer and you want to integrate the library into the current webpage or javascript frontend project.</div>
-            <h6>Step 1 : Install ccNetViz binaries</h6>
-            <div>
-              <ul>
-                <li>via <a href="https://www.npmjs.com/package/ccnetviz">NPM</a>: <i><b>npm install ccnetviz</b></i> (alternatively using yarn <i><b>yarn add ccnetviz</b></i>)</li>
-                <li>or download manualy from <i><b><a href="https://github.com/HelikarLab/ccNetViz/tree/master/lib">https://github.com/HelikarLab/ccNetViz/tree/master/lib</a></b></i></li>
-              </ul>
-            </div>
-            <h6>Step 2: Import the library</h6>
-            <div>
-              <ul>
-                <li>The minimal script you have to load is: <code>&lt;script src="./ccnetviz.js"&gt;&lt;/script&gt;</code>.</li>
-              </ul>
-              <div>
-                Personally we do prefer using installation via npm combined with the <a href="https://webpack.js.org/">webpack bundler</a>.<br />
-                If you do that, then you can import the module via <a href="https://webpack.js.org/api/module-methods/">https://webpack.js.org/api/module-methods/</a>.
-              </div>
-            </div>
-            <h6>Step 3: Using the library</h6>
-            <div>
-              We do recommend you to start by using the code from the Hello world example. Once you are confident you can look more into our advanced examples and to their code (follow the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/examples">https://github.com/HelikarLab/ccNetViz/tree/master/examples</a> for details).
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-    <div class="o-container">
-      <div class="container">
         <div id="usage" class="row">
           <h5 class="row">Hello World Example</h5>
           <article class="usage-description">
@@ -969,6 +919,48 @@
               </div>
             </div>
           </div>
+        </div>
+        <div id="running" class="row">
+          <h5 id="about" class="row">How to run the library localy on your computer</h5>
+          <article class="row">
+            <div><b>NOTE:</b> this is only for the beginner users explaining howto spin up the simple http server for this directory.</div>
+            <div>
+              <ul>
+                <li>Have nodejs installed (see <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></b></i> for instalation instructions)</li>
+                <li>Have yarn installed (see <a href="https://classic.yarnpkg.com/en/docs/install/">https://classic.yarnpkg.com/en/docs/install/</a></b></i> for instalation instructions)</li>
+                <li>Clone the current git repository: <i><b>git clone https://github.com/HelikarLab/ccNetViz.git</b></i></li>
+                <li>Run <i><b>yarn start</b></i> command (The command should automatically open you the web browser with http://127.0.0.1:8080)</li>
+                <li>Click onto the <b>examples</b> directory and then click on any of the example files you want to see <br />or follow the <b><i>http://127.0.0.1:8080/examples/hello_world.html</i></b> to see hello world example</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+        <div id="development" class="row">
+          <h5 id="about" class="row">Developing with the ccNetViz</h5>
+          <article class="row">
+            <div><b>NOTE:</b> use this guide if you are web developer and you want to integrate the library into the current webpage or javascript frontend project.</div>
+            <h6>Step 1 : Install ccNetViz binaries</h6>
+            <div>
+              <ul>
+                <li>via <a href="https://www.npmjs.com/package/ccnetviz">NPM</a>: <i><b>npm install ccnetviz</b></i> (alternatively using yarn <i><b>yarn add ccnetviz</b></i>)</li>
+                <li>or download manualy from <i><b><a href="https://github.com/HelikarLab/ccNetViz/tree/master/lib">https://github.com/HelikarLab/ccNetViz/tree/master/lib</a></b></i></li>
+              </ul>
+            </div>
+            <h6>Step 2: Import the library</h6>
+            <div>
+              <ul>
+                <li>The minimal script you have to load is: <code>&lt;script src="./ccnetviz.js"&gt;&lt;/script&gt;</code>.</li>
+              </ul>
+              <div>
+                Personally we do prefer using installation via npm combined with the <a href="https://webpack.js.org/">webpack bundler</a>.<br />
+                If you do that, then you can import the module via <a href="https://webpack.js.org/api/module-methods/">https://webpack.js.org/api/module-methods/</a>.
+              </div>
+            </div>
+            <h6>Step 3: Using the library</h6>
+            <div>
+              We do recommend you to start by using the code from the Hello world example. Once you are confident you can look more into our advanced examples and to their code (follow the <a href="https://github.com/HelikarLab/ccNetViz/tree/master/examples">https://github.com/HelikarLab/ccNetViz/tree/master/examples</a> for details).
+            </div>
+          </article>
         </div>
         <div class="row" id="doc">
           <h5 class="row">Documentation</h5>
