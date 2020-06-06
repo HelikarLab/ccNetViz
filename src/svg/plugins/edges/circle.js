@@ -1,27 +1,33 @@
 import geomutils from '../../../geomutils';
 import utils from './utils';
 
-var generateCircle = function() {
+var generateCircles = function() {
   this.set = function(drawEntities, svg, styles) {
     let edges = drawEntities.circles;
     edges.map((edge, index) => {
-      //   const edgeShift = geomutils.getCurveShift(edge);
       //   const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
       let currentStyle = utils.updateStyles(drawEntities, edge, target, styles);
+      let eccentricity = utils.getSize(
+        svg,
+        undefined,
+        utils.getEdgesCnt(drawEntities),
+        0.5
+      );
 
-      this.draw(svg, target.x, target.y, edge, currentStyle);
+      this.draw(svg, target, edge, eccentricity, currentStyle);
     });
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = function(svg, x, y, edge, styles) {
-    x = x * 500;
-    y = y * 500;
-    // some constant multiplied by getsize
-    let crx = x - 75;
-    let clx = x + 75;
+  this.draw = function(svg, target, edge, eccentricity, styles) {
+    let x = target.x * 500;
+    let y = target.y * 500;
+
+    // 2.5 --> based on visual comparison with ccNetViz
+    let crx = x - eccentricity * 2.5;
+    let clx = x + eccentricity * 2.5;
     let cy;
 
     // Checks the midpoint of the canvas, and draws circle depending upon
@@ -83,4 +89,4 @@ var generateCircle = function() {
   };
 };
 
-export { generateCircle };
+export { generateCircles };

@@ -1,4 +1,4 @@
-var generateNode = function() {
+var generateNodes = function() {
   this.set = function(drawEntities, svg, styles) {
     let nodes = drawEntities.nodes;
     nodes.map((node, index) => {
@@ -30,13 +30,13 @@ var generateNode = function() {
     );
 
     let url = '../' + styles.texture;
-    let radius = styles.radius || 5;
+    let size = styles.size || 5;
     image.setAttribute('href', url);
-    image.setAttribute('x', x - radius / 2);
-    image.setAttribute('y', y - radius / 2);
+    image.setAttribute('x', x - size / 2);
+    image.setAttribute('y', y - size / 2);
 
-    image.setAttribute('height', radius);
-    image.setAttribute('weight', radius);
+    image.setAttribute('height', size);
+    image.setAttribute('weight', size);
 
     // let url = '../' + styles.texture;
     // image.setAttribute('xlink:href', url);
@@ -58,7 +58,7 @@ var generateNode = function() {
     var currentNode = document.createElementNS(svgNS, 'circle');
     currentNode.setAttributeNS(null, 'cx', x);
     currentNode.setAttributeNS(null, 'cy', y);
-    currentNode.setAttributeNS(null, 'r', styles.radius || 5);
+    currentNode.setAttributeNS(null, 'r', styles.size || 5);
     if (styles.texture !== undefined) {
       this.customeNode(svg, currentNode, x, y, id, styles);
     } else {
@@ -70,4 +70,4 @@ var generateNode = function() {
   };
 };
 
-export { generateNode };
+export { generateNodes };

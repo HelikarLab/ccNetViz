@@ -1,25 +1,25 @@
-import { generateLine } from './plugins/edges/line';
-import { generateCurve } from './plugins/edges/curve';
-import { generateCircle } from './plugins/edges/circle';
-import { generateNode } from './plugins/nodes/index';
-import { generateLabel } from './plugins/labels/index';
+import { generateLines } from './plugins/edges/line';
+import { generateCurves } from './plugins/edges/curve';
+import { generateCircles } from './plugins/edges/circle';
+import { generateNodes } from './plugins/nodes/index';
+import { generateLabels } from './plugins/labels/index';
 
 var svgRenderer = function() {
   this.draw = function(drawEntities, svg, styles) {
     console.log(drawEntities);
-    let generateLin = new generateLine();
+    let generateLin = new generateLines();
     generateLin.set(drawEntities, svg, styles);
 
-    let generateCur = new generateCurve();
+    let generateCur = new generateCurves();
     generateCur.set(drawEntities, svg, styles);
 
-    let generateCir = new generateCircle();
+    let generateCir = new generateCircles();
     generateCir.set(drawEntities, svg, styles);
 
-    let generateNod = new generateNode();
+    let generateNod = new generateNodes();
     generateNod.set(drawEntities, svg, styles);
 
-    let generateLab = new generateLabel();
+    let generateLab = new generateLabels();
     generateLab.set(drawEntities, svg, styles);
   };
 };

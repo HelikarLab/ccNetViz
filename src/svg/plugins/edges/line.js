@@ -1,7 +1,7 @@
 import geomutils from '../../../geomutils';
 import utils from './utils';
-// plural
-var generateLine = function() {
+
+var generateLines = function() {
   this.set = function(drawEntities, svg, styles) {
     let edges = drawEntities.lines;
 
@@ -51,4 +51,4 @@ var generateLine = function() {
   };
 };
 
-export { generateLine };
+export { generateLines };

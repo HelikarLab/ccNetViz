@@ -288,14 +288,14 @@ export default function(
         },
         node: {
           texture: 'images/node.png',
-          radius: 16,
+          size: 16,
           color: 'rgb(255, 0, 0)',
           label: {
             color: 'rgb(120, 0, 0)',
           },
         },
         nodeBig: {
-          radius: 20,
+          size: 20,
           color: 'rgb(220, 220, 60)',
           label: {
             color: 'rgb(130,130,5)',

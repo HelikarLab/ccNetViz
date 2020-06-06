@@ -1,32 +1,39 @@
 export default class {
-  // const context = const context = {
-  // width: GET SVG WIDTH,
-  // height: GET SVG HEIGHT
-  // }
-
-  // nodes.len
-  // edges.len
-
-  //getNodesCnt = () => nodes.length
-  // edges = lines + curves + circles
-
-  static getSize(c, s, n, sc) {
-    let result = sc * Math.sqrt((c.width * c.height) / (n + 1));
-    if (s) {
-      let min = s.size ? s.size : s.minSize;
-      let max = s.size ? s.size : s.maxSize;
+  // FUNCTION: Gives a number through which curve can be formed
+  // Similar to `src/ccNetViz` -> 385
+  static getSize(context, styles, count, sc) {
+    // multiplied by 0.5 as done in `src/ccNetViz` on line -> 445,446
+    let height = context.height.baseVal.value * 0.5;
+    let width = context.width.baseVal.value * 0.5;
+    let result = sc * Math.sqrt((width * height) / (count + 1));
+    if (styles) {
+      let min = styles.size ? styles.size : styles.minSize;
+      let max = styles.size ? styles.size : styles.maxSize;
 
       result = max ? Math.min(max, result) : result;
-      if (result < s.hideSize) return 0;
+      if (result < styles.hideSize) return 0;
       result = min ? Math.max(min, result) : result;
     }
     return result;
   }
 
+  // FUNCTION: returns number of nodes
+  static getNodesCnt(drawEntities) {
+    return drawEntities.nodes.length();
+  }
+
+  // FUNCTION: return number of edges
+  static getEdgesCnt(drawEntities) {
+    return (
+      drawEntities.lines.length +
+      drawEntities.curves.length +
+      drawEntities.circles.length
+    );
+  }
+
   // FUNCTION: Adds the arrow at the end of the edge
   // lazy cache the elements and do not create new for every edge
   // i.e. reuse for edges
-
   static addArrowHead(currentEdge, styles, type, id) {
     // declare variables
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
@@ -83,7 +90,7 @@ export default class {
     else targetNodeStyle = styles.node;
 
     // extract the target edge's individualstyle if present
-    let targetNodeRadius = targetNodeStyle.radius;
+    let targetNodeRadius = targetNodeStyle.size;
     if (edge.style !== undefined) currentStyle = styles[edge.style];
     else currentStyle = styles.edge;
 
@@ -111,8 +118,12 @@ export default class {
     let dx = x2 - x1;
     let dy = y2 - y1;
 
-    let cx = -dy / 6;
-    let cy = dx / 6;
+    // eccentricity comes from getSize() function
+    // 5 is constant basen on visual comparison with ccNetViz
+    eccentricity = eccentricity / 5;
+
+    let cx = -dy / eccentricity;
+    let cy = dx / eccentricity;
 
     cx = x + cx;
     cy = y + cy;
