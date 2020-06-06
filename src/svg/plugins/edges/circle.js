@@ -1,5 +1,6 @@
 import geomutils from '../../../geomutils';
-import utils from './utils';
+import baseUtils from '../utils/index';
+import edgeUtils from './utils';
 
 var generateCircles = function() {
   this.set = function(drawEntities, svg, styles) {
@@ -8,11 +9,16 @@ var generateCircles = function() {
       //   const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
-      let currentStyle = utils.updateStyles(drawEntities, edge, target, styles);
-      let eccentricity = utils.getSize(
+      let currentStyle = edgeUtils.updateStyles(
+        drawEntities,
+        edge,
+        target,
+        styles
+      );
+      let eccentricity = edgeUtils.getSize(
         svg,
         undefined,
-        utils.getEdgesCnt(drawEntities),
+        edgeUtils.getEdgesCnt(drawEntities),
         0.5
       );
 
@@ -22,36 +28,54 @@ var generateCircles = function() {
 
   // FUNCTION: Draws individual edges
   this.draw = function(svg, target, edge, eccentricity, styles) {
-    let x = target.x * 500;
-    let y = target.y * 500;
+    const height = baseUtils.getSVGDimensions(svg).height;
+    const width = baseUtils.getSVGDimensions(svg).width;
+    let x = target.x * height;
+    let y = target.y * width;
 
     // 2.5 --> based on visual comparison with ccNetViz
-    let crx = x - eccentricity * 2.5;
-    let clx = x + eccentricity * 2.5;
+    const curvature = eccentricity * 2.5;
+    let crx = x - curvature;
+    let clx = x + curvature;
     let cy;
 
     // Checks the midpoint of the canvas, and draws circle depending upon
-    // whether it is in top half (=> add 100 to draw circle bottom-down)
-    // or bottom half (=> subtracts 100 to draw circle bottom-up)
-    if (y < 250) cy = y + 75;
-    // 250 => change it with respect to view height
-    else cy = y - 75;
+    // whether it is in top half (=> add `curvature` to draw circle bottom-down)
+    // or bottom half (=> subtracts `curvature` to draw circle bottom-up)
+    if (y < height) cy = y + curvature;
+    else cy = y - curvature;
 
-    let circleBoundaries = utils.getCurveBoundary(x, y, clx, cy, crx, cy, x, y);
+    let circleBoundary = edgeUtils.getCurveBoundary(
+      x,
+      y,
+      clx,
+      cy,
+      crx,
+      cy,
+      x,
+      y
+    );
 
-    // EXTRA -> If circle crosses the 500x500 canvas horizontally
+    // EXTRA -> If circle crosses the horizontal boundary
     // ==> Checks if it is crossing any horizontal boundries
     // if (x1 - 100 < 0) crx = 0;
     // else crx = x1 - 100;
     // if (x2 + 100 > 500) clx = 500;
     // else clx = x2 + 100;
+
+    // checks if there is any overlapping circle,
+    // right now, if (edge.weight !== undefined) is a bad hack based on comparisons
+    // if overlapping found
+    // then if point is in upper half, then shift the y coordinate down
+    // else shift it up
+    // also shift the cy (cubic curvature point) accordingly
     if (edge.weight !== undefined) {
-      if (y < 250) {
-        y = y + circleBoundaries.height;
-        cy = y + 75;
+      if (y < height) {
+        y = y + circleBoundary.height;
+        cy = y + curvature;
       } else {
-        y = y - circleBoundaries.height;
-        cy = y - 75;
+        y = y - circleBoundary.height;
+        cy = y - curvature;
       }
     }
 
@@ -82,7 +106,12 @@ var generateCircles = function() {
     currentCircle.setAttribute('stroke-width', styles.width || 1);
     currentCircle.setAttribute('fill', 'none');
 
-    let defs = utils.addArrowHead(currentCircle, styles, 'circle', edge.uniqid);
+    let defs = edgeUtils.addArrowHead(
+      currentCircle,
+      styles,
+      'circle',
+      edge.uniqid
+    );
 
     svg.append(defs);
     svg.append(currentCircle);

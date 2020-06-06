@@ -1,5 +1,6 @@
 import geomutils from '../../../geomutils';
-import utils from './utils';
+import baseUtils from '../utils/index';
+import edgeUtils from './utils';
 
 var generateLines = function() {
   this.set = function(drawEntities, svg, styles) {
@@ -9,27 +10,25 @@ var generateLines = function() {
       const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
-      let currentStyle = utils.updateStyles(drawEntities, edge, target, styles);
-
-      this.draw(
-        svg,
-        source.x,
-        source.y,
-        target.x,
-        target.y,
-        edge.uniqid,
-        currentStyle
+      let currentStyle = edgeUtils.updateStyles(
+        drawEntities,
+        edge,
+        target,
+        styles
       );
+
+      this.draw(svg, source, target, edge.uniqid, currentStyle);
     });
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = function(svg, x1, y1, x2, y2, id, styles) {
-    // read the svg element's height and width
-    x1 = x1 * 500;
-    y1 = y1 * 500;
-    x2 = x2 * 500;
-    y2 = y2 * 500;
+  this.draw = function(svg, source, target, id, styles) {
+    const height = baseUtils.getSVGDimensions(svg).height;
+    const width = baseUtils.getSVGDimensions(svg).width;
+    let x1 = source.x * height;
+    let y1 = source.y * width;
+    let x2 = target.x * height;
+    let y2 = target.y * width;
 
     let currentEdge = document.createElementNS(
       'http://www.w3.org/2000/svg',
@@ -44,7 +43,7 @@ var generateLines = function() {
     currentEdge.setAttribute('stroke', styles.color || 'rgb(204, 204, 204)');
     currentEdge.setAttribute('stroke-width', styles.width || 1);
 
-    let defs = utils.addArrowHead(currentEdge, styles, 'line', id);
+    let defs = edgeUtils.addArrowHead(currentEdge, styles, 'line', id);
 
     svg.append(defs);
     svg.append(currentEdge);

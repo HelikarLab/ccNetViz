@@ -1,25 +1,24 @@
+import baseUtils from '../utils/index';
+import labelUtils from './utils';
+
 var generateLabels = function() {
   this.set = function(drawEntities, svg, styles) {
     let nodes = drawEntities.nodes;
     nodes.map((node, index) => {
-      let currentStyle = this.updateStyles(node, styles);
+      let currentStyle = labelUtils.updateStyles(node, styles);
 
-      this.draw(svg, node.x, node.y, node.label, currentStyle);
+      this.draw(svg, node, currentStyle);
     });
   };
 
-  // FUNCTION: checks if the node has individual styles
-  this.updateStyles = function(node, styles) {
-    let currentStyle;
-    if (node.style !== undefined) currentStyle = styles[node.style];
-    else currentStyle = styles.node;
+  this.draw = function(svg, node, styles) {
+    const height = baseUtils.getSVGDimensions(svg).height;
+    const width = baseUtils.getSVGDimensions(svg).width;
+    const x = node.x * height;
+    const y = node.y * width;
 
-    return currentStyle;
-  };
+    //TODO: change label position based on its coordinates
 
-  this.draw = function(svg, x, y, label, styles) {
-    x = x * 500;
-    y = y * 500;
     var currentLabel = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'text'
@@ -29,7 +28,7 @@ var generateLabels = function() {
     currentLabel.setAttributeNS(null, 'x', x + styles.size / 2);
     currentLabel.setAttributeNS(null, 'y', y + styles.size);
     currentLabel.setAttributeNS(null, 'fill', labelColor);
-    var txt = document.createTextNode(label);
+    var txt = document.createTextNode(node.label);
     currentLabel.appendChild(txt);
     svg.appendChild(currentLabel);
   };

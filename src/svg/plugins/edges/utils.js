@@ -1,10 +1,14 @@
+import baseUtils from '../utils/index';
+
 export default class {
   // FUNCTION: Gives a number through which curve can be formed
   // Similar to `src/ccNetViz` -> 385
   static getSize(context, styles, count, sc) {
+    let svg = baseUtils.getSVGDimensions(context);
+
     // multiplied by 0.5 as done in `src/ccNetViz` on line -> 445,446
-    let height = context.height.baseVal.value * 0.5;
-    let width = context.width.baseVal.value * 0.5;
+    let height = svg.height * 0.5;
+    let width = svg.width * 0.5;
     let result = sc * Math.sqrt((width * height) / (count + 1));
     if (styles) {
       let min = styles.size ? styles.size : styles.minSize;

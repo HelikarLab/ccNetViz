@@ -1,5 +1,6 @@
 import geomutils from '../../../geomutils';
-import utils from './utils';
+import baseUtils from '../utils/index';
+import edgeUtils from './utils';
 
 var generateCurves = function() {
   this.set = function(drawEntities, svg, styles) {
@@ -8,11 +9,16 @@ var generateCurves = function() {
       const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
-      let currentStyle = utils.updateStyles(drawEntities, edge, target, styles);
-      let eccentricity = utils.getSize(
+      let currentStyle = edgeUtils.updateStyles(
+        drawEntities,
+        edge,
+        target,
+        styles
+      );
+      let eccentricity = edgeUtils.getSize(
         svg,
         undefined,
-        utils.getEdgesCnt(drawEntities),
+        edgeUtils.getEdgesCnt(drawEntities),
         0.5
       );
 
@@ -22,13 +28,15 @@ var generateCurves = function() {
 
   // FUNCTION: Draws individual edges
   this.draw = function(svg, source, target, eccentricity, id, styles) {
-    let x1 = source.x * 500;
-    let y1 = source.y * 500;
-    let x2 = target.x * 500;
-    let y2 = target.y * 500;
+    const height = baseUtils.getSVGDimensions(svg).height;
+    const width = baseUtils.getSVGDimensions(svg).width;
+    let x1 = source.x * height;
+    let y1 = source.y * width;
+    let x2 = target.x * height;
+    let y2 = target.y * width;
 
     // defines the curvature of the curve
-    let roundness = utils.quadraticCurvePoint(x1, x2, y1, y2, eccentricity);
+    let roundness = edgeUtils.quadraticCurvePoint(x1, x2, y1, y2, eccentricity);
     let ex = roundness.cx;
     let ey = roundness.cy;
 
@@ -44,7 +52,7 @@ var generateCurves = function() {
     currentCurve.setAttribute('stroke-width', styles.width || 1);
     currentCurve.setAttribute('fill', 'none');
 
-    let defs = utils.addArrowHead(currentCurve, styles, 'curve', id);
+    let defs = edgeUtils.addArrowHead(currentCurve, styles, 'curve', id);
 
     svg.append(defs);
     svg.append(currentCurve);
