@@ -4,6 +4,7 @@ import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { normalize } from './util';
+import { svgRenderer } from '../svg/index';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -278,6 +279,49 @@ export default function(
 
     while (tryInitPrimitives()); //loop until they are not dirty
     set_end();
+
+    let svg = document.getElementById('downloadSVG');
+    if (svg) {
+      var styles = {
+        background: {
+          color: 'rgb(255, 255, 0)',
+        },
+        node: {
+          texture: 'images/node.png',
+          radius: 16,
+          color: 'rgb(255, 0, 0)',
+          label: {
+            color: 'rgb(120, 0, 0)',
+          },
+        },
+        nodeBig: {
+          radius: 20,
+          color: 'rgb(220, 220, 60)',
+          label: {
+            color: 'rgb(130,130,5)',
+          },
+        },
+        edge: {
+          width: 2,
+          color: 'rgb(204, 204, 204)',
+          arrow: {
+            size: 10,
+            texture: 'images/arrow.png',
+          },
+        },
+        wideEdge: {
+          width: 5,
+          color: 'rgb(102,102,102)',
+          arrow: {
+            size: 20,
+          },
+        },
+      };
+
+      let svgr = new svgRenderer();
+
+      svgr.draw(drawEntities, svg, styles);
+    }
   };
 
   this.update = function(element, attribute, data) {

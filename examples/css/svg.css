@@ -1,0 +1,39 @@
+.downloadBox {
+  width: 520px;
+  height: 520px;
+  margin: 20px auto;
+  text-align: center;
+  border: 1px solid black;
+}
+
+#downloadSVG {
+  width: 500px;
+  height: 500px;
+  margin: auto;
+  border-radius: 2px;
+}
+/* 
+#svgContainer {
+  width: 500px;
+  height: 500px;
+} */
+
+/* .downloadBox {
+  width: 1020px;
+  height: 1020px;
+  margin: 20px auto;
+  text-align: center;
+  border: 1px solid black;
+}
+
+#downloadSVG {
+  width: 1000px;
+  height: 1000px;
+  margin: auto;
+  border-radius: 2px;
+}
+
+#svgContainer {
+  width: 1000px;
+  height: 1000px;
+} */
