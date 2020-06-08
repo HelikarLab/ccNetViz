@@ -3,8 +3,9 @@ import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateCurves = function() {
-  this.set = function(drawEntities, svg, styles) {
+  this.set = function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.curves;
+
     edges.map((edge, index) => {
       const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
@@ -15,7 +16,11 @@ var generateCurves = function() {
         target,
         styles
       );
-      let eccentricity = edgeUtils.getSize(
+      currentStyle.arrowHead = edgeUtils.lazyCacheArrow(
+        currentStyle,
+        arrowHeadHashMmap
+      );
+      const eccentricity = edgeUtils.getSize(
         svg,
         undefined,
         edgeUtils.getEdgesCnt(drawEntities),
@@ -47,14 +52,17 @@ var generateCurves = function() {
       'http://www.w3.org/2000/svg',
       'path'
     );
+    currentCurve.setAttribute('id', id);
     currentCurve.setAttribute('d', curve);
     currentCurve.setAttribute('stroke', styles.color || 'rgb(204, 204, 204)');
     currentCurve.setAttribute('stroke-width', styles.width || 1);
     currentCurve.setAttribute('fill', 'none');
 
-    let defs = edgeUtils.addArrowHead(currentCurve, styles, 'curve', id);
+    const key = edgeUtils.generateArrowHeadId(styles);
+    const url = 'url(#' + key + ')';
+    currentCurve.setAttribute('marker-end', url);
 
-    svg.append(defs);
+    svg.append(styles.arrowHead);
     svg.append(currentCurve);
   };
 };

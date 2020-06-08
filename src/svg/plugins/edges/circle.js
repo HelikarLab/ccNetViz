@@ -3,8 +3,9 @@ import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateCircles = function() {
-  this.set = function(drawEntities, svg, styles) {
+  this.set = function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.circles;
+
     edges.map((edge, index) => {
       //   const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
@@ -14,6 +15,10 @@ var generateCircles = function() {
         edge,
         target,
         styles
+      );
+      currentStyle.arrowHead = edgeUtils.lazyCacheArrow(
+        currentStyle,
+        arrowHeadHashMmap
       );
       let eccentricity = edgeUtils.getSize(
         svg,
@@ -75,6 +80,7 @@ var generateCircles = function() {
         cy = y + curvature;
       } else {
         y = y - circleBoundary.height;
+        arrowHeadHmap;
         cy = y - curvature;
       }
     }
@@ -106,14 +112,11 @@ var generateCircles = function() {
     currentCircle.setAttribute('stroke-width', styles.width || 1);
     currentCircle.setAttribute('fill', 'none');
 
-    let defs = edgeUtils.addArrowHead(
-      currentCircle,
-      styles,
-      'circle',
-      edge.uniqid
-    );
+    const key = edgeUtils.generateArrowHeadId(styles);
+    const url = 'url(#' + key + ')';
+    currentCircle.setAttribute('marker-end', url);
 
-    svg.append(defs);
+    svg.append(styles.arrowHead);
     svg.append(currentCircle);
   };
 };

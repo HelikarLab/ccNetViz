@@ -7,14 +7,18 @@ import { generateLabels } from './plugins/labels/index';
 var svgRenderer = function() {
   this.draw = function(drawEntities, svg, styles) {
     console.log(drawEntities);
+
+    // hash map to store arrow head defintions
+    // so as to reduce its new generation
+    let arrowHeadHashMap = {};
     let generateLin = new generateLines();
-    generateLin.set(drawEntities, svg, styles);
+    generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateCur = new generateCurves();
-    generateCur.set(drawEntities, svg, styles);
+    generateCur.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateCir = new generateCircles();
-    generateCir.set(drawEntities, svg, styles);
+    generateCir.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateNod = new generateNodes();
     generateNod.set(drawEntities, svg, styles);

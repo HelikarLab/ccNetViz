@@ -3,7 +3,7 @@ import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateLines = function() {
-  this.set = function(drawEntities, svg, styles) {
+  this.set = function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.lines;
 
     edges.map((edge, index) => {
@@ -15,6 +15,10 @@ var generateLines = function() {
         edge,
         target,
         styles
+      );
+      currentStyle.arrowHead = edgeUtils.lazyCacheArrow(
+        currentStyle,
+        arrowHeadHashMmap
       );
 
       this.draw(svg, source, target, edge.uniqid, currentStyle);
@@ -43,9 +47,11 @@ var generateLines = function() {
     currentEdge.setAttribute('stroke', styles.color || 'rgb(204, 204, 204)');
     currentEdge.setAttribute('stroke-width', styles.width || 1);
 
-    let defs = edgeUtils.addArrowHead(currentEdge, styles, 'line', id);
+    const key = edgeUtils.generateArrowHeadId(styles);
+    const url = 'url(#' + key + ')';
+    currentEdge.setAttribute('marker-end', url);
 
-    svg.append(defs);
+    svg.append(styles.arrowHead);
     svg.append(currentEdge);
   };
 };

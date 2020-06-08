@@ -35,10 +35,42 @@ export default class {
     );
   }
 
+  // FUNCTION: Checks whether we need to create a new arrow head or not
+  static lazyCacheArrow(currentStyle, hmap) {
+    const key = this.generateArrowHeadId(currentStyle);
+
+    // if key(i.e. id of the arrow) is present, return the defs object
+    if (key in hmap) {
+      return hmap[key];
+    }
+    // else, create a new arrowHead, add it to hashmap, and then return it
+    else {
+      const newArrowHead = this.generateArrowHead(currentStyle, key); // a defs object
+      hmap[key] = newArrowHead;
+      return newArrowHead;
+    }
+  }
+
+  // FUNCTION: Generates new arrow head based on given styles
+  static generateArrowHeadId(currentStyle) {
+    let arrowSize = 10;
+    if (currentStyle.arrow && currentStyle.arrow.size)
+      arrowSize = currentStyle.arrow.size;
+    let color = currentStyle.color || 'rgb(204, 204, 204)';
+    let radius = currentStyle.targetNodeRadius || 5;
+    // removing unnecessary characters
+    color = color.replace(/\s+/g, '-');
+    color = color.replace('(', '-');
+    color = color.replace(')', '-');
+    color = color.replace(',', '');
+    const id = arrowSize + '-' + color + radius;
+    id.replace(/\s+/g, '-');
+    return id;
+  }
+
   // FUNCTION: Adds the arrow at the end of the edge
-  // TODO: lazy cache the elements and do not create new for every edge
-  // i.e. reuse for edges
-  static addArrowHead(currentEdge, styles, type, id) {
+  static generateArrowHead(styles, id) {
+    console.log('New arrowhead generated');
     // declare variables
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -54,12 +86,10 @@ export default class {
     path.setAttribute('d', d);
     path.setAttribute('fill', styles.color || 'rgb(204, 204, 204)');
 
-    const arrowId = type + 'Arrow' + id;
-
     // adding marker-head attributes
     marker.setAttribute('markerWidth', arrowSize);
     marker.setAttribute('markerHeight', arrowSize);
-    marker.setAttribute('id', arrowId);
+    marker.setAttribute('id', id);
     marker.setAttribute(
       'refX',
       arrowSize - arrowSize / 6 + (styles.targetNodeRadius || 5)
@@ -71,15 +101,12 @@ export default class {
     // adding elements to svg
     marker.appendChild(path);
     defs.appendChild(marker);
-    const url = 'url(#' + arrowId + ')';
-    currentEdge.setAttribute('marker-end', url);
+    // const url = 'url(#' + arrowId + ')';
+    // currentEdge.setAttribute('marker-end', url);
 
     return defs;
   }
   // FUNCTION: Updates the edge styles with target node radius, which will help in position of the arrow head
-  // TODO: redefine the object modification code
-  // do not change the passed objects
-  // create a new object and send back that object
   static updateStyles(drawEntities, edge, target, styles) {
     let currentStyle;
 
