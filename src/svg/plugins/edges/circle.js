@@ -64,7 +64,7 @@ var generateCircles = function() {
     // else clx = x2 + 100;
 
     // checks if there is any overlapping circle,
-    // right now, if (edge.weight !== undefined) is a bad hack based on comparisons
+    // right now, if (edge.weight !== undefined) is a BAD HACK: based on comparisons
     // if overlapping found
     // then if point is in upper half, then shift the y coordinate down
     // else shift it up

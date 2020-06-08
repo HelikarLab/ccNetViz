@@ -36,7 +36,7 @@ export default class {
   }
 
   // FUNCTION: Adds the arrow at the end of the edge
-  // lazy cache the elements and do not create new for every edge
+  // TODO: lazy cache the elements and do not create new for every edge
   // i.e. reuse for edges
   static addArrowHead(currentEdge, styles, type, id) {
     // declare variables
@@ -63,7 +63,7 @@ export default class {
     marker.setAttribute(
       'refX',
       arrowSize - arrowSize / 6 + (styles.targetNodeRadius || 5)
-    ); // TODO: this is trial and error and needs to be redefined
+    ); // TODO: this is trial and error and may need to be redefined
     marker.setAttribute('refY', arrowSize / 2);
     marker.setAttribute('orient', 'auto');
     marker.setAttribute('markerUnits', 'userSpaceOnUse');
@@ -77,6 +77,7 @@ export default class {
     return defs;
   }
   // FUNCTION: Updates the edge styles with target node radius, which will help in position of the arrow head
+  // TODO: redefine the object modification code
   // do not change the passed objects
   // create a new object and send back that object
   static updateStyles(drawEntities, edge, target, styles) {
@@ -103,10 +104,10 @@ export default class {
       targetNodeRadius -= targetNodeRadius / 2;
 
     // update the current edge stlye
-    if (target.index === undefined) currentStyle.targetNodeRadius = 1;
-    // this if condition is mailny for overlapping circles
-    // a bad hack based on => comaparing various drawEntites objects and then
+    // this if condition is mainly for overlapping circles
+    // a BAD HACK: based on => comaparing various drawEntites objects and then
     // selecting the one through which we can differentiate which circle to shift
+    if (target.index === undefined) currentStyle.targetNodeRadius = 1;
     else currentStyle.targetNodeRadius = targetNodeRadius;
 
     return currentStyle;
@@ -114,8 +115,6 @@ export default class {
 
   // FUNCTION: Calculates quadratic bezier curve coordinates
   static quadraticCurvePoint(x1, x2, y1, y2, eccentricity) {
-    // TODO: Try if the curvature can be defined from `getSize()`
-
     let x = (x1 + x2) / 2;
     let y = (y1 + y2) / 2;
 
