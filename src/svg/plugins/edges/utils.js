@@ -70,7 +70,6 @@ export default class {
 
   // FUNCTION: Adds the arrow at the end of the edge
   static generateArrowHead(styles, id) {
-    console.log('New arrowhead generated');
     // declare variables
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
