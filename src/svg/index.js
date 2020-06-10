@@ -7,6 +7,7 @@ import { generateLabels } from './plugins/labels/index';
 var svgRenderer = function() {
   this.draw = function(drawEntities, svg, styles) {
     console.log(drawEntities);
+    console.time('SVG Renderer');
 
     // hash map to store arrow head defintions
     // so as to reduce its new generation
@@ -25,6 +26,8 @@ var svgRenderer = function() {
 
     let generateLab = new generateLabels();
     generateLab.set(drawEntities, svg, styles);
+
+    console.timeEnd('SVG Renderer');
   };
 };
 

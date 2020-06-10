@@ -7,13 +7,18 @@ function init() {
   effectButton = document.getElementById('EffectButton');
   paintButton = document.getElementById('PaintButton');
   canvas = document.getElementById('Canvas');
+  console.log(canvas);
   context = canvas.getContext('2d');
+  console.log(context);
   var image = document.getElementById('SourceImage');
+  console.log(image);
 
   // Set the canvas the same width and height of the image
   canvas.width = image.width;
   canvas.height = image.height;
-  drawImage(image);
+
+  context.drawImage(image, 0, 0);
+  console.log(context);
 
   effectButton.addEventListener('click', onClick);
 }
@@ -30,8 +35,11 @@ function onClick() {
     .replace(/ /g, '')
     .split(',');
 
+  //   console.log(context);
   var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  console.log(imageData.data);
   convertColor(imageData.data, inpColor);
+  console.log(imageData.data);
   context.putImageData(imageData, 0, 0);
 }
 
