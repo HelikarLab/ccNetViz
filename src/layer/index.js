@@ -289,7 +289,22 @@ export default function(
         node: {
           texture: 'images/node.png',
           size: 16,
-          color: 'rgb(255, 0, 0)',
+          label: {
+            color: 'rgb(120, 0, 0)',
+          },
+        },
+        ytNode: {
+          texture: 'images/node.png',
+          size: 16,
+          color: 'rgb(250, 250, 0)',
+          label: {
+            color: 'rgb(120, 0, 0)',
+          },
+        },
+        gtNode: {
+          texture: 'images/node.png',
+          size: 16,
+          color: 'rgb(20, 255, 0)',
           label: {
             color: 'rgb(120, 0, 0)',
           },

@@ -1,13 +1,13 @@
 {
   "nodes": [
-    { "label": "1" },
+    { "label": "1", "style": "gtNode" },
     { "label": "2", "style": "nodeBig" },
-    { "label": "3" },
+    { "label": "3", "style": "ytNode" },
     { "label": "4" },
     { "label": "5", "style": "nodeBig" },
-    { "label": "6" },
+    { "label": "6", "style": "gtNode" },
     { "label": "7" },
-    { "label": "8" },
+    { "label": "8", "style": "ytNode" },
     { "label": "9" },
     { "label": "10", "style": "nodeBig" }
   ],

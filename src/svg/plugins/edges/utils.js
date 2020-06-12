@@ -36,17 +36,17 @@ export default class {
   }
 
   // FUNCTION: Checks whether we need to create a new arrow head or not
-  static lazyCacheArrow(currentStyle, hmap) {
+  static lazyCacheArrow(currentStyle, hMap) {
     const key = this.generateArrowHeadId(currentStyle);
 
     // if key(i.e. id of the arrow) is present, return the defs object
-    if (key in hmap) {
-      return hmap[key];
+    if (key in hMap) {
+      return hMap[key];
     }
     // else, create a new arrowHead, add it to hashmap, and then return it
     else {
       const newArrowHead = this.generateArrowHead(currentStyle, key); // a defs object
-      hmap[key] = newArrowHead;
+      hMap[key] = newArrowHead;
       return newArrowHead;
     }
   }

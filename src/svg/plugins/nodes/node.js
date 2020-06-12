@@ -1,22 +1,33 @@
 import baseUtils from '../utils/index';
 import nodeUtils from './utils';
-import shader from '../shader/shader';
+import Shader from '../shader/shader';
 
 var generateNodes = function() {
-  this.set = function(drawEntities, svg, styles) {
+  let nodeImageHashMap = {};
+  this.set = async function(drawEntities, svg, styles) {
     const nodes = drawEntities.nodes;
-    nodes.map((node, index) => {
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
       let currentStyle = nodeUtils.updateStyles(node, styles);
 
-      this.draw(svg, node, currentStyle);
-    });
+      await this.draw(svg, node, currentStyle);
+    }
   };
 
-  this.customeNode = function(svg, x, y, id, styles) {
-    shader.imageProcessing(svg, x, y, 'node-' + id, styles);
+  this.customeNode = async function(svg, x, y, id, styles) {
+    let shader = new Shader();
+    await shader.lazyCacheNodes(
+      svg,
+      x,
+      y,
+      'node-' + id,
+      styles,
+      nodeImageHashMap
+    );
   };
 
-  this.draw = function(svg, node, styles) {
+  this.draw = async function(svg, node, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
     const x = node.x * height;
@@ -27,7 +38,7 @@ var generateNodes = function() {
     currentNode.setAttributeNS(null, 'cy', y);
     currentNode.setAttributeNS(null, 'r', styles.size || 5);
     if (styles.texture !== undefined) {
-      this.customeNode(svg, x, y, node.uniqid, styles);
+      await this.customeNode(svg, x, y, node.uniqid, styles);
     } else {
       currentNode.setAttributeNS(null, 'id', 'node-' + node.uniqid);
       currentNode.setAttributeNS(null, 'fill', styles.color || 'black');
