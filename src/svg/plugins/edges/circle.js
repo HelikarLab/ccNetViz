@@ -3,10 +3,12 @@ import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateCircles = function() {
-  this.set = function(drawEntities, svg, styles, arrowHeadHashMmap) {
+  this.set = async function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.circles;
 
-    edges.map((edge, index) => {
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
+
       //   const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
@@ -27,12 +29,12 @@ var generateCircles = function() {
         0.5
       );
 
-      this.draw(svg, target, edge, eccentricity, currentStyle);
-    });
+      await this.draw(svg, target, edge, eccentricity, currentStyle);
+    }
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = function(svg, target, edge, eccentricity, styles) {
+  this.draw = async function(svg, target, edge, eccentricity, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
     let x = target.x * height;
@@ -47,7 +49,7 @@ var generateCircles = function() {
     // Checks the midpoint of the canvas, and draws circle depending upon
     // whether it is in top half (=> add `curvature` to draw circle bottom-down)
     // or bottom half (=> subtracts `curvature` to draw circle bottom-up)
-    if (y < height) cy = y + curvature;
+    if (y < height / 2) cy = y + curvature;
     else cy = y - curvature;
 
     let circleBoundary = edgeUtils.getCurveBoundary(

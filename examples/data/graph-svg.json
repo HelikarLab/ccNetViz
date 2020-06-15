@@ -1,15 +1,21 @@
 {
   "nodes": [
-    { "label": "1", "style": "gtNode" },
-    { "label": "2", "style": "nodeBig" },
-    { "label": "3", "style": "ytNode" },
-    { "label": "4" },
-    { "label": "5", "style": "nodeBig" },
-    { "label": "6", "style": "gtNode" },
-    { "label": "7" },
-    { "label": "8", "style": "ytNode" },
-    { "label": "9" },
-    { "label": "10", "style": "nodeBig" }
+    { "label": "Circular", "style": "gtNode" },
+    { "label": "Label Two", "style": "nodeBig" },
+    {
+      "label": "25px,Italic",
+      "style": "ytNode"
+    },
+    { "label": "18px, Bold" },
+    {
+      "label": "Label With Four Words",
+      "style": "nodeBig"
+    },
+    { "label": "Label Six", "style": "gtNode" },
+    { "label": "Seven" },
+    { "label": "Two Words", "style": "ytNode" },
+    { "label": "Label Nine" },
+    { "label": "Normal", "style": "nodeBig" }
   ],
   "edges": [
     { "source": 0, "target": 5 },
@@ -28,6 +34,8 @@
     { "source": 8, "target": 9 },
     { "source": 9, "target": 4 },
     { "source": 2, "target": 2 },
+    { "source": 2, "target": 1 },
+    { "source": 1, "target": 2 },
     { "source": 0, "target": 0, "style": "wideEdge" }
   ]
 }

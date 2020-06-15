@@ -1,4 +1,6 @@
-class PromiseShader {
+import ccNetViz_color from '../../../color';
+
+class Shader {
   // FUNCTION: converts rgb color string to int type
   rgbStringToInt(rgbColorString) {
     const rgb = rgbColorString
@@ -12,6 +14,7 @@ class PromiseShader {
   // FUNCTION: converts the given image data according to a passed color
   // TODO: Use ccNetViz Function instead of conversions
   convertColor(data, styles) {
+    let cccolor = new ccNetViz_color(styles.color);
     const requiredColor = this.rgbStringToInt(styles.color);
     var requiredHue = this.rgbToHsl(
       parseInt(requiredColor[0]),
@@ -33,10 +36,10 @@ class PromiseShader {
         hsl.s * (requiredHue.s * 1.6),
         hsl.l * (requiredHue.l * 1.6)
       );
-      data[i + 0] = newRgb.r;
-      data[i + 1] = newRgb.g;
-      data[i + 2] = newRgb.b;
-      data[i + 3] = alpha;
+      data[i + 0] *= cccolor.r;
+      data[i + 1] *= cccolor.g;
+      data[i + 2] *= cccolor.b;
+      data[i + 3] *= cccolor.a;
     }
   }
 
@@ -158,6 +161,7 @@ class PromiseShader {
         if (styles.color !== undefined) {
           this.convertColor(imageData.data, styles);
         }
+
         // overwrite the image with new colors
         context.putImageData(imageData, 0, 0);
         const src = canvas.toDataURL();
@@ -194,4 +198,4 @@ class PromiseShader {
     });
   }
 }
-export default PromiseShader;
+export default Shader;

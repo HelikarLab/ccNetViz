@@ -3,10 +3,11 @@ import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateCurves = function() {
-  this.set = function(drawEntities, svg, styles, arrowHeadHashMmap) {
+  this.set = async function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.curves;
 
-    edges.map((edge, index) => {
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
       const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
@@ -27,12 +28,19 @@ var generateCurves = function() {
         0.5
       );
 
-      this.draw(svg, source, target, eccentricity, edge.uniqid, currentStyle);
-    });
+      await this.draw(
+        svg,
+        source,
+        target,
+        eccentricity,
+        edge.uniqid,
+        currentStyle
+      );
+    }
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = function(svg, source, target, eccentricity, id, styles) {
+  this.draw = async function(svg, source, target, eccentricity, id, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
     let x1 = source.x * height;

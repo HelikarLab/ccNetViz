@@ -107,7 +107,9 @@ export default class {
   }
   // FUNCTION: Updates the edge styles with target node radius, which will help in position of the arrow head
   static updateStyles(drawEntities, edge, target, styles) {
-    let currentStyle;
+    let currentStyle = styles[edge.style] || {
+      arrow: {},
+    };
 
     // get the target node
     const targetNode = drawEntities.nodes.find(node => {
@@ -120,13 +122,11 @@ export default class {
       targetNodeStyle = styles[targetNode.style];
     else targetNodeStyle = styles.node;
 
-    // extract the target edge's individualstyle if present
-    let targetNodeRadius = targetNodeStyle.size;
-    if (edge.style !== undefined) currentStyle = styles[edge.style];
-    else currentStyle = styles.edge;
+    // get the target node's radius
+    let targetNodeRadius = targetNodeStyle && targetNodeStyle.size;
 
     // check if the node has custom style
-    if (targetNodeStyle.texture !== undefined)
+    if (targetNodeStyle && targetNodeStyle.texture !== undefined)
       targetNodeRadius -= targetNodeRadius / 2;
 
     // update the current edge stlye
@@ -134,7 +134,16 @@ export default class {
     // a BAD HACK: based on => comaparing various drawEntites objects and then
     // selecting the one through which we can differentiate which circle to shift
     if (target.index === undefined) currentStyle.targetNodeRadius = 1;
-    else currentStyle.targetNodeRadius = targetNodeRadius;
+    else currentStyle.targetNodeRadius = targetNodeRadius / 2;
+
+    // extract the target edge's individualstyle if present
+    if (edge.style !== undefined) currentStyle = styles[edge.style];
+    else currentStyle = styles.edge;
+
+    if (currentStyle === undefined) currentStyle = {};
+
+    currentStyle.width = currentStyle.width || 1;
+    currentStyle.color = currentStyle.color || 'rgb(204, 204, 204)';
 
     return currentStyle;
   }
@@ -149,7 +158,10 @@ export default class {
 
     // eccentricity comes from getSize() function
     // 5 is constant basen on visual comparison with ccNetViz
-    eccentricity = eccentricity / 5;
+    // const nodesCount = this.getNodesCnt();
+    // const edgesCount = this.getEdgesCnt();
+    // const factor = edgesCount/nodesCount;
+    eccentricity = eccentricity;
 
     let cx = -dy / eccentricity;
     let cy = dx / eccentricity;

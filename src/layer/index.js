@@ -282,15 +282,47 @@ export default function(
 
     let svg = document.getElementById('downloadSVG');
     if (svg) {
+      var standardStyles = {
+        background: {
+          color: 'rgb(255, 255, 255)',
+        },
+        node: {
+          minSize: 8, //minimum size of node representation in pixels, default: 6
+          maxSize: 16, //maximum size of node representation in pixels, default: 16
+          color: 'rgb(255, 0, 0)', //node color (combined with node image), default: "rgb(255, 255, 255)"
+          texture: 'images/circle.png', //node image
+          label: {
+            hideSize: 16,
+            color: 'rgb(120, 0, 0)', //label color, default: "rgb(120, 120, 120)"
+          },
+        },
+        edge: {
+          width: 2, //edge width in pixels, default: 1
+          color: 'rgb(204, 204, 204)',
+          arrow: {
+            minSize: 6, //minimum size of arrow in pixels, default: 6
+            maxSize: 12, //maximum size of arrow, default: 12
+            aspect: 2, //aspect of arrow image, default: 1
+            texture: 'images/arrow.png', //arrow image
+            hideSize: 2, //minimum size of arrow to be displayed
+          },
+          type: 'line',
+        },
+      };
       var styles = {
         background: {
           color: 'rgb(255, 255, 0)',
         },
         node: {
-          texture: 'images/node.png',
-          size: 16,
+          size: 36,
+          color: 'rgb(250, 0, 0)',
           label: {
             color: 'rgb(120, 0, 0)',
+            font: {
+              fontSize: 18,
+              fontFamily: 'vedana',
+              fontWeight: 'bold',
+            },
           },
         },
         ytNode: {
@@ -299,6 +331,11 @@ export default function(
           color: 'rgb(250, 250, 0)',
           label: {
             color: 'rgb(120, 0, 0)',
+            font: {
+              fontSize: 25,
+              fontFamily: 'arial',
+              fontWeight: 'italic',
+            },
           },
         },
         gtNode: {
@@ -335,7 +372,7 @@ export default function(
 
       let svgr = new svgRenderer();
 
-      svgr.draw(drawEntities, svg, styles);
+      svgr.draw(drawEntities, svg, standardStyles);
     }
   };
 

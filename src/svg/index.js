@@ -13,19 +13,19 @@ var svgRenderer = function() {
     let arrowHeadHashMap = {};
 
     let generateLin = new generateLines();
-    generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
+    await generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateCur = new generateCurves();
-    generateCur.set(drawEntities, svg, styles, arrowHeadHashMap);
+    await generateCur.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateCir = new generateCircles();
-    generateCir.set(drawEntities, svg, styles, arrowHeadHashMap);
+    await generateCir.set(drawEntities, svg, styles, arrowHeadHashMap);
 
     let generateNod = new generateNodes();
     await generateNod.set(drawEntities, svg, styles);
 
     let generateLab = new generateLabels();
-    generateLab.set(drawEntities, svg, styles);
+    await generateLab.set(drawEntities, svg, styles);
   };
 };
 

@@ -36,12 +36,17 @@ var generateNodes = function() {
     var currentNode = document.createElementNS(svgNS, 'circle');
     currentNode.setAttributeNS(null, 'cx', x);
     currentNode.setAttributeNS(null, 'cy', y);
-    currentNode.setAttributeNS(null, 'r', styles.size || 5);
-    if (styles.texture !== undefined) {
+    currentNode.setAttributeNS(null, 'r', (styles && styles.size / 2) || 5);
+    // console.log(styles);
+    if (styles && styles.texture !== undefined) {
       await this.customeNode(svg, x, y, node.uniqid, styles);
     } else {
       currentNode.setAttributeNS(null, 'id', 'node-' + node.uniqid);
-      currentNode.setAttributeNS(null, 'fill', styles.color || 'black');
+      currentNode.setAttributeNS(
+        null,
+        'fill',
+        (styles && styles.color) || 'black'
+      );
       currentNode.setAttributeNS(null, 'stroke', 'none');
       svg.appendChild(currentNode);
     }
