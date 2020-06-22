@@ -3,11 +3,19 @@ import { generateCurves } from './plugins/edges/curve';
 import { generateCircles } from './plugins/edges/circle';
 import { generateNodes } from './plugins/nodes/node';
 import { generateLabels } from './plugins/labels/label';
-import baseUtils from './plugins/utils/index';
-import { renderer } from '../renderer';
 
-var svg_renderer = function() {
-  this.draw = async function(drawEntities, svg, styles) {
+let Integration = (de, el, o) => {
+  let drawEntities = de;
+  let element = el;
+  let options = o;
+
+  // Generating styles
+  let svg = new SVGRenderer();
+  svg.draw(drawEntities, element, options);
+};
+
+class SVGRenderer {
+  async draw(drawEntities, svg, styles) {
     svg.setAttribute(
       'style',
       'background-color:' + styles.background.color || rgb(255, 255, 255)
@@ -15,9 +23,6 @@ var svg_renderer = function() {
     // hash map to store arrow head defintions
     // so as to reduce its new generation
     let arrowHeadHashMap = {};
-
-    // const ren = new renderer(canvas);
-    // ren.log();
 
     let generateLin = new generateLines();
     await generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
@@ -31,27 +36,16 @@ var svg_renderer = function() {
     let generateNod = new generateNodes();
     generateNod.set(drawEntities, svg, styles);
 
-    const minNodeSize =
-      (styles &&
-        styles.node &&
-        styles.node.label &&
-        styles.node.label.hideSize) ||
-      16;
-    const drawnNodeSize = baseUtils.getSize(
-      svg,
-      styles.node,
-      baseUtils.getNodesCnt(drawEntities),
-      0.4
-    );
-    // if (
-    //   drawnNodeSize >= minNodeSize &&
-    //   baseUtils.getEdgesCnt(drawEntities) < 100
-    // )
-    {
-      let generateLab = new generateLabels();
-      await generateLab.set(drawEntities, svg, styles);
-    }
-  };
-};
+    let generateLab = new generateLabels();
+    await generateLab.set(drawEntities, svg, styles);
+  }
+}
 
-export { svg_renderer };
+if (typeof ccNetViz === 'undefined') {
+  console.warn('ccNetViz example plugin could not be implemented.');
+} else {
+  if (typeof ccNetViz.plugin === 'undefined') ccNetViz.plugin = {};
+  ccNetViz.plugin.svg_renderer = { Integration };
+}
+
+export default { Integration };

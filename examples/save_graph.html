@@ -36,13 +36,14 @@
       function init() {
         $('#showGraph').click(showGraph);
 
-        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(
+        $.ajax({ url: 'data/graph-100-3.json', dataType: 'json' }).done(
           dataLoaded
         );
       }
 
       function dataLoaded(d) {
         data = d;
+        console.log(data);
         showGraph();
       }
 
@@ -54,36 +55,28 @@
             color: 'rgb(255, 255, 255)',
           },
           node: {
-            texture: 'images/node.png',
-            size: 16,
+            minSize: 8, //minimum size of node representation in pixels, default: 6
+            maxSize: 16, //maximum size of node representation in pixels, default: 16
+            color: 'rgb(148, 187, 247)', //node color (combined with node image), default: "rgb(255, 255, 255)"
+            texture: 'images/node.png', //node image
             label: {
-              color: 'rgb(120, 0, 0)',
-            },
-          },
-          nodeBig: {
-            size: 20,
-            color: 'rgb(220, 220, 60)',
-            label: {
-              color: 'rgb(130,130,5)',
+              hideSize: 16,
+              color: 'rgb(120, 0, 0)', //label color, default: "rgb(120, 120, 120)"
             },
           },
           edge: {
-            width: 2,
+            width: 2, //edge width in pixels, default: 1
             color: 'rgb(204, 204, 204)',
             arrow: {
-              size: 10,
-              texture: 'images/arrow.png',
+              minSize: 6, //minimum size of arrow in pixels, default: 6
+              maxSize: 12, //maximum size of arrow, default: 12
+              aspect: 2, //aspect of arrow image, default: 1
+              texture: 'images/arrow.png', //arrow image
+              hideSize: 2, //minimum size of arrow to be displayed
             },
-          },
-          wideEdge: {
-            width: 5,
-            color: 'rgb(102,102,102)',
-            arrow: {
-              size: 20,
-            },
+            type: 'line',
           },
         };
-
         var conf = {
           styles: styles,
         };
@@ -97,6 +90,7 @@
         // After drawing keep save to the changes.
         el.getContext('webgl', { preserveDrawingBuffer: true });
 
+        console.log(data);
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {
           graph.draw();

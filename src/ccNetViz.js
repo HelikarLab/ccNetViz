@@ -11,6 +11,8 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import { getPartitionStyle } from './primitiveTools';
 
+import { svg_renderer } from './svg';
+
 import BasePlugin from './layer/plugins/basePlugin';
 import EdgePlugin from './layer/plugins/edge';
 import LabelPlugin from './layer/plugins/label';
@@ -229,6 +231,8 @@ var ccNetViz = function(canvas, options) {
           };
         }
       }
+      //   if (typeof ccNetViz.plugin.svg_renderer !== 'undefined')
+      //     promises = ccNetViz.plugin.svg_renderer.Integration(drawEntities,svg,styles);
     }
 
     await Promise.all(promises.map(item => item.config)).then(c => {
@@ -417,6 +421,12 @@ var ccNetViz = function(canvas, options) {
 
   let offset = 0.5 * nodeStyle.maxSize;
 
+  this.drawSVG = (el, conf) => {
+    const drawEntities = layers.main.getDE();
+    let svgr = new svg_renderer();
+    svgr.draw(drawEntities, el, conf.styles);
+  };
+
   this.draw = silent => {
     if (silent && (removed || !setted)) return;
     if (checkRemoved()) return;
@@ -463,6 +473,7 @@ var ccNetViz = function(canvas, options) {
         layers.temp && layers.temp.scene.elements[i].draw(context);
       }
     };
+
     const drawLoop = () => {
       context.renderTime = (Date.now() - context.startTime) / 1000.0;
       drawOnce();
@@ -967,6 +978,11 @@ var ccNetViz = function(canvas, options) {
 };
 
 ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
+
+ccNetViz.renderers = {
+  // 	webGL: webGL_renderer,
+  svg: svg_renderer,
+};
 
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;

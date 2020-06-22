@@ -1,21 +1,19 @@
 {
   "nodes": [
-    { "label": "Circular", "style": "gtNode" },
-    { "label": "Label Two", "style": "nodeBig" },
+    { "label": "1" },
+    { "label": "2" },
     {
-      "label": "25px,Italic",
-      "style": "ytNode"
+      "label": "3"
     },
-    { "label": "18px, Bold" },
+    { "label": "4" },
     {
-      "label": "Label With Four Words",
-      "style": "nodeBig"
+      "label": "5"
     },
-    { "label": "Label Six", "style": "gtNode" },
-    { "label": "Seven" },
-    { "label": "Two Words", "style": "ytNode" },
-    { "label": "Label Nine" },
-    { "label": "Normal", "style": "nodeBig" }
+    { "label": "6" },
+    { "label": "7" },
+    { "label": "8" },
+    { "label": "9" },
+    { "label": "10" }
   ],
   "edges": [
     { "source": 0, "target": 5 },

@@ -1,0 +1,16 @@
+{
+  "name": "svg-renderer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@babel/preset-env": "7.10.3",
+    "babel-core": "6.26.3",
+    "webpack": "4.43.0"
+  }
+}
