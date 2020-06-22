@@ -1,43 +1,29 @@
-// here 2 functions - webgl renderer & svg renderer
-
 const { default: ccNetViz } = require('./ccNetViz');
 import ccNetViz_gl from './gl';
 import { partitionByStyle } from './primitiveTools';
 import ccNetViz_layout from './layout/index';
 
-// check if the element is webgl
-
-// var graph = new ccNetViz(el, conf);
-// graph.set(data.nodes, data.edges, 'force').then(() => {
-// 	graph.draw();
-// });
-
-// // svg
-// const drawEntities = layers.main.getDE(); // redefine this function
-
-// let svgr = new svg_renderer();
-// svgr.draw(drawEntities, el, conf.styles); // call to the external svg index file
 var lastUniqId = 0;
 
-function checkUniqId(el) {
-  if (el.__uniqid !== undefined) {
-    el.uniqid = el.__uniqid;
-    delete el.__uniqid;
-  } else if (el.uniqid === undefined) {
-    el.uniqid = ++lastUniqId;
+export default class {
+  static checkUniqId(el) {
+    if (el.__uniqid !== undefined) {
+      el.uniqid = el.__uniqid;
+      delete el.__uniqid;
+    } else if (el.uniqid === undefined) {
+      el.uniqid = ++lastUniqId;
+    }
   }
-}
-function getContext(canvas) {
-  let attributes = { depth: false, antialias: false };
-  let gl =
-    canvas.getContext('webgl', attributes) ||
-    canvas.getContext('experimental-webgl', attributes);
+  static getContext(canvas) {
+    let attributes = { depth: false, antialias: false };
+    let gl =
+      canvas.getContext('webgl', attributes) ||
+      canvas.getContext('experimental-webgl', attributes);
 
-  return gl;
-}
+    return gl;
+  }
 
-var renderer = function(canvas) {
-  let init = (nodes, edges) => {
+  static initCoordinates(nodes, edges, gl) {
     let lines = [],
       curves = [],
       circles = [];
@@ -70,7 +56,7 @@ var renderer = function(canvas) {
     const linesd = { k: 'lines', kArrow: 'lineArrows', d: lines };
     const curvesd = { k: 'curves', kArrow: 'curveArrows', d: curves };
 
-    let gl = getContext(canvas);
+    // let gl = this.getContext(canvas);
     let extensions = gl
       ? ccNetViz_gl.initExtensions(gl, 'OES_standard_derivatives')
       : {};
@@ -135,56 +121,28 @@ var renderer = function(canvas) {
         edgePoses[i] = t.d.length;
       }
     }
-  };
 
-  this.log = function() {
-    const nodes = [
-      { label: '1' },
-      { label: '2' },
-      { label: '3' },
-      { label: '4' },
-      { label: '5' },
-      { label: '6' },
-      { label: '7' },
-      { label: '8' },
-      { label: '9' },
-      { label: '10' },
-    ];
-    const edges = [
-      { source: 0, target: 5 },
-      { source: 0, target: 6 },
-      { source: 1, target: 6 },
-      { source: 1, target: 0 },
-      { source: 1, target: 5 },
-      { source: 2, target: 5 },
-      { source: 2, target: 3 },
-      { source: 3, target: 7 },
-      { source: 3, target: 1 },
-      { source: 4, target: 7 },
-      { source: 5, target: 1 },
-      { source: 5, target: 2 },
-      { source: 6, target: 1 },
-      { source: 7, target: 6 },
-      { source: 7, target: 8 },
-      { source: 7, target: 2 },
-      { source: 8, target: 4 },
-      { source: 8, target: 9 },
-      { source: 9, target: 0 },
-    ];
-    const layout_options = {};
-    const layout = 'force';
-    // nodes.forEach(checkUniqId);
-    // edges.forEach(checkUniqId);
+    let nodesParts = partitionByStyle(nodes);
+    let circlesParts = partitionByStyle(circles);
+    let linesParts = partitionByStyle(lines);
+    let curvesParts = partitionByStyle(curves);
 
-    // init(nodes, edges);
+    const drawEntities = {
+      nodes,
+      nodesParts,
+      circles,
+      circlesParts,
+      lines,
+      linesParts,
+      curves,
+      curvesParts,
+    };
 
-    // let nodesParts = partitionByStyle(nodes);
-    // let circlesParts = partitionByStyle(circles);
-    // let linesParts = partitionByStyle(lines);
-    // let curvesParts = partitionByStyle(curves);
+    return drawEntities;
+  }
 
-    console.log(nodes);
-    console.log(edges);
+  static getDrawEntites(nodes, edges, layout, layout_options = {}, gl) {
+    const drawEntities = this.initCoordinates(nodes, edges, gl);
 
     let options_;
     if (typeof layout === 'string') {
@@ -201,8 +159,8 @@ var renderer = function(canvas) {
       );
     }
 
-    console.log(nodes, edges);
-  };
-};
+    layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 
-export { renderer };
+    return drawEntities;
+  }
+}

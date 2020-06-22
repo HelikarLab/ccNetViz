@@ -4,10 +4,18 @@ import { generateCircles } from './plugins/edges/circle';
 import { generateNodes } from './plugins/nodes/node';
 import { generateLabels } from './plugins/labels/label';
 import baseUtils from './plugins/utils/index';
-import { renderer } from '../renderer';
+import globalUtiilites from '../globalUtiilites';
 
 var svg_renderer = function() {
-  this.draw = async function(drawEntities, svg, styles) {
+  this.draw = async function(
+    nodes,
+    edges,
+    layout,
+    layout_options,
+    gl,
+    svg,
+    styles
+  ) {
     svg.setAttribute(
       'style',
       'background-color:' + styles.background.color || rgb(255, 255, 255)
@@ -16,8 +24,14 @@ var svg_renderer = function() {
     // so as to reduce its new generation
     let arrowHeadHashMap = {};
 
-    // const ren = new renderer(canvas);
-    // ren.log();
+    const drawEntities = globalUtiilites.getDrawEntites(
+      nodes,
+      edges,
+      layout,
+      layout_options,
+      gl
+    );
+    console.log(drawEntities);
 
     let generateLin = new generateLines();
     await generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);

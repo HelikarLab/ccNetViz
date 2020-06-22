@@ -22,6 +22,7 @@ import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
+import globalUtiilites from './globalUtiilites';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -34,14 +35,14 @@ import { BaseShape } from './layer/plugins/baseShape';
  */
 
 let sCanvas = document.createElement('canvas');
-function getContext(canvas) {
-  let attributes = { depth: false, antialias: false };
-  let gl =
-    canvas.getContext('webgl', attributes) ||
-    canvas.getContext('experimental-webgl', attributes);
+// function getContext(canvas) {
+//   let attributes = { depth: false, antialias: false };
+//   let gl =
+//     canvas.getContext('webgl', attributes) ||
+//     canvas.getContext('experimental-webgl', attributes);
 
-  return gl;
-}
+//   return gl;
+// }
 
 var lastUniqId = 0;
 
@@ -421,10 +422,12 @@ var ccNetViz = function(canvas, options) {
 
   let offset = 0.5 * nodeStyle.maxSize;
 
-  this.drawSVG = (el, conf) => {
-    const drawEntities = layers.main.getDE();
+  this.drawSVG = (nodes, edges, layout, svg, options) => {
+    let layout_options = {};
+
+    const gl = globalUtiilites.getContext(canvas);
     let svgr = new svg_renderer();
-    svgr.draw(drawEntities, el, conf.styles);
+    svgr.draw(nodes, edges, layout, layout_options, gl, svg, options.styles);
   };
 
   this.draw = silent => {
@@ -932,7 +935,7 @@ var ccNetViz = function(canvas, options) {
     })(method, self);
   });
 
-  if ((gl = getContext(canvas))) {
+  if ((gl = globalUtiilites.getContext(canvas))) {
     gl.clearColor(
       backgroundColor.r,
       backgroundColor.g,
@@ -977,7 +980,7 @@ var ccNetViz = function(canvas, options) {
   if (!gl) console.warn('Cannot initialize WebGL context');
 };
 
-ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
+ccNetViz.isWebGLSupported = () => !!globalUtiilites.getContext(sCanvas);
 
 ccNetViz.renderers = {
   // 	webGL: webGL_renderer,

@@ -95,6 +95,7 @@
         // svg.setAttribute('width', 1000);
 
         var el = document.getElementById('container');
+        var cel = document.getElementById('container');
         let svg = document.createElement('svg');
         el.appendChild(svg);
 
@@ -112,7 +113,7 @@
 
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.drawSVG(svg, conf);
+          graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
         });
       }
 
