@@ -288,10 +288,6 @@ export default function(
 
     while (tryInitPrimitives()); //loop until they are not dirty
     set_end();
-
-    this.getDE = function() {
-      return drawEntities;
-    };
   };
 
   this.update = function(element, attribute, data) {

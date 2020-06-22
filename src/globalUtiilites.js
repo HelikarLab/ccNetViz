@@ -60,6 +60,8 @@ export default class {
     let extensions = gl
       ? ccNetViz_gl.initExtensions(gl, 'OES_standard_derivatives')
       : {};
+    console.log(extensions);
+    console.log(nodes, edges);
     // let scene = (this.scene = createScene.call(this));
 
     if (extensions.OES_standard_derivatives) {
@@ -143,6 +145,8 @@ export default class {
 
   static getDrawEntites(nodes, edges, layout, layout_options = {}, gl) {
     const drawEntities = this.initCoordinates(nodes, edges, gl);
+    // console.log(layout_options);
+    // console.log(layout);
 
     let options_;
     if (typeof layout === 'string') {
@@ -160,6 +164,8 @@ export default class {
     }
 
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
+
+    // console.log(drawEntities);
 
     return drawEntities;
   }

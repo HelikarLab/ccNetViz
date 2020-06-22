@@ -15,16 +15,16 @@
       <p id="demo2"></p>
       <h3 class="title">Downloading SVG Graph Image</h3>
 
-      <canvas id="container"></canvas>
-      <!-- <div class="downloadBox">
-         <svg
+      <!-- <canvas id="container"></canvas> -->
+      <div class="downloadBox">
+        <svg
           id="downloadSVG"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           height="500"
-          width="1500"
-        ></svg> 
-      </div> -->
+          width="500"
+        ></svg>
+      </div>
       <div class="toolbox">
         <div class="item">
           <a id="down_img"> Download </a>
@@ -45,7 +45,7 @@
       </a>
     </header>
     <body>
-      <!-- <canvas id="svgContainer"></canvas> -->
+      <canvas id="svgContainer"></canvas>
     </body>
 
     <script>
@@ -94,27 +94,29 @@
         // svg.setAttribute('height', 1000);
         // svg.setAttribute('width', 1000);
 
-        var el = document.getElementById('container');
-        var cel = document.getElementById('container');
-        let svg = document.createElement('svg');
-        el.appendChild(svg);
+        svg = document.getElementById('downloadSVG');
+
+        var el = document.getElementById('svgContainer');
+
+        // var el = document.getElementById('container');
+        // var cel = document.getElementById('container');
+        // let svg = document.createElement('svg');
+        // el.appendChild(svg);
 
         el.getContext('webgl', { preserveDrawingBuffer: true });
         var conf = {
           styles: styles,
         };
         console.log(data);
-        // document.getElementById('svgContainer').remove();
+        document.getElementById('svgContainer').remove();
 
-        svg.setAttribute('id', 'downloadSVG');
-        svg.setAttribute('height', 1000);
-        svg.setAttribute('width', 1000);
-        svg.setAttribute('background-color', styles.background.color);
+        // svg.setAttribute('id', 'downloadSVG');
+        // // svg.setAttribute('height', 1000);
+        // // svg.setAttribute('width', 1000);
+        // svg.setAttribute('background-color', styles.background.color);
 
         var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
-        });
+        graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
       }
 
       document.getElementById('down_img').addEventListener(

@@ -425,6 +425,9 @@ var ccNetViz = function(canvas, options) {
   this.drawSVG = (nodes, edges, layout, svg, options) => {
     let layout_options = {};
 
+    // layers.temp && layers.temp.set([], [], layout, layout_options);
+    // layers.main.set(nodes, edges, layout, layout_options);
+
     const gl = globalUtiilites.getContext(canvas);
     let svgr = new svg_renderer();
     svgr.draw(nodes, edges, layout, layout_options, gl, svg, options.styles);
