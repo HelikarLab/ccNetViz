@@ -1,6 +1,6 @@
 ## Description
 
-This plugin allows you to add export graph images.
+This plugin allows you to export graph images.
 
 ### Supported extensions
 
