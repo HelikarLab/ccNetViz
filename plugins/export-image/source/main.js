@@ -11,6 +11,7 @@ let ccNetVizImageExport = {
   setScale(x) {
     this.scale = x;
 
+    // Scaling up ccNetViz configuration textures
     let c = this.config;
     let t = JSON.parse(JSON.stringify(c));
 
@@ -18,9 +19,11 @@ let ccNetVizImageExport = {
       let temp = t.styles[key];
       let conf = c.styles[key];
 
+      // When texture created by node plugin remove and re-create.
       if (typeof temp.texture !== 'undefined')
         if (temp.texture.indexOf('blob:') === 0) delete temp.texture;
 
+      // Scaling up default parameters.
       if (typeof conf.minSize !== 'undefined') {
         temp.minSize = conf.minSize * this.scale;
       }
@@ -76,11 +79,14 @@ let ccNetVizImageExport = {
     return this;
   },
   export() {
+    // Find all nodes and edges
     let temp = this.instance.findArea(1, 1, 0, 0, true, true);
 
+    // Clean up nodes and edges
     let nodes = this._setNodes(temp.nodes);
     let edges = this._setEdges(temp.edges);
 
+    // Create new ccNetViz graph
     let canvas = document.createElement('canvas');
     canvas.width = this.target.width;
     canvas.height = this.target.height;
@@ -92,6 +98,8 @@ let ccNetVizImageExport = {
 
     g.set(nodes, edges).then(() => {
       g.draw();
+
+      // TODO: Remove random delay and waiting for node-arrow plugin textures.
       setTimeout(() => {
         canvas.getContext('webgl', { preserveDrawingBuffer: true });
 
@@ -120,6 +128,7 @@ let ccNetVizImageExport = {
     this.nodes = Object.assign({}, n);
     let nodes = [];
 
+    // Remove unnecessary keys
     for (let k in this.nodes) {
       this.nodes[k] = this.nodes[k].node;
       delete this.nodes[k].index;
@@ -138,6 +147,7 @@ let ccNetVizImageExport = {
     this.edges = Object.assign({}, e);
     let edges = [];
 
+    // Remove unnecessary keys
     for (let k in this.edges) {
       this.edges[k] = this.edges[k].edge;
 
@@ -166,7 +176,7 @@ let ccNetVizImageExport = {
     width: 0,
     height: 0,
   },
-  instance: () => {},
+  instance: () => { },
 };
 
 if (typeof ccNetViz === 'undefined') {
