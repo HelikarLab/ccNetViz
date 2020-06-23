@@ -222,9 +222,15 @@ export default function(
       gl
     );
 
+    console.log(drawEntities);
+
     let lines = drawEntities.lines,
       curves = drawEntities.curves,
-      circles = drawEntities.circles;
+      circles = drawEntities.circles,
+      nodesParts = drawEntities.nodesParts,
+      circlesParts = drawEntities.circlesParts,
+      linesParts = drawEntities.linesParts,
+      curvesParts = drawEntities.curvesParts;
 
     this.getCurrentSpatialSearch = context => {
       if (spatialSearch === undefined) {

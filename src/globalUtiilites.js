@@ -145,8 +145,6 @@ export default class {
 
   static getDrawEntites(nodes, edges, layout, layout_options = {}, gl) {
     const drawEntities = this.initCoordinates(nodes, edges, gl);
-    // console.log(layout_options);
-    // console.log(layout);
 
     let options_;
     if (typeof layout === 'string') {
@@ -164,8 +162,6 @@ export default class {
     }
 
     layout && ccNetViz_layout.normalize(nodes, undefined, options_);
-
-    // console.log(drawEntities);
 
     return drawEntities;
   }

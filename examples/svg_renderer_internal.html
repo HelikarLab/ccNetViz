@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz example for downloading SVG</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <link rel="stylesheet" type="text/css" href="css/svg.css" />
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/json_prettyprint.js"></script>
+    <script type="text/javascript" src="js/spectrum.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <p id="demo2"></p>
+      <h3 class="title">Downloading SVG Graph Image</h3>
+
+      <canvas id="container"></canvas>
+      <!-- <div class="downloadBox">
+         <svg
+          id="downloadSVG"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          height="500"
+          width="1500"
+        ></svg> 
+      </div> -->
+      <div class="toolbox">
+        <div class="item">
+          <a id="down_img"> Download </a>
+        </div>
+      </div>
+      <div class="description">
+        Press the button below the graph if you want to dowload it as an image.
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <body>
+      <!-- <canvas id="svgContainer"></canvas> -->
+    </body>
+
+    <script>
+      function init() {
+        $('#showGraph').click(showGraph);
+
+        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(
+          dataLoaded
+        );
+      }
+      function dataLoaded(d) {
+        data = d;
+        showGraph();
+      }
+
+      function showGraph() {
+        var styles = {
+          background: {
+            color: 'rgb(255, 255, 255)',
+          },
+          node: {
+            minSize: 8, //minimum size of node representation in pixels, default: 6
+            maxSize: 16, //maximum size of node representation in pixels, default: 16
+            color: 'rgb(148, 187, 247)', //node color (combined with node image), default: "rgb(255, 255, 255)"
+            texture: 'images/node.png', //node image
+            label: {
+              hideSize: 16,
+              color: 'rgb(120, 0, 0)', //label color, default: "rgb(120, 120, 120)"
+            },
+          },
+          edge: {
+            width: 2, //edge width in pixels, default: 1
+            color: 'rgb(204, 204, 204)',
+            arrow: {
+              minSize: 6, //minimum size of arrow in pixels, default: 6
+              maxSize: 12, //maximum size of arrow, default: 12
+              aspect: 2, //aspect of arrow image, default: 1
+              texture: 'images/arrow.png', //arrow image
+              hideSize: 2, //minimum size of arrow to be displayed
+            },
+            type: 'line',
+          },
+        };
+
+        // svg = document.getElementById('downloadSVG');
+        // svg.setAttribute('height', 1000);
+        // svg.setAttribute('width', 1000);
+
+        var el = document.getElementById('container');
+        var cel = document.getElementById('container');
+        let svg = document.createElement('svg');
+        el.appendChild(svg);
+
+        el.getContext('webgl', { preserveDrawingBuffer: true });
+        var conf = {
+          styles: styles,
+        };
+        console.log(data);
+        // document.getElementById('svgContainer').remove();
+
+        svg.setAttribute('id', 'downloadSVG');
+        svg.setAttribute('height', 1000);
+        svg.setAttribute('width', 1000);
+        svg.setAttribute('background-color', styles.background.color);
+
+        var graph = new ccNetViz(el, conf);
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
+        });
+      }
+
+      document.getElementById('down_img').addEventListener(
+        'click',
+        function() {
+          toDownload = document.getElementById('downloadSVG');
+
+          let dataURL = svgDataURL(toDownload);
+          download(dataURL);
+        },
+        false
+      );
+      function svgDataURL(svg) {
+        var svgAsXML = new XMLSerializer().serializeToString(svg);
+        return 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+      }
+      function download(dataURL) {
+        var dl = document.createElement('a');
+        document.body.appendChild(dl); // This line makes it work in Firefox.
+        dl.setAttribute('href', dataURL);
+        dl.setAttribute('download', 'graph.svg');
+        dl.click();
+      }
+
+      $(init);
+    </script>
+  </body>
+</html>
