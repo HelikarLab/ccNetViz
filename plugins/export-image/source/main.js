@@ -99,12 +99,14 @@ let ccNetVizImageExport = {
     g.set(nodes, edges).then(() => {
       g.draw();
 
-      // TODO: Remove random delay and waiting for node-arrow plugin textures.
+      // TODO: Remove random delay and waiting for node-arrow plugin textures
       setTimeout(() => {
         canvas.getContext('webgl', { preserveDrawingBuffer: true });
 
+        // Converting canvas to blob image
         canvas.toBlob(
           blob => {
+            // Creating temp anchor
             var url = URL.createObjectURL(blob);
 
             var a = document.createElement('a');
