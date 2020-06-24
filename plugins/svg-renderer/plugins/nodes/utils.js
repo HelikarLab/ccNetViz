@@ -6,9 +6,8 @@ export default class {
     let currentStyle;
     //TODO: Might throw error if no styles are applied
     if (node.style !== undefined) currentStyle = styles[node.style];
-    else {
-      currentStyle = styles.node;
-    }
+
+    if (currentStyle === undefined) currentStyle = styles.node;
 
     currentStyle.size = baseUtils.getSize(
       svg,

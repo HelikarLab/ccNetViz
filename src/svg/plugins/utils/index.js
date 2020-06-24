@@ -31,6 +31,7 @@ export default class {
     // multiplied by 0.5 as done in `src/ccNetViz` on line -> 445,446
     let height = svg.height * 0.5;
     let width = svg.width * 0.5;
+
     let result = sc * Math.sqrt((width * height) / (count + 1));
     if (styles) {
       let min = styles.size ? styles.size : styles.minSize;

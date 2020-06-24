@@ -31,6 +31,7 @@ var svg_renderer = function() {
       layout_options,
       gl
     );
+    // console.log(drawEntities);
 
     let generateLin = new generateLines();
     await generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
@@ -44,25 +45,8 @@ var svg_renderer = function() {
     let generateNod = new generateNodes();
     generateNod.set(drawEntities, svg, styles);
 
-    const minNodeSize =
-      (styles &&
-        styles.node &&
-        styles.node.label &&
-        styles.node.label.hideSize) ||
-      16;
-    const drawnNodeSize = baseUtils.getSize(
-      svg,
-      styles.node,
-      baseUtils.getNodesCnt(drawEntities),
-      0.4
-    );
-    if (
-      drawnNodeSize >= minNodeSize &&
-      baseUtils.getEdgesCnt(drawEntities) < 100
-    ) {
-      let generateLab = new generateLabels();
-      await generateLab.set(drawEntities, svg, styles);
-    }
+    let generateLab = new generateLabels();
+    await generateLab.set(drawEntities, svg, styles);
   };
 };
 

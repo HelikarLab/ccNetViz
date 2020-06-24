@@ -4,9 +4,16 @@ import labelUtils from './utils';
 var generateLabels = function() {
   this.set = async function(drawEntities, svg, styles) {
     let nodes = drawEntities.nodes;
+    const labelSize = baseUtils.getSize(
+      svg,
+      styles.node,
+      baseUtils.getNodesCnt(drawEntities),
+      0.25
+    );
+
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-      let currentStyle = labelUtils.updateStyles(node, styles);
+      let currentStyle = labelUtils.updateStyles(node, styles, labelSize);
 
       await this.draw(svg, node, currentStyle);
     }

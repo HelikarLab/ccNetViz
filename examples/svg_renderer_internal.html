@@ -7,7 +7,8 @@
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <script src="../lib/ccNetViz.js"></script>
+    <!-- <script src="../lib/ccNetViz.js"></script> -->
+    <script src="../lib/main.js"></script>
   </head>
 
   <body>
@@ -52,7 +53,7 @@
       function init() {
         $('#showGraph').click(showGraph);
 
-        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(
+        $.ajax({ url: 'data/graph-100-3.json', dataType: 'json' }).done(
           dataLoaded
         );
       }
@@ -95,7 +96,6 @@
         // svg.setAttribute('width', 1000);
 
         var el = document.getElementById('container');
-        var cel = document.getElementById('container');
         let svg = document.createElement('svg');
         el.appendChild(svg);
 
@@ -110,12 +110,12 @@
         svg.setAttribute('height', 1000);
         svg.setAttribute('width', 1000);
         svg.setAttribute('background-color', styles.background.color);
-        svg.style.visibility = 'hidden';
 
-        var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
-        });
+        var graph = new entry(el, conf);
+        graph.set(data, 'force');
+
+        var svgGraph = new entry(svg, conf);
+        // svgGraph.set(data, 'force', {}, el);
       }
 
       document.getElementById('down_img').addEventListener(

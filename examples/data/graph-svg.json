@@ -5,7 +5,7 @@
     {
       "label": "3"
     },
-    { "label": "4" },
+    { "label": "4", "style": "bigNode" },
     {
       "label": "5"
     },

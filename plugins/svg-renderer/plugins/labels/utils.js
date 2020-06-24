@@ -2,13 +2,9 @@ export default class {
   // FUNCTION: checks if the node has individual styles
   static updateStyles(node, styles) {
     let currentStyle;
-    if (
-      node.style !== undefined &&
-      node.style !== 'internal' &&
-      node.style !== 'external'
-    )
-      currentStyle = styles[node.style];
-    else currentStyle = styles.node;
+    if (node.style !== undefined) currentStyle = styles[node.style];
+
+    if (currentStyle === undefined) currentStyle = styles.node;
 
     currentStyle.label.color = currentStyle.label.color || 'rgb(120, 120, 120)';
     currentStyle.label.font = currentStyle.label.font || {

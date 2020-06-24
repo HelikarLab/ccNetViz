@@ -44,8 +44,7 @@ export default class {
       'marker'
     );
     // setting arrowsize
-    let arrowSize = 10;
-    if (styles.arrow && styles.arrow.size) arrowSize = styles.arrow.size;
+    let arrowSize = styles.arrow.size;
     let d =
       'M0,0 L0,' + arrowSize + 'L' + arrowSize + ',' + arrowSize / 2 + ' z';
     path.setAttribute('d', d);
@@ -59,9 +58,6 @@ export default class {
     marker.setAttribute('refY', arrowSize / 2);
     marker.setAttribute('orient', 'auto');
     marker.setAttribute('markerUnits', 'userSpaceOnUse');
-    // console.log(marker);
-    // console.log(styles);
-    // console.log(arrowSize);
 
     // adding elements to svg
     marker.appendChild(path);
@@ -72,26 +68,30 @@ export default class {
     return defs;
   }
   // FUNCTION: Updates the edge styles with target node radius, which will help in position of the arrow head
-  static updateStyles(drawEntities, edge, target, styles) {
+  static updateStyles(drawEntities, edge, target, styles, arrowSize) {
     let currentStyle;
 
     // get the target node
     const targetNode = drawEntities.nodes.find(node => {
       return node.uniqid == target.uniqid;
     });
+    // console.log(targetNode);
 
     // extract the target node's style
     let targetNodeStyle;
     if (targetNode && targetNode.style !== undefined)
       targetNodeStyle = styles[targetNode.style];
     else targetNodeStyle = styles.node;
+    // console.log(targetNodeStyle);
 
     // extract the target edge's individualstyle if present
     if (edge.style !== undefined) currentStyle = styles[edge.style];
-    else currentStyle = styles.edge;
+
+    if (currentStyle === undefined) currentStyle = styles.edge;
 
     // get the target node's radius
     let targetNodeRadius = targetNodeStyle && targetNodeStyle.size;
+    // console.log(targetNodeRadius);
 
     // check if the node has custom style
     if (targetNodeStyle && targetNodeStyle.texture !== undefined)
@@ -104,10 +104,24 @@ export default class {
     if (target.index === undefined) currentStyle.targetNodeRadius = 1;
     else currentStyle.targetNodeRadius = targetNodeRadius / 2;
 
-    if (currentStyle === undefined) currentStyle = {};
-
     currentStyle.width = currentStyle.width || 1;
     currentStyle.color = currentStyle.color || 'rgb(204, 204, 204)';
+
+    if (arrowSize > currentStyle.arrow.maxSize)
+      arrowSize = currentStyle.arrow.maxSize;
+    else if (
+      arrowSize <= currentStyle.arrow.maxSize &&
+      arrowSize >= currentStyle.arrow.minSize
+    )
+      arrowSize = arrowSize;
+    else if (
+      arrowSize < currentStyle.arrow.minSize &&
+      arrowSize >= currentStyle.arrow.hideSize
+    )
+      arrowSize = currentStyle.arrow.minSize;
+    else arrowSize = 0;
+
+    currentStyle.arrow.size = arrowSize;
 
     return currentStyle;
   }

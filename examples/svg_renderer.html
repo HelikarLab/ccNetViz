@@ -117,8 +117,8 @@
         // svg.setAttribute('background-color', styles.background.color);
 
         // var main = new entry
-        var main = new entry(svg, conf);
-        main.set(data, 'force');
+        var graph = new entry(svg, conf);
+        graph.set(data, 'force', {}, el);
 
         // var graph = new ccNetViz(el, conf);
         // graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);

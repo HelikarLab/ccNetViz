@@ -1,19 +1,18 @@
 export default class {
   // FUNCTION: checks if the node has individual styles
-  static updateStyles(node, styles) {
+  static updateStyles(node, styles, labelSize) {
     let currentStyle;
-    if (
-      node.style !== undefined &&
-      node.style !== 'internal' &&
-      node.style !== 'external'
-    )
-      currentStyle = styles[node.style];
-    else currentStyle = styles.node;
+    if (node.style !== undefined) currentStyle = styles[node.style];
+
+    if (currentStyle === undefined) currentStyle = styles.node;
+
+    if (labelSize < currentStyle.label.hideSize) labelSize = 0;
+    else labelSize = 11;
 
     currentStyle.label.color = currentStyle.label.color || 'rgb(120, 120, 120)';
     currentStyle.label.font = currentStyle.label.font || {
       family: 'Arial, Helvetica, sans-serif',
-      size: 11,
+      size: labelSize,
       weight: 'normal',
     };
 

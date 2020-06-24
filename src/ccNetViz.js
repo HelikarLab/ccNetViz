@@ -11,8 +11,6 @@ import ccNetViz_interactivityBatch from './interactivityBatch';
 import ccNetViz_spatialSearch from './spatialSearch/spatialSearch';
 import { getPartitionStyle } from './primitiveTools';
 
-import { svg_renderer } from './svg';
-
 import BasePlugin from './layer/plugins/basePlugin';
 import EdgePlugin from './layer/plugins/edge';
 import LabelPlugin from './layer/plugins/label';
@@ -23,7 +21,6 @@ import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
 import globalUtiilites from './globalUtiilites';
-import entry from './main';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -985,11 +982,6 @@ var ccNetViz = function(canvas, options) {
 };
 
 ccNetViz.isWebGLSupported = () => !!globalUtiilites.getContext(sCanvas);
-
-ccNetViz.renderers = {
-  // 	webGL: webGL_renderer,
-  svg: svg_renderer,
-};
 
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
