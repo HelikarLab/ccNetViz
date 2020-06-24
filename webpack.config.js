@@ -6,6 +6,7 @@ module.exports = {
     path: path.join(__dirname, 'lib'),
     filename: 'ccNetViz.js',
     libraryTarget: 'umd',
+    library: 'ccNetViz',
   },
   devtool: 'source-map',
   module: {
