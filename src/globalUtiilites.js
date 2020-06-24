@@ -1,4 +1,3 @@
-const { default: ccNetViz } = require('./ccNetViz');
 import ccNetViz_gl from './gl';
 import { partitionByStyle } from './primitiveTools';
 import ccNetViz_layout from './layout/index';

@@ -31,7 +31,6 @@ var svg_renderer = function() {
       layout_options,
       gl
     );
-    // console.log(drawEntities);
 
     let generateLin = new generateLines();
     await generateLin.set(drawEntities, svg, styles, arrowHeadHashMap);
