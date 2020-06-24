@@ -24,4 +24,11 @@ module.exports = {
       },
     ],
   },
+  node: {
+    tls: 'empty',
+    net: 'empty',
+    fs: 'empty',
+    child_process: 'empty',
+    crypto: 'empty',
+  },
 };
