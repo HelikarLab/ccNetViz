@@ -1,10 +1,10 @@
 var path = require('path');
 
 module.exports = {
-  entry: ['babel-polyfill', './src/ccNetViz.js'],
+  entry: ['babel-polyfill', './src/main.js'],
   output: {
     path: path.join(__dirname, 'lib'),
-    filename: 'ccNetViz.js',
+    filename: 'main.js',
     libraryTarget: 'umd',
   },
   devtool: 'source-map',

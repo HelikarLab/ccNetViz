@@ -57,11 +57,10 @@ var svg_renderer = function() {
       baseUtils.getNodesCnt(drawEntities),
       0.4
     );
-    // if (
-    //   drawnNodeSize >= minNodeSize &&
-    //   baseUtils.getEdgesCnt(drawEntities) < 100
-    // )
-    {
+    if (
+      drawnNodeSize >= minNodeSize &&
+      baseUtils.getEdgesCnt(drawEntities) < 100
+    ) {
       let generateLab = new generateLabels();
       await generateLab.set(drawEntities, svg, styles);
     }

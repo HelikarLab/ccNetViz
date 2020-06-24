@@ -7,7 +7,8 @@
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <script src="../lib/ccNetViz.js"></script>
+    <!-- <script src="../lib/ccNetViz.js"></script> -->
+    <script src="../lib/main.js"></script>
   </head>
 
   <body>
@@ -115,8 +116,12 @@
         // // svg.setAttribute('width', 1000);
         // svg.setAttribute('background-color', styles.background.color);
 
-        var graph = new ccNetViz(el, conf);
-        graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
+        // var main = new entry
+        var main = new entry(svg, conf);
+        main.set(data, 'force');
+
+        // var graph = new ccNetViz(el, conf);
+        // graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
       }
 
       document.getElementById('down_img').addEventListener(

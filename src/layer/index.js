@@ -222,8 +222,6 @@ export default function(
       gl
     );
 
-    console.log(drawEntities);
-
     let lines = drawEntities.lines,
       curves = drawEntities.curves,
       circles = drawEntities.circles,

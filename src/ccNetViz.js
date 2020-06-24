@@ -23,6 +23,7 @@ import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
 import globalUtiilites from './globalUtiilites';
+import entry from './main';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -422,16 +423,16 @@ var ccNetViz = function(canvas, options) {
 
   let offset = 0.5 * nodeStyle.maxSize;
 
-  this.drawSVG = (nodes, edges, layout, svg, options) => {
-    let layout_options = {};
+  //   this.drawSVG = (nodes, edges, layout, svg, options) => {
+  //     let layout_options = {};
 
-    // layers.temp && layers.temp.set([], [], layout, layout_options);
-    // layers.main.set(nodes, edges, layout, layout_options);
+  //     // layers.temp && layers.temp.set([], [], layout, layout_options);
+  //     // layers.main.set(nodes, edges, layout, layout_options);
 
-    const gl = globalUtiilites.getContext(canvas);
-    let svgr = new svg_renderer();
-    svgr.draw(nodes, edges, layout, layout_options, gl, svg, options.styles);
-  };
+  //     const gl = globalUtiilites.getContext(canvas);
+  //     let svgr = new svg_renderer();
+  //     svgr.draw(nodes, edges, layout, layout_options, gl, svg, options.styles);
+  //   };
 
   this.draw = silent => {
     if (silent && (removed || !setted)) return;

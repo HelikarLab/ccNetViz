@@ -110,6 +110,7 @@
         svg.setAttribute('height', 1000);
         svg.setAttribute('width', 1000);
         svg.setAttribute('background-color', styles.background.color);
+        svg.style.visibility = 'hidden';
 
         var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {

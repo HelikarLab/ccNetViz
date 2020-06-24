@@ -6,7 +6,8 @@
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <script src="../lib/ccNetViz.js"></script>
+    <!-- <script src="../lib/ccNetViz.js"></script> -->
+    <script src="../lib/main.js"></script>
   </head>
 
   <body>
@@ -43,7 +44,6 @@
 
       function dataLoaded(d) {
         data = d;
-        console.log(data);
         showGraph();
       }
 
@@ -91,10 +91,14 @@
         el.getContext('webgl', { preserveDrawingBuffer: true });
 
         console.log(data);
-        var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.draw();
-        });
+
+        var main = new entry(el, conf);
+        main.set(data, 'force');
+
+        // var graph = new ccNetViz(el, conf);
+        // graph.set(data.nodes, data.edges, 'force').then(() => {
+        //   graph.draw();
+        // });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);

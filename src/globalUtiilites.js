@@ -60,8 +60,6 @@ export default class {
     let extensions = gl
       ? ccNetViz_gl.initExtensions(gl, 'OES_standard_derivatives')
       : {};
-    console.log(extensions);
-    console.log(nodes, edges);
     // let scene = (this.scene = createScene.call(this));
 
     if (extensions.OES_standard_derivatives) {
