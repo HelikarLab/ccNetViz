@@ -10,6 +10,46 @@ var svg_renderer = function(svg, options) {
   let edges = [];
   let drawEntities;
 
+  //   let backgroundStyle = (options.styles.background =
+  //     options.styles.background || {});
+  //   let backgroundColor = new ccNetViz_color(
+  //     backgroundStyle.color || 'rgb(255, 255, 255)'
+  //   );
+  let nodeStyle = (options.styles.node = options.styles.node || {});
+  nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
+  nodeStyle.maxSize = nodeStyle.maxSize || 16;
+  nodeStyle.color = nodeStyle.color || 'rgb(255, 255, 255)';
+
+  if (nodeStyle.label) {
+    let s = nodeStyle.label;
+    s.color = s.color || 'rgb(120, 120, 120)';
+    s.font = s.font || { type: 'Arial, Helvetica, sans-serif', size: 11 };
+  }
+
+  let edgeStyle = (options.styles.edge = options.styles.edge || { arrow: {} });
+  edgeStyle.width = edgeStyle.width || 1;
+  edgeStyle.color = edgeStyle.color || 'rgb(204, 204, 204)';
+  edgeStyle.animateColor = edgeStyle.animateColor || 'rgb(240, 80, 120)';
+  edgeStyle.animateSpeed = edgeStyle.animateSpeed || 1.0;
+  edgeStyle.animateDotNum = edgeStyle.animateDotNum || 7;
+  edgeStyle.animateDotInterval = edgeStyle.animateDotInterval || 0.5;
+  edgeStyle.animateMaxWidth = edgeStyle.animateMaxWidth || edgeStyle.width;
+
+  if (edgeStyle.label) {
+    let s = edgeStyle.label;
+    s.color = s.color || 'rgb(120, 120, 120)';
+    s.font = s.font || { type: 'Arial, Helvetica, sans-serif', size: 11 };
+  }
+
+  if (edgeStyle.arrow) {
+    if (typeof edgeStyle.arrow.texture !== 'undefined') {
+      let s = edgeStyle.arrow;
+      s.minSize = s.minSize != null ? s.minSize : 6;
+      s.maxSize = s.maxSize || 12;
+      s.aspect = 1;
+    }
+  }
+
   this.set = async (n, e, layout, layout_options = {}) => {
     nodes = n || [];
     edges = e || [];
