@@ -118,10 +118,11 @@
 
         // var main = new entry
         var graph = new entry(svg, conf);
-        graph.set(data, 'force', {}, el);
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
 
         // var graph = new ccNetViz(el, conf);
-        // graph.drawSVG(data.nodes, data.edges, 'force', svg, conf);
       }
 
       document.getElementById('down_img').addEventListener(

@@ -55,13 +55,18 @@ export default class {
     const linesd = { k: 'lines', kArrow: 'lineArrows', d: lines };
     const curvesd = { k: 'curves', kArrow: 'curveArrows', d: curves };
 
-    // let gl = this.getContext(canvas);
-    let extensions = gl
-      ? ccNetViz_gl.initExtensions(gl, 'OES_standard_derivatives')
-      : {};
+    let extensions = {};
+    // the if condition is to enable curve feature on svg elements
+    if (gl == 'svg_context') {
+      extensions.svg = true;
+    } else {
+      extensions = gl
+        ? ccNetViz_gl.initExtensions(gl, 'OES_standard_derivatives')
+        : {};
+    }
     // let scene = (this.scene = createScene.call(this));
 
-    if (extensions.OES_standard_derivatives) {
+    if (extensions.OES_standard_derivatives || extensions.svg) {
       let map = {};
       for (let i = 0; i < edges.length; i++) {
         let e = edges[i];

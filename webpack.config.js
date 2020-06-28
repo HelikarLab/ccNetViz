@@ -4,7 +4,7 @@ module.exports = {
   entry: ['babel-polyfill', './src/main.js'],
   output: {
     path: path.join(__dirname, 'lib'),
-    filename: 'main.js',
+    filename: 'main.js', //ccNetViz.js
     libraryTarget: 'umd',
   },
   devtool: 'source-map',

@@ -92,8 +92,10 @@
 
         console.log(data);
 
-        var main = new entry(el, conf);
-        main.set(data, 'force');
+        var graph = new entry(el, conf);
+        graph.set(data.nodes, data.edges, 'force').then(() => {
+          graph.draw();
+        });
 
         // var graph = new ccNetViz(el, conf);
         // graph.set(data.nodes, data.edges, 'force').then(() => {
