@@ -7,8 +7,7 @@
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <!-- <script src="../lib/ccNetViz.js"></script> -->
-    <script src="../lib/main.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
   </head>
 
   <body>
@@ -91,38 +90,17 @@
           },
         };
 
-        // svg = document.getElementById('downloadSVG');
-        // svg.setAttribute('height', 1000);
-        // svg.setAttribute('width', 1000);
-
         svg = document.getElementById('downloadSVG');
-
-        var el = document.getElementById('svgContainer');
-
-        // var el = document.getElementById('container');
-        // var cel = document.getElementById('container');
-        // let svg = document.createElement('svg');
-        // el.appendChild(svg);
-
-        el.getContext('webgl', { preserveDrawingBuffer: true });
         var conf = {
           styles: styles,
         };
         console.log(data);
         document.getElementById('svgContainer').remove();
 
-        // svg.setAttribute('id', 'downloadSVG');
-        // // svg.setAttribute('height', 1000);
-        // // svg.setAttribute('width', 1000);
-        // svg.setAttribute('background-color', styles.background.color);
-
-        // var main = new entry
         var graph = new entry(svg, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {
           graph.draw();
         });
-
-        // var graph = new ccNetViz(el, conf);
       }
 
       document.getElementById('down_img').addEventListener(

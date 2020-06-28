@@ -6,15 +6,10 @@ export default class {
 
     if (currentStyle === undefined) currentStyle = styles.node;
 
-    if (labelSize < currentStyle.label.hideSize) labelSize = 0;
-    else labelSize = 11;
-
-    currentStyle.label.color = currentStyle.label.color || 'rgb(120, 120, 120)';
-    currentStyle.label.font = currentStyle.label.font || {
-      family: 'Arial, Helvetica, sans-serif',
-      size: labelSize,
-      weight: 'normal',
-    };
+    // checks whether to show labels or not, depeneding upon the
+    // size of the graph
+    if (labelSize < currentStyle.label.hideSize)
+      currentStyle.label.font.size = 0;
 
     return currentStyle;
   }
