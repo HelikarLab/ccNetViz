@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ccNetViz export image plugin</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="./libs/jquery.min.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-export-image-plugin.js"></script>
+    <script src="../lib/plugins/ccNetViz-node-plugin.js"></script>
+    <style>
+      .canvas-container .item span {
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="canvas-container">
+      <h3 class="title">Export Image Plugin</h3>
+      <div class="toolbox">
+        <div class="item">
+          <span>Data</span>
+          <select id="listExamples"></select>
+        </div>
+        <div class="item">
+          <span>Layout</span>
+          <select id="listLayouts"></select>
+        </div>
+        <br />
+        <div class="item">
+          <span>Scale Up Multiplier</span>
+          <select id="scale">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div class="item">
+          <span>Image Quality</span>
+          <select id="quality">
+            <option value="1">100%</option>
+            <option value="0.80">80%</option>
+            <option value="0.60">60%</option>
+            <option value="0.40">40%</option>
+            <option value="0.20">20%</option>
+            <option value="0.20">1%</option>
+          </select>
+        </div>
+        <br />
+        <div class="item">
+          <span>Image Extension</span>
+          <select id="extension">
+            <option value="jpeg">jpeg</option>
+            <option value="png">png</option>
+            <option value="webp">webp</option>
+          </select>
+        </div>
+        <div class="item">
+          <span>File Name</span>
+          <input
+            id="name"
+            style="padding: 8px 0;"
+            value="ccnetviz-graph"
+            type="text"
+          />
+        </div>
+        <br />
+        <div class="item">
+          <input
+            style="padding: 8px 0;"
+            value="Export Image"
+            onclick="
+        graph.imageExport.setScale(scale()).setExtension(extension()).setQuality(quality()).setName(sname()).export()"
+            type="button"
+          />
+        </div>
+      </div>
+      <div class="description">
+        <div id="report">
+          <b>Nodes</b>: <span id="nodesCnt"></span><br />
+          <b>Edges</b>: <span id="edgesCnt"></span><br />
+          Rendered in <span id="renderedIn"></span>ms<br />
+        </div>
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc"
+          >documentation page</a
+        >.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      var examples = 'Bronchiseptica.json,EGFR.json,graph-1000-2.json,graph-10-2.json,line-1000.json,star-10.json,CD4.json,ErbB.json,graph-1000-3.json,graph-10-3.json,line-100.json,T-Cell.json,circle-1000.json,FA-BRCA.json,graph-100-1.json,HGF.json,line-10.json,T-Cell-Receptor.json,circle-100.json,fibroblast.json,graph-100-2.json,IL-1.json,macrophage.json,T-LGL-2011.json,circle-10.json,Glucose.json,graph-100-3.json,IL-6.json,star-1000.json,T-LGL.json,drosophila.json,graph-1000-1.json,graph-10-1.json,Influenza.json,star-100.json,Yeast-Apoptosis.json,tree1.json,tree2.json'.split(
+        ','
+      );
+
+      function init() {
+        function onChange(e) {
+          var v = $(this).val();
+
+          $.ajax({ url: 'data/' + v, dataType: 'json' }).done(showGraph);
+        }
+        function onChange2(e) {
+          layout = $(this).val();
+          showGraph(adata);
+        }
+
+        //fill in graph names
+        var select = $('#listExamples');
+        $.each(examples, function(index, val) {
+          select.append($('<option />', { value: val }).text(val));
+        });
+        select.change(onChange);
+
+        //init graph with currently selected data
+        onChange.call(select);
+
+        //fill in layout names
+        var select2 = $('#listLayouts');
+        $.each(
+          [
+            'force',
+            'hierarchical',
+            'hierarchical2',
+            'circular',
+            'random',
+            'spectral',
+            'spectral2',
+            'hive',
+            'grid',
+            'versinus',
+          ],
+          function(index, val) {
+            select2.append($('<option />', { value: val }).text(val));
+          }
+        );
+        select2.change(onChange2);
+
+        //init graph with currently selected layout
+        onChange2.call(select2);
+      }
+
+      var graph;
+      var el;
+
+      function scale() {
+        return parseInt(document.getElementById('scale').value);
+      }
+
+      function extension() {
+        return document.getElementById('extension').value;
+      }
+
+      function quality() {
+        return parseFloat(document.getElementById('quality').value);
+      }
+
+      function sname() {
+        return document.getElementById('name').value;
+      }
+
+      function showGraph(data) {
+        adata = data;
+        if (el) el.parentNode.removeChild(el);
+        document
+          .querySelector('.canvas-container .title')
+          .after((el = document.createElement('canvas')));
+
+        var startTime = new Date();
+
+        if (graph) graph.remove(); //if there was an old graph, remove its handlers from DOM content
+
+        var config = {
+          styles: {
+            node: { texture: 'images/node_bw.png', label: { hideSize: 16 } },
+            edge: { arrow: { texture: 'images/arrow.png' } },
+            pentagon: {
+              textureColor: '#2452ce',
+              size: 15,
+            },
+          },
+        };
+
+        graph = new ccNetViz(el, config);
+        if (layout == null) {
+          layout = 'tree';
+        }
+        data.nodes.map(i => {
+          i.style = 'pentagon';
+        });
+
+        graph
+          .set(data.nodes, data.edges, layout, { direction: 'right-left' })
+          .then(() => {
+            graph.draw();
+            ccNetViz.plugin.imageExport.init(graph, config, el);
+          });
+
+        $('#nodesCnt').text(data.nodes.length);
+        $('#edgesCnt').text(data.edges.length);
+        $('#renderedIn').text(
+          Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10
+        );
+      }
+
+      $(init);
+    </script>
+  </body>
+</html>
