@@ -113,106 +113,6 @@ export default function(
       if (typeof e.target == 'number') e.target = nodes[e.target];
     }
 
-    // let init = () => {
-    //   let getIndex = e => {
-    //     return e.uniqid || -e.index || -e.nidx;
-    //   };
-
-    //   // NOTE: here init
-    //   for (let i = 0; i < nodes.length; i++) {
-    //     nodes[i].index = i;
-    //   }
-
-    //   for (let i = 0, j = nodes.length + 10; i < edges.length; i++, j++) {
-    //     edges[i].nidx = j;
-    //   }
-
-    //   edgeTypes = [];
-    //   edgePoses = new Uint32Array(edges.length);
-    //   const dummysd = { k: '_', kArrow: '_', d: [] };
-    //   const circlesd = { k: 'circles', kArrow: 'circleArrows', d: circles };
-    //   const linesd = { k: 'lines', kArrow: 'lineArrows', d: lines };
-    //   const curvesd = { k: 'curves', kArrow: 'curveArrows', d: curves };
-
-    //   if (extensions.OES_standard_derivatives) {
-    //     let map = {};
-    //     for (let i = 0; i < edges.length; i++) {
-    //       let e = edges[i];
-
-    //       const si = getIndex(e.source);
-    //       const ti = getIndex(e.target);
-
-    //       (map[si] || (map[si] = {}))[ti] = true;
-    //     }
-
-    //     //enable the "curve" feature
-    //     const is_bidirectional_overlap = options.bidirectional === 'overlap';
-
-    //     for (let i = 0; i < edges.length; i++) {
-    //       let target,
-    //         e = edges[i];
-
-    //       const si = getIndex(e.source);
-    //       const ti = getIndex(e.target);
-
-    //       let t = dummysd;
-    //       if (si === ti) {
-    //         e.t = 2; //circle
-    //         target = circles;
-    //         t = circlesd;
-    //       } else {
-    //         let m = map[ti];
-    //         if (m && m[si] && !is_bidirectional_overlap) {
-    //           e.t = 1; //curve
-    //           target = curves;
-    //           t = curvesd;
-    //         } else {
-    //           e.t = 0; //line
-    //           target = lines;
-    //           t = linesd;
-    //         }
-    //       }
-    //       edgeTypes.push(t);
-    //       edgePoses[i] = t.d.length;
-    //       target.push(e);
-    //     }
-    //   } else {
-    //     for (let i = 0; i < edges.length; i++) {
-    //       let e = edges[i];
-
-    //       const si = getIndex(e.source);
-    //       const ti = getIndex(e.target);
-
-    //       let t = dummysd;
-    //       if (si !== ti) {
-    //         t = linesd;
-    //         e.t = 0;
-    //         lines.push(e);
-    //       }
-    //       edgeTypes.push(t);
-    //       edgePoses[i] = t.d.length;
-    //     }
-    //   }
-    // };
-
-    // init();
-
-    // let nodesParts = partitionByStyle(nodes);
-    // let circlesParts = partitionByStyle(circles);
-    // let linesParts = partitionByStyle(lines);
-    // let curvesParts = partitionByStyle(curves);
-
-    // const drawEntities = {
-    //   nodes,
-    //   nodesParts,
-    //   circles,
-    //   circlesParts,
-    //   lines,
-    //   linesParts,
-    //   curves,
-    //   curvesParts,
-    // };
-
     const drawEntities = globalUtilities.getDrawEntites(
       nodes,
       edges,
@@ -252,23 +152,6 @@ export default function(
       }
       return spatialSearch;
     };
-
-    // let options_;
-    // if (typeof layout === 'string') {
-    //   options_ = new ccNetViz_layout[layout](
-    //     nodes,
-    //     edges,
-    //     layout_options
-    //   ).apply();
-    // } else if (typeof layout === 'function') {
-    //   options_ = new layout(nodes, edges, layout_options).apply();
-    // } else if (typeof layout === 'number') {
-    //   throw new Error(
-    //     'The layout can only be a string or a function or a class'
-    //   );
-    // }
-
-    // layout && ccNetViz_layout.normalize(nodes, undefined, options_);
 
     if (!gl) return;
 
