@@ -4,7 +4,7 @@ import ccNetViz_layout from '../layout/index';
 import { partitionByStyle } from '../primitiveTools';
 import ccNetViz_spatialSearch from '../spatialSearch/spatialSearch';
 import { normalize } from './util';
-import globalUtilites from '../globalUtilites';
+import globalUtilities from '../globalUtilities';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -213,7 +213,7 @@ export default function(
     //   curvesParts,
     // };
 
-    const drawEntities = globalUtilites.getDrawEntites(
+    const drawEntities = globalUtilities.getDrawEntites(
       nodes,
       edges,
       layout,

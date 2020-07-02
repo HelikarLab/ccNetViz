@@ -3,7 +3,7 @@ import { generateCurves } from './plugins/edges/curve';
 import { generateCircles } from './plugins/edges/circle';
 import { generateNodes } from './plugins/nodes/node';
 import { generateLabels } from './plugins/labels/label';
-import globalUtiilites from '../../src/globalUtilites';
+import globalUtiilites from '../../src/globalUtilities';
 
 var svg_renderer = function(svg, options) {
   let nodes = [];
