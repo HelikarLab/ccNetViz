@@ -7,8 +7,8 @@
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <!-- <script src="../lib/ccNetViz.js"></script> -->
-    <script src="../lib/main.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-svg-renderer-plugin.js"></script>
   </head>
 
   <body>
@@ -17,15 +17,6 @@
       <h3 class="title">Downloading SVG Graph Image</h3>
 
       <canvas id="container"></canvas>
-      <!-- <div class="downloadBox">
-         <svg
-          id="downloadSVG"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          height="500"
-          width="1500"
-        ></svg> 
-      </div> -->
       <div class="toolbox">
         <div class="item">
           <a id="down_img"> Download </a>
@@ -45,9 +36,6 @@
         <img src="images/logo.svg" />
       </a>
     </header>
-    <body>
-      <!-- <canvas id="svgContainer"></canvas> -->
-    </body>
 
     <script>
       function init() {
@@ -91,10 +79,6 @@
           },
         };
 
-        // svg = document.getElementById('downloadSVG');
-        // svg.setAttribute('height', 1000);
-        // svg.setAttribute('width', 1000);
-
         var el = document.getElementById('container');
         let svg = document.createElement('svg');
         el.appendChild(svg);
@@ -103,19 +87,20 @@
         var conf = {
           styles: styles,
         };
-        console.log(data);
-        // document.getElementById('svgContainer').remove();
 
         svg.setAttribute('id', 'downloadSVG');
         svg.setAttribute('height', 1000);
         svg.setAttribute('width', 1000);
         svg.setAttribute('background-color', styles.background.color);
 
-        var graph = new entry(el, conf);
+        var graph = new ccNetVizAdvanced(el, conf);
         graph.set(data.nodes, data.edges, 'force');
 
-        var svgGraph = new entry(svg, conf);
-        // svgGraph.set(data.nodes, data.edges, 'force');
+        // here, we show the webgl graph on screen, but download a larger
+        // svg graph in background
+        // BUG: layout of graphs is different, since we are
+        // calling the set function twice
+        var svgGraph = new ccNetVizAdvanced(svg, conf);
         svgGraph.set(data.nodes, data.edges, 'force').then(() => {
           svgGraph.draw();
         });

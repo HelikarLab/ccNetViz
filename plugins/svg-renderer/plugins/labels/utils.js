@@ -1,17 +1,15 @@
 export default class {
   // FUNCTION: checks if the node has individual styles
-  static updateStyles(node, styles) {
+  static updateStyles(node, styles, labelSize) {
     let currentStyle;
     if (node.style !== undefined) currentStyle = styles[node.style];
 
     if (currentStyle === undefined) currentStyle = styles.node;
 
-    currentStyle.label.color = currentStyle.label.color || 'rgb(120, 120, 120)';
-    currentStyle.label.font = currentStyle.label.font || {
-      family: 'Arial, Helvetica, sans-serif',
-      size: 11,
-      weight: 'normal',
-    };
+    // checks whether to show labels or not, depeneding upon the
+    // size of the graph
+    if (labelSize < currentStyle.label.hideSize)
+      currentStyle.label.font.size = 0;
 
     return currentStyle;
   }

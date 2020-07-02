@@ -8,6 +8,7 @@
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
     <script src="../lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-svg-renderer-plugin.js"></script>
   </head>
 
   <body>
@@ -94,10 +95,9 @@
         var conf = {
           styles: styles,
         };
-        console.log(data);
         document.getElementById('svgContainer').remove();
 
-        var graph = new entry(svg, conf);
+        var graph = new ccNetVizAdvanced(svg, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {
           graph.draw();
         });

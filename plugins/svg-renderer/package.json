@@ -1,5 +1,5 @@
 {
-  "name": "svg-renderer",
+  "name": "svg-renderer-plugin",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -9,8 +9,13 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@babel/preset-env": "7.10.3",
-    "babel-core": "6.26.3",
-    "webpack": "4.43.0"
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.32.1",
+    "webpack-cli": "^3.3.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.4.5"
   }
 }

@@ -1,10 +1,16 @@
-import geomutils from '../../../geomutils';
+import geomutils from '../../../../src/geomutils';
 import baseUtils from '../utils/index';
 import edgeUtils from './utils';
 
 var generateCircles = function() {
   this.set = async function(drawEntities, svg, styles, arrowHeadHashMmap) {
     let edges = drawEntities.circles;
+    const arrowSize = baseUtils.getSize(
+      svg,
+      styles.arrow,
+      baseUtils.getEdgesCnt(drawEntities),
+      0.2
+    );
 
     for (let i = 0; i < edges.length; i++) {
       const edge = edges[i];
@@ -16,7 +22,8 @@ var generateCircles = function() {
         drawEntities,
         edge,
         target,
-        styles
+        styles,
+        arrowSize
       );
       currentStyle.arrowHead = edgeUtils.lazyCacheArrow(
         currentStyle,

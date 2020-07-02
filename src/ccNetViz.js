@@ -20,7 +20,7 @@ import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
-import globalUtiilites from './globalUtiilites';
+import globalUtiilites from './globalUtilites';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.

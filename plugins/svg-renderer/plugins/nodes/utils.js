@@ -4,7 +4,6 @@ export default class {
   // FUNCTION: checks if the node has individual styles
   static updateStyles(svg, drawEntities, node, styles) {
     let currentStyle;
-    //TODO: Might throw error if no styles are applied
     if (node.style !== undefined) currentStyle = styles[node.style];
 
     if (currentStyle === undefined) currentStyle = styles.node;

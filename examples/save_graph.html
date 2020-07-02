@@ -89,17 +89,10 @@
         // After drawing keep save to the changes.
         el.getContext('webgl', { preserveDrawingBuffer: true });
 
-        console.log(data);
-
-        var graph = new entry(el, conf);
+        var graph = new ccNetViz(el, conf);
         graph.set(data.nodes, data.edges, 'force').then(() => {
           graph.draw();
         });
-
-        // var graph = new ccNetViz(el, conf);
-        // graph.set(data.nodes, data.edges, 'force').then(() => {
-        //   graph.draw();
-        // });
 
         $('#nodesCnt').text(data.nodes.length);
         $('#edgesCnt').text(data.edges.length);
