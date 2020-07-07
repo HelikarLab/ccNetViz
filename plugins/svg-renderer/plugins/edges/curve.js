@@ -7,14 +7,13 @@ var generateCurves = function() {
     let edges = drawEntities.curves;
     const arrowSize = baseUtils.getSize(
       svg,
-      styles.arrow,
+      styles.edge.arrow,
       baseUtils.getEdgesCnt(drawEntities),
       0.2
     );
 
     for (let i = 0; i < edges.length; i++) {
       const edge = edges[i];
-      const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
       let currentStyle = edgeUtils.updateStyles(
@@ -28,62 +27,36 @@ var generateCurves = function() {
         currentStyle,
         arrowHeadHashMmap
       );
-      const eccentricity = baseUtils.getSize(
-        svg,
-        undefined,
-        baseUtils.getEdgesCnt(drawEntities),
-        0.5
-      );
 
-      await this.draw(
-        svg,
-        drawEntities,
-        source,
-        target,
-        eccentricity,
-        edge.uniqid,
-        currentStyle
-      );
+      await this.draw(svg, edge, currentStyle);
     }
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = async function(
-    svg,
-    drawEntities,
-    source,
-    target,
-    eccentricity,
-    id,
-    styles
-  ) {
+  this.draw = async function(svg, edge, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
-    let x1 = source.x * height;
-    let y1 = source.y * width;
-    let x2 = target.x * height;
-    let y2 = target.y * width;
+    let x1 = edge.position.x1 * width;
+    let y1 = edge.position.y1 * height;
+    let x2 = edge.position.x2 * width;
+    let y2 = edge.position.y2 * height;
+    let ex = edge.position.cx * width;
+    let ey = edge.position.cy * height;
 
-    // defines the curvature of the curve
-    let roundness = edgeUtils.quadraticCurvePoint(
-      drawEntities,
-      x1,
-      x2,
-      y1,
-      y2,
-      eccentricity
-    );
-    let ex = roundness.cx;
-    let ey = roundness.cy;
+    let mx = (x1 + x2) / 2;
+    let my = (y1 + y2) / 2;
+
+    let rx = ex * 2 - mx;
+    let ry = ey * 2 - my;
 
     let curve =
-      'M' + x1 + ' ' + y1 + ' Q ' + ex + ' ' + ey + ' ' + x2 + ' ' + y2;
+      'M' + x1 + ' ' + y1 + ' Q ' + rx + ' ' + ry + ' ' + x2 + ' ' + y2;
 
     let currentCurve = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'path'
     );
-    currentCurve.setAttribute('id', id);
+    currentCurve.setAttribute('id', edge.uniqid);
     currentCurve.setAttribute('d', curve);
     currentCurve.setAttribute('stroke', styles.color || 'rgb(204, 204, 204)');
     currentCurve.setAttribute('stroke-width', styles.width || 1);

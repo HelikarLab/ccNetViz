@@ -19,6 +19,10 @@ module.exports = {
           presets: ['@babel/preset-env'],
         },
       },
+      {
+        test: /\.glsl$/,
+        use: { loader: 'raw-loader' },
+      },
     ],
   },
 };

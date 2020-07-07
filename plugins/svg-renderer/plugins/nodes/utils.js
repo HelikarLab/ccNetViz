@@ -8,17 +8,6 @@ export default class {
 
     if (currentStyle === undefined) currentStyle = styles.node;
 
-    currentStyle.size = baseUtils.getSize(
-      svg,
-      currentStyle,
-      baseUtils.getNodesCnt(drawEntities),
-      0.4
-    );
-
-    currentStyle.minSize = currentStyle.minSize || 6;
-    currentStyle.maxSize = currentStyle.maxSize || 16;
-    currentStyle.color = currentStyle.color || 'rgb(255, 255, 255)';
-
     return currentStyle;
   }
 }

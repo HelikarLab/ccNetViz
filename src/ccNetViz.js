@@ -20,7 +20,7 @@ import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
-import globalUtiilites from './globalUtilities';
+import globalUtilities from './globalUtilities';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -33,14 +33,6 @@ import globalUtiilites from './globalUtilities';
  */
 
 let sCanvas = document.createElement('canvas');
-// function getContext(canvas) {
-//   let attributes = { depth: false, antialias: false };
-//   let gl =
-//     canvas.getContext('webgl', attributes) ||
-//     canvas.getContext('experimental-webgl', attributes);
-
-//   return gl;
-// }
 
 var lastUniqId = 0;
 
@@ -230,8 +222,6 @@ var ccNetViz = function(canvas, options) {
           };
         }
       }
-      //   if (typeof ccNetViz.plugin.svg_renderer !== 'undefined')
-      //     promises = ccNetViz.plugin.svg_renderer.Integration(drawEntities,svg,styles);
     }
 
     await Promise.all(promises.map(item => item.config)).then(c => {
@@ -419,17 +409,6 @@ var ccNetViz = function(canvas, options) {
   };
 
   let offset = 0.5 * nodeStyle.maxSize;
-
-  //   this.drawSVG = (nodes, edges, layout, svg, options) => {
-  //     let layout_options = {};
-
-  //     // layers.temp && layers.temp.set([], [], layout, layout_options);
-  //     // layers.main.set(nodes, edges, layout, layout_options);
-
-  //     const gl = globalUtiilites.getContext(canvas);
-  //     let svgr = new svg_renderer();
-  //     svgr.draw(nodes, edges, layout, layout_options, gl, svg, options.styles);
-  //   };
 
   this.draw = silent => {
     if (silent && (removed || !setted)) return;
@@ -936,7 +915,7 @@ var ccNetViz = function(canvas, options) {
     })(method, self);
   });
 
-  if ((gl = globalUtiilites.getContext(canvas))) {
+  if ((gl = globalUtilities.getContext(canvas))) {
     gl.clearColor(
       backgroundColor.r,
       backgroundColor.g,
@@ -981,7 +960,7 @@ var ccNetViz = function(canvas, options) {
   if (!gl) console.warn('Cannot initialize WebGL context');
 };
 
-ccNetViz.isWebGLSupported = () => !!globalUtiilites.getContext(sCanvas);
+ccNetViz.isWebGLSupported = () => !!globalUtilities.getContext(sCanvas);
 
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;

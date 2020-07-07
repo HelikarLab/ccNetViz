@@ -7,14 +7,13 @@ var generateLines = function() {
     let edges = drawEntities.lines;
     const arrowSize = baseUtils.getSize(
       svg,
-      styles.arrow,
+      styles.edge.arrow,
       baseUtils.getEdgesCnt(drawEntities),
       0.2
     );
 
     for (let i = 0; i < edges.length; i++) {
       const edge = edges[i];
-      const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
       let currentStyle = edgeUtils.updateStyles(
@@ -29,25 +28,25 @@ var generateLines = function() {
         arrowHeadHashMmap
       );
 
-      await this.draw(svg, source, target, edge.uniqid, currentStyle);
+      await this.draw(svg, edge, currentStyle);
     }
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = async function(svg, source, target, id, styles) {
+  this.draw = async function(svg, edge, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
-    let x1 = source.x * height;
-    let y1 = source.y * width;
-    let x2 = target.x * height;
-    let y2 = target.y * width;
+    let x1 = edge.position.x1 * width;
+    let y1 = edge.position.y1 * height;
+    let x2 = edge.position.x2 * width;
+    let y2 = edge.position.y2 * height;
 
     let currentEdge = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'line'
     );
 
-    currentEdge.setAttribute('id', id);
+    currentEdge.setAttribute('id', edge.uniqid);
     currentEdge.setAttribute('x1', x1);
     currentEdge.setAttribute('y1', y1);
     currentEdge.setAttribute('x2', x2);

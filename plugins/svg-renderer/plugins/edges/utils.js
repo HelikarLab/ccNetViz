@@ -1,5 +1,3 @@
-import baseUtils from '../utils/index';
-
 export default class {
   // FUNCTION: Checks whether we need to create a new arrow head or not
   static lazyCacheArrow(currentStyle, hMap) {
@@ -54,7 +52,7 @@ export default class {
     marker.setAttribute('markerWidth', arrowSize);
     marker.setAttribute('markerHeight', arrowSize);
     marker.setAttribute('id', id);
-    marker.setAttribute('refX', arrowSize + (styles.targetNodeRadius || 5)); // TODO: 5 is trial and error and may need to be redefined
+    marker.setAttribute('refX', arrowSize + styles.targetNodeRadius + 1); // TODO: 5 is trial and error and may need to be redefined
     marker.setAttribute('refY', arrowSize / 2);
     marker.setAttribute('orient', 'auto');
     marker.setAttribute('markerUnits', 'userSpaceOnUse');
@@ -73,14 +71,14 @@ export default class {
     const targetNode = drawEntities.nodes.find(node => {
       return node.uniqid == target.uniqid;
     });
-    // console.log(targetNode);
 
     // extract the target node's style
     let targetNodeStyle;
     if (targetNode && targetNode.style !== undefined)
       targetNodeStyle = styles[targetNode.style];
     else targetNodeStyle = styles.node;
-    // console.log(targetNodeStyle);
+
+    if (targetNodeStyle === undefined) targetNodeStyle = styles.node;
 
     // extract the target edge's individualstyle if present
     if (edge.style !== undefined) currentStyle = styles[edge.style];
@@ -88,8 +86,7 @@ export default class {
     if (currentStyle === undefined) currentStyle = styles.edge;
 
     // get the target node's radius
-    let targetNodeRadius = targetNodeStyle && targetNodeStyle.size;
-    // console.log(targetNodeRadius);
+    let targetNodeRadius = targetNodeStyle.size;
 
     // check if the node has custom style
     if (targetNodeStyle && targetNodeStyle.texture !== undefined)
@@ -99,8 +96,9 @@ export default class {
     // this if condition is mainly for overlapping circles
     // a BAD HACK: based on => comaparing various drawEntites objects and then
     // selecting the one through which we can differentiate which circle to shift
-    if (target.index === undefined) currentStyle.targetNodeRadius = 1;
-    else currentStyle.targetNodeRadius = targetNodeRadius / 2;
+    if (target.index === undefined || targetNode === undefined) {
+      currentStyle.targetNodeRadius = 1;
+    } else currentStyle.targetNodeRadius = targetNodeRadius / 2;
 
     currentStyle.width = currentStyle.width || 1;
     currentStyle.color = currentStyle.color || 'rgb(204, 204, 204)';
@@ -122,121 +120,5 @@ export default class {
     currentStyle.arrow.size = arrowSize;
 
     return currentStyle;
-  }
-
-  // FUNCTION: Calculates quadratic bezier curve coordinates
-  static quadraticCurvePoint(drawEntities, x1, x2, y1, y2, eccentricity) {
-    let x = (x1 + x2) / 2;
-    let y = (y1 + y2) / 2;
-
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-
-    // eccentricity comes from getSize() function
-    const nodesCount = baseUtils.getNodesCnt(drawEntities);
-    const edgesCount = baseUtils.getEdgesCnt(drawEntities);
-    // factor is calculated based on visual comparison with webgl output
-    let factor;
-    if (edgesCount <= 25) factor = 4;
-    else if (edgesCount <= 50) factor = 3;
-    else if (edgesCount <= 100) factor = 2;
-    else factor = 1;
-    eccentricity = eccentricity / factor;
-    let cx;
-    let cy;
-
-    //Without this, for a 5000 node graph, eccentricity
-    // becomes less than 1 and curves go out of graph
-    if (eccentricity <= 1) {
-      eccentricity = 1;
-    }
-
-    cx = -dy / eccentricity;
-    cy = dx / eccentricity;
-
-    cx = x + cx;
-    cy = y + cy;
-
-    return { cx, cy };
-  }
-
-  //FUNCTION: Calculates height, weight, and x,y coordinates
-  // for cubic bezier curves, helpful for overlapping circles
-  static getCurveBoundary(ax, ay, bx, by, cx, cy, dx, dy) {
-    var tobx = bx - ax;
-    var toby = by - ay;
-    var tocx = cx - bx;
-    var tocy = cy - by;
-    var todx = dx - cx;
-    var tody = dy - cy;
-    var step = 1 / 40; // precission
-    var d,
-      px,
-      py,
-      qx,
-      qy,
-      rx,
-      ry,
-      tx,
-      ty,
-      sx,
-      sy,
-      x,
-      y,
-      i,
-      minx,
-      miny,
-      maxx,
-      maxy;
-    function min(num1, num2) {
-      if (num1 > num2) return num2;
-      if (num1 < num2) return num1;
-      return num1;
-    }
-    function max(num1, num2) {
-      if (num1 > num2) return num1;
-      if (num1 < num2) return num2;
-      return num1;
-    }
-    for (var i = 0; i < 41; i++) {
-      d = i * step;
-      px = ax + d * tobx;
-      py = ay + d * toby;
-      qx = bx + d * tocx;
-      qy = by + d * tocy;
-      rx = cx + d * todx;
-      ry = cy + d * tody;
-      let toqx = qx - px;
-      let toqy = qy - py;
-      let torx = rx - qx;
-      let tory = ry - qy;
-
-      sx = px + d * toqx;
-      sy = py + d * toqy;
-      tx = qx + d * torx;
-      ty = qy + d * tory;
-      let totx = tx - sx;
-      let toty = ty - sy;
-
-      x = sx + d * totx;
-      y = sy + d * toty;
-      if (i == 0) {
-        minx = x;
-        miny = y;
-        maxx = x;
-        maxy = y;
-      } else {
-        minx = min(minx, x);
-        miny = min(miny, y);
-        maxx = max(maxx, x);
-        maxy = max(maxy, y);
-      }
-    }
-    return {
-      x: Math.round(minx),
-      y: Math.round(miny),
-      width: Math.round(maxx - minx),
-      height: Math.round(maxy - miny),
-    };
   }
 }

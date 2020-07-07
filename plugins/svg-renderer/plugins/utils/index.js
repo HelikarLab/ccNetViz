@@ -28,6 +28,7 @@ export default class {
   // Similar to `src/ccNetViz` -> 385
   static getSize(context, styles, count, sc) {
     let svg = this.getSVGDimensions(context);
+    // console.log(styles);
 
     // multiplied by 0.5 as done in `src/ccNetViz` on line -> 445,446
     let height = svg.height * 0.5;

@@ -15,7 +15,6 @@ var generateCircles = function() {
     for (let i = 0; i < edges.length; i++) {
       const edge = edges[i];
 
-      //   const source = geomutils.edgeSource(edge);
       const target = geomutils.edgeTarget(edge);
 
       let currentStyle = edgeUtils.updateStyles(
@@ -25,92 +24,55 @@ var generateCircles = function() {
         styles,
         arrowSize
       );
+
       currentStyle.arrowHead = edgeUtils.lazyCacheArrow(
         currentStyle,
         arrowHeadHashMmap
       );
-      let eccentricity = baseUtils.getSize(
-        svg,
-        undefined,
-        baseUtils.getEdgesCnt(drawEntities),
-        0.5
-      );
+      const nodesCnt = baseUtils.getNodesCnt(drawEntities);
+      const edgesCnt = baseUtils.getEdgesCnt(drawEntities);
+      currentStyle.curve = edgesCnt / nodesCnt;
 
-      await this.draw(svg, target, edge, eccentricity, currentStyle);
+      await this.draw(svg, edge, currentStyle);
     }
   };
 
   // FUNCTION: Draws individual edges
-  this.draw = async function(svg, target, edge, eccentricity, styles) {
+  this.draw = async function(svg, edge, styles) {
     const height = baseUtils.getSVGDimensions(svg).height;
     const width = baseUtils.getSVGDimensions(svg).width;
-    let x = target.x * height;
-    let y = target.y * width;
 
-    // 2.5 --> based on visual comparison with ccNetViz
-    const curvature = eccentricity * 2.5;
-    let crx = x - curvature;
-    let clx = x + curvature;
-    let cy;
+    const x1 = edge.position.x1 * width;
+    const y1 = edge.position.y1 * height;
+    const mx1 = edge.position.cx1 * width;
+    const my1 = edge.position.cy1 * height;
+    const x2 = edge.position.x2 * width;
+    const y2 = edge.position.y2 * height;
+    const mx2 = edge.position.cx2 * width;
+    const my2 = edge.position.cy2 * height;
 
-    // Checks the midpoint of the canvas, and draws circle depending upon
-    // whether it is in top half (=> add `curvature` to draw circle bottom-down)
-    // or bottom half (=> subtracts `curvature` to draw circle bottom-up)
-    if (y < height / 2) cy = y + curvature;
-    else cy = y - curvature;
-
-    let circleBoundary = edgeUtils.getCurveBoundary(
-      x,
-      y,
-      clx,
-      cy,
-      crx,
-      cy,
-      x,
-      y
-    );
-
-    // EXTRA -> If circle crosses the horizontal boundary
-    // ==> Checks if it is crossing any horizontal boundries
-    // if (x1 - 100 < 0) crx = 0;
-    // else crx = x1 - 100;
-    // if (x2 + 100 > 500) clx = 500;
-    // else clx = x2 + 100;
-
-    // checks if there is any overlapping circle,
-    // right now, if (edge.weight !== undefined) is a BAD HACK: based on comparisons
-    // if overlapping found
-    // then if point is in upper half, then shift the y coordinate down
-    // else shift it up
-    // also shift the cy (cubic curvature point) accordingly
-    if (edge.weight !== undefined) {
-      if (y < height) {
-        y = y + circleBoundary.height;
-        cy = y + curvature;
-      } else {
-        y = y - circleBoundary.height;
-        arrowHeadHmap;
-        cy = y - curvature;
-      }
-    }
+    const rx1 = mx1 * 2 - x1;
+    const ry1 = y2 + (y2 - my1) + (y2 - my1) / 2;
+    const rx2 = mx2 * 2 - x2;
+    const ry2 = y2 + (y2 - my1) + (y2 - my1) / 2;
 
     let curve =
       'M' +
-      x +
+      x1 +
       ',' +
-      y +
+      y1 +
       ' C' +
-      crx +
+      rx1 +
       ',' +
-      cy +
+      ry1 +
       ' ' +
-      clx +
+      rx2 +
       ',' +
-      cy +
+      ry2 +
       ' ' +
-      x +
+      x1 +
       ',' +
-      y;
+      y1;
 
     let currentCircle = document.createElementNS(
       'http://www.w3.org/2000/svg',
@@ -120,6 +82,7 @@ var generateCircles = function() {
     currentCircle.setAttribute('stroke', styles.color || 'rgb(204, 204, 204)');
     currentCircle.setAttribute('stroke-width', styles.width || 1);
     currentCircle.setAttribute('fill', 'none');
+    currentCircle.setAttribute('id', edge.uniqid);
 
     const key = edgeUtils.generateArrowHeadId(styles);
     const url = 'url(#' + key + ')';
