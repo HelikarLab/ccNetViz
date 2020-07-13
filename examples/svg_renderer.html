@@ -16,16 +16,7 @@
       <p id="demo2"></p>
       <h3 class="title">Downloading SVG Graph Image</h3>
 
-      <!-- <canvas id="container"></canvas> -->
-      <div class="downloadBox">
-        <svg
-          id="downloadSVG"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          height="500"
-          width="500"
-        ></svg>
-      </div>
+      <canvas id="container"></canvas>
       <div class="toolbox">
         <div class="item">
           <a id="down_img"> Download </a>
@@ -45,15 +36,12 @@
         <img src="images/logo.svg" />
       </a>
     </header>
-    <body>
-      <canvas id="svgContainer"></canvas>
-    </body>
 
     <script>
       function init() {
         $('#showGraph').click(showGraph);
 
-        $.ajax({ url: 'data/graph-svg.json', dataType: 'json' }).done(
+        $.ajax({ url: 'data/graph-1000-1.json', dataType: 'json' }).done(
           dataLoaded
         );
       }
@@ -64,6 +52,10 @@
 
       function showGraph() {
         var styles = {
+          svg: {
+            height: 1500,
+            width: 1500,
+          },
           background: {
             color: 'rgb(255, 255, 255)',
           },
@@ -91,15 +83,27 @@
           },
         };
 
-        svg = document.getElementById('downloadSVG');
+        var el = document.getElementById('container');
+        let svg = document.createElement('svg');
+        el.appendChild(svg);
+
+        el.getContext('webgl', { preserveDrawingBuffer: true });
         var conf = {
           styles: styles,
         };
-        document.getElementById('svgContainer').remove();
 
-        var graph = new ccNetVizAdvanced(svg, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.draw();
+        svg.setAttribute('id', 'downloadSVG');
+        svg.setAttribute('height', 1000);
+        svg.setAttribute('width', 1000);
+        svg.setAttribute('background-color', styles.background.color);
+
+        var graph = new ccNetVizAdvanced(el, conf);
+        graph.set(data.nodes, data.edges, 'force');
+
+        // this will draw an svg graph in the background
+        var svgGraph = new ccNetVizAdvanced(svg, conf);
+        svgGraph.set(data.nodes, data.edges).then(() => {
+          svgGraph.draw();
         });
       }
 
