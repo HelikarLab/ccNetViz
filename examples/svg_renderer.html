@@ -3,7 +3,6 @@
   <head>
     <title>ccNetViz example for downloading SVG</title>
     <link rel="stylesheet" type="text/css" href="css/template.css" />
-    <link rel="stylesheet" type="text/css" href="css/svg.css" />
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
@@ -41,7 +40,7 @@
       function init() {
         $('#showGraph').click(showGraph);
 
-        $.ajax({ url: 'data/graph-1000-1.json', dataType: 'json' }).done(
+        $.ajax({ url: 'data/graph-10-3.json', dataType: 'json' }).done(
           dataLoaded
         );
       }
@@ -53,8 +52,8 @@
       function showGraph() {
         var styles = {
           svg: {
-            height: 1500,
-            width: 1500,
+            height: 500,
+            width: 500,
           },
           background: {
             color: 'rgb(255, 255, 255)',
@@ -93,8 +92,6 @@
         };
 
         svg.setAttribute('id', 'downloadSVG');
-        svg.setAttribute('height', 1000);
-        svg.setAttribute('width', 1000);
         svg.setAttribute('background-color', styles.background.color);
 
         var graph = new ccNetVizAdvanced(el, conf);

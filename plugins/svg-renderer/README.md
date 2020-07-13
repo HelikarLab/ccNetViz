@@ -2,6 +2,45 @@
 
 This plugin allows you to generate and download graphs as SVG format.
 
+## Intialization
+
+- Inside styles(options), add height and width for svg element
+- Pass the element inside `ccNetVizAdvanced` constructor
+
+```js
+var options = {
+  styles: {
+    svg: {
+      height: 1500,
+      width: 1500,
+    },
+  },
+};
+
+var graph = new ccNetVizAdvanced(element, options);
+graph.set(nodes, edges, layout).then(() => {
+  graph.draw();
+});
+```
+
+## Usage
+
+When using this plugin to augment ccNetViz's features. You need first import `ccNetViz` liabrary:
+
+```html
+<script src="../lib/ccNetViz.js"></script>
+```
+
+then simply import this plugin:
+
+```html
+<script src="../lib/plugins/ccNetViz-svg-renderer-plugin.js"></script>
+```
+
+## Working Example
+
+- SVG Download Graph: http://helikarlab.github.io/ccNetViz/examples/svg_renderer.html
+
 ## Basic Example
 
 ```html
@@ -15,8 +54,8 @@ This plugin allows you to generate and download graphs as SVG format.
         height: 500px;
       }
     </style>
-    <script src="/lib/plugins/ccNetViz-layout-plugin.js"></script>
-    <script src="/lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-svg-renderer-plugin.js"></script>
+    <script src="../lib/ccNetViz.js"></script>
   </head>
 
   <body>
@@ -33,8 +72,13 @@ This plugin allows you to generate and download graphs as SVG format.
         data = d;
         showGraph();
       }
+
       function showGraph() {
         var styles = {
+          svg: {
+            height: 1500,
+            width: 1500,
+          },
           background: {
             color: 'rgb(255, 255, 255)',
           },
@@ -62,15 +106,26 @@ This plugin allows you to generate and download graphs as SVG format.
           },
         };
 
-        svg = document.getElementById('downloadSVG');
+        var el = document.getElementById('container');
+        let svg = document.createElement('svg');
+        el.appendChild(svg);
+
+        el.getContext('webgl', { preserveDrawingBuffer: true });
         var conf = {
           styles: styles,
         };
-        document.getElementById('svgContainer').remove();
 
-        var graph = new ccNetVizAdvanced(svg, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.draw();
+        svg.setAttribute('id', 'downloadSVG');
+        svg.setAttribute('background-color', styles.background.color);
+
+        // this will draw the webgl graph on screen
+        var graph = new ccNetVizAdvanced(el, conf);
+        graph.set(data.nodes, data.edges, 'force');
+
+        // this will draw an svg graph in the background
+        var svgGraph = new ccNetVizAdvanced(svg, conf);
+        svgGraph.set(data.nodes, data.edges).then(() => {
+          svgGraph.draw();
         });
       }
 
