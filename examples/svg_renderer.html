@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ccNetViz example for downloading graph image</title>
+    <title>ccNetViz example for downloading SVG</title>
     <link rel="stylesheet" type="text/css" href="css/template.css" />
     <script src="./libs/jquery.min.js"></script>
     <script src="./libs/json_prettyprint.js"></script>
     <script type="text/javascript" src="js/spectrum.js"></script>
     <script src="../lib/ccNetViz.js"></script>
+    <script src="../lib/plugins/ccNetViz-svg-renderer-plugin.js"></script>
   </head>
 
   <body>
     <div class="canvas-container">
-      <h3 class="title">Downloading Graph Image</h3>
+      <p id="demo2"></p>
+      <h3 class="title">Downloading SVG Graph Image</h3>
+
       <canvas id="container"></canvas>
       <div class="toolbox">
         <div class="item">
@@ -32,6 +35,7 @@
         <img src="images/logo.svg" />
       </a>
     </header>
+
     <script>
       function init() {
         $('#showGraph').click(showGraph);
@@ -40,16 +44,17 @@
           dataLoaded
         );
       }
-
       function dataLoaded(d) {
         data = d;
         showGraph();
       }
 
       function showGraph() {
-        var startTime = new Date();
-
         var styles = {
+          svg: {
+            height: 500,
+            width: 500,
+          },
           background: {
             color: 'rgb(255, 255, 255)',
           },
@@ -76,52 +81,49 @@
             type: 'line',
           },
         };
+
+        var el = document.getElementById('container');
+        let svg = document.createElement('svg');
+        el.appendChild(svg);
+
+        el.getContext('webgl', { preserveDrawingBuffer: true });
         var conf = {
           styles: styles,
         };
 
-        $('#confel')
-          .empty()
-          .append($('<pre />').html(library.json.prettyPrint(conf)));
+        svg.setAttribute('id', 'downloadSVG');
+        svg.setAttribute('background-color', styles.background.color);
 
-        var el = document.getElementById('container');
+        var graph = new ccNetVizAdvanced(el, conf);
+        graph.set(data.nodes, data.edges, 'force');
 
-        // After drawing keep save to the changes.
-        el.getContext('webgl', { preserveDrawingBuffer: true });
-
-        var graph = new ccNetViz(el, conf);
-        graph.set(data.nodes, data.edges, 'force').then(() => {
-          graph.draw();
+        // this will draw an svg graph in the background
+        var svgGraph = new ccNetVizAdvanced(svg, conf);
+        svgGraph.set(data.nodes, data.edges).then(() => {
+          svgGraph.draw();
         });
-
-        $('#nodesCnt').text(data.nodes.length);
-        $('#edgesCnt').text(data.edges.length);
-        $('#renderedIn').text(
-          Math.round((new Date().getTime() - startTime.getTime()) * 10) / 10
-        );
       }
 
-      /**
-       * The event handler for the link's onclick event.
-       */
       document.getElementById('down_img').addEventListener(
         'click',
         function() {
-          downloadCanvasToImage(this, 'container', 'graph.png');
-        },
+          toDownload = document.getElementById('downloadSVG');
 
+          let dataURL = svgDataURL(toDownload);
+          download(dataURL);
+        },
         false
       );
-
-      /**
-       * Function that is called from the event handler for downloading the graph as an image
-       */
-      function downloadCanvasToImage(link, canvasId, filename) {
-        link.href = document.getElementById(canvasId).toDataURL('image/png');
-        link.download = filename;
-        window.location = document
-          .getElementById(canvasId)
-          .toDataURL('image/png');
+      function svgDataURL(svg) {
+        var svgAsXML = new XMLSerializer().serializeToString(svg);
+        return 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+      }
+      function download(dataURL) {
+        var dl = document.createElement('a');
+        document.body.appendChild(dl); // This line makes it work in Firefox.
+        dl.setAttribute('href', dataURL);
+        dl.setAttribute('download', 'graph.svg');
+        dl.click();
       }
 
       $(init);

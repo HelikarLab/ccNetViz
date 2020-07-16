@@ -20,6 +20,7 @@ import ccNetViz_primitive from './primitive';
 import ccNetViz_geomutils from './geomutils';
 import { normalize } from './layer/util';
 import { BaseShape } from './layer/plugins/baseShape';
+import globalUtilities from './globalUtilities';
 
 /**
  *  Copyright (c) 2016, Helikar Lab.
@@ -32,14 +33,6 @@ import { BaseShape } from './layer/plugins/baseShape';
  */
 
 let sCanvas = document.createElement('canvas');
-function getContext(canvas) {
-  let attributes = { depth: false, antialias: false };
-  let gl =
-    canvas.getContext('webgl', attributes) ||
-    canvas.getContext('experimental-webgl', attributes);
-
-  return gl;
-}
 
 var lastUniqId = 0;
 
@@ -463,6 +456,7 @@ var ccNetViz = function(canvas, options) {
         layers.temp && layers.temp.scene.elements[i].draw(context);
       }
     };
+
     const drawLoop = () => {
       context.renderTime = (Date.now() - context.startTime) / 1000.0;
       drawOnce();
@@ -921,7 +915,7 @@ var ccNetViz = function(canvas, options) {
     })(method, self);
   });
 
-  if ((gl = getContext(canvas))) {
+  if ((gl = globalUtilities.getContext(canvas))) {
     gl.clearColor(
       backgroundColor.r,
       backgroundColor.g,
@@ -966,7 +960,7 @@ var ccNetViz = function(canvas, options) {
   if (!gl) console.warn('Cannot initialize WebGL context');
 };
 
-ccNetViz.isWebGLSupported = () => !!getContext(sCanvas);
+ccNetViz.isWebGLSupported = () => !!globalUtilities.getContext(sCanvas);
 
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
