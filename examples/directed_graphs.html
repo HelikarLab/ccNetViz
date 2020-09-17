@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Directed graphs example</title>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
+    <script src="../lib/ccNetViz.js"></script>
+    <style>
+      .gits-container {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      .large-canvas-container {
+        width: 960px;
+      }
+
+      .large-canvas-container canvas {
+        margin-bottom: 1em;
+        margin-right: 1em;
+        box-shadow: none;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+
+      .large-canvas-container .gist .gist-data {
+        height: 465px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="canvas-container large-canvas-container">
+      <h3 class="title">Directed edges</h3>
+      <div class="gits-container">
+        <canvas id="canvas"></canvas>
+        <script src="https://gist.github.com/canerakdas/4d95fcbb2316fbf570fd63eda00ad66e.js"></script>
+      </div>
+      <div class="description">
+        When arrows are used for ccNetViz edges, it basically creates a directed
+        edge from the source to the target.
+      </div>
+    </div>
+    <div class="canvas-container large-canvas-container">
+      <h3 class="title">Bidirected edges</h3>
+      <div class="gits-container">
+        <canvas id="canvas-1"></canvas>
+        <script src="https://gist.github.com/canerakdas/51014e78b3b1ce27a356983b676c983a.js"></script>
+      </div>
+      <div class="description">
+        When two node edges target each other, ccNetViz visualizes them with
+        curves by default.
+      </div>
+    </div>
+    <div class="canvas-container large-canvas-container">
+      <h3 class="title">Bidirected edges with overlap style</h3>
+      <div class="gits-container">
+        <canvas id="canvas-2"></canvas>
+        <script src="https://gist.github.com/canerakdas/524e5dc045696174f6e8d4e71a83d3f6.js"></script>
+      </div>
+      <div class="description">
+        Bidirectional edges have an overlap option. This option removes curves
+        and creates a bidirectional edge.
+        <br />
+        More detailed information please visit the
+        <a href="https://helikarlab.github.io/ccNetViz/#doc">documentation</a>.
+      </div>
+    </div>
+    <header id="logo">
+      <a href="https://helikarlab.github.io/ccNetViz/">
+        <img src="images/logo.svg" />
+      </a>
+    </header>
+    <script>
+      /* Directional graph example*/
+      var canvasDirectional = document.getElementById('canvas');
+
+      var graphDirectional = new ccNetViz(canvasDirectional, {
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
+
+      var nodesDirectional = [{ label: 'A' }, { label: 'B' }, { label: 'C' }];
+      var edgesDirectional = [
+        { source: nodesDirectional[0], target: nodesDirectional[1] },
+        { source: nodesDirectional[1], target: nodesDirectional[2] },
+        { source: nodesDirectional[2], target: nodesDirectional[0] },
+      ];
+
+      graphDirectional
+        .set(nodesDirectional, edgesDirectional, 'force')
+        .then(() => {
+          graphDirectional.draw();
+        });
+
+      /* Bidirectional graph example */
+      var canvasBidirectional = document.getElementById('canvas-1');
+
+      var graphBidirectional = new ccNetViz(canvasBidirectional, {
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
+
+      var nodesBidirectional = [{ label: 'A' }, { label: 'B' }];
+      var edgesBidirectional = [
+        { source: nodesBidirectional[0], target: nodesBidirectional[1] },
+        { source: nodesBidirectional[1], target: nodesBidirectional[0] },
+      ];
+
+      graphBidirectional
+        .set(nodesBidirectional, edgesBidirectional, 'force')
+        .then(() => {
+          graphBidirectional.draw();
+        });
+
+      /* Bidirectional graph with overlap example */
+      var canvasOverlap = document.getElementById('canvas-2');
+
+      var graphOverlap = new ccNetViz(canvasOverlap, {
+        bidirectional: 'overlap',
+        styles: {
+          node: { texture: 'images/node.png', label: { hideSize: 16 } },
+          edge: { arrow: { texture: 'images/arrow.png' } },
+        },
+      });
+
+      var nodesOverlap = [{ label: 'A' }, { label: 'B' }];
+      var edgesOverlap = [
+        { source: nodesOverlap[0], target: nodesOverlap[1] },
+        { source: nodesOverlap[1], target: nodesOverlap[0] },
+      ];
+
+      graphOverlap.set(nodesOverlap, edgesOverlap, 'force').then(() => {
+        graphOverlap.draw();
+      });
+    </script>
+  </body>
+</html>
