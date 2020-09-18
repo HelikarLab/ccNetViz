@@ -31,6 +31,10 @@ jobs:
     - name: Installing xvfb
       run: |
         sudo apt-get install xvfb
+    # Installing npm packages
+    - name: Installing npm packages
+      run: |
+        npm install
     # Update the test environment, remove old files, and build again.
     - name: Build
       run: |
