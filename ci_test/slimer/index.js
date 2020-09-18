@@ -46,11 +46,14 @@ function Init() {
               fs.readFile(test, encoding, (err, testData) => {
                 if (!(err !== null && err !== undefined)) {
                   // If files not the same, throw error and mark as failed
-                  if (stableData !== testData)
+                  if (stableData !== testData) {
                     this.log(
                       `${name} test failed, please check out the; \n ${test} \n ${stable}`,
                       false
                     );
+                  } else {
+                    this.log(`${name} test was successfully completed.`, true);
+                  }
 
                   cursor++;
 
