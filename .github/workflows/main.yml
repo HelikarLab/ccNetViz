@@ -50,8 +50,16 @@ jobs:
     - name: Test
       run: |
         export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
-        npm run test images=$(ls ci_test/scenarios -p | grep -v / | tr '\n' ',') animations=$(ls ci_test/animation_scenarios -p | grep -v / | tr '\n' ',')
-    #
+        npm run test images=$(ls ci_test/scenarios -p | grep -v / | tr '\n' ',') animations=$(ls ci_test/animation_scenarios -p | grep -v / | tr '\n' ','
+    # Set this step as comment line for debug mode.
+    - name: Removing temporary files
+      run: |
+        rm -rf ci_test/animation_frames
+        rm -rf ci_test/frames
+        rm ci_test/slimer/temp/animations.js
+        rm ci_test/slimer/temp/images.js
+        touch ci_test/slimer/temp/animations.js
+        touch ci_test/slimer/temp/images.js
     - name: Output variables
       id: vars
       run: |
