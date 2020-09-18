@@ -1,58 +1,154 @@
-var webpage = require('webpage').create();
-const port = '8125';
+const config = require('./config.json');
+const path = require('path');
+const fs = require('fs');
+const readline = require('readline');
 
-webpage
-  .open(`http://127.0.0.1:${port}/ci_test/examples`)
-  .then(function(status) {
-    if (status) {
-      console.log(
-        '\x1b[34m',
-        '[ccNetViz]',
-        '\x1b[0m',
-        'Test started with the :::8125 port.'
-      );
-      webpage.viewportSize = {
-        width: 250,
-        height: 250,
-      };
-      let pages = eval(webpage.content.replace(/<\/?[^>]+(>|$)/g, ''));
-      (async function() {
-        for (let i = 0; i < pages.length; i++) {
-          const path = pages[i];
-          let status = false;
-          if (i + 1 === pages.length) status = true;
-          await pageHandler(path.replace('.html', ''), status);
+const Test = require('./test');
+
+function Init() {
+  image = new Promise(resolve => {
+    class ImageTest extends Test {
+      // Compare to the .stable.html with .test.html screenshots
+      compare() {
+        const images = path.join(__dirname, this.config.SCREENSHOTS);
+        const encoding = { encoding: 'utf-8' };
+        const files = this.config.TEMP.TEMPLATE.files;
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        });
+
+        let keys = {};
+        let cursor = 0;
+
+        // Create a unique test list by deleting extensions.
+        files.map(item => {
+          if (item.indexOf('.html') >= 0) {
+            keys[
+              item.replace('.stable.html', '').replace('.test.html', '')
+            ] = true;
+          }
+        });
+
+        // Each every images .stable.png and .test.png version
+        for (let name in keys) {
+          let stable = path.join(
+            __dirname,
+            `${this.config.SCREENSHOTS}/${name}.stable.png`
+          );
+          let test = path.join(
+            __dirname,
+            `${this.config.SCREENSHOTS}/${name}.test.png`
+          );
+
+          fs.readFile(stable, encoding, (err, stableData) => {
+            if (!(err !== null && err !== undefined)) {
+              fs.readFile(test, encoding, (err, testData) => {
+                if (!(err !== null && err !== undefined)) {
+                  // If files not the same, throw error and mark as failed
+                  if (stableData !== testData)
+                    this.log(
+                      `${name} test failed, please check out the; \n ${test} \n ${stable}`,
+                      false
+                    );
+
+                  cursor++;
+
+                  if (Object.keys(keys).length === cursor) {
+                    this.log('Tests completed successfully!', true);
+                    resolve(0);
+                  }
+                } else {
+                  this.log(err, false);
+                }
+              });
+            } else {
+              this.log(err, false);
+            }
+          });
         }
-      })();
-    } else {
-      slimer.exit();
+      }
     }
+    const imageTest = new ImageTest(config.IMAGE);
   });
 
-function pageHandler(p, e) {
-  let page = require('webpage').create();
-  let exit = e;
-  page
-    .open(`http://127.0.0.1:${port}/ci_test/examples/${p}.html`)
-    .then(function() {
-      page.viewportSize = {
-        width: 250,
-        height: 250,
-      };
+  animation = new Promise(resolve => {
+    class AnimationTest extends Test {
+      // Compare each frame to the next frame.
+      compare() {
+        const images = path.join(__dirname, this.config.SCREENSHOTS);
+        const encoding = { encoding: 'utf-8' };
+        const files = this.config.TEMP.TEMPLATE.files;
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        });
+        const frameLimit = 5;
 
-      setTimeout(function() {
-        let path = `ci_test/images/${p}.png`;
-        page.render(path);
-        console.log(
-          '\x1b[34m',
-          '[ccNetViz]',
-          '\x1b[0m',
-          `${p} graph image created.`
-        );
-        if (exit) {
-          slimer.exit();
+        let keys = {};
+        let cursor = 0;
+
+        // Create a unique test list by deleting extensions.
+        files.map(item => {
+          if (item.indexOf('.html') >= 0) {
+            keys[item.replace('.html', '').replace(/\d/g, '')] = true;
+          }
+        });
+
+        for (let name in keys) {
+          let pathList = [];
+
+          for (let i = 1; i < frameLimit + 1; i++) {
+            pathList.push(
+              path.join(__dirname, `../animation_frames/${i}.${name}.png`)
+            );
+          }
+
+          for (let i = 1; i < frameLimit; i++) {
+            fs.readFile(pathList[i], encoding, (err, p) => {
+              if (!(err !== null && err !== undefined)) {
+                fs.readFile(pathList[i - 1], encoding, (err, q) => {
+                  if (!(err !== null && err !== undefined)) {
+                    if (p === q)
+                      this.log(
+                        `${i}${name} scene doesnt updated, check out the; \n ${
+                          pathList[i - 1]
+                        } \n ${pathList[i]}`,
+                        false
+                      );
+
+                    cursor++;
+                    if (
+                      Object.keys(keys).length * (frameLimit - 1) ===
+                      cursor
+                    ) {
+                      this.log('Tests completed successfully!', true);
+                      resolve(0);
+                    }
+                  } else {
+                    this.log(err, false);
+                  }
+                });
+              } else {
+                this.log(err, false);
+              }
+            });
+          }
         }
-      }, 3000);
-    });
-  return new Promise(resolve => setTimeout(resolve, 4000));
+      }
+    }
+    const animationTest = new AnimationTest(config.ANIMATIONS);
+  });
+
+  animation.then(code => {
+    if (code !== 0) {
+      process.exit(code);
+    } else {
+      image.then(code => {
+        process.exit(code);
+      });
+    }
+  });
 }
+
+Init();

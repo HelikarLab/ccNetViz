@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="../lib/ccNetViz.js"></script>
+    <script src="../../lib/ccNetViz.js"></script>
     <style>
       canvas,
       html,
@@ -14,7 +14,11 @@
 
   <body>
     <script>
-      var nodes = [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 0.1, y: 0.1 }];
+      var nodes = [
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+        { x: 0.1, y: 0.1 },
+      ];
 
       var settings = {
         styles: {
@@ -40,22 +44,11 @@
       var graph = new ccNetViz(canvas, settings);
       graph.set(nodes, edges).then(() => {
         graph.draw();
-        if (graph.find(0, 0, 0.5, true, false).nodes.length === 2) {
-          let elem = document.createElement('div');
-          elem.setAttribute(
-            'style',
-            'position:absolute;background:red;width:100px;height:100px;left:0;top:0'
-          );
-          document.body.appendChild(elem);
-        }
-        if (graph.find(0, 0, 0.5, false, true).edges.length === 2) {
-          let elem = document.createElement('div');
-          elem.setAttribute(
-            'style',
-            'position:absolute;background:blue;width:100px;height:100px;left:100px;top:0'
-          );
-          document.body.appendChild(elem);
-        }
+        graph.setViewport({
+          x: 0.5,
+          y: 0.5,
+          size: 1,
+        });
       });
     </script>
   </body>

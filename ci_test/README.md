@@ -39,12 +39,6 @@ sudo apt-get install xvfb
 
 ## Commands
 
-You must run tests with dedicated test servers. (Test services uses predefined **8125** port.)
-
-```bash
-npm run test:server
-```
-
 ```bash
 npm run test
 ```
