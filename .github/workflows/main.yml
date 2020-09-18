@@ -51,3 +51,16 @@ jobs:
       run: |
         export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
         npm run test images=$(ls ci_test/scenarios -p | grep -v / | tr '\n' ',') animations=$(ls ci_test/animation_scenarios -p | grep -v / | tr '\n' ',')
+    #
+    - name: Output variables
+      id: vars
+      run: |
+        echo ::set-output name=pr_date::"$(date +%d-%m-%Y)"
+    - name: Update ccNetViz.js
+      uses: peter-evans/create-pull-request@v3
+      with:
+        commit-message: Updating ccNetViz.js
+        title: Update ccNetViz.js
+        labels: automated pr
+        body: This PR auto-generated on ${{ steps.vars.outputs.pr_date }}
+        branch: test
