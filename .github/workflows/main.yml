@@ -1,0 +1,44 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 10
+    # Installing SlimerJS
+    - name: SlimerJS
+      run: |
+        wget https://ftp.mozilla.org/pub/firefox/releases/58.0/linux-x86_64/en-US/firefox-58.0.tar.bz2
+        mkdir ~/slimerfox
+        tar -C ~/slimerfox -xvjf firefox-58.0.tar.bz2
+        export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
+        rm firefox-58.0.tar.bz2
+    # Installing xvfb
+    - name: Installing xvfb
+      run: |
+        sudo apt-get install xvfb
+    # Update the test environment, remove old files, and build again.
+    - name: Build
+      run: |
+        cp lib/ccNetViz.js ci_test/lib/ccNetViz.js
+        rm lib/ccNetViz.js
+        rm lib/ccNetViz.js.map
+        npm run build
+    # Running tests
+    - name: Test
+      run: |
+        xvfb-run --server-args="-screen 0 1024x768x24" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js
