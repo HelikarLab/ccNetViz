@@ -49,4 +49,5 @@ jobs:
     # Running tests
     - name: Test
       run: |
+        export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
         npm run test
