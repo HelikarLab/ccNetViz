@@ -50,4 +50,4 @@ jobs:
     - name: Test
       run: |
         export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
-        npm run test
+        npm run test images=$(ls ci_test/scenarios -p | grep -v / | tr '\n' ',') animations=$(ls ci_test/animation_scenarios -p | grep -v / | tr '\n' ',')
