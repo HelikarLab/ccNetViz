@@ -58,6 +58,7 @@ jobs:
         rm -rf ci_test/frames
         rm ci_test/slimer/temp/animations.js
         rm ci_test/slimer/temp/images.js
+        rm package-lock.json
         touch ci_test/slimer/temp/animations.js
         touch ci_test/slimer/temp/images.js
     - name: Output variables
