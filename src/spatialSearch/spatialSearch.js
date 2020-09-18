@@ -26,7 +26,7 @@ import {
  */
 
 let ct = {};
-function getEdgeShift(context, screensize, e, ct) {
+export function getEdgeShift(context, screensize, e, ct) {
   ccNetViz_geomutils.getCurveShift(e, ct); //get shift because of edge-to-edge functionality
 
   //compute all transformations made in the vertex shader
@@ -57,7 +57,7 @@ function getEdgeShift(context, screensize, e, ct) {
   ct.y = cty + city;
 }
 
-function getBezierPointsCurve(edge, context, normalize, size) {
+export function getBezierPointsCurve(edge, context, normalize, size) {
   let x1, x2, y1, y2;
   let s = ccNetViz_geomutils.edgeSource(edge);
   let t = ccNetViz_geomutils.edgeTarget(edge);
@@ -89,7 +89,7 @@ function getBezierPointsCurve(edge, context, normalize, size) {
   return ret;
 }
 
-function getBezierPointsCircle(edge, context, screensize) {
+export function getBezierPointsCircle(edge, context, screensize) {
   let ct = {};
   let x1, y1, s;
   s = ccNetViz_geomutils.edgeSource(edge);
@@ -119,7 +119,7 @@ function getBezierPointsCircle(edge, context, screensize) {
   return ret;
 }
 
-function getBezierPointsLine(edge, context, size) {
+export function getBezierPointsLine(edge, context, size) {
   let x1, y1, x2, y2;
 
   let s = ccNetViz_geomutils.edgeSource(edge);
@@ -140,7 +140,7 @@ function getBezierPointsLine(edge, context, size) {
   return [x1, y1, x2, y2];
 }
 
-function getLabelPos(edge, context, size, normalize) {
+export function getLabelPos(edge, context, size, normalize) {
   let p, x, y;
   //circle
   if (edge.t == 2) {
