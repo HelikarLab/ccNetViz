@@ -43,6 +43,12 @@ jobs:
         rm lib/ccNetViz.js
         rm lib/ccNetViz.js.map
         npm run build
+    # Build informations
+    - name: Build informations
+      run: |
+        echo $SLIMERJSLAUNCHER
+        node -v
+        npm -v
     # Running tests
     - name: Test
       run: |
