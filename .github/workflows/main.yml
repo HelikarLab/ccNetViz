@@ -44,13 +44,9 @@ jobs:
     # Build informations
     - name: Build informations
       run: |
-        export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
-        #export DISPLAY=:99.0
-        echo $SLIMERJSLAUNCHER
         node -v
         npm -v
     # Running tests
     - name: Test
       run: |
-        #xvfb-run --server-args="-screen 0 1024x768x24" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js
-        ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js --debug=true
+        npm run test
