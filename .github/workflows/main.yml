@@ -25,8 +25,6 @@ jobs:
         wget https://ftp.mozilla.org/pub/firefox/releases/58.0/linux-x86_64/en-US/firefox-58.0.tar.bz2
         mkdir ~/slimerfox
         tar -C ~/slimerfox -xvjf firefox-58.0.tar.bz2
-        export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
-        #export DISPLAY=:99.0
         rm firefox-58.0.tar.bz2
     # Installing xvfb
     - name: Installing xvfb
@@ -46,6 +44,8 @@ jobs:
     # Build informations
     - name: Build informations
       run: |
+        export SLIMERJSLAUNCHER=~/slimerfox/firefox/firefox
+        #export DISPLAY=:99.0
         echo $SLIMERJSLAUNCHER
         node -v
         npm -v
