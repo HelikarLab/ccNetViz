@@ -80,7 +80,7 @@ var ccNetViz = function(canvas, options) {
   let nodeStyle = (options.styles.node = options.styles.node || {});
   nodeStyle.minSize = nodeStyle.minSize != null ? nodeStyle.minSize : 6;
   nodeStyle.maxSize = nodeStyle.maxSize || 16;
-  nodeStyle.color = nodeStyle.color || 'rgb(255, 0, 255)';
+  nodeStyle.color = nodeStyle.color || 'rgb(255, 0, 0)';
 
   if (nodeStyle.label) {
     let s = nodeStyle.label;
