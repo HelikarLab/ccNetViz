@@ -6,7 +6,9 @@ const readline = require('readline');
 const Test = require('./test');
 
 function Init() {
-  image = new Promise(resolve => {
+  let tests = {};
+
+  tests.image = new Promise(resolve => {
     class ImageTest extends Test {
       // Compare to the .stable.html with .test.html screenshots
       compare() {
@@ -75,7 +77,7 @@ function Init() {
     const imageTest = new ImageTest(config.IMAGE);
   });
 
-  animation = new Promise(resolve => {
+  tests.animation = new Promise(resolve => {
     class AnimationTest extends Test {
       // Compare each frame to the next frame.
       compare() {
@@ -143,15 +145,32 @@ function Init() {
     const animationTest = new AnimationTest(config.ANIMATIONS);
   });
 
-  animation.then(code => {
+  tests.animation.then(code => {
     if (code !== 0) {
       process.exit(code);
     } else {
-      image.then(code => {
-        process.exit(code);
-      });
+      tests.animation.is_completed = true;
+      check_is_completed();
     }
   });
+
+  tests.image.then(code => {
+    if (code != 0) {
+      process.exit(code);
+    } else {
+      tests.image.is_completed = true;
+      check_is_completed();
+    }
+  });
+
+  let check_is_completed = () => {
+    let status = true;
+    for (key in tests) {
+      if (tests[key].hasOwnProperty('is_completed') === false) status = false;
+    }
+
+    if (status === true) process.exit(0);
+  };
 }
 
 Init();
