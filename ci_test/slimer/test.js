@@ -31,7 +31,13 @@ class Test {
   // Executes a shell command and return it as a promise.
   execShellCommand(command) {
     return new Promise(resolve => {
-      exec(command, err => {
+      exec(command, (err, stdout, stderr) => {
+        if (err) this.log(err, false);
+
+        if (stderr) this.log(stderr, false);
+
+        this.log(stdout, true);
+
         resolve(err);
       });
     });
