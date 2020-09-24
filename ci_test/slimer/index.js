@@ -151,15 +151,15 @@ function Init() {
     } else {
       tests.animation.is_completed = true;
       check_is_completed();
-    }
-  });
 
-  tests.image.then(code => {
-    if (code != 0) {
-      process.exit(code);
-    } else {
-      tests.image.is_completed = true;
-      check_is_completed();
+      tests.image.then(code => {
+        if (code != 0) {
+          process.exit(code);
+        } else {
+          tests.image.is_completed = true;
+          check_is_completed();
+        }
+      });
     }
   });
 
