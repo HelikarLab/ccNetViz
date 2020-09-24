@@ -153,7 +153,7 @@ function Init() {
       process.exit(code);
     } else {
       tests.animation.is_completed = true;
-      x();
+      imageTest();
       check_is_completed();
       tests.image.then(code => {
         if (code != 0) {
