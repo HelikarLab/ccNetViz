@@ -26,8 +26,8 @@ function open(p, s) {
         if (s === true && frame === 5) {
           clearInterval(captureFrame);
           slimer.exit();
-          page.close();
         } else if (frame === 5) {
+          page.close();
           clearInterval(captureFrame);
         } else {
           frame++;

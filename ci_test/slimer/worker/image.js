@@ -2,7 +2,6 @@ const temp = require('../temp/images');
 const port = temp.port || '8125';
 
 (async function() {
-  console.log(port);
   for (let i = 0; i < temp.files.length; i++) {
     const p = temp.files[i];
     await open(p.replace('.html', ''), i + 1 === temp.files.length);
@@ -22,10 +21,10 @@ function open(p, s) {
 
       setTimeout(() => {
         page.render(`ci_test/frames/${p}.png`);
+        page.close();
 
         if (s === true) {
           slimer.exit();
-          page.close();
         }
       }, 3000);
     });
