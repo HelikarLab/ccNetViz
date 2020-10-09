@@ -1,0 +1,22 @@
+{
+  "IMAGE": {
+    "PORT": 3001,
+    "FLAG": "images",
+    "TEMP": {
+      "PATH": "./ci_test/slimer/temp/images.js",
+      "TEMPLATE": {}
+    },
+    "COMMAND": "xvfb-run --server-args=\"-screen 0 1024x768x24\" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/worker/image.js",
+    "SCREENSHOTS": "../frames"
+  },
+  "ANIMATIONS": {
+    "PORT": 3000,
+    "FLAG": "animations",
+    "TEMP": {
+      "PATH": "./ci_test/slimer/temp/animations.js",
+      "TEMPLATE": {}
+    },
+    "COMMAND": "xvfb-run --server-args=\"-screen 0 1024x768x24\" -a ./node_modules/.bin/slimerjs ./ci_test/slimer/worker/animation.js",
+    "SCREENSHOTS": "../animation_frames"
+  }
+}

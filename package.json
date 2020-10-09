@@ -80,8 +80,7 @@
     "start": "live-server",
     "dev": "concurrently \"yarn watch\" \"yarn start\"",
     "build": "webpack --mode production",
-    "test": "xvfb-run ./node_modules/.bin/slimerjs ./ci_test/slimer/index.js ; node ./ci_test/slimer/compare.js",
-    "test:server": "node ./ci_test/slimer/server.js",
+    "test": "node ./ci_test/slimer/index.js",
     "commit": "npx git-cz",
     "release": "npx standard-version",
     "postrelease": "git push --follow-tags origin master"
