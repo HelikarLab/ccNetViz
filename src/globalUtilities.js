@@ -4,7 +4,7 @@ import ccNetViz_layout from './layout/index';
 
 var lastUniqId = 0;
 
-export default class {
+export default class GlobalUtilities {
   static checkUniqId(el) {
     if (el.__uniqid !== undefined) {
       el.uniqid = el.__uniqid;
@@ -20,6 +20,18 @@ export default class {
       canvas.getContext('experimental-webgl', attributes);
 
     return gl;
+  }
+
+  static hasFullFeatures(canvas) {
+    const gl = GlobalUtilities.getContext(canvas);
+    if (!gl) {
+      return false;
+    }
+    const extensions = ccNetViz_gl.initExtensions(
+      gl,
+      'OES_standard_derivatives'
+    );
+    return !!extensions.OES_standard_derivatives;
   }
 
   static initCoordinates(nodes, edges, gl) {

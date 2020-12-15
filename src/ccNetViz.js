@@ -961,6 +961,7 @@ var ccNetViz = function(canvas, options) {
 };
 
 ccNetViz.isWebGLSupported = () => !!globalUtilities.getContext(sCanvas);
+ccNetViz.hasFullFeatures = () => !!globalUtilities.hasFullFeatures(sCanvas);
 
 ccNetViz.color = ccNetViz_color;
 ccNetViz.spatialSearch = ccNetViz_spatialSearch;
